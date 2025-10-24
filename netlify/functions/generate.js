@@ -134,7 +134,19 @@ ${baseCoverLetter}
 ---IMPROVED_CV_END---
 
 ---CHANGES_START---
-[Bullet list of specific changes made to the CV and why each change helps match the job requirements]
+[Detailed list of specific changes made to the CV. For EACH change, explain:
+1. What section was changed (e.g., "Professional Summary", "Experience - Company X")
+2. What specifically was changed (be specific about which words/phrases were modified)
+3. Why the change helps match the job requirements (reference specific requirements from the job description)
+4. If you added keywords, list them specifically
+
+Format each change as a clear bullet point. Examples:
+- Professional Summary: Changed "marketing professional" to "data-driven Performance Marketing Manager" to better align with the job title and emphasize the data-driven approach mentioned in requirements
+- Skills Section: Added "Google Ads Campaign Management" and "PPC Campaign Optimization" keywords that directly match the required qualifications
+- Experience - Senior Growth Marketer: Reworded "managed campaigns" to "launched and managed PPC campaigns, particularly Google Ads" to specifically highlight the Google Ads experience requested
+- Experience bullet: Added quantifiable metric "significantly improving website conversion rates" to demonstrate measurable impact as emphasized in job requirements
+
+Be specific and reference actual content from both the CV and job description.]
 ---CHANGES_END---
 
 CRITICAL: You must include ALL the markers exactly as shown above, even if a section is empty. Start your response with ---COVER_LETTER_START--- and end with ---CHANGES_END---`;
