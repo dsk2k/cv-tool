@@ -629,14 +629,27 @@
             return text.trim();
         }
         
-        // Download PDF function
-        downloadPdfBtn.addEventListener('click', async function() {
-            try {
-                // Check if jsPDF is loaded
-                if (typeof window.jspdf === 'undefined') {
-                    showError('PDF library not loaded. Please refresh the page and try again.');
-                    return;
+        /// Download PDF function
+downloadPdfBtn.addEventListener('click', async function() {
+    try {
+        // Wait for jsPDF to load if not ready yet
+        if (typeof window.jspdf === 'undefined') {
+            showError('Loading PDF library... Please try again in a moment.');
+            
+            // Wait for libraries to load (max 5 seconds)
+            let attempts = 0;
+            const checkInterval = setInterval(() => {
+                attempts++;
+                if (typeof window.jspdf !== 'undefined') {
+                    clearInterval(checkInterval);
+                    showError('PDF library loaded! Click "Download as PDF" again.');
+                } else if (attempts > 10) {
+                    clearInterval(checkInterval);
+                    showError('PDF library failed to load. Please refresh the page.');
                 }
+            }, 500);
+            return;
+        }
                 
                 const { jsPDF } = window.jspdf;
                 
@@ -874,3 +887,4 @@
     </script>
 </body>
 </html>
+
