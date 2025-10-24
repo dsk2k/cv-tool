@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -331,6 +332,11 @@
         let uploadedPdfText = null;
         let currentInputMode = 'paste';
         
+        // Global variables to store generated content for PDF
+        let generatedCoverLetter = '';
+        let generatedImprovedCV = '';
+        let generatedChangesMade = '';
+        
         // Usage tracking constants
         const FREE_USAGE_LIMIT = 2;
         const USAGE_KEY = 'cv_tool_usage';
@@ -634,39 +640,10 @@ downloadPdfBtn.addEventListener('click', async function() {
         
         const { jsPDF } = window.jspdf;
         
-        // Get and sanitize content
-        const coverLetterHtml = document.getElementById('coverLetterOutput').innerHTML;
-        const cvEditsHtml = document.getElementById('cvEditsOutput').innerHTML;
-        
-        const coverLetterText = sanitizeText(coverLetterHtml);
-        const fullText = sanitizeText(cvEditsHtml);
-        
-        // Split the CV edits into "Improved CV" and "Changes Made"
-        const improvedCVMarker = '### Improved CV';
-        const changesMadeMarker = '### Changes Made';
-        
-        let improvedCVText = '';
-        let changesMadeText = '';
-        
-        const improvedCVIndex = fullText.indexOf(improvedCVMarker);
-        const changesMadeIndex = fullText.indexOf(changesMadeMarker);
-        
-        if (improvedCVIndex !== -1 && changesMadeIndex !== -1) {
-            // Extract the Improved CV section
-            improvedCVText = fullText.substring(
-                improvedCVIndex + improvedCVMarker.length, 
-                changesMadeIndex
-            ).trim();
-            
-            // Extract the Changes Made section
-            changesMadeText = fullText.substring(
-                changesMadeIndex + changesMadeMarker.length
-            ).trim();
-        } else {
-            // Fallback if markers not found
-            improvedCVText = fullText;
-            changesMadeText = "Changes applied throughout the CV";
-        }
+        // Use global variables for content
+        const coverLetterText = generatedCoverLetter;
+        const improvedCVText = generatedImprovedCV;
+        const changesMadeText = generatedChangesMade;
         
         // Check content size
         const totalText = coverLetterText + improvedCVText + changesMadeText;
@@ -855,10 +832,10 @@ downloadPdfBtn.addEventListener('click', async function() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         cv: cv,
-                        jobDesc: jobDesc,
-                        coverLetter: coverLetterValue,
-                        recaptchaToken: recaptchaToken,
-                        userId: userId
+                        jobDescription: jobDesc,
+                        baseCoverLetter: generateNew ? '' : coverLetter,
+                        generateCoverLetter: true,
+                        recaptchaToken: recaptchaToken
                     })
                 });
                 
@@ -868,21 +845,22 @@ downloadPdfBtn.addEventListener('click', async function() {
                     throw new Error(data.error || 'An error occurred while generating your application.');
                 }
                 
-                // Parse the response
-                const generatedText = data.generatedText;
-                const marker = '### Suggested CV Edits';
-                const markerIndex = generatedText.indexOf(marker);
+                // Parse the response - new backend returns separate fields
+                const coverLetterText = data.coverLetter || '';
+                const improvedCVText = data.improvedCV || '';
+                const changesMadeText = data.changesMade || '';
                 
-                if (markerIndex === -1) {
-                    throw new Error('Invalid response format from the AI.');
-                }
+                // Store in global variables for PDF export
+                generatedCoverLetter = coverLetterText;
+                generatedImprovedCV = improvedCVText;
+                generatedChangesMade = changesMadeText;
                 
-                const coverLetterText = generatedText.substring(0, markerIndex).trim();
-                const cvEditsText = generatedText.substring(markerIndex).trim();
+                // Combine improved CV and changes for display
+                const cvOutputText = `## Your Improved CV\n\n${improvedCVText}\n\n## Changes Made\n\n${changesMadeText}`;
                 
                 // Render with marked.js
                 coverLetterOutput.innerHTML = marked.parse(coverLetterText);
-                cvEditsOutput.innerHTML = marked.parse(cvEditsText);
+                cvEditsOutput.innerHTML = marked.parse(cvOutputText);
                 
                 // Show results
                 loadingSpinner.classList.add('hidden');
