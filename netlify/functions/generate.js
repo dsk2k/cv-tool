@@ -63,21 +63,31 @@ exports.handler = async (event) => {
         // Initialize Gemini
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         
-        /* 
-         * Using gemini-2.0-flash-exp - Gemini 2.0 Flash (experimental)
-         * This is the latest Gemini 2.0 model
-         * Note: The 'exp' suffix indicates it's experimental/preview
-         */
-        const model = genAI.getGenerativeModel({ 
-            model: 'gemini-2.0-flash-exp',
-            generationConfig: {
-                temperature: 0.7,
-                maxOutputTokens: 8192,
-            }
-        });
+        // Try models in order: 2.0 stable -> 2.0 experimental -> 1.5 flash
+        const modelsToTry = [
+            { name: 'gemini-2.0-flash', tokens: 8192 },
+            { name: 'gemini-2.0-flash-exp', tokens: 8192 },
+            { name: 'gemini-1.5-flash', tokens: 8192 }
+        ];
+        
+        let lastError = null;
+        let result = null;
+        let usedModel = null;
+        
+        for (const modelConfig of modelsToTry) {
+            try {
+                console.log(`Trying model: ${modelConfig.name}`);
+                
+                const model = genAI.getGenerativeModel({ 
+                    model: modelConfig.name,
+                    generationConfig: {
+                        temperature: 0.7,
+                        maxOutputTokens: modelConfig.tokens,
+                    }
+                });
 
-        // Build the prompt
-        let prompt = `You are an expert CV and cover letter writer. Your task is to improve a CV and optionally create a cover letter based on a job description.
+                // Build the prompt
+                let prompt = `You are an expert CV and cover letter writer. Your task is to improve a CV and optionally create a cover letter based on a job description.
 
 IMPORTANT ETHICAL RULES:
 - Never fabricate experience, skills, or achievements
@@ -93,30 +103,30 @@ CANDIDATE'S CURRENT CV:
 ${cv}
 `;
 
-        if (generateCoverLetter) {
-            if (baseCoverLetter && baseCoverLetter.trim()) {
-                prompt += `\nBASE COVER LETTER TO IMPROVE:
+                if (generateCoverLetter) {
+                    if (baseCoverLetter && baseCoverLetter.trim()) {
+                        prompt += `\nBASE COVER LETTER TO IMPROVE:
 ${baseCoverLetter}
 `;
-            }
-        }
+                    }
+                }
 
-        prompt += `\n\nYour response MUST be in this exact format (including the markers):
+                prompt += `\n\nYour response MUST be in this exact format (including the markers):
 
 ---COVER_LETTER_START---
 `;
 
-        if (generateCoverLetter) {
-            if (baseCoverLetter && baseCoverLetter.trim()) {
-                prompt += `[Improved and tailored version of the cover letter]`;
-            } else {
-                prompt += `[Professional tailored cover letter for this job application]`;
-            }
-        } else {
-            prompt += `[Leave this section empty if no cover letter requested]`;
-        }
+                if (generateCoverLetter) {
+                    if (baseCoverLetter && baseCoverLetter.trim()) {
+                        prompt += `[Improved and tailored version of the cover letter]`;
+                    } else {
+                        prompt += `[Professional tailored cover letter for this job application]`;
+                    }
+                } else {
+                    prompt += `[Leave this section empty if no cover letter requested]`;
+                }
 
-        prompt += `
+                prompt += `
 ---COVER_LETTER_END---
 
 ---IMPROVED_CV_START---
@@ -129,9 +139,33 @@ ${baseCoverLetter}
 
 CRITICAL: You must include ALL the markers exactly as shown above, even if a section is empty. Start your response with ---COVER_LETTER_START--- and end with ---CHANGES_END---`;
 
-        // Generate content
-        console.log('Sending request to Gemini with model: gemini-2.0-flash-exp');
-        const result = await model.generateContent(prompt);
+                // Generate content
+                console.log(`Sending request to Gemini with model: ${modelConfig.name}`);
+                result = await model.generateContent(prompt);
+                usedModel = modelConfig.name;
+                console.log(`Successfully used model: ${usedModel}`);
+                break; // Success! Exit the loop
+                
+            } catch (error) {
+                console.log(`Model ${modelConfig.name} failed:`, error.message);
+                lastError = error;
+                
+                // If it's a 503 (overloaded) or 404 (not found), try next model
+                if (error.status === 503 || error.status === 404) {
+                    continue;
+                }
+                
+                // For other errors, throw immediately
+                throw error;
+            }
+        }
+        
+        // If all models failed
+        if (!result) {
+            console.error('All models failed. Last error:', lastError);
+            throw lastError || new Error('All AI models failed');
+        }
+        
         const response = await result.response;
         const text = response.text();
         
@@ -230,6 +264,21 @@ CRITICAL: You must include ALL the markers exactly as shown above, even if a sec
         console.error('Error in generate function:', error);
         console.error('Error stack:', error.stack);
         
+        // Check for specific error types
+        if (error.status === 503) {
+            return {
+                statusCode: 503,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    error: 'AI service is currently overloaded. Please try again in a few moments.',
+                    details: 'The AI model is experiencing high demand. Please wait 30 seconds and try again.'
+                })
+            };
+        }
+        
         // Check if it's a Gemini API error
         if (error.message && error.message.includes('models/gemini')) {
             return {
@@ -239,8 +288,8 @@ CRITICAL: You must include ALL the markers exactly as shown above, even if a sec
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ 
-                    error: 'AI model not available. Please verify your Gemini API key has model access.',
-                    details: 'Visit https://aistudio.google.com/ and check: 1) Your API key is valid, 2) You have model access enabled. You may need to enable the Gemini API in Google Cloud Console.'
+                    error: 'AI model not available. Please verify your Gemini API key.',
+                    details: 'Visit https://aistudio.google.com/ and check your API key has model access.'
                 })
             };
         }
