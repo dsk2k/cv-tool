@@ -51,7 +51,7 @@ exports.handler = async (event, context) => {
         
         // Initialize Gemini client
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
         
         // Create system instruction and prompt
         const systemInstruction = `You are an expert career coach and professional resume writer. You will be given a user's CV, a job description, and (optionally) a base cover letter. Your task is to generate a brand new, tailored cover letter and provide specific, actionable suggestions for editing the CV.
@@ -121,4 +121,5 @@ ${coverLetter}`;
             })
         };
     }
+
 };
