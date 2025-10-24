@@ -1,260 +1,281 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+// REPLACE THE downloadPdfBtn EVENT LISTENER (around line 633) WITH THIS:
 
-exports.handler = async (event) => {
-    // Handle OPTIONS request for CORS
-    if (event.httpMethod === 'OPTIONS') {
-        return {
-            statusCode: 200,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Access-Control-Allow-Methods': 'POST, OPTIONS'
-            },
-            body: ''
-        };
-    }
-
-    // Only allow POST requests
-    if (event.httpMethod !== 'POST') {
-        return {
-            statusCode: 405,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ error: 'Method not allowed' })
-        };
-    }
-
+downloadPdfBtn.addEventListener('click', async function() {
     try {
-        // Parse request body
-        const { cv, jobDescription, recaptchaToken, generateCoverLetter, baseCoverLetter } = JSON.parse(event.body);
-
-        // Validate inputs
-        if (!cv || !jobDescription) {
-            return {
-                statusCode: 400,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ error: 'Missing required fields: cv or jobDescription' })
-            };
+        // Check if jsPDF is loaded
+        if (typeof window.jspdf === 'undefined') {
+            showError('PDF library not loaded. Please refresh the page and try again.');
+            return;
         }
-
-        // Verify reCAPTCHA
-        const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
-        const recaptchaVerifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${recaptchaSecret}&response=${recaptchaToken}`;
         
-        const recaptchaResponse = await fetch(recaptchaVerifyUrl, { method: 'POST' });
-        const recaptchaResult = await recaptchaResponse.json();
-
-        if (!recaptchaResult.success) {
-            return {
-                statusCode: 400,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ error: 'reCAPTCHA verification failed. Please try again.' })
-            };
-        }
-
-        // Initialize Gemini
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const { jsPDF } = window.jspdf;
         
-        /* 
-         * Using gemini-2.0-flash-exp - Gemini 2.0 Flash (experimental)
-         * This is the latest Gemini 2.0 model
-         * Note: The 'exp' suffix indicates it's experimental/preview
-         */
-        const model = genAI.getGenerativeModel({ 
-            model: 'gemini-2.0-flash-exp',
-            generationConfig: {
-                temperature: 0.7,
-                maxOutputTokens: 8192,
-            }
-        });
-
-        // Build the prompt
-        let prompt = `You are an expert CV and cover letter writer. Your task is to improve a CV and optionally create a cover letter based on a job description.
-
-IMPORTANT ETHICAL RULES:
-- Never fabricate experience, skills, or achievements
-- Only improve how existing information is presented
-- If a required skill is missing, suggest honest ways to address it
-- Reframe real experiences to match job requirements
-- Do not add technologies or tools not mentioned in the original CV
-
-JOB DESCRIPTION:
-${jobDescription}
-
-CANDIDATE'S CURRENT CV:
-${cv}
-`;
-
-        if (generateCoverLetter) {
-            if (baseCoverLetter && baseCoverLetter.trim()) {
-                prompt += `\nBASE COVER LETTER TO IMPROVE:
-${baseCoverLetter}
-`;
-            }
-        }
-
-        prompt += `\n\nYour response MUST be in this exact format (including the markers):
-
----COVER_LETTER_START---
-`;
-
-        if (generateCoverLetter) {
-            if (baseCoverLetter && baseCoverLetter.trim()) {
-                prompt += `[Improved and tailored version of the cover letter]`;
-            } else {
-                prompt += `[Professional tailored cover letter for this job application]`;
-            }
-        } else {
-            prompt += `[Leave this section empty if no cover letter requested]`;
-        }
-
-        prompt += `
----COVER_LETTER_END---
-
----IMPROVED_CV_START---
-[Complete improved CV with all sections: contact info, professional summary, experience, education, skills. Make it ready to copy and use. Keep the same structure as the original but improve the wording, add relevant keywords from the job description, and emphasize relevant experience.]
----IMPROVED_CV_END---
-
----CHANGES_START---
-[Bullet list of specific changes made to the CV and why each change helps match the job requirements]
----CHANGES_END---
-
-CRITICAL: You must include ALL the markers exactly as shown above, even if a section is empty. Start your response with ---COVER_LETTER_START--- and end with ---CHANGES_END---`;
-
-        // Generate content
-        console.log('Sending request to Gemini with model: gemini-2.0-flash-exp');
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
+        // Use global variables for content
+        const coverLetterText = generatedCoverLetter;
+        const improvedCVText = generatedImprovedCV;
+        const changesMadeText = generatedChangesMade;
         
-        console.log('Received response from Gemini');
-        console.log('Response length:', text.length);
-        console.log('First 200 chars:', text.substring(0, 200));
-
-        // More flexible parsing with multiple attempts
-        let coverLetter = '';
-        let improvedCV = '';
-        let changesMade = '';
-
-        // Try to extract cover letter
-        if (generateCoverLetter) {
-            const clMatch = text.match(/---COVER_LETTER_START---([\s\S]*?)---COVER_LETTER_END---/);
-            if (clMatch) {
-                coverLetter = clMatch[1].trim();
-                console.log('Cover letter extracted, length:', coverLetter.length);
-            } else {
-                console.log('Warning: Cover letter markers not found');
-            }
+        // Check content
+        if (!improvedCVText || improvedCVText.length < 50) {
+            showError('Please generate your application first before downloading PDF.');
+            return;
         }
-
-        // Try to extract improved CV
-        const cvMatch = text.match(/---IMPROVED_CV_START---([\s\S]*?)---IMPROVED_CV_END---/);
-        if (cvMatch) {
-            improvedCV = cvMatch[1].trim();
-            console.log('Improved CV extracted, length:', improvedCV.length);
-        } else {
-            console.log('Warning: Improved CV markers not found');
-            // Fallback: Look for any substantial content between cover letter and changes
-            const afterCoverLetter = text.split('---COVER_LETTER_END---')[1] || text;
-            const beforeChanges = afterCoverLetter.split('---CHANGES_START---')[0] || afterCoverLetter;
-            improvedCV = beforeChanges.trim();
-            console.log('Using fallback CV extraction, length:', improvedCV.length);
-        }
-
-        // Try to extract changes
-        const changesMatch = text.match(/---CHANGES_START---([\s\S]*?)---CHANGES_END---/);
-        if (changesMatch) {
-            changesMade = changesMatch[1].trim();
-            console.log('Changes extracted, length:', changesMade.length);
-        } else {
-            console.log('Warning: Changes markers not found');
-            // Fallback: Get everything after CHANGES_START
-            const afterChangesStart = text.split('---CHANGES_START---')[1];
-            if (afterChangesStart) {
-                changesMade = afterChangesStart.replace('---CHANGES_END---', '').trim();
-            }
-        }
-
-        // Validate that we got the essential content (improved CV at minimum)
-        if (!improvedCV || improvedCV.length < 50) {
-            console.error('Failed to extract valid improved CV');
-            console.error('Full response:', text);
-            return {
-                statusCode: 500,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    error: 'Invalid response format from the AI. Please try again.',
-                    debug: text.substring(0, 1000)
-                })
-            };
-        }
-
-        // If cover letter was requested but not found, provide a message
-        if (generateCoverLetter && !coverLetter) {
-            coverLetter = 'Cover letter generation failed. Please try again.';
-        }
-
-        // If changes weren't found, provide a default message
-        if (!changesMade) {
-            changesMade = 'Changes list not available. Please review the improved CV above.';
-        }
-
-        console.log('Successfully parsed all sections');
-
-        // Return success response
-        return {
-            statusCode: 200,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                coverLetter: coverLetter,
-                improvedCV: improvedCV,
-                changesMade: changesMade
-            })
+        
+        const doc = new jsPDF('p', 'mm', 'a4');
+        
+        // Page settings
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 15;
+        const contentWidth = pageWidth - (2 * margin);
+        let yPosition = margin;
+        
+        // Color scheme
+        const colors = {
+            primary: [41, 128, 185],      // Blue
+            secondary: [52, 73, 94],      // Dark blue-gray
+            accent: [46, 204, 113],       // Green
+            text: [44, 62, 80],           // Dark text
+            lightGray: [189, 195, 199],   // Light gray
+            white: [255, 255, 255]
         };
-
+        
+        // Helper function to check if we need a new page
+        function checkNewPage(neededSpace = 20) {
+            if (yPosition + neededSpace > pageHeight - margin) {
+                doc.addPage();
+                yPosition = margin;
+                return true;
+            }
+            return false;
+        }
+        
+        // Helper function to parse and format CV text
+        function parseAndFormatCV(text) {
+            const lines = text.split('\n');
+            let inContactInfo = false;
+            let inSection = false;
+            let currentSection = '';
+            
+            lines.forEach((line, index) => {
+                const trimmedLine = line.trim();
+                
+                // Skip empty lines at the start
+                if (!trimmedLine && yPosition < 50) return;
+                
+                checkNewPage();
+                
+                // Detect name (usually first line with ** markers or all caps)
+                if (index < 3 && (trimmedLine.includes('**') || trimmedLine === trimmedLine.toUpperCase())) {
+                    const name = trimmedLine.replace(/\*\*/g, '').trim();
+                    doc.setFontSize(24);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(...colors.primary);
+                    doc.text(name, margin, yPosition);
+                    yPosition += 10;
+                    inContactInfo = true;
+                    return;
+                }
+                
+                // Detect contact info (email, phone, location, LinkedIn)
+                if (inContactInfo && (trimmedLine.includes('@') || trimmedLine.includes('|') || 
+                    trimmedLine.includes('Phone') || trimmedLine.includes('LinkedIn'))) {
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setTextColor(...colors.text);
+                    const contactText = trimmedLine.replace(/\[|\]/g, '');
+                    doc.text(contactText, margin, yPosition);
+                    yPosition += 5;
+                    
+                    // Add line separator after contact info
+                    if (index < 5) {
+                        yPosition += 2;
+                        doc.setDrawColor(...colors.lightGray);
+                        doc.setLineWidth(0.5);
+                        doc.line(margin, yPosition, pageWidth - margin, yPosition);
+                        yPosition += 8;
+                        inContactInfo = false;
+                    }
+                    return;
+                }
+                
+                // Detect section headers (SUMMARY, SKILLS, EXPERIENCE, EDUCATION, etc.)
+                if (trimmedLine.match(/^\*\*[A-Z\s]+\*\*$/) || 
+                    (trimmedLine === trimmedLine.toUpperCase() && trimmedLine.length > 3 && trimmedLine.length < 30)) {
+                    checkNewPage(25);
+                    yPosition += 5;
+                    
+                    const sectionTitle = trimmedLine.replace(/\*\*/g, '').trim();
+                    currentSection = sectionTitle;
+                    
+                    // Section header with background
+                    doc.setFillColor(...colors.primary);
+                    doc.rect(margin - 2, yPosition - 5, contentWidth + 4, 8, 'F');
+                    
+                    doc.setFontSize(12);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(...colors.white);
+                    doc.text(sectionTitle, margin, yPosition);
+                    yPosition += 10;
+                    
+                    doc.setTextColor(...colors.text);
+                    return;
+                }
+                
+                // Detect company/job titles (bold items within experience)
+                if (trimmedLine.includes('**') && !trimmedLine.match(/^\*\*[A-Z\s]+\*\*$/)) {
+                    checkNewPage(15);
+                    const boldText = trimmedLine.replace(/\*\*/g, '');
+                    doc.setFontSize(11);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(...colors.secondary);
+                    
+                    const textLines = doc.splitTextToSize(boldText, contentWidth);
+                    textLines.forEach(textLine => {
+                        checkNewPage();
+                        doc.text(textLine, margin, yPosition);
+                        yPosition += 5;
+                    });
+                    yPosition += 1;
+                    return;
+                }
+                
+                // Detect bullet points
+                if (trimmedLine.startsWith('•') || trimmedLine.startsWith('*') || trimmedLine.startsWith('-')) {
+                    checkNewPage(10);
+                    const bulletText = trimmedLine.substring(1).trim();
+                    
+                    // Draw bullet
+                    doc.setFillColor(...colors.accent);
+                    doc.circle(margin + 2, yPosition - 1.5, 1, 'F');
+                    
+                    // Bullet text
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setTextColor(...colors.text);
+                    
+                    const textLines = doc.splitTextToSize(bulletText, contentWidth - 8);
+                    textLines.forEach((textLine, i) => {
+                        if (i > 0) checkNewPage();
+                        doc.text(textLine, margin + 6, yPosition);
+                        yPosition += 5;
+                    });
+                    return;
+                }
+                
+                // Regular paragraph text
+                if (trimmedLine) {
+                    checkNewPage(10);
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setTextColor(...colors.text);
+                    
+                    const textLines = doc.splitTextToSize(trimmedLine, contentWidth);
+                    textLines.forEach(textLine => {
+                        checkNewPage();
+                        doc.text(textLine, margin, yPosition);
+                        yPosition += 5;
+                    });
+                    yPosition += 2;
+                }
+            });
+        }
+        
+        // Helper function to add a simple section with header
+        function addSection(title, content, headerColor) {
+            checkNewPage(30);
+            
+            // Section header
+            doc.setFillColor(...headerColor);
+            doc.rect(0, yPosition - 5, pageWidth, 12, 'F');
+            
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(...colors.white);
+            doc.text(title, margin, yPosition + 2);
+            yPosition += 15;
+            
+            doc.setTextColor(...colors.text);
+            
+            // Content
+            if (content && content.trim()) {
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                
+                const lines = content.split('\n');
+                lines.forEach(line => {
+                    const trimmedLine = line.trim();
+                    if (trimmedLine) {
+                        checkNewPage(10);
+                        
+                        // Handle bullet points
+                        if (trimmedLine.startsWith('•') || trimmedLine.startsWith('*') || trimmedLine.startsWith('-')) {
+                            const bulletText = trimmedLine.substring(1).trim();
+                            doc.setFillColor(...colors.accent);
+                            doc.circle(margin + 2, yPosition - 1.5, 1, 'F');
+                            
+                            const textLines = doc.splitTextToSize(bulletText, contentWidth - 8);
+                            textLines.forEach((textLine, i) => {
+                                if (i > 0) checkNewPage();
+                                doc.text(textLine, margin + 6, yPosition);
+                                yPosition += 5;
+                            });
+                        } else {
+                            const textLines = doc.splitTextToSize(trimmedLine, contentWidth);
+                            textLines.forEach(textLine => {
+                                checkNewPage();
+                                doc.text(textLine, margin, yPosition);
+                                yPosition += 5;
+                            });
+                        }
+                        yPosition += 2;
+                    }
+                });
+            }
+            
+            yPosition += 10;
+        }
+        
+        // Generate PDF content
+        
+        // 1. Cover Letter (if exists)
+        if (coverLetterText && coverLetterText.trim() && 
+            !coverLetterText.includes('generation failed')) {
+            addSection('Cover Letter', coverLetterText, colors.primary);
+            
+            // Add page break before CV
+            doc.addPage();
+            yPosition = margin;
+        }
+        
+        // 2. Improved CV (main content)
+        parseAndFormatCV(improvedCVText);
+        
+        // 3. Changes Made (if exists)
+        if (changesMadeText && changesMadeText.trim() && 
+            !changesMadeText.includes('not available')) {
+            doc.addPage();
+            yPosition = margin;
+            addSection('Changes Made to Your CV', changesMadeText, colors.accent);
+        }
+        
+        // Add footer to all pages
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8);
+            doc.setTextColor(150, 150, 150);
+            doc.text('Generated by applyjobmatch.nl', pageWidth / 2, pageHeight - 8, { align: 'center' });
+            doc.text(`Page ${i} of ${pageCount}`, pageWidth - margin, pageHeight - 8, { align: 'right' });
+        }
+        
+        // Save PDF
+        const timestamp = new Date().toISOString().split('T')[0];
+        const fileName = `CV_Improved_${timestamp}.pdf`;
+        doc.save(fileName);
+        
     } catch (error) {
-        console.error('Error in generate function:', error);
-        console.error('Error stack:', error.stack);
-        
-        // Check if it's a Gemini API error
-        if (error.message && error.message.includes('models/gemini')) {
-            return {
-                statusCode: 500,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    error: 'AI model not available. Please verify your Gemini API key has model access.',
-                    details: 'Visit https://aistudio.google.com/ and check: 1) Your API key is valid, 2) You have model access enabled. You may need to enable the Gemini API in Google Cloud Console.'
-                })
-            };
-        }
-        
-        return {
-            statusCode: 500,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-                error: 'Internal server error. Please try again later.',
-                details: error.message 
-            })
-        };
+        console.error('Error generating PDF:', error);
+        showError('Failed to generate PDF. Please try again or contact support if the problem persists.');
     }
-};
+});
