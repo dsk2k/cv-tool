@@ -1,132 +1,236 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// NOTE: If your serverless environment (e.g., Netlify) runs on Node.js < 18,
-// 'fetch' is not built-in. You must install 'node-fetch@2'
-// (npm install node-fetch@2) and uncomment the line below:
-// const fetch = require('node-fetch');
+exports.handler = async (event) => {
+    // Handle OPTIONS request for CORS
+    if (event.httpMethod === 'OPTIONS') {
+        return {
+            statusCode: 200,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS'
+            },
+            body: ''
+        };
+    }
 
-exports.handler = async (event, context) => {
     // Only allow POST requests
     if (event.httpMethod !== 'POST') {
         return {
             statusCode: 405,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({ error: 'Method not allowed' })
         };
     }
-    
+
     try {
         // Parse request body
-        const { cv, jobDesc, coverLetter, recaptchaToken, userId } = JSON.parse(event.body);
-        
-        // Check subscription status (verify they can use the service)
-        const subscriptionCheck = await fetch(`${process.env.URL}/.netlify/functions/check-subscription`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId })
-        });
-        const subscriptionData = await subscriptionCheck.json();
-        
-        if (!subscriptionData.canUse) {
+        const { cv, jobDescription, recaptchaToken, generateCoverLetter, baseCoverLetter } = JSON.parse(event.body);
+
+        // Validate inputs
+        if (!cv || !jobDescription) {
             return {
-                statusCode: 403,
-                body: JSON.stringify({ error: 'Free trial limit reached. Please subscribe to continue.' })
+                statusCode: 400,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ error: 'Missing required fields: cv or jobDescription' })
             };
         }
-        
+
         // Verify reCAPTCHA
         const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
-        const recaptchaVerifyUrl = 'https://www.google.com/recaptcha/api/siteverify';
+        const recaptchaVerifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${recaptchaSecret}&response=${recaptchaToken}`;
         
-        const recaptchaResponse = await fetch(recaptchaVerifyUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: `secret=${recaptchaSecret}&response=${recaptchaToken}`
-        });
-        
-        const recaptchaData = await recaptchaResponse.json();
-        
-        if (!recaptchaData.success) {
+        const recaptchaResponse = await fetch(recaptchaVerifyUrl, { method: 'POST' });
+        const recaptchaResult = await recaptchaResponse.json();
+
+        if (!recaptchaResult.success) {
             return {
-                statusCode: 403,
+                statusCode: 400,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({ error: 'reCAPTCHA verification failed. Please try again.' })
             };
         }
-        
-        // Create system instruction
-        const systemInstruction = `You are an expert career coach and professional resume writer. You will be given a user's CV, a job description, and (optionally) a base cover letter. Your task is to:
 
-1. Generate a brand new, tailored cover letter
-2. Create an IMPROVED VERSION of their CV with changes already applied
-3. List what changes you made
-
-CRITICAL ETHICAL GUIDELINES:
-- NEVER add false information, fabricated experiences, or skills they don't have
-- ONLY improve existing content - reword, reorder, emphasize relevant parts
-- Keep all factual information accurate
-- Only enhance presentation, not create fictional content
-
-MANDATORY OUTPUT FORMAT: You MUST follow this exact structure:
-
-[Cover Letter - tailored to the job]
-
-### Improved CV
-
-[The user's COMPLETE CV but with improvements applied - reworded descriptions, better formatting, keywords added, sections reordered, etc. Output the FULL improved CV here]
-
-### Changes Made
-
-- [List each specific change you made to the CV]
-- [Be specific: "Changed X to Y", "Moved Z section to top", "Added keyword A to B"]
-
-IMPORTANT: 
-- The "Improved CV" section must be a COMPLETE, ready-to-use CV
-- Include ALL sections from the original (contact info, experience, education, skills, etc.)
-- Apply all improvements directly in the CV text
-- Then list what you changed in the "Changes Made" section`;
-
-        // *** The large, conflicting, duplicated block of text was removed from here. ***
-
-        // Initialize Gemini client
+        // Initialize Gemini
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        
-        // Pass systemInstruction in the model config
         const model = genAI.getGenerativeModel({ 
-            model: 'gemini-2.0-flash',
-            systemInstruction: systemInstruction
+            model: 'gemini-1.5-pro',
+            generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 8192,
+            }
         });
-        
-        // Create user message (now clean)
-        const userPrompt = `Here is my CV:
+
+        // Build the prompt with JSON output format
+        let prompt = `You are an expert CV and cover letter writer. Your task is to improve a CV and optionally create a cover letter based on a job description.
+
+IMPORTANT ETHICAL RULES:
+- Never fabricate experience, skills, or achievements
+- Only improve how existing information is presented
+- If a required skill is missing, suggest honest ways to address it
+- Reframe real experiences to match job requirements
+- Do not add technologies or tools not mentioned in the original CV
+
+JOB DESCRIPTION:
+${jobDescription}
+
+CANDIDATE'S CURRENT CV:
 ${cv}
+`;
 
-Here is the Job Description:
-${jobDesc}
+        if (generateCoverLetter) {
+            if (baseCoverLetter && baseCoverLetter.trim()) {
+                prompt += `\nBASE COVER LETTER TO IMPROVE:
+${baseCoverLetter}
+`;
+            }
+        }
 
-Here is my base cover letter (Note: if the text is '[USER_REQUESTS_NEW_COVER_LETTER]', please generate a new one from scratch):
-${coverLetter}`;
-        
-        // Make Gemini API call
-        const result = await model.generateContent(userPrompt);
+        prompt += `\n\nYour response MUST be in this exact format (including the markers):
+
+---COVER_LETTER_START---
+`;
+
+        if (generateCoverLetter) {
+            if (baseCoverLetter && baseCoverLetter.trim()) {
+                prompt += `[Improved and tailored version of the cover letter]`;
+            } else {
+                prompt += `[Professional tailored cover letter for this job application]`;
+            }
+        } else {
+            prompt += `[Leave this section empty if no cover letter requested]`;
+        }
+
+        prompt += `
+---COVER_LETTER_END---
+
+---IMPROVED_CV_START---
+[Complete improved CV with all sections: contact info, professional summary, experience, education, skills. Make it ready to copy and use. Keep the same structure as the original but improve the wording, add relevant keywords from the job description, and emphasize relevant experience.]
+---IMPROVED_CV_END---
+
+---CHANGES_START---
+[Bullet list of specific changes made to the CV and why each change helps match the job requirements]
+---CHANGES_END---
+
+CRITICAL: You must include ALL the markers exactly as shown above, even if a section is empty. Start your response with ---COVER_LETTER_START--- and end with ---CHANGES_END---`;
+
+        // Generate content
+        console.log('Sending request to Gemini...');
+        const result = await model.generateContent(prompt);
         const response = await result.response;
-        const generatedText = response.text();
+        const text = response.text();
         
-        // Return successful response
+        console.log('Received response from Gemini');
+        console.log('Response length:', text.length);
+        console.log('First 200 chars:', text.substring(0, 200));
+
+        // More flexible parsing with multiple attempts
+        let coverLetter = '';
+        let improvedCV = '';
+        let changesMade = '';
+
+        // Try to extract cover letter
+        if (generateCoverLetter) {
+            const clMatch = text.match(/---COVER_LETTER_START---([\s\S]*?)---COVER_LETTER_END---/);
+            if (clMatch) {
+                coverLetter = clMatch[1].trim();
+                console.log('Cover letter extracted, length:', coverLetter.length);
+            } else {
+                console.log('Warning: Cover letter markers not found');
+            }
+        }
+
+        // Try to extract improved CV
+        const cvMatch = text.match(/---IMPROVED_CV_START---([\s\S]*?)---IMPROVED_CV_END---/);
+        if (cvMatch) {
+            improvedCV = cvMatch[1].trim();
+            console.log('Improved CV extracted, length:', improvedCV.length);
+        } else {
+            console.log('Warning: Improved CV markers not found');
+            // Fallback: Look for any substantial content between cover letter and changes
+            const afterCoverLetter = text.split('---COVER_LETTER_END---')[1] || text;
+            const beforeChanges = afterCoverLetter.split('---CHANGES_START---')[0] || afterCoverLetter;
+            improvedCV = beforeChanges.trim();
+            console.log('Using fallback CV extraction, length:', improvedCV.length);
+        }
+
+        // Try to extract changes
+        const changesMatch = text.match(/---CHANGES_START---([\s\S]*?)---CHANGES_END---/);
+        if (changesMatch) {
+            changesMade = changesMatch[1].trim();
+            console.log('Changes extracted, length:', changesMade.length);
+        } else {
+            console.log('Warning: Changes markers not found');
+            // Fallback: Get everything after CHANGES_START
+            const afterChangesStart = text.split('---CHANGES_START---')[1];
+            if (afterChangesStart) {
+                changesMade = afterChangesStart.replace('---CHANGES_END---', '').trim();
+            }
+        }
+
+        // Validate that we got the essential content (improved CV at minimum)
+        if (!improvedCV || improvedCV.length < 50) {
+            console.error('Failed to extract valid improved CV');
+            console.error('Full response:', text);
+            return {
+                statusCode: 500,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    error: 'Invalid response format from the AI. Please try again.',
+                    debug: text.substring(0, 1000)
+                })
+            };
+        }
+
+        // If cover letter was requested but not found, provide a message
+        if (generateCoverLetter && !coverLetter) {
+            coverLetter = 'Cover letter generation failed. Please try again.';
+        }
+
+        // If changes weren't found, provide a default message
+        if (!changesMade) {
+            changesMade = 'Changes list not available. Please review the improved CV above.';
+        }
+
+        console.log('Successfully parsed all sections');
+
+        // Return success response
         return {
             statusCode: 200,
             headers: {
+                'Access-Control-Allow-Origin': '*',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ generatedText: generatedText })
+            body: JSON.stringify({
+                coverLetter: coverLetter,
+                improvedCV: improvedCV,
+                changesMade: changesMade
+            })
         };
-        
+
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error in generate function:', error);
+        console.error('Error stack:', error.stack);
         return {
             statusCode: 500,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({ 
-                error: 'An error occurred while processing your request. Please try again.',
+                error: 'Internal server error. Please try again later.',
                 details: error.message 
             })
         };
