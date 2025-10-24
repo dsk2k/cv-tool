@@ -62,15 +62,20 @@ exports.handler = async (event) => {
 
         // Initialize Gemini
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        
+        /* 
+         * Using gemini-1.5-flash-latest
+         * This always points to the latest stable version of Gemini 1.5 Flash
+         */
         const model = genAI.getGenerativeModel({ 
-            model: 'gemini-1.5-pro',
+            model: 'gemini-1.5-flash-latest',
             generationConfig: {
                 temperature: 0.7,
                 maxOutputTokens: 8192,
             }
         });
 
-        // Build the prompt with JSON output format
+        // Build the prompt
         let prompt = `You are an expert CV and cover letter writer. Your task is to improve a CV and optionally create a cover letter based on a job description.
 
 IMPORTANT ETHICAL RULES:
@@ -124,7 +129,7 @@ ${baseCoverLetter}
 CRITICAL: You must include ALL the markers exactly as shown above, even if a section is empty. Start your response with ---COVER_LETTER_START--- and end with ---CHANGES_END---`;
 
         // Generate content
-        console.log('Sending request to Gemini...');
+        console.log('Sending request to Gemini with model: gemini-1.5-flash-latest');
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();
@@ -223,6 +228,22 @@ CRITICAL: You must include ALL the markers exactly as shown above, even if a sec
     } catch (error) {
         console.error('Error in generate function:', error);
         console.error('Error stack:', error.stack);
+        
+        // Check if it's a Gemini API error
+        if (error.message && error.message.includes('models/gemini')) {
+            return {
+                statusCode: 500,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    error: 'AI model configuration error. Please check your Gemini API key and ensure you have access to the Gemini models.',
+                    details: 'The model "gemini-1.5-flash-latest" may not be available with your API key. Try visiting https://aistudio.google.com/ to verify your access.'
+                })
+            };
+        }
+        
         return {
             statusCode: 500,
             headers: {
