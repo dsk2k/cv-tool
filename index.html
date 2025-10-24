@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI CV Tailoring Tool - applyjobmatch.nl</title>
+    <meta name="description" content="AI-powered CV tailoring and cover letter generation. Upload your CV, get personalized suggestions, and download professional PDFs.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" 
+            integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNougY+K7EhfEhXJNLybxXfWMR6J3AvPvKCjD51UUVVYMYh8nVQVKf6Ag==" 
+            crossorigin="anonymous" 
+            referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" 
+            integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" 
+            crossorigin="anonymous" 
+            referrerpolicy="no-referrer"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen py-8 px-4">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-4xl font-bold text-white text-center mb-8">AI CV Tailoring Tool</h1>
+        
+        <!-- Usage Counter Banner -->
+        <div id="usageBanner" class="hidden glass-card rounded-lg shadow-lg p-4 mb-6 text-center">
+            <p class="text-gray-700 font-medium">
+                <span id="usageText"></span>
+            </p>
+        </div>
+        
+        <div class="glass-card rounded-2xl shadow-2xl p-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Input Column -->
+                <div class="space-y-6">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Input</h2>
+                    
+                    <!-- Step 1: CV Input -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Step 1: Your CV
+                        </label>
+                        
+                        <!-- Upload or Paste Tabs -->
+                        <div class="flex space-x-2 mb-3">
+                            <button 
+                                id="pasteTab" 
+                                class="px-4 py-2 rounded-lg font-medium bg-purple-600 text-white">
+                                Paste Text
+                            </button>
+                            <button 
+                                id="uploadTab" 
+                                class="px-4 py-2 rounded-lg font-medium bg-gray-200 text-gray-700 hover:bg-gray-300">
+                                Upload PDF
+                            </button>
+                        </div>
+                        
+                        <!-- Paste CV Area -->
+                        <div id="pasteArea">
+                            <textarea 
+                                id="cvInput" 
+                                class="w-full h-48 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                                placeholder="Paste your CV here..."></textarea>
+                        </div>
+                        
+                        <!-- Upload PDF Area -->
+                        <div id="uploadArea" class="hidden">
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-500 transition-colors">
+                                <input 
+                                    type="file" 
+                                    id="cvFileInput" 
+                                    accept=".pdf"
+                                    class="hidden">
+                                <label for="cvFileInput" class="cursor-pointer">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                    </svg>
+                                    <p class="mt-2 text-sm text-gray-600">
+                                        <span class="font-semibold text-purple-600">Click to upload</span> or drag and drop
+                                    </p>
+                                    <p class="text-xs text-gray-500 mt-1">PDF file only (max 2MB)</p>
+                                </label>
+                                <div id="fileNameDisplay" class="hidden mt-4 p-3 bg-green-50 rounded-lg">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-2">
+                                            <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            <span id="fileName" class="text-sm font-medium text-gray-700"></span>
+                                        </div>
+                                        <button id="removeFile" class="text-red-500 hover:text-red-700">
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2: Job Description -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Step 2: Paste the Job Description
+                        </label>
+                        <textarea 
+                            id="jobDescInput" 
+                            class="w-full h-48 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                            placeholder="Paste the job description here..."></textarea>
+                    </div>
+                    
+                    <!-- Step 3: Cover Letter -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Step 3: Paste Your Base Cover Letter (Optional)
+                        </label>
+                        <textarea 
+                            id="coverLetterInput" 
+                            class="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                            placeholder="Paste your base cover letter here (or check the box below)..."></textarea>
+                    </div>
+                    
+                    <!-- Generate New Checkbox -->
+                    <div class="flex items-center">
+                        <input 
+                            type="checkbox" 
+                            id="generateNewCheckbox" 
+                            class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                        <label for="generateNewCheckbox" class="ml-2 text-sm font-medium text-gray-700">
+                            Generate a new cover letter from scratch
+                        </label>
+                    </div>
+                    
+                    <!-- reCAPTCHA -->
+                    <div class="flex justify-center">
+                        <div class="g-recaptcha" data-sitekey="LdeFPYrAAAAALdtYbGcd92ASfl6A80UKhJ_IoUT"></div>
+                    </div>
+                    
+                    <!-- Generate Button -->
+                    <button 
+                        id="generateBtn" 
+                        class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition duration-300 shadow-lg flex items-center justify-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                        </svg>
+                        <span>Generate Tailored Application</span>
+                    </button>
+                </div>
+                
+                <!-- Output Column -->
+                <div class="space-y-6">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Output</h2>
+                    
+                    <!-- Loading Spinner -->
+                    <div id="loadingSpinner" class="hidden flex flex-col items-center justify-center py-20">
+                        <svg class="spinner w-16 h-16 text-purple-600" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p class="mt-4 text-gray-600 font-medium">Generating your tailored application...</p>
+                    </div>
+                    
+                    <!-- Results Container -->
+                    <div id="resultsContainer" class="hidden space-y-6">
+                        <!-- Download PDF Button -->
+                        <div class="flex justify-end">
+                            <button 
+                                id="downloadPdfBtn" 
+                                class="bg-green-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-green-700 transition duration-300 shadow-lg flex items-center space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <span>Download as PDF</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Cover Letter Box -->
+                        <div class="border border-gray-200 rounded-lg p-6 bg-white shadow-sm">
+                            <div class="flex items-center space-x-2 mb-4">
+                                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <h3 class="text-lg font-semibold text-gray-800">New Cover Letter</h3>
+                            </div>
+                            <div id="coverLetterOutput" class="prose prose-sm max-w-none overflow-y-auto max-h-96 text-gray-700"></div>
+                        </div>
+                        
+                        <!-- CV Edits Box -->
+                        <div class="border border-gray-200 rounded-lg p-6 bg-white shadow-sm">
+                            <div class="flex items-center space-x-2 mb-4">
+                                <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                <h3 class="text-lg font-semibold text-gray-800">Suggested CV Edits</h3>
+                            </div>
+                            <div id="cvEditsOutput" class="prose prose-sm max-w-none overflow-y-auto max-h-96 text-gray-700"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Custom Error Modal -->
+    <div id="errorModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
+            <div class="flex items-center space-x-3 mb-4">
+                <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h3 class="text-xl font-semibold text-gray-800">Error</h3>
+            </div>
+            <p id="errorMessage" class="text-gray-600 mb-6"></p>
+            <button 
+                id="closeErrorBtn" 
+                class="w-full bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600 transition duration-300">
+                Close
+            </button>
+        </div>
+    </div>
+    
+    <!-- Subscription Required Modal -->
+    <div id="subscriptionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-2xl max-w-lg w-full p-8">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full mb-4">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">Unlock Unlimited Access</h3>
+                <p class="text-gray-600">You've used your free generations. Subscribe to continue tailoring your applications!</p>
+            </div>
+            
+            <!-- Pricing Card -->
+            <div class="border-2 border-purple-600 rounded-lg p-6 mb-6">
+                <div class="text-center mb-4">
+                    <p class="text-sm text-gray-600 uppercase font-semibold mb-2">Monthly Subscription</p>
+                    <div class="flex items-baseline justify-center">
+                        <span class="text-4xl font-bold text-gray-800">€9.99</span>
+                        <span class="text-gray-600 ml-2">/month</span>
+                    </div>
+                </div>
+                <ul class="space-y-3 mb-6">
+                    <li class="flex items-center text-gray-700">
+                        <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Unlimited CV tailoring
+                    </li>
+                    <li class="flex items-center text-gray-700">
+                        <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        AI-powered cover letters
+                    </li>
+                    <li class="flex items-center text-gray-700">
+                        <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        PDF download feature
+                    </li>
+                    <li class="flex items-center text-gray-700">
+                        <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Cancel anytime
+                    </li>
+                </ul>
+                <button 
+                    id="subscribeBtn" 
+                    class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition duration-300 shadow-lg">
+                    Subscribe Now
+                </button>
+            </div>
+            
+            <button 
+                id="closeSubscriptionBtn" 
+                class="w-full text-gray-600 hover:text-gray-800 font-medium">
+                Maybe Later
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize Stripe
+        const stripe = Stripe('pk_test_51SLquTGRrJu2imtMe1eOBZkw1MY4g65k8iIBxzmS28SQeQt1eqEfrhtzWC0OePm2sgLilwOuCtk9icxmMB1vcPOI00hnhpKAHS');
+        
+        // DOM Elements
+        const cvInput = document.getElementById('cvInput');
+        const cvFileInput = document.getElementById('cvFileInput');
+        const jobDescInput = document.getElementById('jobDescInput');
+        const coverLetterInput = document.getElementById('coverLetterInput');
+        const generateNewCheckbox = document.getElementById('generateNewCheckbox');
+        const generateBtn = document.getElementById('generateBtn');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const coverLetterOutput = document.getElementById('coverLetterOutput');
+        const cvEditsOutput = document.getElementById('cvEditsOutput');
+        const errorModal = document.getElementById('errorModal');
+        const errorMessage = document.getElementById('errorMessage');
+        const closeErrorBtn = document.getElementById('closeErrorBtn');
+        const subscriptionModal = document.getElementById('subscriptionModal');
+        const subscribeBtn = document.getElementById('subscribeBtn');
+        const closeSubscriptionBtn = document.getElementById('closeSubscriptionBtn');
+        const usageBanner = document.getElementById('usageBanner');
+        const usageText = document.getElementById('usageText');
+        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+        
+        // Tab elements
+        const pasteTab = document.getElementById('pasteTab');
+        const uploadTab = document.getElementById('uploadTab');
+        const pasteArea = document.getElementById('pasteArea');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const fileName = document.getElementById('fileName');
+        const removeFile = document.getElementById('removeFile');
+        
+        // State
+        let uploadedPdfText = null;
+        let currentInputMode = 'paste';
+        
+        // Usage tracking constants
+        const FREE_USAGE_LIMIT = 2;
+        const USAGE_KEY = 'cv_tool_usage';
+        const USER_ID_KEY = 'cv_tool_user_id';
+        
+        // Generate a simple browser fingerprint
+        function generateUserId() {
+            const nav = window.navigator;
+            const screen = window.screen;
+            let uid = nav.userAgent.replace(/\D+/g, '');
+            uid += screen.height || '';
+            uid += screen.width || '';
+            uid += screen.pixelDepth || '';
+            return uid;
+        }
+        
+        // Get or create user ID
+        function getUserId() {
+            let userId = localStorage.getItem(USER_ID_KEY);
+            if (!userId) {
+                userId = generateUserId();
+                localStorage.setItem(USER_ID_KEY, userId);
+            }
+            return userId;
+        }
+        
+        // Check if user has active subscription
+        async function checkSubscriptionStatus() {
+            const userId = getUserId();
+            try {
+                const response = await fetch('/.netlify/functions/check-subscription', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId })
+                });
+                const data = await response.json();
+                return data.hasActiveSubscription;
+            } catch (error) {
+                console.error('Error checking subscription:', error);
+                return false;
+            }
+        }
+        
+        // Get usage count
+        function getUsageCount() {
+            const usage = localStorage.getItem(USAGE_KEY);
+            return usage ? parseInt(usage, 10) : 0;
+        }
+        
+        // Increment usage count
+        function incrementUsage() {
+            const currentUsage = getUsageCount();
+            localStorage.setItem(USAGE_KEY, currentUsage + 1);
+            updateUsageBanner();
+        }
+        
+        // Update usage banner
+        function updateUsageBanner() {
+            const usageCount = getUsageCount();
+            const remaining = FREE_USAGE_LIMIT - usageCount;
+            
+            if (remaining > 0) {
+                usageBanner.classList.remove('hidden');
+                usageText.textContent = `Free trials remaining: ${remaining} of ${FREE_USAGE_LIMIT}`;
+            } else {
+                usageBanner.classList.add('hidden');
+            }
+        }
+        
+        // Check if user can use the tool
+        async function canUseToolWithoutPayment() {
+            const hasSubscription = await checkSubscriptionStatus();
+            if (hasSubscription) return true;
+            
+            const usageCount = getUsageCount();
+            return usageCount < FREE_USAGE_LIMIT;
+        }
+        
+        // Initialize on page load
+        updateUsageBanner();
+        
+        // Tab switching
+        pasteTab.addEventListener('click', function() {
+            currentInputMode = 'paste';
+            pasteTab.classList.remove('bg-gray-200', 'text-gray-700');
+            pasteTab.classList.add('bg-purple-600', 'text-white');
+            uploadTab.classList.remove('bg-purple-600', 'text-white');
+            uploadTab.classList.add('bg-gray-200', 'text-gray-700');
+            pasteArea.classList.remove('hidden');
+            uploadArea.classList.add('hidden');
+            uploadedPdfText = null;
+        });
+        
+        uploadTab.addEventListener('click', function() {
+            currentInputMode = 'upload';
+            uploadTab.classList.remove('bg-gray-200', 'text-gray-700');
+            uploadTab.classList.add('bg-purple-600', 'text-white');
+            pasteTab.classList.remove('bg-purple-600', 'text-white');
+            pasteTab.classList.add('bg-gray-200', 'text-gray-700');
+            uploadArea.classList.remove('hidden');
+            pasteArea.classList.add('hidden');
+        });
+        
+        // Handle file upload
+        cvFileInput.addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Validate file type
+            if (file.type !== 'application/pdf') {
+                showError('Please upload a PDF file only.');
+                cvFileInput.value = '';
+                return;
+            }
+            
+            // Reduced size limit for security (2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                showError('File size must be less than 2MB. For larger CVs, please paste your text instead.');
+                cvFileInput.value = '';
+                return;
+            }
+            
+            // Minimum size check (avoid empty files)
+            if (file.size < 1024) {
+                showError('File is too small to be a valid CV. Please check your file.');
+                cvFileInput.value = '';
+                return;
+            }
+            
+            // Show file name
+            fileName.textContent = file.name;
+            fileNameDisplay.classList.remove('hidden');
+            
+            // Read PDF and extract text
+            try {
+                const formData = new FormData();
+                formData.append('pdf', file);
+                
+                loadingSpinner.classList.remove('hidden');
+                
+                // Add timeout to fetch request
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000);
+                
+                const response = await fetch('/.netlify/functions/extract-pdf', {
+                    method: 'POST',
+                    body: formData,
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                const data = await response.json();
+                loadingSpinner.classList.add('hidden');
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to extract text from PDF');
+                }
+                
+                uploadedPdfText = data.text;
+                
+                if (data.truncated) {
+                    showError('Note: Your CV was very long and has been truncated. All important information should still be included.');
+                }
+                
+            } catch (error) {
+                loadingSpinner.classList.add('hidden');
+                
+                let errorMsg = 'Failed to read PDF file. ';
+                if (error.name === 'AbortError') {
+                    errorMsg += 'Processing took too long. Please try a simpler PDF or paste your CV text instead.';
+                } else {
+                    errorMsg += error.message;
+                }
+                
+                showError(errorMsg);
+                fileNameDisplay.classList.add('hidden');
+                cvFileInput.value = '';
+                uploadedPdfText = null;
+            }
+        });
+        
+        // Remove file
+        removeFile.addEventListener('click', function() {
+            cvFileInput.value = '';
+            uploadedPdfText = null;
+            fileNameDisplay.classList.add('hidden');
+        });
+        
+        // Drag and drop
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.add('border-purple-500');
+        });
+        
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.remove('border-purple-500');
+        });
+        
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.remove('border-purple-500');
+            
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                cvFileInput.files = e.dataTransfer.files;
+                cvFileInput.dispatchEvent(new Event('change'));
+            }
+        });
+        
+        // Checkbox behavior
+        generateNewCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                coverLetterInput.disabled = true;
+                coverLetterInput.classList.add('bg-gray-100', 'text-gray-400');
+            } else {
+                coverLetterInput.disabled = false;
+                coverLetterInput.classList.remove('bg-gray-100', 'text-gray-400');
+            }
+        });
+        
+        // Error modal functions
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorModal.classList.remove('hidden');
+        }
+        
+        function hideError() {
+            errorModal.classList.add('hidden');
+        }
+        
+        closeErrorBtn.addEventListener('click', hideError);
+        errorModal.addEventListener('click', function(e) {
+            if (e.target === errorModal) hideError();
+        });
+        
+        // Subscription modal functions
+        function showSubscriptionModal() {
+            subscriptionModal.classList.remove('hidden');
+        }
+        
+        function hideSubscriptionModal() {
+            subscriptionModal.classList.add('hidden');
+        }
+        
+        closeSubscriptionBtn.addEventListener('click', hideSubscriptionModal);
+        
+        // Subscribe button handler
+        subscribeBtn.addEventListener('click', async function() {
+            const userId = getUserId();
+            try {
+                const response = await fetch('/.netlify/functions/create-checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId })
+                });
+                const data = await response.json();
+                
+                if (data.sessionId) {
+                    stripe.redirectToCheckout({ sessionId: data.sessionId });
+                }
+            } catch (error) {
+                showError('Failed to start checkout. Please try again.');
+            }
+        });
+        
+        // Sanitize HTML content to plain text (security)
+        function sanitizeText(html) {
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+            
+            // Remove all script tags
+            const scripts = temp.querySelectorAll('script');
+            scripts.forEach(s => s.remove());
+            
+            // Remove all style tags
+            const styles = temp.querySelectorAll('style');
+            styles.forEach(s => s.remove());
+            
+            // Get only text content
+            let text = temp.textContent || temp.innerText || '';
+            
+            // Remove any remaining dangerous characters
+            text = text.replace(/[<>]/g, '');
+            
+            return text.trim();
+        }
+        
+        // Download PDF function
+        downloadPdfBtn.addEventListener('click', async function() {
+            try {
+                // Check if jsPDF is loaded
+                if (typeof window.jspdf === 'undefined') {
+                    showError('PDF library not loaded. Please refresh the page and try again.');
+                    return;
+                }
+                
+                const { jsPDF } = window.jspdf;
+                
+                // Get and sanitize content
+                const coverLetterHtml = document.getElementById('coverLetterOutput').innerHTML;
+                const cvEditsHtml = document.getElementById('cvEditsOutput').innerHTML;
+                
+                const coverLetterText = sanitizeText(coverLetterHtml);
+                const cvEditsText = sanitizeText(cvEditsHtml);
+                
+                // Check content size (security: prevent huge PDFs)
+                const totalText = coverLetterText + cvEditsText;
+                const MAX_PDF_SIZE = 50000; // 50KB of text
+                
+                if (totalText.length > MAX_PDF_SIZE) {
+                    showError('Content is too large for PDF generation. Maximum size is 50KB. Please contact support if you need help.');
+                    return;
+                }
+                
+                if (totalText.length < 50) {
+                    showError('Content is too short to generate a PDF. Please generate your application first.');
+                    return;
+                }
+                
+                const doc = new jsPDF('p', 'mm', 'a4');
+                
+                // Page settings
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const margin = 20;
+                const contentWidth = pageWidth - (2 * margin);
+                let yPosition = margin;
+                
+                // Helper function to add text with word wrap
+                function addText(text, fontSize, isBold = false) {
+                    doc.setFontSize(fontSize);
+                    doc.setFont('helvetica', isBold ? 'bold' : 'normal');
+                    
+                    const lines = doc.splitTextToSize(text, contentWidth);
+                    
+                    lines.forEach(line => {
+                        if (yPosition > pageHeight - margin) {
+                            doc.addPage();
+                            yPosition = margin;
+                        }
+                        doc.text(line, margin, yPosition);
+                        yPosition += fontSize * 0.5;
+                    });
+                    yPosition += 3;
+                }
+                
+                // Add header
+                doc.setFillColor(102, 126, 234);
+                doc.rect(0, 0, pageWidth, 30, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(20);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Tailored Application', pageWidth / 2, 18, { align: 'center' });
+                doc.setTextColor(0, 0, 0);
+                yPosition = 40;
+                
+                // Add date
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                const currentDate = new Date().toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                doc.text(`Generated: ${currentDate}`, margin, yPosition);
+                yPosition += 15;
+                
+                // Add Cover Letter section
+                doc.setFillColor(102, 126, 234);
+                doc.rect(margin - 2, yPosition - 6, contentWidth + 4, 10, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Cover Letter', margin, yPosition);
+                doc.setTextColor(0, 0, 0);
+                yPosition += 12;
+                
+                addText(coverLetterText, 11, false);
+                yPosition += 10;
+                
+                // Add page break if needed
+                if (yPosition > pageHeight - 80) {
+                    doc.addPage();
+                    yPosition = margin;
+                }
+                
+                // Add CV Edits section
+                doc.setFillColor(118, 75, 162);
+                doc.rect(margin - 2, yPosition - 6, contentWidth + 4, 10, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Suggested CV Edits', margin, yPosition);
+                doc.setTextColor(0, 0, 0);
+                yPosition += 12;
+                
+                addText(cvEditsText, 11, false);
+                
+                // Add footer on all pages
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(9);
+                    doc.setTextColor(128, 128, 128);
+                    doc.text(`Generated by applyjobmatch.nl`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+                    doc.text(`Page ${i} of ${pageCount}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
+                }
+                
+                // Save PDF with sanitized filename
+                const timestamp = new Date().getTime();
+                const fileName = `Tailored_Application_${timestamp}.pdf`;
+                doc.save(fileName);
+                
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                showError('Failed to generate PDF. Please try again or contact support if the problem persists.');
+            }
+        });
+        
+        // Generate button click handler
+        generateBtn.addEventListener('click', async function() {
+            // Check if user can use the tool
+            const canUse = await canUseToolWithoutPayment();
+            if (!canUse) {
+                showSubscriptionModal();
+                return;
+            }
+            
+            // Validation
+            const cv = currentInputMode === 'paste' ? cvInput.value.trim() : uploadedPdfText;
+            const jobDesc = jobDescInput.value.trim();
+            const coverLetter = coverLetterInput.value.trim();
+            const generateNew = generateNewCheckbox.checked;
+            const recaptchaToken = grecaptcha.getResponse();
+            
+            if (!cv) {
+                if (currentInputMode === 'upload') {
+                    showError('Please upload your CV as a PDF file.');
+                } else {
+                    showError('Please paste your CV.');
+                }
+                return;
+            }
+            
+            if (!jobDesc) {
+                showError('Please paste the job description.');
+                return;
+            }
+            
+            if (!generateNew && !coverLetter) {
+                showError('Please paste your base cover letter or check the box to generate a new one.');
+                return;
+            }
+            
+            if (!recaptchaToken) {
+                showError('Please complete the reCAPTCHA verification.');
+                return;
+            }
+            
+            // Show loading state
+            loadingSpinner.classList.remove('hidden');
+            resultsContainer.classList.add('hidden');
+            
+            try {
+                const coverLetterValue = generateNew ? '[USER_REQUESTS_NEW_COVER_LETTER]' : coverLetter;
+                const userId = getUserId();
+                
+                // Make API call
+                const response = await fetch('/.netlify/functions/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        cv: cv,
+                        jobDesc: jobDesc,
+                        coverLetter: coverLetterValue,
+                        recaptchaToken: recaptchaToken,
+                        userId: userId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'An error occurred while generating your application.');
+                }
+                
+                // Parse the response
+                const generatedText = data.generatedText;
+                const marker = '### Suggested CV Edits';
+                const markerIndex = generatedText.indexOf(marker);
+                
+                if (markerIndex === -1) {
+                    throw new Error('Invalid response format from the AI.');
+                }
+                
+                const coverLetterText = generatedText.substring(0, markerIndex).trim();
+                const cvEditsText = generatedText.substring(markerIndex).trim();
+                
+                // Render with marked.js
+                coverLetterOutput.innerHTML = marked.parse(coverLetterText);
+                cvEditsOutput.innerHTML = marked.parse(cvEditsText);
+                
+                // Show results
+                loadingSpinner.classList.add('hidden');
+                resultsContainer.classList.remove('hidden');
+                
+                // Increment usage for non-subscribers
+                const hasSubscription = await checkSubscriptionStatus();
+                if (!hasSubscription) {
+                    incrementUsage();
+                }
+                
+                // Reset reCAPTCHA
+                grecaptcha.reset();
+                
+            } catch (error) {
+                loadingSpinner.classList.add('hidden');
+                showError(error.message);
+                grecaptcha.reset();
+            }
+        });
+        
+        // Check for successful payment in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success') === 'true') {
+            localStorage.removeItem(USAGE_KEY);
+            updateUsageBanner();
+            showError('Subscription successful! You now have unlimited access.');
+        }
+    </script>
+</body>
+</html>
