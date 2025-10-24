@@ -64,11 +64,12 @@ exports.handler = async (event) => {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         
         /* 
-         * Using gemini-1.5-flash (without -latest suffix)
-         * The v1beta API doesn't support the -latest suffix
+         * Using gemini-2.0-flash-exp - Gemini 2.0 Flash (experimental)
+         * This is the latest Gemini 2.0 model
+         * Note: The 'exp' suffix indicates it's experimental/preview
          */
         const model = genAI.getGenerativeModel({ 
-            model: 'gemini-1.5-flash',
+            model: 'gemini-2.0-flash-exp',
             generationConfig: {
                 temperature: 0.7,
                 maxOutputTokens: 8192,
@@ -129,7 +130,7 @@ ${baseCoverLetter}
 CRITICAL: You must include ALL the markers exactly as shown above, even if a section is empty. Start your response with ---COVER_LETTER_START--- and end with ---CHANGES_END---`;
 
         // Generate content
-        console.log('Sending request to Gemini with model: gemini-1.5-flash');
+        console.log('Sending request to Gemini with model: gemini-2.0-flash-exp');
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();
@@ -238,8 +239,8 @@ CRITICAL: You must include ALL the markers exactly as shown above, even if a sec
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ 
-                    error: 'AI model configuration error. Please check your Gemini API key and ensure you have access to the Gemini models.',
-                    details: 'The model "gemini-1.5-flash" may not be available with your API key. Try visiting https://aistudio.google.com/ to verify your access.'
+                    error: 'AI model not available. Please verify your Gemini API key has model access.',
+                    details: 'Visit https://aistudio.google.com/ and check: 1) Your API key is valid, 2) You have model access enabled. You may need to enable the Gemini API in Google Cloud Console.'
                 })
             };
         }
