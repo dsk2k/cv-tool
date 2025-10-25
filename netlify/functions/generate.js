@@ -96,6 +96,14 @@ IMPORTANT ETHICAL RULES:
 - Reframe real experiences to match job requirements
 - Do not add technologies or tools not mentioned in the original CV
 
+COVER LETTER RULES:
+- ALWAYS create a professional cover letter when requested, using the information available
+- If country/location is not specified, write a general professional cover letter that works for any location
+- Use the candidate's location from their CV if provided, otherwise keep it location-neutral
+- Focus on matching skills and experience to job requirements
+- DO NOT refuse to write a cover letter due to missing information - work with what you have
+- If company name is not mentioned in job description, use "Hiring Team" or "Hiring Manager"
+
 JOB DESCRIPTION:
 ${jobDescription}
 
