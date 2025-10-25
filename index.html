@@ -822,11 +822,15 @@
             fileName.textContent = file.name;
             fileNameDisplay.classList.remove('hidden');
             
+            // Hide any previous results when uploading new CV
+            resultsContainer.classList.add('hidden');
+            
             // Read PDF and extract text
             try {
                 const formData = new FormData();
                 formData.append('pdf', file);
                 
+                // Show loading spinner while processing PDF
                 loadingSpinner.classList.remove('hidden');
                 
                 // Add timeout to fetch request
