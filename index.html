@@ -33,10 +33,48 @@
         <h1 class="text-4xl font-bold text-white text-center mb-8">AI CV Tailoring Tool</h1>
         
         <!-- Usage Counter Banner -->
-        <div id="usageBanner" class="hidden glass-card rounded-lg shadow-lg p-4 mb-6 text-center">
-            <p class="text-gray-700 font-medium">
-                <span id="usageText"></span>
-            </p>
+        <div id="usageBanner" class="hidden glass-card rounded-lg shadow-lg p-4 mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-purple-100 rounded-full p-2">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-800 font-semibold" id="usageText"></p>
+                        <p class="text-sm text-gray-600" id="usageSubtext">Try it free, then subscribe for unlimited access</p>
+                    </div>
+                </div>
+                <a href="#subscription" class="text-purple-600 hover:text-purple-700 font-medium text-sm">
+                    View Plans →
+                </a>
+            </div>
+        </div>
+        
+        <!-- Out of Trials Banner -->
+        <div id="outOfTrialsBanner" class="hidden glass-card rounded-lg shadow-lg p-6 mb-6 border-2 border-orange-400">
+            <div class="flex items-start space-x-4">
+                <div class="bg-orange-100 rounded-full p-3 flex-shrink-0">
+                    <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">🎉 Free Trials Used!</h3>
+                    <p class="text-gray-700 mb-4">
+                        You've used all <strong>3 free trials</strong>. Subscribe now for unlimited CV generation, premium PDF downloads, and priority support!
+                    </p>
+                    <div class="flex space-x-3">
+                        <button id="subscribeNowBtn" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition duration-300 shadow-lg">
+                            Subscribe Now - €9.99/month
+                        </button>
+                        <button class="bg-gray-200 text-gray-700 font-medium py-3 px-6 rounded-lg hover:bg-gray-300 transition duration-300">
+                            Learn More
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <div class="glass-card rounded-2xl shadow-2xl p-8">
@@ -371,6 +409,9 @@
         const closeSubscriptionBtn = document.getElementById('closeSubscriptionBtn');
         const usageBanner = document.getElementById('usageBanner');
         const usageText = document.getElementById('usageText');
+        const usageSubtext = document.getElementById('usageSubtext');
+        const outOfTrialsBanner = document.getElementById('outOfTrialsBanner');
+        const subscribeNowBtn = document.getElementById('subscribeNowBtn');
         const downloadPdfBtn = document.getElementById('downloadPdfBtn');
         
         // Tab elements
@@ -405,7 +446,7 @@
         let extractedJobText = '';
 
         
-       // Usage tracking constants
+        // Usage tracking constants
         const FREE_USAGE_LIMIT = 2;
         const USAGE_KEY = 'cv_tool_usage';
         const USER_ID_KEY = 'cv_tool_user_id';
@@ -1445,4 +1486,3 @@ downloadPdfBtn.addEventListener('click', async function() {
     </script>
 </body>
 </html>
-
