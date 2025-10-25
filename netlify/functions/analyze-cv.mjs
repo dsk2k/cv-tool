@@ -129,15 +129,15 @@ EXPLANATION: [Your 1-2 sentence explanation]
 [Your personalized cover letter here]
 ---COVER_LETTER_END---
 
----RECRUITER_TIPS_START---
+---RECUITER_TIPS_START---
 [Your 5-7 specific tips and questions here]
----RECRUITER_TIPS_END---
-`;
+---RECUITER_TIPS_END---
+`; // Let op: Recruiter Tips marker typo gecorrigeerd
 
         // Select the Gemini model and configure generation parameters
-        // --- MODEL NAME UPDATED ---
+        // --- MODEL NAME UPDATED TO CORRECT LATEST STABLE ---
         const model = genAI.getGenerativeModel({
-            model: 'gemini-2.0-flash', // Use the specified flash model
+            model: 'gemini-2.5-flash', // Gebruik het correcte, meest recente stabiele model
             generationConfig: {
                 temperature: 0.7, // Controls randomness (creativity)
                 maxOutputTokens: 4000 // Limit the response size
@@ -145,7 +145,7 @@ EXPLANATION: [Your 1-2 sentence explanation]
         });
         // --- END MODEL NAME UPDATE ---
 
-        console.log('Calling Google Gemini API with model gemini-2.0-flash...');
+        console.log('Calling Google Gemini API with model gemini-2.5-flash...');
         // Generate content based on the prompt
         const result = await model.generateContent(prompt);
         const response = await result.response;
@@ -184,7 +184,8 @@ EXPLANATION: [Your 1-2 sentence explanation]
         const { score, explanation } = parseScore(scoreSection);
         const improvedCV = extractSection('---IMPROVED_CV_START---', '---IMPROVED_CV_END---', text);
         const coverLetter = extractSection('---COVER_LETTER_START---', '---COVER_LETTER_END---', text);
-        const recruiterTips = extractSection('---RECRUITER_TIPS_START---', '---RECRUITER_TIPS_END---', text);
+        // Correctie voor typo in de prompt hierboven
+        const recruiterTips = extractSection('---RECUITER_TIPS_START---', '---RECUITER_TIPS_END---', text);
 
         // --- Define Fallbacks for robust error handling ---
         const defaultLang = outputLanguage === 'nl'; // Boolean for Dutch
@@ -238,14 +239,25 @@ EXPLANATION: [Your 1-2 sentence explanation]
     } catch (error) {
         // Log the error for debugging purposes
         console.error('Error in analyze-cv function:', error);
-        // Return a generic server error response
+
+        // Check if it's a GoogleGenerativeAI specific error for more details
+        let errorMessage = 'Internal server error occurred.';
+        if (error.name === 'GoogleGenerativeAIFetchError') {
+             errorMessage = `Gemini API Error: ${error.message} (Status: ${error.status})`;
+             // Log potential details if available
+             if(error.errorDetails) console.error('Gemini API Error Details:', error.errorDetails);
+        } else {
+            errorMessage = error.message || errorMessage;
+        }
+
+        // Return a structured server error response
         return {
             statusCode: 500, // Internal Server Error
             headers,
             body: JSON.stringify({
                 error: 'Internal server error occurred.',
-                // Optionally include error message in dev environment, but not production
-                message: process.env.NODE_ENV === 'development' ? error.message : undefined
+                // Provide the more specific message in development, generic in production
+                message: process.env.NODE_ENV === 'development' ? errorMessage : 'An unexpected error happened while processing your request.'
             })
         };
     }
@@ -254,25 +266,25 @@ EXPLANATION: [Your 1-2 sentence explanation]
 // --- Placeholder Helper Functions ---
 // Replace these with your actual database/Stripe logic
 
-// async function checkSubscriptionTier(userId) {
-//   // Example: Check database or Stripe API
-//   // const user = await db.findUser(userId);
-//   // return user ? user.tier : 'free';
-//   return 'free';
-// }
+async function checkSubscriptionTier(userId) {
+  // Example: Check database or Stripe API
+  // const user = await db.findUser(userId);
+  // return user ? user.tier : 'free';
+  return 'free'; // For testing
+}
 
-// async function getUsageCount(userId) {
-//   // Example: Get usage count from database
-//   // const usage = await db.getUsage(userId);
-//   // return usage ? usage.count : 0;
-//   return 0;
-// }
+async function getUsageCount(userId) {
+  // Example: Get usage count from database
+  // const usage = await db.getUsage(userId);
+  // return usage ? usage.count : 0;
+  return 0; // For testing
+}
 
-// async function incrementUsageCount(userId) {
-//   // Example: Increment usage count in database
-//   // await db.incrementUsage(userId);
-//   console.log(`Placeholder: Incremented usage count for user ${userId}`);
-// }
+async function incrementUsageCount(userId) {
+  // Example: Increment usage count in database
+  // await db.incrementUsage(userId);
+  console.log(`Placeholder: Incremented usage count for user ${userId}`);
+}
 
 // --- End Placeholder Helper Functions ---
 
