@@ -96,10 +96,10 @@ EXPLANATION: [Your 1-2 sentence explanation]
 
         // Select the Gemini model and configure generation parameters
         const model = genAI.getGenerativeModel({
-            model: 'gemini-2.5-flash-lite', // *** GEBRUIK DE SNELSTE STABIELE LITE VERSIE ***
+            model: 'gemini-2.5-flash-lite', // GEBRUIK HET SNELSTE MODEL
             generationConfig: {
                 temperature: 0.7, // Controls randomness (creativity)
-                maxOutputTokens: 4000 // Terug naar 4000: Lite kan dit veel sneller aan
+                maxOutputTokens: 4000 // HOGE LIMIET VOOR VOLLEDIGHEID
             }
         });
 
@@ -113,18 +113,19 @@ EXPLANATION: [Your 1-2 sentence explanation]
         console.log("----- RAW GEMINI RESPONSE START -----\n", text, "\n----- RAW GEMINI RESPONSE END -----");
 
 
-        // --- Helper function to extract content between markers ---
+        // --- Helper function to extract content between markers (ROBUUSTE REGEX PARSING) ---
+        // Gebruikt een reguliere expressie om flexibeler te zijn met witruimte/nieuwe regels rond markers
         const extractSection = (startMarker, endMarker, content) => {
-            const startIndex = content.indexOf(startMarker);
-            const endIndex = content.indexOf(endMarker);
-            // Zorg ervoor dat beide markers gevonden zijn en in de juiste volgorde staan
-            if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
-                // Extraheer tekst en verwijder witruimte aan begin/eind
-                return content.substring(startIndex + startMarker.length, endIndex).trim();
-            }
-            console.warn(`Could not find or parse markers: ${startMarker} / ${endMarker}`);
-            return null; // Geef null terug als de sectie niet gevonden/foutief is
-        };
+             // Maak een RegEx object: zoekt naar start marker, pakt alles ([\s\S]*?), non-greedy (?), tot eind marker
+             const regex = new RegExp(startMarker.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '([\\s\\S]*?)' + endMarker.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
+             const match = content.match(regex);
+             
+             if (match && match[1]) {
+                 return match[1].trim();
+             }
+             console.warn(`Could not find or parse markers using Regex: ${startMarker} / ${endMarker}`);
+             return null;
+         };
 
         // --- Helper function to parse the score and explanation ---
         const parseScore = (scoreContent) => {
@@ -154,18 +155,9 @@ EXPLANATION: [Your 1-2 sentence explanation]
         const fallbackTips = defaultLang ? "- Bereid vragen voor over de functie\n- Onderzoek het bedrijf grondig\n- Vraag naar de volgende stappen" : "- Prepare questions about the role\n- Research the company thoroughly\n- Ask about next steps";
         const fallbackExplanation = defaultLang ? "Score-evaluatie kon niet worden geëxtraheerd." : "Score evaluation could not be extracted.";
 
-        // Basisvalidatie van de lengte van de geëxtraheerde inhoud
-        if (!improvedCV || improvedCV.length < 50) {
-            console.error('Failed to extract valid Improved CV. Will use fallback.');
-        }
-         if (!coverLetter || coverLetter.length < 50) {
-            console.error('Failed to extract valid Cover Letter. Will use fallback.');
-        }
-         if (!recruiterTips || recruiterTips.length < 20) {
-            console.error('Failed to extract valid Recruiter Tips. Will use fallback.');
-        }
-        if (score === null || !explanation) {
-             console.error('Failed to extract valid Score/Explanation. Will use fallback.');
+        // Controleer of het parsen succesvol was
+        if (!improvedCV || !coverLetter || !recruiterTips) {
+            console.error('CRITICAL PARSING FAILURE: One or more sections were null. Using fallbacks.');
         }
 
         console.log(`Successfully parsed (or used fallback) - Score: ${score ?? 'N/A'}, CV: ${improvedCV?.length ?? 0} chars, CL: ${coverLetter?.length ?? 0} chars, Tips: ${recruiterTips?.length ?? 0} chars`);
@@ -173,13 +165,14 @@ EXPLANATION: [Your 1-2 sentence explanation]
         // --- Placeholder for Incrementing Usage Count ---
         // ... (usage count logic remains the same) ...
 
-        // Return the structured data successfully
+        // Stuur de gestructureerde data succesvol terug
         return {
             statusCode: 200, // OK
             headers,
             body: JSON.stringify({
                 success: true,
                 data: {
+                    // Gebruik geëxtraheerde data of fallbacks als extractie mislukte
                     cvScore: score,
                     scoreExplanation: explanation || fallbackExplanation,
                     improvedCV: improvedCV || fallbackCV,
@@ -192,7 +185,7 @@ EXPLANATION: [Your 1-2 sentence explanation]
         };
 
     } catch (error) {
-        // ... (error handling blijft hetzelfde) ...
+        // Log de fout voor debuggen
         console.error('Error in analyze-cv function:', error);
         let errorMessage = 'Internal server error occurred.';
         if (error.name === 'GoogleGenerativeAIFetchError') {
