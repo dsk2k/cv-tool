@@ -100,7 +100,7 @@ EXPLANATION: [Your 1-2 sentence explanation]
             model: 'gemini-2.5-flash', // Gebruik het correcte, meest recente stabiele model
             generationConfig: {
                 temperature: 0.7, // Controls randomness (creativity)
-                maxOutputTokens: 2048 // *** VERLAAGD MAX TOKENS ***
+                maxOutputTokens: 4000 // *** MAX TOKENS SETTING***
             }
         });
 
@@ -213,4 +213,5 @@ EXPLANATION: [Your 1-2 sentence explanation]
 
 // --- Placeholder Helper Functions ---
 // ... (helper functions blijven hetzelfde) ...
+
 
