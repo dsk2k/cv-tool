@@ -1,2 +1,4 @@
 [functions]
+
   directory = "netlify/functions"
+      timeout = 25 # Verhoog naar 25 seconden (max ~26s voor standaard functies)
