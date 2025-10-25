@@ -52,6 +52,22 @@
             </div>
         </div>
         
+        <!-- Developer Mode Banner (only shows if whitelisted) -->
+        <div id="devModeBanner" class="hidden glass-card rounded-lg shadow-lg p-4 mb-6 border-2 border-green-500 bg-green-50">
+            <div class="flex items-center space-x-3">
+                <div class="bg-green-500 rounded-full p-2">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <p class="text-green-800 font-bold">🔓 Developer Mode Active</p>
+                    <p class="text-sm text-green-700">Your IP is whitelisted - Unlimited testing enabled!</p>
+                </div>
+                <span class="text-xs text-green-600 font-mono bg-white px-3 py-1 rounded">UNLIMITED</span>
+            </div>
+        </div>
+        
         <!-- Out of Trials Banner -->
         <div id="outOfTrialsBanner" class="hidden glass-card rounded-lg shadow-lg p-6 mb-6 border-2 border-orange-400">
             <div class="flex items-start space-x-4">
@@ -412,6 +428,7 @@
         const usageSubtext = document.getElementById('usageSubtext');
         const outOfTrialsBanner = document.getElementById('outOfTrialsBanner');
         const subscribeNowBtn = document.getElementById('subscribeNowBtn');
+        const devModeBanner = document.getElementById('devModeBanner');
         const downloadPdfBtn = document.getElementById('downloadPdfBtn');
         
         // Tab elements
