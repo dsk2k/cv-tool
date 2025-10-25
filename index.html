@@ -464,81 +464,186 @@
 
         
         // Usage tracking constants
-        const FREE_USAGE_LIMIT = 2;
-        const USAGE_KEY = 'cv_tool_usage';
-        const USER_ID_KEY = 'cv_tool_user_id';
+        const FREE_USAGE_LIMIT = 3;
+        const USAGE_KEY = 'cv_tool_usage_v2';
+        const FINGERPRINT_KEY = 'cv_tool_fp';
         
-        // Generate a simple browser fingerprint
-        function generateUserId() {
-            const nav = window.navigator;
-            const screen = window.screen;
-            let uid = nav.userAgent.replace(/\D+/g, '');
-            uid += screen.height || '';
-            uid += screen.width || '';
-            uid += screen.pixelDepth || '';
-            return uid;
-        }
-        
-        // Get or create user ID
-        function getUserId() {
-            let userId = localStorage.getItem(USER_ID_KEY);
-            if (!userId) {
-                userId = generateUserId();
-                localStorage.setItem(USER_ID_KEY, userId);
+        // Generate browser fingerprint
+        async function generateFingerprint() {
+            // Collect browser characteristics
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillText('fingerprint', 2, 2);
+            const canvasData = canvas.toDataURL();
+            
+            const data = {
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                platform: navigator.platform,
+                hardwareConcurrency: navigator.hardwareConcurrency || 0,
+                screenResolution: `${screen.width}x${screen.height}`,
+                colorDepth: screen.colorDepth,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                canvas: canvasData.substring(0, 50)
+            };
+            
+            // Create simple hash
+            const str = JSON.stringify(data);
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
             }
-            return userId;
+            
+            return Math.abs(hash).toString(36);
         }
         
         // Check if user has active subscription
         async function checkSubscriptionStatus() {
-            const userId = getUserId();
             try {
                 const response = await fetch('/.netlify/functions/check-subscription', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId })
+                    body: JSON.stringify({ userId: 'test' })
                 });
                 const data = await response.json();
-                return data.hasActiveSubscription;
+                return data.hasActiveSubscription || false;
             } catch (error) {
-                console.error('Error checking subscription:', error);
                 return false;
             }
         }
         
-        // Get usage count
+        // Get usage count from localStorage
         function getUsageCount() {
             const usage = localStorage.getItem(USAGE_KEY);
             return usage ? parseInt(usage, 10) : 0;
         }
         
-        // Increment usage count
-        function incrementUsage() {
+        // Check usage from multiple sources
+        async function checkUsageLimit() {
+            // Check if user has subscription
+            const hasSubscription = await checkSubscriptionStatus();
+            if (hasSubscription) {
+                return { canUse: true, remaining: 999, fingerprint: null, isWhitelisted: false };
+            }
+            
+            // Get local usage
+            const localUsage = getUsageCount();
+            
+            // Generate fingerprint
+            const fingerprint = await generateFingerprint();
+            localStorage.setItem(FINGERPRINT_KEY, fingerprint);
+            
+            // Check backend usage
+            let backendUsage = 0;
+            let isWhitelisted = false;
+            try {
+                const response = await fetch('/.netlify/functions/track-usage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fingerprint: fingerprint,
+                        action: 'check'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    backendUsage = data.usage || 0;
+                    isWhitelisted = data.whitelisted || false;
+                    
+                    // Log whitelist status for debugging
+                    if (isWhitelisted) {
+                        console.log('✅ DEVELOPER MODE: IP is whitelisted - Unlimited access!');
+                    }
+                }
+            } catch (error) {
+                console.log('Backend check unavailable, using local only');
+            }
+            
+            // Use the maximum of both tracking methods
+            const maxUsage = Math.max(localUsage, backendUsage);
+            const remaining = Math.max(0, FREE_USAGE_LIMIT - maxUsage);
+            const canUse = maxUsage < FREE_USAGE_LIMIT;
+            
+            return { canUse, remaining, fingerprint, isWhitelisted };
+        }
+        
+        // Increment usage
+        async function incrementUsage() {
+            // Increment local storage
             const currentUsage = getUsageCount();
             localStorage.setItem(USAGE_KEY, currentUsage + 1);
+            
+            // Get fingerprint
+            const fingerprint = localStorage.getItem(FINGERPRINT_KEY) || await generateFingerprint();
+            
+            // Increment backend
+            try {
+                await fetch('/.netlify/functions/track-usage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fingerprint: fingerprint,
+                        action: 'increment'
+                    })
+                });
+            } catch (error) {
+                console.log('Backend tracking unavailable');
+            }
+            
             updateUsageBanner();
         }
         
         // Update usage banner
-        function updateUsageBanner() {
-            const usageCount = getUsageCount();
-            const remaining = FREE_USAGE_LIMIT - usageCount;
+        async function updateUsageBanner() {
+            const { remaining, isWhitelisted } = await checkUsageLimit();
+            
+            // Show developer mode banner if whitelisted
+            if (isWhitelisted) {
+                devModeBanner.classList.remove('hidden');
+                console.log('🔓 Developer mode banner shown');
+            } else {
+                devModeBanner.classList.add('hidden');
+            }
             
             if (remaining > 0) {
+                // Show remaining trials
                 usageBanner.classList.remove('hidden');
+                outOfTrialsBanner.classList.add('hidden');
                 usageText.textContent = `Free trials remaining: ${remaining} of ${FREE_USAGE_LIMIT}`;
+                
+                // Update subtext based on remaining
+                if (remaining === 1) {
+                    usageSubtext.textContent = 'Last free trial! Subscribe for unlimited access';
+                } else if (isWhitelisted) {
+                    usageSubtext.textContent = 'Developer mode - Unlimited testing enabled';
+                } else {
+                    usageSubtext.textContent = 'Try it free, then subscribe for unlimited access';
+                }
             } else {
-                usageBanner.classList.add('hidden');
+                // Out of trials - show subscribe banner (unless whitelisted)
+                if (!isWhitelisted) {
+                    usageBanner.classList.add('hidden');
+                    outOfTrialsBanner.classList.remove('hidden');
+                }
             }
+        }
+        
+        // Subscribe button handler
+        if (subscribeNowBtn) {
+            subscribeNowBtn.addEventListener('click', function() {
+                showSubscriptionModal();
+            });
         }
         
         // Check if user can use the tool
         async function canUseToolWithoutPayment() {
-            const hasSubscription = await checkSubscriptionStatus();
-            if (hasSubscription) return true;
-            
-            const usageCount = getUsageCount();
-            return usageCount < FREE_USAGE_LIMIT;
+            const { canUse } = await checkUsageLimit();
+            return canUse;
         }
         
         // Initialize on page load
