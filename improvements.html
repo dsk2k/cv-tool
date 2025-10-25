@@ -3,393 +3,559 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="improvements.title">Your Tailored CV & Cover Letter - AI CV Tailor</title>
-    <meta name="description" content="View your AI-generated tailored CV and cover letter">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- html2pdf.js for PDF generation -->
+    <title>Your Improved CV - AI CV Tailor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.0/marked.min.js"></script>
     <style>
-        @media print {
-            .no-print { display: none !important; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
-        .content-section {
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .tab:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+        }
+
+        .tab.new-badge::after {
+            content: 'NEW';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff6b6b;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .content {
             background: white;
             border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            min-height: 500px;
         }
-        
-        .print-content {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
-            color: #333;
+
+        .section {
+            display: none;
         }
-        
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
         .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #3b82f6;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
         }
-        
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .error {
+            background: #fee;
+            border: 2px solid #fcc;
+            border-radius: 8px;
+            padding: 20px;
+            color: #c33;
+            margin: 20px 0;
+        }
+
+        .cv-content, .cover-letter-content, .tips-content, .changes-content {
+            line-height: 1.8;
+        }
+
+        .cv-content h1, .cover-letter-content h1, .tips-content h1, .changes-content h1 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .cv-content h2, .cover-letter-content h2, .tips-content h2, .changes-content h2 {
+            color: #764ba2;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .cv-content h3, .cover-letter-content h3, .tips-content h3, .changes-content h3 {
+            color: #667eea;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .cv-content p, .cover-letter-content p, .tips-content p, .changes-content p {
+            margin-bottom: 15px;
+        }
+
+        .cv-content ul, .tips-content ul, .changes-content ul {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        .cv-content li, .tips-content li, .changes-content li {
+            margin-bottom: 8px;
+        }
+
+        .cv-content strong, .tips-content strong, .changes-content strong {
+            color: #333;
+        }
+
+        /* Special styling for Changes Overview */
+        .changes-content {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .change-item {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .change-item h3 {
+            color: #667eea;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .change-item .original {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 3px solid #ffc107;
+        }
+
+        .change-item .improved {
+            background: #d4edda;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 3px solid #28a745;
+        }
+
+        .change-item .label {
+            font-weight: 600;
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .change-item .explanation {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 3px solid #007bff;
+        }
+
+        .impact-stars {
+            color: #ffc107;
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+
+        .summary-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+
+        .summary-box h3 {
+            color: white !important;
+            margin-top: 0;
+        }
+
+        .summary-box ul {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .summary-box li {
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .summary-box li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab {
+                width: 100%;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .nav-buttons, .tabs {
+                display: none;
+            }
+            .content {
+                box-shadow: none;
+            }
+        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 min-h-screen">
-    
-    <!-- Navigation -->
-    <nav class="bg-white shadow-lg no-print">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex justify-between items-center">
-                <a href="/" class="text-2xl font-bold text-blue-600">
-                    <i class="fas fa-file-alt mr-2"></i>
-                    <span data-i18n="nav.title">AI CV Tailor</span>
-                </a>
-                
-                <div class="flex items-center gap-4">
-                    <a href="/" class="text-gray-600 hover:text-blue-600 transition">
-                        <i class="fas fa-home mr-1"></i>
-                        <span data-i18n="nav.home">Home</span>
-                    </a>
-                    <a href="/plans.html" class="text-gray-600 hover:text-blue-600 transition">
-                        <i class="fas fa-crown mr-1"></i>
-                        <span data-i18n="nav.plans">Plans</span>
-                    </a>
-                    
-                    <!-- Language Switcher -->
-                    <div class="flex gap-2">
-                        <button onclick="switchLanguage('en')" 
-                                class="px-3 py-1 rounded transition language-btn" 
-                                data-lang="en">
-                            EN
-                        </button>
-                        <button onclick="switchLanguage('nl')" 
-                                class="px-3 py-1 rounded transition language-btn" 
-                                data-lang="nl">
-                            NL
-                        </button>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Your Improved Application</h1>
+            <p>AI-tailored for maximum impact</p>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="btn btn-primary" onclick="downloadPDF('cv')">📄 Download CV</button>
+            <button class="btn btn-primary" onclick="downloadPDF('cover')">📄 Download Cover Letter</button>
+            <button class="btn btn-primary" onclick="downloadPDF('all')">📦 Download All</button>
+            <a href="index.html" class="btn btn-secondary">← Back to Home</a>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="cv">📄 Your Tailored CV</div>
+            <div class="tab new-badge" data-tab="changes">✨ What Changed & Why</div>
+            <div class="tab" data-tab="cover">✉️ Cover Letter</div>
+            <div class="tab" data-tab="tips">💡 Interview Tips</div>
+        </div>
+
+        <div class="content">
+            <!-- CV Section -->
+            <div id="cv-section" class="section active">
+                <div id="cv-content" class="cv-content">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading your improved CV...</p>
                     </div>
                 </div>
             </div>
-        </div>
-    </nav>
 
-    <div class="container mx-auto px-4 py-8">
-        
-        <!-- Loading State -->
-        <div id="loadingState" class="text-center py-20">
-            <div class="spinner mx-auto mb-4"></div>
-            <p class="text-gray-600 text-lg" data-i18n="improvements.loading">Loading your results...</p>
-        </div>
-
-        <!-- Error State -->
-        <div id="errorState" class="hidden max-w-2xl mx-auto">
-            <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded">
-                <div class="flex items-start">
-                    <i class="fas fa-exclamation-circle text-red-500 text-2xl mr-4 mt-1"></i>
-                    <div>
-                        <h3 class="text-red-800 font-bold text-lg mb-2" data-i18n="improvements.error.title">
-                            Error Loading Results
-                        </h3>
-                        <p class="text-red-700" id="errorMessage"></p>
-                        <a href="/" class="inline-block mt-4 bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 transition">
-                            <i class="fas fa-arrow-left mr-2"></i>
-                            <span data-i18n="improvements.error.back">Back to Home</span>
-                        </a>
+            <!-- NEW: Changes Overview Section -->
+            <div id="changes-section" class="section">
+                <div id="changes-content" class="changes-content">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading changes overview...</p>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Results Content -->
-        <div id="resultsContent" class="hidden">
-            
-            <!-- Action Buttons -->
-            <div class="no-print mb-6 flex flex-wrap gap-4 justify-center">
-                <button onclick="downloadPDF('cv')" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition shadow-lg">
-                    <i class="fas fa-file-pdf mr-2"></i>
-                    <span data-i18n="improvements.download.cv">Download CV as PDF</span>
-                </button>
-                <button onclick="downloadPDF('cover-letter')" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition shadow-lg">
-                    <i class="fas fa-file-pdf mr-2"></i>
-                    <span data-i18n="improvements.download.coverLetter">Download Cover Letter as PDF</span>
-                </button>
-                <button onclick="copyToClipboard('improvedCV')" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition shadow-lg">
-                    <i class="fas fa-copy mr-2"></i>
-                    <span data-i18n="improvements.copy.cv">Copy CV</span>
-                </button>
-                <button onclick="copyToClipboard('coverLetter')" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition shadow-lg">
-                    <i class="fas fa-copy mr-2"></i>
-                    <span data-i18n="improvements.copy.coverLetter">Copy Cover Letter</span>
-                </button>
-                <a href="/" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition shadow-lg inline-block">
-                    <i class="fas fa-arrow-left mr-2"></i>
-                    <span data-i18n="improvements.new">Create New</span>
-                </a>
-            </div>
-
-            <!-- Improved CV Section -->
-            <div class="content-section" id="cv-section">
-                <div class="flex justify-between items-center mb-4 no-print">
-                    <h2 class="text-3xl font-bold text-gray-800">
-                        <i class="fas fa-file-alt text-blue-600 mr-2"></i>
-                        <span data-i18n="improvements.cv.title">Your Tailored CV</span>
-                    </h2>
-                    <span class="text-sm text-gray-500" id="cvLanguageIndicator"></span>
-                </div>
-                <div id="improvedCV" class="print-content prose max-w-none"></div>
             </div>
 
             <!-- Cover Letter Section -->
-            <div class="content-section" id="cover-letter-section">
-                <div class="flex justify-between items-center mb-4 no-print">
-                    <h2 class="text-3xl font-bold text-gray-800">
-                        <i class="fas fa-envelope text-purple-600 mr-2"></i>
-                        <span data-i18n="improvements.coverLetter.title">Your Cover Letter</span>
-                    </h2>
-                    <span class="text-sm text-gray-500" id="clLanguageIndicator"></span>
+            <div id="cover-section" class="section">
+                <div id="cover-content" class="cover-letter-content">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading your cover letter...</p>
+                    </div>
                 </div>
-                <div id="coverLetter" class="print-content prose max-w-none"></div>
             </div>
 
-            <!-- Recruiter Tips Section -->
-            <div class="content-section no-print">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">
-                    <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
-                    <span data-i18n="improvements.tips.title">Recruiter Conversation Tips</span>
-                </h2>
-                <div id="recruiterTips" class="prose max-w-none bg-yellow-50 p-6 rounded-lg"></div>
-            </div>
-
-            <!-- Upgrade CTA (for free users) -->
-            <div id="upgradeCTA" class="hidden content-section no-print bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-                <div class="text-center py-8">
-                    <h3 class="text-3xl font-bold mb-4" data-i18n="improvements.upgrade.title">
-                        Love this tool?
-                    </h3>
-                    <p class="text-xl mb-6" data-i18n="improvements.upgrade.message">
-                        Upgrade to Pro for unlimited CV tailoring and additional features!
-                    </p>
-                    <a href="/plans.html" class="inline-block bg-white text-blue-600 px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition text-lg">
-                        <i class="fas fa-crown mr-2"></i>
-                        <span data-i18n="improvements.upgrade.button">View Plans</span>
-                    </a>
+            <!-- Tips Section -->
+            <div id="tips-section" class="section">
+                <div id="tips-content" class="tips-content">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading recruiter tips...</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="hidden fixed bottom-8 right-8 bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg no-print">
-        <i class="fas fa-check-circle mr-2"></i>
-        <span id="toastMessage"></span>
-    </div>
-
-    <!-- Translations -->
-    <script src="/translations.js"></script>
-
-    <!-- Main Script -->
     <script>
-        let currentData = null;
-        let currentLanguage = localStorage.getItem('language') || 'en';
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            initLanguage();
-            loadResults();
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs and sections
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Show corresponding section
+                const tabName = this.getAttribute('data-tab');
+                document.getElementById(tabName + '-section').classList.add('active');
+            });
         });
 
-        function initLanguage() {
-            updateLanguageButtons();
-            updateContent();
-        }
-
-        function switchLanguage(lang) {
-            currentLanguage = lang;
-            localStorage.setItem('language', lang);
-            updateLanguageButtons();
-            updateContent();
-        }
-
-        function updateLanguageButtons() {
-            document.querySelectorAll('.language-btn').forEach(btn => {
-                if (btn.dataset.lang === currentLanguage) {
-                    btn.classList.add('bg-blue-600', 'text-white');
-                    btn.classList.remove('bg-gray-200', 'text-gray-700');
-                } else {
-                    btn.classList.remove('bg-blue-600', 'text-white');
-                    btn.classList.add('bg-gray-200', 'text-gray-700');
-                }
-            });
-        }
-
-        function updateContent() {
-            document.querySelectorAll('[data-i18n]').forEach(element => {
-                const key = element.getAttribute('data-i18n');
-                const keys = key.split('.');
-                let value = translations[currentLanguage];
-                
-                for (const k of keys) {
-                    value = value?.[k];
-                }
-                
-                if (value) {
-                    element.textContent = value;
-                }
-            });
-
-            // Update language indicators if data is loaded
-            if (currentData) {
-                updateLanguageIndicators();
-            }
-        }
-
-        function updateLanguageIndicators() {
-            const outputLang = currentData.language || 'en';
-            const langText = outputLang === 'nl' ? '🇳🇱 Dutch' : '🇬🇧 English';
-            document.getElementById('cvLanguageIndicator').textContent = langText;
-            document.getElementById('clLanguageIndicator').textContent = langText;
-        }
-
-        function loadResults() {
+        // Load data from sessionStorage
+        function loadData() {
             try {
-                // Get data from sessionStorage
                 const data = sessionStorage.getItem('cvResults');
                 
                 if (!data) {
-                    showError(translations[currentLanguage].improvements.error.noData);
+                    showError('No results found. Please go back and generate your CV first.');
                     return;
                 }
 
-                currentData = JSON.parse(data);
-                displayResults(currentData);
+                const results = JSON.parse(data);
+                
+                console.log('📦 Loaded data:', {
+                    hasCV: !!results.improvedCV,
+                    hasCover: !!results.coverLetter,
+                    hasTips: !!results.recruiterTips,
+                    hasChanges: !!results.changesOverview
+                });
+
+                // Display CV
+                if (results.improvedCV) {
+                    displayMarkdown('cv-content', results.improvedCV);
+                } else {
+                    document.getElementById('cv-content').innerHTML = 
+                        '<div class="error">Could not load improved CV.</div>';
+                }
+
+                // Display Changes Overview (NEW)
+                if (results.changesOverview) {
+                    displayMarkdown('changes-content', results.changesOverview);
+                } else {
+                    document.getElementById('changes-content').innerHTML = 
+                        '<div class="error">Changes overview not available. This feature requires the updated backend.</div>';
+                }
+
+                // Display Cover Letter
+                if (results.coverLetter) {
+                    displayMarkdown('cover-content', results.coverLetter);
+                } else {
+                    document.getElementById('cover-content').innerHTML = 
+                        '<div class="error">Could not load cover letter.</div>';
+                }
+
+                // Display Tips
+                if (results.recruiterTips) {
+                    displayMarkdown('tips-content', results.recruiterTips);
+                } else {
+                    document.getElementById('tips-content').innerHTML = 
+                        '<div class="error">Could not load recruiter tips.</div>';
+                }
 
             } catch (error) {
-                console.error('Error loading results:', error);
-                showError(translations[currentLanguage].improvements.error.generic);
+                console.error('Error loading data:', error);
+                showError('Error loading results. Please try generating your CV again.');
             }
         }
 
-        function displayResults(data) {
-            // Hide loading, show results
-            document.getElementById('loadingState').classList.add('hidden');
-            document.getElementById('resultsContent').classList.remove('hidden');
-
-            // Display content with proper formatting
-            document.getElementById('improvedCV').innerHTML = formatText(data.improvedCV);
-            document.getElementById('coverLetter').innerHTML = formatText(data.coverLetter);
-            document.getElementById('recruiterTips').innerHTML = formatText(data.recruiterTips);
-
-            // Update language indicators
-            updateLanguageIndicators();
-
-            // Show upgrade CTA for free users
-            if (data.subscriptionTier === 'free') {
-                document.getElementById('upgradeCTA').classList.remove('hidden');
+        function displayMarkdown(elementId, markdownText) {
+            const element = document.getElementById(elementId);
+            if (typeof marked !== 'undefined') {
+                element.innerHTML = marked.parse(markdownText);
+            } else {
+                // Fallback if marked.js fails to load
+                element.innerHTML = markdownText.replace(/\n/g, '<br>');
             }
-        }
-
-        function formatText(text) {
-            // Convert line breaks to HTML
-            return text
-                .split('\n')
-                .map(line => {
-                    // Headers
-                    if (line.startsWith('# ')) {
-                        return `<h1 class="text-2xl font-bold mt-4 mb-2">${line.substring(2)}</h1>`;
-                    }
-                    if (line.startsWith('## ')) {
-                        return `<h2 class="text-xl font-bold mt-3 mb-2">${line.substring(3)}</h2>`;
-                    }
-                    if (line.startsWith('### ')) {
-                        return `<h3 class="text-lg font-bold mt-2 mb-1">${line.substring(4)}</h3>`;
-                    }
-                    // Lists
-                    if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
-                        return `<li class="ml-4">${line.substring(line.indexOf(' ') + 1)}</li>`;
-                    }
-                    // Bold text
-                    line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                    // Empty lines
-                    if (!line.trim()) {
-                        return '<br>';
-                    }
-                    // Regular paragraphs
-                    return `<p class="mb-2">${line}</p>`;
-                })
-                .join('');
         }
 
         function showError(message) {
-            document.getElementById('loadingState').classList.add('hidden');
-            document.getElementById('errorState').classList.remove('hidden');
-            document.getElementById('errorMessage').textContent = message;
-        }
-
-        async function downloadPDF(section) {
-            const element = section === 'cv' 
-                ? document.getElementById('cv-section')
-                : document.getElementById('cover-letter-section');
-            
-            const filename = section === 'cv'
-                ? 'tailored-cv.pdf'
-                : 'cover-letter.pdf';
-
-            const opt = {
-                margin: 10,
-                filename: filename,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            try {
-                await html2pdf().set(opt).from(element).save();
-                showToast(translations[currentLanguage].improvements.toast.pdfDownloaded);
-            } catch (error) {
-                console.error('Error generating PDF:', error);
-                showToast('Error generating PDF', true);
-            }
-        }
-
-        function copyToClipboard(contentId) {
-            const element = document.getElementById(contentId);
-            const text = element.innerText;
-
-            navigator.clipboard.writeText(text).then(() => {
-                showToast(translations[currentLanguage].improvements.toast.copied);
-            }).catch(err => {
-                console.error('Error copying to clipboard:', err);
-                showToast('Error copying to clipboard', true);
+            const sections = ['cv-content', 'changes-content', 'cover-content', 'tips-content'];
+            sections.forEach(id => {
+                document.getElementById(id).innerHTML = `
+                    <div class="error">
+                        <h3>⚠️ Error</h3>
+                        <p>${message}</p>
+                        <a href="index.html" class="btn btn-primary" style="margin-top: 15px;">← Back to Home</a>
+                    </div>
+                `;
             });
         }
 
-        function showToast(message, isError = false) {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toastMessage');
-            
-            toastMessage.textContent = message;
-            toast.classList.remove('hidden', 'bg-green-600', 'bg-red-600');
-            toast.classList.add(isError ? 'bg-red-600' : 'bg-green-600');
-            
-            setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 3000);
+        // PDF Download Functions
+        function downloadPDF(type) {
+            const opt = {
+                margin: 1,
+                filename: `${type}-${Date.now()}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            let element;
+            switch(type) {
+                case 'cv':
+                    element = document.getElementById('cv-content');
+                    opt.filename = 'tailored-cv.pdf';
+                    break;
+                case 'cover':
+                    element = document.getElementById('cover-content');
+                    opt.filename = 'cover-letter.pdf';
+                    break;
+                case 'all':
+                    // Create a combined element
+                    const combined = document.createElement('div');
+                    combined.innerHTML = `
+                        <div style="padding: 20px;">
+                            <h1 style="text-align: center; color: #667eea;">Your Complete Application Package</h1>
+                            <hr style="margin: 20px 0;">
+                            <h2 style="color: #764ba2;">Tailored CV</h2>
+                            ${document.getElementById('cv-content').innerHTML}
+                            <div style="page-break-before: always;"></div>
+                            <h2 style="color: #764ba2;">Cover Letter</h2>
+                            ${document.getElementById('cover-content').innerHTML}
+                            <div style="page-break-before: always;"></div>
+                            <h2 style="color: #764ba2;">Interview Preparation Tips</h2>
+                            ${document.getElementById('tips-content').innerHTML}
+                        </div>
+                    `;
+                    element = combined;
+                    opt.filename = 'complete-application-package.pdf';
+                    break;
+            }
+
+            html2pdf().set(opt).from(element).save();
         }
+
+        // Load data when page loads
+        window.addEventListener('DOMContentLoaded', loadData);
     </script>
 </body>
 </html>
