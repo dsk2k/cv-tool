@@ -135,15 +135,17 @@ EXPLANATION: [Your 1-2 sentence explanation]
 `;
 
         // Select the Gemini model and configure generation parameters
+        // --- MODEL NAME UPDATED ---
         const model = genAI.getGenerativeModel({
-            model: 'gemini-1.5-flash', // Use the flash model for speed and cost-effectiveness
+            model: 'gemini-2.0-flash', // Use the specified flash model
             generationConfig: {
                 temperature: 0.7, // Controls randomness (creativity)
                 maxOutputTokens: 4000 // Limit the response size
             }
         });
+        // --- END MODEL NAME UPDATE ---
 
-        console.log('Calling Google Gemini API...');
+        console.log('Calling Google Gemini API with model gemini-2.0-flash...');
         // Generate content based on the prompt
         const result = await model.generateContent(prompt);
         const response = await result.response;
