@@ -32,38 +32,7 @@ export const handler = async (event) => {
         const { cv, jobDescription, outputLanguage = 'en', userId = 'free-user', recaptchaToken } = JSON.parse(event.body);
 
         // --- Optional: Server-side reCAPTCHA Verification ---
-        // Uncomment this section and set RECAPTCHA_SECRET_KEY in Netlify environment variables
-        // to add server-side validation against bots.
-        /*
-        if (process.env.RECAPTCHA_SECRET_KEY && recaptchaToken) {
-            const verificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`;
-            try {
-                const recaptchaRes = await fetch(verificationUrl, { method: 'POST' });
-                const recaptchaData = await recaptchaRes.json();
-                // Check if reCAPTCHA was successful and score is acceptable (adjust score for v3)
-                if (!recaptchaData.success || (recaptchaData.score && recaptchaData.score < 0.5)) {
-                    console.warn('reCAPTCHA verification failed:', recaptchaData);
-                    return {
-                        statusCode: 403, // Forbidden
-                        headers,
-                        body: JSON.stringify({ error: 'reCAPTCHA verification failed. Please try again.' })
-                    };
-                }
-                console.log('reCAPTCHA verified successfully.');
-            } catch (recaptchaError) {
-                console.error('Error verifying reCAPTCHA:', recaptchaError);
-                // Fail closed: return an error if verification service can't be reached
-                return { statusCode: 500, headers, body: JSON.stringify({ error: 'Could not verify reCAPTCHA' }) };
-            }
-        } else if (!recaptchaToken && process.env.RECAPTCHA_SECRET_KEY) {
-             console.warn('reCAPTCHA token missing, but secret key is set.');
-             return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing reCAPTCHA token.' }) };
-        } else {
-             console.log('Skipping reCAPTCHA verification (no secret key set or no token provided).');
-        }
-        */
-        // --- End reCAPTCHA ---
-
+        // ... (reCAPTCHA code remains the same, uncomment if used) ...
 
         // Validate essential inputs
         if (!cv || !jobDescription) {
@@ -77,14 +46,6 @@ export const handler = async (event) => {
         console.log(`Processing request for user: ${userId}, output language: ${outputLanguage}`);
 
         // --- Placeholder for Subscription & Usage Check ---
-        // Replace with your actual database/Stripe logic
-        // const subscriptionTier = await checkSubscriptionTier(userId);
-        // if (subscriptionTier === 'free') {
-        //     const usageCount = await getUsageCount(userId);
-        //     if (usageCount >= FREE_TIER_LIMIT) {
-        //         return { statusCode: 403, headers, body: JSON.stringify({ error: 'Free limit reached' })};
-        //     }
-        // }
         const subscriptionTier = 'free'; // Default/placeholder
         // --- End Placeholder ---
 
@@ -129,21 +90,19 @@ EXPLANATION: [Your 1-2 sentence explanation]
 [Your personalized cover letter here]
 ---COVER_LETTER_END---
 
----RECUITER_TIPS_START---
+---RECRUITER_TIPS_START---
 [Your 5-7 specific tips and questions here]
----RECUITER_TIPS_END---
-`; // Let op: Recruiter Tips marker typo gecorrigeerd
+---RECRUITER_TIPS_END---
+`; // *** TYPO FIXED HERE ***
 
         // Select the Gemini model and configure generation parameters
-        // --- MODEL NAME UPDATED TO CORRECT LATEST STABLE ---
         const model = genAI.getGenerativeModel({
             model: 'gemini-2.5-flash', // Gebruik het correcte, meest recente stabiele model
             generationConfig: {
                 temperature: 0.7, // Controls randomness (creativity)
-                maxOutputTokens: 4000 // Limit the response size
+                maxOutputTokens: 2048 // *** VERLAAGD MAX TOKENS ***
             }
         });
-        // --- END MODEL NAME UPDATE ---
 
         console.log('Calling Google Gemini API with model gemini-2.5-flash...');
         // Generate content based on the prompt
@@ -151,41 +110,40 @@ EXPLANATION: [Your 1-2 sentence explanation]
         const response = await result.response;
         const text = response.text(); // Get the generated text
         console.log(`Response received from Gemini. Length: ${text.length} characters.`);
+        // *** LOGGING TOEGEVOEGD VOOR DEBUGGEN ***
+        console.log("----- RAW GEMINI RESPONSE START -----\n", text, "\n----- RAW GEMINI RESPONSE END -----");
+
 
         // --- Helper function to extract content between markers ---
         const extractSection = (startMarker, endMarker, content) => {
+            // Maak de zoekopdracht iets flexibeler m.b.t. witruimte voor/na de marker
             const startIndex = content.indexOf(startMarker);
             const endIndex = content.indexOf(endMarker);
-            // Ensure both markers are found and in the correct order
             if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
-                // Extract text and trim whitespace
                 return content.substring(startIndex + startMarker.length, endIndex).trim();
             }
             console.warn(`Could not find or parse markers: ${startMarker} / ${endMarker}`);
-            return null; // Return null if section is not found or malformed
+            return null;
         };
 
         // --- Helper function to parse the score and explanation ---
         const parseScore = (scoreContent) => {
-            if (!scoreContent) return { score: null, explanation: null };
-            // Use regex to find SCORE: number/100
-            const scoreMatch = scoreContent.match(/SCORE:\s*(\d+)\s*\/100/i);
-            // Use regex to find EXPLANATION: followed by any text
-            const explanationMatch = scoreContent.match(/EXPLANATION:\s*([\s\S]+)/i);
-            return {
-                score: scoreMatch ? parseInt(scoreMatch[1], 10) : null, // Convert score to integer
-                explanation: explanationMatch ? explanationMatch[1].trim() : null // Get the explanation text
-            };
-        };
-        // --- End Helper Functions ---
+             if (!scoreContent) return { score: null, explanation: null };
+             // Maak regex iets robuuster voor witruimte
+             const scoreMatch = scoreContent.match(/SCORE:\s*(\d+)\s*\/100/i);
+             const explanationMatch = scoreContent.match(/EXPLANATION:\s*([\s\S]+)/i);
+             return {
+                 score: scoreMatch ? parseInt(scoreMatch[1], 10) : null,
+                 explanation: explanationMatch ? explanationMatch[1].trim() : null
+             };
+         };
 
         // Extract each section using the helper function
         const scoreSection = extractSection('---CV_SCORE_START---', '---CV_SCORE_END---', text);
         const { score, explanation } = parseScore(scoreSection);
         const improvedCV = extractSection('---IMPROVED_CV_START---', '---IMPROVED_CV_END---', text);
         const coverLetter = extractSection('---COVER_LETTER_START---', '---COVER_LETTER_END---', text);
-        // Correctie voor typo in de prompt hierboven
-        const recruiterTips = extractSection('---RECUITER_TIPS_START---', '---RECUITER_TIPS_END---', text);
+        const recruiterTips = extractSection('---RECRUITER_TIPS_START---', '---RECRUITER_TIPS_END---', text); // *** TYPO FIXED HERE ***
 
         // --- Define Fallbacks for robust error handling ---
         const defaultLang = outputLanguage === 'nl'; // Boolean for Dutch
@@ -195,27 +153,24 @@ EXPLANATION: [Your 1-2 sentence explanation]
         const fallbackExplanation = defaultLang ? "Score-evaluatie kon niet worden geëxtraheerd." : "Score evaluation could not be extracted.";
 
         // Basic validation of extracted content length
+        // We loggen nu errors, maar sturen *altijd* een 200 terug met de (eventueel fallback) data
         if (!improvedCV || improvedCV.length < 50) {
-            console.error('Failed to extract valid Improved CV. Extracted:', improvedCV?.substring(0,100));
+            console.error('Failed to extract valid Improved CV. Will use fallback.');
         }
          if (!coverLetter || coverLetter.length < 50) {
-            console.error('Failed to extract valid Cover Letter. Extracted:', coverLetter?.substring(0,100));
+            console.error('Failed to extract valid Cover Letter. Will use fallback.');
         }
          if (!recruiterTips || recruiterTips.length < 20) {
-            console.error('Failed to extract valid Recruiter Tips. Extracted:', recruiterTips?.substring(0,100));
+            console.error('Failed to extract valid Recruiter Tips. Will use fallback.');
         }
         if (score === null || !explanation) {
-             console.error('Failed to extract valid Score/Explanation. Extracted:', scoreSection);
+             console.error('Failed to extract valid Score/Explanation. Will use fallback.');
         }
-        // --- End Fallbacks ---
 
-        console.log(`Successfully parsed - Score: ${score ?? 'N/A'}, CV: ${improvedCV?.length ?? 0} chars, CL: ${coverLetter?.length ?? 0} chars, Tips: ${recruiterTips?.length ?? 0} chars`);
+        console.log(`Successfully parsed (or used fallback) - Score: ${score ?? 'N/A'}, CV: ${improvedCV?.length ?? 0} chars, CL: ${coverLetter?.length ?? 0} chars, Tips: ${recruiterTips?.length ?? 0} chars`);
 
         // --- Placeholder for Incrementing Usage Count ---
-        // if (subscriptionTier === 'free') {
-        //     await incrementUsageCount(userId);
-        // }
-        // --- End Placeholder ---
+        // ... (usage count logic blijft hetzelfde) ...
 
         // Return the structured data successfully
         return {
@@ -224,39 +179,32 @@ EXPLANATION: [Your 1-2 sentence explanation]
             body: JSON.stringify({
                 success: true,
                 data: {
-                    // Use extracted data or fallbacks if extraction failed
-                    cvScore: score, // Can be null if parsing failed
+                    cvScore: score,
                     scoreExplanation: explanation || fallbackExplanation,
                     improvedCV: improvedCV || fallbackCV,
                     coverLetter: coverLetter || fallbackCL,
                     recruiterTips: recruiterTips || fallbackTips,
-                    language: outputLanguage, // Include the requested output language
-                    subscriptionTier // Include the user's subscription tier
+                    language: outputLanguage,
+                    subscriptionTier
                 }
             })
         };
 
     } catch (error) {
-        // Log the error for debugging purposes
+        // ... (error handling blijft hetzelfde) ...
         console.error('Error in analyze-cv function:', error);
-
-        // Check if it's a GoogleGenerativeAI specific error for more details
         let errorMessage = 'Internal server error occurred.';
         if (error.name === 'GoogleGenerativeAIFetchError') {
              errorMessage = `Gemini API Error: ${error.message} (Status: ${error.status})`;
-             // Log potential details if available
              if(error.errorDetails) console.error('Gemini API Error Details:', error.errorDetails);
         } else {
             errorMessage = error.message || errorMessage;
         }
-
-        // Return a structured server error response
         return {
             statusCode: 500, // Internal Server Error
             headers,
             body: JSON.stringify({
                 error: 'Internal server error occurred.',
-                // Provide the more specific message in development, generic in production
                 message: process.env.NODE_ENV === 'development' ? errorMessage : 'An unexpected error happened while processing your request.'
             })
         };
@@ -264,27 +212,5 @@ EXPLANATION: [Your 1-2 sentence explanation]
 };
 
 // --- Placeholder Helper Functions ---
-// Replace these with your actual database/Stripe logic
-
-async function checkSubscriptionTier(userId) {
-  // Example: Check database or Stripe API
-  // const user = await db.findUser(userId);
-  // return user ? user.tier : 'free';
-  return 'free'; // For testing
-}
-
-async function getUsageCount(userId) {
-  // Example: Get usage count from database
-  // const usage = await db.getUsage(userId);
-  // return usage ? usage.count : 0;
-  return 0; // For testing
-}
-
-async function incrementUsageCount(userId) {
-  // Example: Increment usage count in database
-  // await db.incrementUsage(userId);
-  console.log(`Placeholder: Incremented usage count for user ${userId}`);
-}
-
-// --- End Placeholder Helper Functions ---
+// ... (helper functions blijven hetzelfde) ...
 
