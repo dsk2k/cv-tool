@@ -7,21 +7,21 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 export const handler = async (event) => {
     // Standard CORS headers for allowing cross-origin requests
     const headers = {
-        'Access-Control-Allow-Origin': '*', // Allow requests from any origin
-        'Access-Control-Allow-Headers': 'Content-Type', // Allow Content-Type header
-        'Access-Control-Allow-Methods': 'POST, OPTIONS', // Allow POST and OPTIONS methods
-        'Content-Type': 'application/json' // Response content type
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Content-Type': 'application/json'
     };
 
     // Handle CORS preflight requests (OPTIONS method)
     if (event.httpMethod === 'OPTIONS') {
-        return { statusCode: 200, headers, body: '' }; // Respond OK to preflight
+        return { statusCode: 200, headers, body: '' };
     }
 
     // Only allow POST requests for the actual function execution
     if (event.httpMethod !== 'POST') {
         return {
-            statusCode: 405, // Method Not Allowed
+            statusCode: 405,
             headers,
             body: JSON.stringify({ error: 'Method not allowed' })
         };
@@ -34,7 +34,7 @@ export const handler = async (event) => {
         // Validate essential inputs
         if (!cv || !jobDescription) {
             return {
-                statusCode: 400, // Bad Request
+                statusCode: 400,
                 headers,
                 body: JSON.stringify({ error: 'Missing required fields: cv or jobDescription' })
             };
@@ -42,14 +42,10 @@ export const handler = async (event) => {
 
         console.log(`Processing request for user: ${userId}, output language: ${outputLanguage}`);
 
-        // --- Placeholder for Subscription & Usage Check ---
-        const subscriptionTier = 'free'; // Default/placeholder
-        // --- End Placeholder ---
-
         // Determine language instructions for the AI model
         const languageInstructions = outputLanguage === 'nl'
-            ? 'Genereer ALLE output in het Nederlands.' // Dutch instruction
-            : 'Generate ALL output in English.'; // English instruction
+            ? 'Genereer ALLE output in het Nederlands.'
+            : 'Generate ALL output in English.';
 
         // Construct the prompt for the Google Gemini model
         const prompt = `
@@ -94,109 +90,185 @@ EXPLANATION: [Your 1-2 sentence explanation]
 
         // Select the Gemini model and configure generation parameters
         const model = genAI.getGenerativeModel({
-            model: 'gemini-2.5-flash-lite', // GEBRUIK HET SNELSTE MODEL
+            model: 'gemini-2.0-flash-lite',
             generationConfig: {
-                temperature: 0.7, // Controls randomness (creativity)
-                maxOutputTokens: 4000 // HOGE LIMIET VOOR VOLLEDIGHEID
+                temperature: 0.7,
+                maxOutputTokens: 8192  // Increased for completeness
             }
         });
 
-        console.log('Calling Google Gemini API with model gemini-2.5-flash-lite...');
+        console.log('Calling Google Gemini API with model gemini-2.0-flash-lite...');
+        
         // Generate content based on the prompt
         const result = await model.generateContent(prompt);
         const response = await result.response;
-        const text = response.text(); // Get the generated text
+        const text = response.text();
+        
         console.log(`Response received from Gemini. Length: ${text.length} characters.`);
-        // Log de ruwe response om te helpen bij het debuggen van parsing
         console.log("----- RAW GEMINI RESPONSE START -----\n", text, "\n----- RAW GEMINI RESPONSE END -----");
 
-
-        // --- Helper function to extract content between markers (SIMPLE INDEXOF PARSING) ---
-        // Deze methode is het meest betrouwbaar, zelfs als Regex faalt.
+        // ============================================
+        // ROBUST EXTRACTION FUNCTION
+        // ============================================
         const extractSection = (startMarker, endMarker, content) => {
-             const startIndex = content.indexOf(startMarker);
-             const endIndex = content.indexOf(endMarker);
-             
-             // Check 1: Markers gevonden?
-             if (startIndex === -1 || endIndex === -1 || endIndex <= startIndex) {
-                 console.warn(`Could not find markers: ${startMarker} / ${endMarker}`);
-                 return null;
-             }
+            try {
+                const startIndex = content.indexOf(startMarker);
+                
+                if (startIndex === -1) {
+                    console.warn(`❌ Start marker not found: ${startMarker}`);
+                    return null;
+                }
+                
+                // Start extracting after the start marker
+                const afterStart = startIndex + startMarker.length;
+                let remainingContent = content.substring(afterStart);
+                
+                // Find end marker in remaining content
+                const endIndex = remainingContent.indexOf(endMarker);
+                
+                if (endIndex === -1) {
+                    console.warn(`❌ End marker not found: ${endMarker}`);
+                    console.warn(`   Start marker was at position ${startIndex}`);
+                    console.warn(`   Content after start marker (first 200 chars): ${remainingContent.substring(0, 200)}`);
+                    
+                    // FALLBACK: If no end marker, find next major section marker
+                    const nextMarkers = [
+                        '---CV_SCORE_START---',
+                        '---CV_SCORE_END---',
+                        '---IMPROVED_CV_START---',
+                        '---IMPROVED_CV_END---',
+                        '---COVER_LETTER_START---',
+                        '---COVER_LETTER_END---',
+                        '---RECRUITER_TIPS_START---',
+                        '---RECRUITER_TIPS_END---'
+                    ].filter(m => m !== startMarker && m !== endMarker);
+                    
+                    let nearestNextMarker = remainingContent.length;
+                    for (const marker of nextMarkers) {
+                        const idx = remainingContent.indexOf(marker);
+                        if (idx !== -1 && idx < nearestNextMarker) {
+                            nearestNextMarker = idx;
+                        }
+                    }
+                    
+                    const extracted = remainingContent.substring(0, nearestNextMarker).trim();
+                    console.log(`⚠️  Using fallback extraction, got ${extracted.length} chars`);
+                    return extracted.length > 20 ? extracted : null;
+                }
+                
+                // Extract content between markers
+                const extracted = remainingContent.substring(0, endIndex).trim();
+                console.log(`✅ Successfully extracted ${startMarker}: ${extracted.length} chars`);
+                return extracted;
+                
+            } catch (error) {
+                console.error(`❌ Error in extractSection for ${startMarker}:`, error);
+                return null;
+            }
+        };
 
-             // Check 2: Extractie en trimming
-             let extractedText = content.substring(startIndex + startMarker.length, endIndex);
-             return extractedText.trim();
-         };
-
-        // --- Helper function to parse the score and explanation ---
+        // Parse score helper
         const parseScore = (scoreContent) => {
-             if (!scoreContent) return { score: null, explanation: null };
-             // Gebruik regex om SCORE: getal/100 te vinden (case-insensitive)
-             const scoreMatch = scoreContent.match(/SCORE:\s*(\d+)\s*\/100/i);
-             // Gebruik regex om EXPLANATION: gevolgd door tekst te vinden (case-insensitive)
-             const explanationMatch = scoreContent.match(/EXPLANATION:\s*([\s\S]+)/i);
-             return {
-                 score: scoreMatch ? parseInt(scoreMatch[1], 10) : null, // Converteer score naar integer
-                 explanation: explanationMatch ? explanationMatch[1].trim() : null // Haal de uitleg tekst op
-             };
-         };
-        // --- End Helper Functions ---
+            if (!scoreContent) return { score: null, explanation: null };
+            const scoreMatch = scoreContent.match(/SCORE:\s*(\d+)\s*\/100/i);
+            const explanationMatch = scoreContent.match(/EXPLANATION:\s*([\s\S]+)/i);
+            return {
+                score: scoreMatch ? parseInt(scoreMatch[1], 10) : null,
+                explanation: explanationMatch ? explanationMatch[1].trim() : null
+            };
+        };
 
-        // Extraheer elke sectie met de helper functie
+        // Extract each section with improved error handling
+        console.log('\n--- EXTRACTION PHASE ---');
+        
         const scoreSection = extractSection('---CV_SCORE_START---', '---CV_SCORE_END---', text);
         const { score, explanation } = parseScore(scoreSection);
+        console.log(`Score: ${score ?? 'N/A'}, Explanation: ${explanation ? explanation.substring(0, 50) + '...' : 'N/A'}`);
+        
         const improvedCV = extractSection('---IMPROVED_CV_START---', '---IMPROVED_CV_END---', text);
+        console.log(`Improved CV: ${improvedCV ? `${improvedCV.length} chars` : 'NULL'}`);
+        if (improvedCV) {
+            console.log(`CV Preview: ${improvedCV.substring(0, 100)}...`);
+        }
+        
         const coverLetter = extractSection('---COVER_LETTER_START---', '---COVER_LETTER_END---', text);
+        console.log(`Cover Letter: ${coverLetter ? `${coverLetter.length} chars` : 'NULL'}`);
+        if (coverLetter) {
+            console.log(`CL Preview: ${coverLetter.substring(0, 100)}...`);
+        }
+        
         const recruiterTips = extractSection('---RECRUITER_TIPS_START---', '---RECRUITER_TIPS_END---', text);
+        console.log(`Recruiter Tips: ${recruiterTips ? `${recruiterTips.length} chars` : 'NULL'}`);
+        
+        console.log('--- END EXTRACTION PHASE ---\n');
 
-        // --- Define Fallbacks for robust error handling ---
-        const defaultLang = outputLanguage === 'nl'; // Boolean voor Nederlands
-        const fallbackCV = defaultLang ? "Kon CV niet genereren. Controleer de input en probeer het opnieuw." : "Could not generate CV. Please check input and try again.";
-        const fallbackCL = defaultLang ? "Kon sollicitatiebrief niet genereren." : "Could not generate cover letter.";
-        const fallbackTips = defaultLang ? "- Bereid vragen voor over de functie\n- Onderzoek het bedrijf grondig\n- Vraag naar de volgende stappen" : "- Prepare questions about the role\n- Research the company thoroughly\n- Ask about next steps";
-        const fallbackExplanation = defaultLang ? "Score-evaluatie kon niet worden geëxtraheerd." : "Score evaluation could not be extracted.";
+        // Fallbacks
+        const defaultLang = outputLanguage === 'nl';
+        const fallbackCV = defaultLang 
+            ? "Kon CV niet genereren. Controleer de input en probeer het opnieuw." 
+            : "Could not generate CV. Please check input and try again.";
+        const fallbackCL = defaultLang 
+            ? "Kon sollicitatiebrief niet genereren." 
+            : "Could not generate cover letter.";
+        const fallbackTips = defaultLang 
+            ? "- Bereid vragen voor over de functie\n- Onderzoek het bedrijf grondig\n- Vraag naar de volgende stappen" 
+            : "- Prepare questions about the role\n- Research the company thoroughly\n- Ask about next steps";
+        const fallbackExplanation = defaultLang 
+            ? "Score-evaluatie kon niet worden geëxtraheerd." 
+            : "Score evaluation could not be extracted.";
 
-        // Controleer of het parsen succesvol was
-        if (!improvedCV || !coverLetter || !recruiterTips) {
-            console.error('CRITICAL PARSING FAILURE: One or more sections were null. Using fallbacks.');
-            // Dit is de meest waarschijnlijke plek waar de 500/fallback vandaan komt.
+        // Critical validation
+        if (!improvedCV || improvedCV.length < 50) {
+            console.error('❌ CRITICAL: Failed to extract valid CV!');
+            console.error('   CV is null or too short:', improvedCV?.length ?? 0, 'chars');
+        }
+        if (!coverLetter || coverLetter.length < 50) {
+            console.error('❌ WARNING: Failed to extract valid cover letter!');
+            console.error('   Cover letter is null or too short:', coverLetter?.length ?? 0, 'chars');
         }
 
-        console.log(`Successfully parsed (or used fallback) - Score: ${score ?? 'N/A'}, CV: ${improvedCV?.length ?? 0} chars, CL: ${coverLetter?.length ?? 0} chars, Tips: ${recruiterTips?.length ?? 0} chars`);
+        // Prepare final data with explicit checks
+        const finalCV = (improvedCV && improvedCV.length >= 50) ? improvedCV : fallbackCV;
+        const finalCL = (coverLetter && coverLetter.length >= 50) ? coverLetter : fallbackCL;
+        const finalTips = (recruiterTips && recruiterTips.length >= 20) ? recruiterTips : fallbackTips;
 
-        // --- Placeholder for Incrementing Usage Count ---
-        // ... (usage count logic remains the same) ...
+        console.log('\n--- FINAL DATA SUMMARY ---');
+        console.log(`Using CV: ${finalCV === fallbackCV ? '❌ FALLBACK' : `✅ EXTRACTED (${finalCV.length} chars)`}`);
+        console.log(`Using CL: ${finalCL === fallbackCL ? '❌ FALLBACK' : `✅ EXTRACTED (${finalCL.length} chars)`}`);
+        console.log(`Using Tips: ${finalTips === fallbackTips ? '❌ FALLBACK' : `✅ EXTRACTED (${finalTips.length} chars)`}`);
+        console.log('--- END FINAL DATA SUMMARY ---\n');
 
-        // Stuur de gestructureerde data succesvol terug
+        // Return success response
         return {
-            statusCode: 200, // OK
+            statusCode: 200,
             headers,
             body: JSON.stringify({
                 success: true,
                 data: {
                     cvScore: score,
                     scoreExplanation: explanation || fallbackExplanation,
-                    improvedCV: improvedCV || fallbackCV,
-                    coverLetter: coverLetter || fallbackCL,
-                    recruiterTips: recruiterTips || fallbackTips,
+                    improvedCV: finalCV,
+                    coverLetter: finalCL,
+                    recruiterTips: finalTips,
                     language: outputLanguage,
-                    subscriptionTier
+                    subscriptionTier: 'free'
                 }
             })
         };
 
     } catch (error) {
-        // ... (error handling blijft hetzelfde) ...
-        console.error('Error in analyze-cv function:', error);
+        console.error('❌ Error in analyze-cv function:', error);
         let errorMessage = 'Internal server error occurred.';
+        
         if (error.name === 'GoogleGenerativeAIFetchError') {
-             errorMessage = `Gemini API Error: ${error.message} (Status: ${error.status})`;
-             if(error.errorDetails) console.error('Gemini API Error Details:', error.errorDetails);
+            errorMessage = `Gemini API Error: ${error.message} (Status: ${error.status})`;
+            if (error.errorDetails) console.error('Gemini API Error Details:', error.errorDetails);
         } else {
             errorMessage = error.message || errorMessage;
         }
+        
         return {
-            statusCode: 500, // Internal Server Error
+            statusCode: 500,
             headers,
             body: JSON.stringify({
                 error: 'Internal server error occurred.',
@@ -205,36 +277,3 @@ EXPLANATION: [Your 1-2 sentence explanation]
         };
     }
 };
-// Helper functions for subscription management - KEEP THEM AT THE END
-// These are simplified - implement your own database logic
-
-async function checkSubscriptionTier(userId) {
-  // TODO: Implement actual database check
-  // For now, return 'free' for all users without a specific subscription
-  
-  // Example implementation with Stripe:
-  // const subscription = await stripe.subscriptions.retrieve(userId);
-  // return subscription.plan.nickname; // 'free', 'basic', 'pro'
-  
-  return 'free'; // Default to free tier
-}
-
-async function getUsageCount(userId) {
-  // TODO: Implement actual usage tracking
-  // This should check a database for how many times this user has used the service
-  
-  // Example with a simple key-value store:
-  // const count = await db.get(`usage:${userId}`) || 0;
-  // return parseInt(count);
-  
-  return 0; // For testing, always return 0 (unlimited)
-}
-
-async function incrementUsageCount(userId) {
-  // TODO: Implement actual usage increment
-  // Example:
-  // const current = await getUsageCount(userId);
-  // await db.set(`usage:${userId}`, current + 1);
-  
-  console.log(`Incremented usage count for user: ${userId}`);
-}
