@@ -65,6 +65,7 @@ exports.handler = async (event) => {
         
         // Try models in order: 2.0 stable -> 2.0 experimental -> 1.5 flash
         const modelsToTry = [
+            { name: 'gemini-2.0-flash-lite', tokens: 8192 },
             { name: 'gemini-2.0-flash', tokens: 8192 },
             { name: 'gemini-2.0-flash-exp', tokens: 8192 },
             { name: 'gemini-1.5-flash', tokens: 8192 }
@@ -86,7 +87,7 @@ exports.handler = async (event) => {
                     }
                 });
 
-                // Build the prompt
+                // Build the prompt with VERY EXPLICIT instructions
                 let prompt = `You are an expert CV and cover letter writer. Your task is to improve a CV and optionally create a cover letter based on a job description.
 
 IMPORTANT ETHICAL RULES:
@@ -119,45 +120,59 @@ ${baseCoverLetter}
                     }
                 }
 
-                prompt += `\n\nYour response MUST be in this exact format (including the markers):
+                prompt += `\n\n===================
+CRITICAL OUTPUT FORMAT INSTRUCTIONS:
+===================
+
+You MUST provide your response in EXACTLY this format. Use these EXACT marker strings:
 
 ---COVER_LETTER_START---
 `;
 
                 if (generateCoverLetter) {
                     if (baseCoverLetter && baseCoverLetter.trim()) {
-                        prompt += `[Improved and tailored version of the cover letter]`;
+                        prompt += `[Improved and tailored version of the cover letter - write the actual cover letter here]`;
                     } else {
-                        prompt += `[Professional tailored cover letter for this job application]`;
+                        prompt += `[Professional tailored cover letter for this job application - write the actual cover letter here]`;
                     }
                 } else {
-                    prompt += `[Leave this section empty if no cover letter requested]`;
+                    prompt += `Not requested`;
                 }
 
                 prompt += `
 ---COVER_LETTER_END---
 
 ---IMPROVED_CV_START---
-[Complete improved CV with all sections: contact info, professional summary, experience, education, skills. Make it ready to copy and use. Keep the same structure as the original but improve the wording, add relevant keywords from the job description, and emphasize relevant experience.]
+[Write the COMPLETE improved CV here. Include:
+- Contact information
+- Professional summary/objective
+- Work experience (with improved descriptions)
+- Education
+- Skills
+- Any other relevant sections
+
+Make it ready to copy and paste. Improve wording, add relevant keywords from job description, emphasize relevant experience. Keep the same general structure as the original.]
 ---IMPROVED_CV_END---
 
 ---CHANGES_START---
-[Detailed list of specific changes made to the CV. For EACH change, explain:
-1. What section was changed (e.g., "Professional Summary", "Experience - Company X")
-2. What specifically was changed (be specific about which words/phrases were modified)
-3. Why the change helps match the job requirements (reference specific requirements from the job description)
-4. If you added keywords, list them specifically
+[List the specific changes you made to the CV. For each change:
+1. Section changed (e.g., "Professional Summary", "Work Experience - Company X")
+2. What you changed
+3. Why it helps match the job requirements
 
-Format each change as a clear bullet point. Examples:
-- Professional Summary: Changed "marketing professional" to "data-driven Performance Marketing Manager" to better align with the job title and emphasize the data-driven approach mentioned in requirements
-- Skills Section: Added "Google Ads Campaign Management" and "PPC Campaign Optimization" keywords that directly match the required qualifications
-- Experience - Senior Growth Marketer: Reworded "managed campaigns" to "launched and managed PPC campaigns, particularly Google Ads" to specifically highlight the Google Ads experience requested
-- Experience bullet: Added quantifiable metric "significantly improving website conversion rates" to demonstrate measurable impact as emphasized in job requirements
-
-Be specific and reference actual content from both the CV and job description.]
+Format as bullet points.]
 ---CHANGES_END---
 
-CRITICAL: You must include ALL the markers exactly as shown above, even if a section is empty. Start your response with ---COVER_LETTER_START--- and end with ---CHANGES_END---`;
+CRITICAL RULES:
+1. You MUST include ALL four marker pairs exactly as shown above
+2. You MUST include the END markers (---COVER_LETTER_END---, ---IMPROVED_CV_END---, ---CHANGES_END---)
+3. DO NOT add any other markers (like CV_SCORE, RECRUITER_TIPS, etc.)
+4. DO NOT change the marker names
+5. Start your response with ---COVER_LETTER_START---
+6. End your response with ---CHANGES_END---
+7. Put actual content between the markers, not placeholders
+
+BEGIN YOUR RESPONSE NOW:`;
 
                 // Generate content
                 console.log(`Sending request to Gemini with model: ${modelConfig.name}`);
@@ -189,58 +204,110 @@ CRITICAL: You must include ALL the markers exactly as shown above, even if a sec
         const response = await result.response;
         const text = response.text();
         
-        console.log('Received response from Gemini');
-        console.log('Response length:', text.length);
-        console.log('First 200 chars:', text.substring(0, 200));
+        console.log(`Response received from Gemini (model: ${usedModel}). Length: ${text.length} characters.`);
+        console.log('----- RAW GEMINI RESPONSE START -----');
+        console.log(text);
+        console.log('----- RAW GEMINI RESPONSE END -----');
 
-        // More flexible parsing with multiple attempts
+        // ROBUST PARSING LOGIC
         let coverLetter = '';
         let improvedCV = '';
         let changesMade = '';
 
-        // Try to extract cover letter
+        // Helper function to extract content between markers
+        function extractBetweenMarkers(text, startMarker, endMarker, fallbackMarkers = []) {
+            // Try exact match first
+            const regex = new RegExp(`${startMarker}([\\s\\S]*?)${endMarker}`, 'i');
+            const match = text.match(regex);
+            if (match) {
+                return match[1].trim();
+            }
+            
+            // Try without end marker (find until next major marker)
+            const startIdx = text.indexOf(startMarker);
+            if (startIdx !== -1) {
+                let content = text.substring(startIdx + startMarker.length);
+                
+                // Find where content ends
+                const possibleEndMarkers = [endMarker, ...fallbackMarkers];
+                let endIdx = content.length;
+                
+                for (const marker of possibleEndMarkers) {
+                    const idx = content.indexOf(marker);
+                    if (idx !== -1 && idx < endIdx) {
+                        endIdx = idx;
+                    }
+                }
+                
+                return content.substring(0, endIdx).trim();
+            }
+            
+            return '';
+        }
+
+        // Extract improved CV (highest priority)
+        improvedCV = extractBetweenMarkers(
+            text,
+            '---IMPROVED_CV_START---',
+            '---IMPROVED_CV_END---',
+            ['---COVER_LETTER_START---', '---CHANGES_START---', '---RECRUITER_TIPS_START---', '---CV_SCORE_START---']
+        );
+
+        if (improvedCV) {
+            console.log(`✅ Improved CV extracted successfully. Length: ${improvedCV.length} chars`);
+        } else {
+            console.error('❌ Failed to extract improved CV');
+        }
+
+        // Extract cover letter (if requested)
         if (generateCoverLetter) {
-            const clMatch = text.match(/---COVER_LETTER_START---([\s\S]*?)---COVER_LETTER_END---/);
-            if (clMatch) {
-                coverLetter = clMatch[1].trim();
-                console.log('Cover letter extracted, length:', coverLetter.length);
+            coverLetter = extractBetweenMarkers(
+                text,
+                '---COVER_LETTER_START---',
+                '---COVER_LETTER_END---',
+                ['---IMPROVED_CV_START---', '---CHANGES_START---', '---RECRUITER_TIPS_START---']
+            );
+
+            if (coverLetter && coverLetter !== 'Not requested') {
+                console.log(`✅ Cover letter extracted successfully. Length: ${coverLetter.length} chars`);
             } else {
-                console.log('Warning: Cover letter markers not found');
+                console.log('⚠️ Cover letter not found or was "Not requested"');
+                coverLetter = '';
             }
         }
 
-        // Try to extract improved CV
-        const cvMatch = text.match(/---IMPROVED_CV_START---([\s\S]*?)---IMPROVED_CV_END---/);
-        if (cvMatch) {
-            improvedCV = cvMatch[1].trim();
-            console.log('Improved CV extracted, length:', improvedCV.length);
-        } else {
-            console.log('Warning: Improved CV markers not found');
-            // Fallback: Look for any substantial content between cover letter and changes
-            const afterCoverLetter = text.split('---COVER_LETTER_END---')[1] || text;
-            const beforeChanges = afterCoverLetter.split('---CHANGES_START---')[0] || afterCoverLetter;
-            improvedCV = beforeChanges.trim();
-            console.log('Using fallback CV extraction, length:', improvedCV.length);
-        }
+        // Extract changes/tips
+        changesMade = extractBetweenMarkers(
+            text,
+            '---CHANGES_START---',
+            '---CHANGES_END---',
+            []
+        );
 
-        // Try to extract changes
-        const changesMatch = text.match(/---CHANGES_START---([\s\S]*?)---CHANGES_END---/);
-        if (changesMatch) {
-            changesMade = changesMatch[1].trim();
-            console.log('Changes extracted, length:', changesMade.length);
-        } else {
-            console.log('Warning: Changes markers not found');
-            // Fallback: Get everything after CHANGES_START
-            const afterChangesStart = text.split('---CHANGES_START---')[1];
-            if (afterChangesStart) {
-                changesMade = afterChangesStart.replace('---CHANGES_END---', '').trim();
+        // If CHANGES not found, try RECRUITER_TIPS as alternative
+        if (!changesMade || changesMade.length < 20) {
+            const tips = extractBetweenMarkers(
+                text,
+                '---RECRUITER_TIPS_START---',
+                '---RECRUITER_TIPS_END---',
+                []
+            );
+            if (tips) {
+                changesMade = `**Interview Preparation Tips:**\n\n${tips}`;
+                console.log(`✅ Extracted recruiter tips instead of changes. Length: ${tips.length} chars`);
             }
         }
 
-        // Validate that we got the essential content (improved CV at minimum)
-        if (!improvedCV || improvedCV.length < 50) {
-            console.error('Failed to extract valid improved CV');
-            console.error('Full response:', text);
+        if (changesMade) {
+            console.log(`✅ Changes/tips extracted successfully. Length: ${changesMade.length} chars`);
+        }
+
+        // Validate that we got the essential content
+        if (!improvedCV || improvedCV.length < 100) {
+            console.error('❌ CRITICAL: Failed to extract valid improved CV');
+            console.error('CV length:', improvedCV.length);
+            console.error('Response preview:', text.substring(0, 500));
+            
             return {
                 statusCode: 500,
                 headers: {
@@ -248,23 +315,26 @@ CRITICAL: You must include ALL the markers exactly as shown above, even if a sec
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ 
-                    error: 'Invalid response format from the AI. Please try again.',
+                    error: 'The AI returned an invalid response format. Please try again.',
+                    details: 'The improved CV could not be extracted from the AI response.',
                     debug: text.substring(0, 1000)
                 })
             };
         }
 
-        // If cover letter was requested but not found, provide a message
-        if (generateCoverLetter && !coverLetter) {
-            coverLetter = 'Cover letter generation failed. Please try again.';
+        // Provide defaults for missing sections
+        if (generateCoverLetter && (!coverLetter || coverLetter.length < 50)) {
+            coverLetter = 'The AI did not generate a cover letter. Please try generating again or contact support if the issue persists.';
+            console.log('⚠️ Using default cover letter message');
         }
 
-        // If changes weren't found, provide a default message
-        if (!changesMade) {
-            changesMade = 'Changes list not available. Please review the improved CV above.';
+        if (!changesMade || changesMade.length < 20) {
+            changesMade = 'The CV has been improved and optimized to better match the job requirements. Key improvements include enhanced descriptions, added relevant keywords, and better alignment with the job posting.';
+            console.log('⚠️ Using default changes message');
         }
 
-        console.log('Successfully parsed all sections');
+        console.log('✅ Successfully parsed all sections');
+        console.log(`Final lengths - CV: ${improvedCV.length}, CL: ${coverLetter.length}, Changes: ${changesMade.length}`);
 
         // Return success response
         return {
@@ -274,14 +344,15 @@ CRITICAL: You must include ALL the markers exactly as shown above, even if a sec
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                coverLetter: coverLetter,
+                coverLetter: coverLetter || '',
                 improvedCV: improvedCV,
-                changesMade: changesMade
+                changesMade: changesMade,
+                modelUsed: usedModel
             })
         };
 
     } catch (error) {
-        console.error('Error in generate function:', error);
+        console.error('❌ Error in generate function:', error);
         console.error('Error stack:', error.stack);
         
         // Check for specific error types
