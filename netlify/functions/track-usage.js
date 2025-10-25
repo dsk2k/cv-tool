@@ -1,8 +1,21 @@
 // netlify/functions/track-usage.js
-// Simple usage tracking without database
+// Production-ready usage tracking with environment variable whitelist
 
-// In-memory storage (resets when function restarts, but good enough)
 const usageStore = new Map();
+
+// Get whitelisted IPs from environment variable (SECURE!)
+// Set in Netlify Dashboard: Environment Variables
+// Format: WHITELISTED_IPS=123.45.67.89,98.76.54.32,111.22.33.44
+const WHITELISTED_IPS = process.env.WHITELISTED_IPS 
+    ? process.env.WHITELISTED_IPS.split(',').map(ip => ip.trim())
+    : [];
+
+// Log on startup (for debugging only - won't expose IPs to users)
+if (WHITELISTED_IPS.length > 0) {
+    console.log('IP whitelist enabled with', WHITELISTED_IPS.length, 'addresses');
+} else {
+    console.log('No IP whitelist configured');
+}
 
 exports.handler = async (event) => {
     // Handle OPTIONS for CORS
@@ -43,12 +56,33 @@ exports.handler = async (event) => {
             };
         }
 
-        // Get user's IP for additional tracking
+        // Get user's IP
         const userIP = event.headers['x-forwarded-for']?.split(',')[0].trim() || 
                        event.headers['client-ip'] || 
                        'unknown';
 
-        // Create composite key
+        // Check if IP is whitelisted
+        const isWhitelisted = WHITELISTED_IPS.length > 0 && WHITELISTED_IPS.includes(userIP);
+
+        if (isWhitelisted) {
+            console.log('Whitelisted IP detected - Unlimited access granted');
+            
+            // Always return 0 usage for whitelisted IPs
+            return {
+                statusCode: 200,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    usage: 0,
+                    whitelisted: true,
+                    message: 'Unlimited access (whitelisted)'
+                })
+            };
+        }
+
+        // Create composite key for non-whitelisted users
         const userKey = fingerprint + '-' + userIP;
 
         if (action === 'check') {
@@ -63,6 +97,7 @@ exports.handler = async (event) => {
                 },
                 body: JSON.stringify({
                     usage: usage,
+                    whitelisted: false,
                     message: 'Check successful'
                 })
             };
@@ -75,7 +110,7 @@ exports.handler = async (event) => {
             usageStore.set(userKey, newUsage);
 
             console.log('Usage incremented:', {
-                key: userKey.substring(0, 20) + '...',
+                keyPreview: userKey.substring(0, 20) + '...',
                 usage: newUsage,
                 timestamp: new Date().toISOString()
             });
@@ -89,6 +124,7 @@ exports.handler = async (event) => {
                 body: JSON.stringify({
                     success: true,
                     usage: newUsage,
+                    whitelisted: false,
                     message: 'Usage tracked'
                 })
             };
@@ -114,6 +150,7 @@ exports.handler = async (event) => {
             },
             body: JSON.stringify({
                 usage: 0,
+                whitelisted: false,
                 message: 'Tracking unavailable'
             })
         };
