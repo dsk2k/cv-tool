@@ -1,4 +1,14 @@
-[functions]
+[build]
+  command = "npm install" # Zorg dat dit commando klopt voor jouw setup
+  functions = "netlify/functions"
+  publish = "." # Zorg dat dit de map is met je index.html
 
-  directory = "netlify/functions"
-      timeout = 25 # Verhoog naar 25 seconden (max ~26s voor standaard functies)
+# Correcte manier om timeout voor ALLE functies in te stellen
+[functions."*"]
+  timeout = 25 # Timeout in seconden (max ~26s voor betaalde plannen)
+
+# Eventuele redirects (deze stonden al in je eerdere guide)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
