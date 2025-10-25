@@ -1,661 +1,125 @@
+// ============================================
+// TRANSLATIONS
+// English and Dutch translations for the UI
+// ============================================
+
 const translations = {
   en: {
-    nav: {
-      title: "AI CV Tailor",
-      home: "Home",
-      plans: "Plans",
-      improvements: "Results"
-    },
-    hero: {
-      title: "AI-Powered CV & Cover Letter Tailoring",
-      subtitle: "Transform your job applications in seconds with AI. Get a perfectly tailored CV and compelling cover letter for any job posting.",
-      cta: "Start Tailoring Now"
-    },
-    features: {
-      title: "Why Choose AI CV Tailor?",
-      speed: {
-        title: "Lightning Fast",
-        description: "Get your tailored CV and cover letter in under 60 seconds"
-      },
-      smart: {
-        title: "AI-Powered Intelligence",
-        description: "Advanced AI analyzes job requirements and highlights your relevant experience"
-      },
-      professional: {
-        title: "Professional Quality",
-        description: "Recruiter-approved formats and persuasive language that gets interviews"
-      },
-      multilingual: {
-        title: "Bilingual Support",
-        description: "Generate CVs and cover letters in English or Dutch"
-      }
-    },
-    form: {
-      title: "Tailor Your CV & Cover Letter",
-      cvLabel: "Your CV / Resume",
-      cvPlaceholder: "Paste your current CV or resume here...",
-      cvPaste: "Paste from Clipboard",
-      jobLabel: "Job Description",
-      jobPlaceholder: "Paste the job description or vacancy text here...",
-      jobPaste: "Paste from Clipboard",
-      outputLanguage: "Output Language",
-      outputLanguageHelp: "Choose the language for your CV and cover letter",
-      english: "English",
-      dutch: "Dutch",
-      generateButton: "Generate Tailored CV & Cover Letter",
-      processing: "Processing... This may take up to 60 seconds"
-    },
-    howItWorks: {
-      title: "How It Works",
-      step1: {
-        title: "Paste Your CV",
-        description: "Copy and paste your current CV or LinkedIn profile"
-      },
-      step2: {
-        title: "Add Job Description",
-        description: "Paste the job posting you're applying for"
-      },
-      step3: {
-        title: "Choose Language",
-        description: "Select English or Dutch for your documents"
-      },
-      step4: {
-        title: "Get Results",
-        description: "Receive your tailored CV, cover letter, and interview tips instantly"
-      }
-    },
-    testimonials: {
-      title: "Success Stories",
-      testimonial1: {
-        text: "I landed 3 interviews in one week using AI CV Tailor. The tailored approach really works!",
-        author: "Sarah M., Marketing Manager"
-      },
-      testimonial2: {
-        text: "This tool saved me hours of work. The AI understood exactly what the recruiter was looking for.",
-        author: "Michael T., Software Developer"
-      },
-      testimonial3: {
-        text: "The Dutch translations are perfect. Finally a tool that works for the Dutch job market!",
-        author: "Emma V., Project Manager"
-      }
-    },
-    cta: {
-      title: "Ready to Land Your Dream Job?",
-      subtitle: "Join thousands of successful job seekers who transformed their applications with AI CV Tailor",
-      button: "Start Free Trial"
-    },
-    footer: {
-      description: "AI-powered CV and cover letter tailoring for job seekers worldwide.",
-      product: "Product",
-      home: "Home",
-      pricing: "Pricing",
-      features: "Features",
-      legal: "Legal",
-      privacy: "Privacy Policy",
-      terms: "Terms of Service",
-      support: "Support",
-      contact: "Contact Us",
-      faq: "FAQ",
-      rights: "All rights reserved."
-    },
-    improvements: {
-      title: "Your Tailored CV & Cover Letter",
-      loading: "Loading your results...",
-      error: {
-        title: "Error Loading Results",
-        back: "Back to Home",
-        noData: "No results found. Please generate a new CV.",
-        generic: "An error occurred while loading results."
-      },
-      download: {
-        cv: "Download CV as PDF",
-        coverLetter: "Download Cover Letter as PDF"
-      },
-      copy: {
-        cv: "Copy CV",
-        coverLetter: "Copy Cover Letter"
-      },
-      new: "Create New",
-      cv: {
-        title: "Your Tailored CV"
-      },
-      coverLetter: {
-        title: "Your Cover Letter"
-      },
-      tips: {
-        title: "Recruiter Conversation Tips"
-      },
-      upgrade: {
-        title: "Love this tool?",
-        message: "Upgrade to Pro for unlimited CV tailoring and additional features!",
-        button: "View Plans"
-      },
-      toast: {
-        copied: "Copied to clipboard!",
-        pdfDownloaded: "PDF downloaded successfully!"
-      }
-    },
-    plans: {
-      title: "Pricing Plans - AI CV Tailor",
-      hero: {
-        title: "Choose Your Plan",
-        subtitle: "Select the perfect plan for your career journey. All plans include AI-powered CV tailoring and professional cover letters."
-      },
-      popular: "POPULAR",
-      processing: "Processing your request...",
-      free: {
-        name: "Free Trial",
-        description: "Try before you buy",
-        period: "Forever free",
-        feature1: "3 CV generations per month",
-        feature2: "Basic AI tailoring",
-        feature3: "Cover letter generation",
-        feature4: "Recruiter tips",
-        feature5: "No LinkedIn integration",
-        feature6: "No PDF templates",
-        cta: "Get Started"
-      },
-      basic: {
-        name: "Basic",
-        description: "For active job seekers",
-        period: "per month",
-        feature1: "25 CV generations per month",
-        feature2: "Advanced AI tailoring",
-        feature3: "Cover letter generation",
-        feature4: "Advanced recruiter tips",
-        feature5: "3 PDF templates",
-        feature6: "Priority support",
-        cta: "Choose Basic"
-      },
-      pro: {
-        name: "Pro",
-        description: "For serious professionals",
-        period: "per month",
-        feature1: "Unlimited CV generations",
-        feature2: "Premium AI tailoring",
-        feature3: "LinkedIn profile import",
-        feature4: "10+ premium PDF templates",
-        feature5: "Interview preparation guide",
-        feature6: "Priority email support",
-        feature7: "Early access to new features",
-        cta: "Choose Pro"
-      },
-      faq: {
-        title: "Frequently Asked Questions",
-        q1: "Can I cancel anytime?",
-        a1: "Yes! You can cancel your subscription at any time. You'll retain access until the end of your billing period.",
-        q2: "What payment methods do you accept?",
-        a2: "We accept all major credit cards, debit cards, and various local payment methods through Stripe.",
-        q3: "Is my data secure?",
-        a3: "Absolutely. We use industry-standard encryption and never share your personal information. Your data is automatically deleted after 30 days.",
-        q4: "Can I upgrade or downgrade my plan?",
-        a4: "Yes! You can change your plan at any time. Changes will be reflected in your next billing cycle.",
-        q5: "Do you offer refunds?",
-        a5: "We offer a 14-day money-back guarantee. If you're not satisfied, contact us for a full refund."
-      }
-    }
+    // Header
+    subtitle: "Transform Your CV for Any Job",
+    tagline: "AI-powered optimization • Cover letters • Interview tips",
+    
+    // Features
+    feature1: "Job-Specific Tailoring",
+    feature2: "See What Changed & Why",
+    feature3: "Professional Cover Letter",
+    feature4: "Interview Preparation",
+    
+    // Form
+    formTitle: "Get Started in 3 Simple Steps",
+    formDescription: "Paste your current CV and the job description, and let our AI create a perfectly tailored application package for you.",
+    
+    cvTitle: "Step 1: Your Current CV",
+    cvLabel: "Paste your CV here (minimum 50 characters)",
+    cvTip: "Include all your experience, skills, education, and achievements. The more complete, the better the AI can tailor it!",
+    
+    jobTitle: "Step 2: Job Description",
+    jobLabel: "Paste the job description (minimum 30 characters)",
+    jobTip: "Include the full job posting with requirements, responsibilities, and desired qualifications for best results.",
+    
+    languageTitle: "Step 3: Choose Output Language",
+    languageLabel: "Select the language for your CV and cover letter",
+    languageNote: "This only affects the output (CV, cover letter, tips). The UI language can be changed using the buttons above.",
+    
+    // Buttons
+    submitBtn: "Generate My Tailored CV",
+    sampleBtn: "Load Sample Data",
+    clearBtn: "Clear All",
+    pasteBtn: "Paste from Clipboard",
+    
+    // Misc
+    characters: "Characters:",
+    minimum: " (minimum ",
+    tip: "Tip:",
+    
+    // How it works
+    howItWorks: "🎯 How It Works",
+    step1Title: "Paste Your CV",
+    step1Desc: "Copy your current CV and paste it into the first field. Include all your experience, skills, and achievements.",
+    step2Title: "Add Job Description",
+    step2Desc: "Paste the complete job description for the position you're applying to. The more detail, the better!",
+    step3Title: "Choose Language",
+    step3Desc: "Select whether you want your tailored CV and cover letter in English or Dutch.",
+    step4Title: "Get Results",
+    step4Desc: "Receive your optimized CV, professional cover letter, detailed changes overview, and interview tips!",
+    
+    // Loading
+    loadingTitle: "✨ AI is Working Its Magic...",
+    loadingSubtext: "This usually takes 10-15 seconds. Please wait...",
+    
+    // Footer
+    privacyNote: "Your data is processed securely and not stored"
   },
+  
   nl: {
-    nav: {
-      title: "AI CV Aanpasser",
-      home: "Home",
-      plans: "Prijzen",
-      improvements: "Resultaten"
-    },
-    hero: {
-      title: "AI-Gedreven CV & Motivatiebrief Aanpassing",
-      subtitle: "Transformeer je sollicitaties in seconden met AI. Krijg een perfect op maat gemaakt CV en overtuigende motivatiebrief voor elke vacature.",
-      cta: "Begin Nu met Aanpassen"
-    },
-    features: {
-      title: "Waarom Kiezen voor AI CV Aanpasser?",
-      speed: {
-        title: "Razend Snel",
-        description: "Ontvang je op maat gemaakte CV en motivatiebrief in minder dan 60 seconden"
-      },
-      smart: {
-        title: "AI-Gedreven Intelligentie",
-        description: "Geavanceerde AI analyseert functie-eisen en benadrukt je relevante ervaring"
-      },
-      professional: {
-        title: "Professionele Kwaliteit",
-        description: "Door recruiters goedgekeurde formats en overtuigende taal die interviews oplevert"
-      },
-      multilingual: {
-        title: "Tweetalige Ondersteuning",
-        description: "Genereer CV's en motivatiebrieven in Engels of Nederlands"
-      }
-    },
-    form: {
-      title: "Pas Je CV & Motivatiebrief Aan",
-      cvLabel: "Jouw CV / Resume",
-      cvPlaceholder: "Plak hier je huidige CV of resume...",
-      cvPaste: "Plakken vanaf Klembord",
-      jobLabel: "Functiebeschrijving",
-      jobPlaceholder: "Plak hier de functiebeschrijving of vacaturetekst...",
-      jobPaste: "Plakken vanaf Klembord",
-      outputLanguage: "Output Taal",
-      outputLanguageHelp: "Kies de taal voor je CV en motivatiebrief",
-      english: "Engels",
-      dutch: "Nederlands",
-      generateButton: "Genereer Op Maat Gemaakt CV & Motivatiebrief",
-      processing: "Verwerken... Dit kan tot 60 seconden duren"
-    },
-    howItWorks: {
-      title: "Hoe Het Werkt",
-      step1: {
-        title: "Plak Je CV",
-        description: "Kopieer en plak je huidige CV of LinkedIn profiel"
-      },
-      step2: {
-        title: "Voeg Functiebeschrijving Toe",
-        description: "Plak de vacature waarvoor je solliciteert"
-      },
-      step3: {
-        title: "Kies Taal",
-        description: "Selecteer Engels of Nederlands voor je documenten"
-      },
-      step4: {
-        title: "Ontvang Resultaten",
-        description: "Ontvang direct je op maat gemaakte CV, motivatiebrief en sollicitatietips"
-      }
-    },
-    testimonials: {
-      title: "Succesverhalen",
-      testimonial1: {
-        text: "Ik kreeg 3 sollicitatiegesprekken in één week dankzij AI CV Aanpasser. De op maat gemaakte aanpak werkt echt!",
-        author: "Sarah M., Marketing Manager"
-      },
-      testimonial2: {
-        text: "Deze tool bespaarde me uren werk. De AI begreep precies wat de recruiter zocht.",
-        author: "Michael T., Software Developer"
-      },
-      testimonial3: {
-        text: "De Nederlandse vertalingen zijn perfect. Eindelijk een tool die werkt voor de Nederlandse arbeidsmarkt!",
-        author: "Emma V., Projectmanager"
-      }
-    },
-    cta: {
-      title: "Klaar om Je Droombaan te Vinden?",
-      subtitle: "Sluit je aan bij duizenden succesvolle sollicitanten die hun sollicitaties transformeerden met AI CV Aanpasser",
-      button: "Start Gratis Proefperiode"
-    },
-    footer: {
-      description: "AI-gedreven CV en motivatiebrief aanpassing voor sollicitanten wereldwijd.",
-      product: "Product",
-      home: "Home",
-      pricing: "Prijzen",
-      features: "Functies",
-      legal: "Juridisch",
-      privacy: "Privacybeleid",
-      terms: "Gebruiksvoorwaarden",
-      support: "Ondersteuning",
-      contact: "Contact",
-      faq: "Veelgestelde Vragen",
-      rights: "Alle rechten voorbehouden."
-    },
-    improvements: {
-      title: "Je Op Maat Gemaakte CV & Motivatiebrief",
-      loading: "Je resultaten laden...",
-      error: {
-        title: "Fout bij Laden van Resultaten",
-        back: "Terug naar Home",
-        noData: "Geen resultaten gevonden. Genereer een nieuw CV.",
-        generic: "Er is een fout opgetreden bij het laden van resultaten."
-      },
-      download: {
-        cv: "Download CV als PDF",
-        coverLetter: "Download Motivatiebrief als PDF"
-      },
-      copy: {
-        cv: "Kopieer CV",
-        coverLetter: "Kopieer Motivatiebrief"
-      },
-      new: "Nieuwe Maken",
-      cv: {
-        title: "Je Op Maat Gemaakte CV"
-      },
-      coverLetter: {
-        title: "Je Motivatiebrief"
-      },
-      tips: {
-        title: "Tips voor Gesprek met Recruiter"
-      },
-      upgrade: {
-        title: "Dol op deze tool?",
-        message: "Upgrade naar Pro voor onbeperkte CV-aanpassingen en extra functies!",
-        button: "Bekijk Prijzen"
-      },
-      toast: {
-        copied: "Gekopieerd naar klembord!",
-        pdfDownloaded: "PDF succesvol gedownload!"
-      }
-    },
-    plans: {
-      title: "Prijzen - AI CV Aanpasser",
-      hero: {
-        title: "Kies Je Plan",
-        subtitle: "Selecteer het perfecte plan voor jouw carrière. Alle plannen bevatten AI-gedreven CV-aanpassing en professionele motivatiebrieven."
-      },
-      popular: "POPULAIR",
-      processing: "Je verzoek wordt verwerkt...",
-      free: {
-        name: "Gratis Proefversie",
-        description: "Probeer voordat je koopt",
-        period: "Altijd gratis",
-        feature1: "3 CV-generaties per maand",
-        feature2: "Basis AI-aanpassing",
-        feature3: "Motivatiebrief generatie",
-        feature4: "Recruiter tips",
-        feature5: "Geen LinkedIn integratie",
-        feature6: "Geen PDF-sjablonen",
-        cta: "Begin Nu"
-      },
-      basic: {
-        name: "Basis",
-        description: "Voor actieve werkzoekenden",
-        period: "per maand",
-        feature1: "25 CV-generaties per maand",
-        feature2: "Geavanceerde AI-aanpassing",
-        feature3: "Motivatiebrief generatie",
-        feature4: "Geavanceerde recruiter tips",
-        feature5: "3 PDF-sjablonen",
-        feature6: "Prioriteit ondersteuning",
-        cta: "Kies Basis"
-      },
-      pro: {
-        name: "Pro",
-        description: "Voor serieuze professionals",
-        period: "per maand",
-        feature1: "Onbeperkte CV-generaties",
-        feature2: "Premium AI-aanpassing",
-        feature3: "LinkedIn profiel import",
-        feature4: "10+ premium PDF-sjablonen",
-        feature5: "Sollicitatiegesprek voorbereiding",
-        feature6: "Prioriteit e-mail ondersteuning",
-        feature7: "Vroege toegang tot nieuwe functies",
-        cta: "Kies Pro"
-      },
-      faq: {
-        title: "Veelgestelde Vragen",
-        q1: "Kan ik op elk moment opzeggen?",
-        a1: "Ja! Je kunt je abonnement op elk moment opzeggen. Je behoudt toegang tot het einde van je factureringsperiode.",
-        q2: "Welke betaalmethoden accepteren jullie?",
-        a2: "We accepteren alle grote creditcards, debitcards en diverse lokale betaalmethoden via Stripe.",
-        q3: "Zijn mijn gegevens veilig?",
-        a3: "Absoluut. We gebruiken industriestandaard encryptie en delen nooit je persoonlijke informatie. Je gegevens worden automatisch verwijderd na 30 dagen.",
-        q4: "Kan ik mijn plan upgraden of downgraden?",
-        a4: "Ja! Je kunt je plan op elk moment wijzigen. Wijzigingen worden doorgevoerd in je volgende factureringsperiode.",
-        q5: "Bieden jullie terugbetalingen aan?",
-        a5: "We bieden een 14-dagen geld-terug-garantie. Als je niet tevreden bent, neem contact met ons op voor een volledige terugbetaling."
-      }
-    },
-    success: {
-      title: "Payment Successful!",
-      subtitle: "Thank you for subscribing to AI CV Tailor. Your account has been upgraded!",
-      details: {
-        title: "Your Subscription Details",
-        activated: "Subscription activated",
-        confirmation: "Confirmation email sent",
-        ready: "Ready to create unlimited CVs"
-      },
-      next: {
-        title: "What's Next?",
-        step1: {
-          title: "Create Your First CV",
-          description: "Start tailoring your CV for specific job opportunities"
-        },
-        step2: {
-          title: "Download as PDF",
-          description: "Export your CV in professional PDF format"
-        },
-        step3: {
-          title: "Land Interviews",
-          description: "Use recruiter tips to ace your interviews"
-        }
-      },
-      cta: {
-        create: "Start Creating CVs Now",
-        support: "Contact Support"
-      },
-      footer: {
-        manage: "You can manage your subscription anytime from your account settings.",
-        questions: "Questions?"
-      }
-    }
-  },
-  nl: {
-    nav: {
-      title: "AI CV Aanpasser",
-      home: "Home",
-      plans: "Prijzen",
-      improvements: "Resultaten"
-    },
-    hero: {
-      title: "AI-Gedreven CV & Motivatiebrief Aanpassing",
-      subtitle: "Transformeer je sollicitaties in seconden met AI. Krijg een perfect op maat gemaakt CV en overtuigende motivatiebrief voor elke vacature.",
-      cta: "Begin Nu met Aanpassen"
-    },
-    features: {
-      title: "Waarom Kiezen voor AI CV Aanpasser?",
-      speed: {
-        title: "Razend Snel",
-        description: "Ontvang je op maat gemaakte CV en motivatiebrief in minder dan 60 seconden"
-      },
-      smart: {
-        title: "AI-Gedreven Intelligentie",
-        description: "Geavanceerde AI analyseert functie-eisen en benadrukt je relevante ervaring"
-      },
-      professional: {
-        title: "Professionele Kwaliteit",
-        description: "Door recruiters goedgekeurde formats en overtuigende taal die interviews oplevert"
-      },
-      multilingual: {
-        title: "Tweetalige Ondersteuning",
-        description: "Genereer CV's en motivatiebrieven in Engels of Nederlands"
-      }
-    },
-    form: {
-      title: "Pas Je CV & Motivatiebrief Aan",
-      cvLabel: "Jouw CV / Resume",
-      cvPlaceholder: "Plak hier je huidige CV of resume...",
-      cvPaste: "Plakken vanaf Klembord",
-      jobLabel: "Functiebeschrijving",
-      jobPlaceholder: "Plak hier de functiebeschrijving of vacaturetekst...",
-      jobPaste: "Plakken vanaf Klembord",
-      outputLanguage: "Output Taal",
-      outputLanguageHelp: "Kies de taal voor je CV en motivatiebrief",
-      english: "Engels",
-      dutch: "Nederlands",
-      generateButton: "Genereer Op Maat Gemaakt CV & Motivatiebrief",
-      processing: "Verwerken... Dit kan tot 60 seconden duren"
-    },
-    howItWorks: {
-      title: "Hoe Het Werkt",
-      step1: {
-        title: "Plak Je CV",
-        description: "Kopieer en plak je huidige CV of LinkedIn profiel"
-      },
-      step2: {
-        title: "Voeg Functiebeschrijving Toe",
-        description: "Plak de vacature waarvoor je solliciteert"
-      },
-      step3: {
-        title: "Kies Taal",
-        description: "Selecteer Engels of Nederlands voor je documenten"
-      },
-      step4: {
-        title: "Ontvang Resultaten",
-        description: "Ontvang direct je op maat gemaakte CV, motivatiebrief en sollicitatietips"
-      }
-    },
-    testimonials: {
-      title: "Succesverhalen",
-      testimonial1: {
-        text: "Ik kreeg 3 sollicitatiegesprekken in één week dankzij AI CV Aanpasser. De op maat gemaakte aanpak werkt echt!",
-        author: "Sarah M., Marketing Manager"
-      },
-      testimonial2: {
-        text: "Deze tool bespaarde me uren werk. De AI begreep precies wat de recruiter zocht.",
-        author: "Michael T., Software Developer"
-      },
-      testimonial3: {
-        text: "De Nederlandse vertalingen zijn perfect. Eindelijk een tool die werkt voor de Nederlandse arbeidsmarkt!",
-        author: "Emma V., Projectmanager"
-      }
-    },
-    cta: {
-      title: "Klaar om Je Droombaan te Vinden?",
-      subtitle: "Sluit je aan bij duizenden succesvolle sollicitanten die hun sollicitaties transformeerden met AI CV Aanpasser",
-      button: "Start Gratis Proefperiode"
-    },
-    footer: {
-      description: "AI-gedreven CV en motivatiebrief aanpassing voor sollicitanten wereldwijd.",
-      product: "Product",
-      home: "Home",
-      pricing: "Prijzen",
-      features: "Functies",
-      legal: "Juridisch",
-      privacy: "Privacybeleid",
-      terms: "Gebruiksvoorwaarden",
-      support: "Ondersteuning",
-      contact: "Contact",
-      faq: "Veelgestelde Vragen",
-      rights: "Alle rechten voorbehouden."
-    },
-    improvements: {
-      title: "Je Op Maat Gemaakte CV & Motivatiebrief",
-      loading: "Je resultaten laden...",
-      error: {
-        title: "Fout bij Laden van Resultaten",
-        back: "Terug naar Home",
-        noData: "Geen resultaten gevonden. Genereer een nieuw CV.",
-        generic: "Er is een fout opgetreden bij het laden van resultaten."
-      },
-      download: {
-        cv: "Download CV als PDF",
-        coverLetter: "Download Motivatiebrief als PDF"
-      },
-      copy: {
-        cv: "Kopieer CV",
-        coverLetter: "Kopieer Motivatiebrief"
-      },
-      new: "Nieuwe Maken",
-      cv: {
-        title: "Je Op Maat Gemaakte CV"
-      },
-      coverLetter: {
-        title: "Je Motivatiebrief"
-      },
-      tips: {
-        title: "Tips voor Gesprek met Recruiter"
-      },
-      upgrade: {
-        title: "Dol op deze tool?",
-        message: "Upgrade naar Pro voor onbeperkte CV-aanpassingen en extra functies!",
-        button: "Bekijk Prijzen"
-      },
-      toast: {
-        copied: "Gekopieerd naar klembord!",
-        pdfDownloaded: "PDF succesvol gedownload!"
-      }
-    },
-    plans: {
-      title: "Prijzen - AI CV Aanpasser",
-      hero: {
-        title: "Kies Je Plan",
-        subtitle: "Selecteer het perfecte plan voor jouw carrière. Alle plannen bevatten AI-gedreven CV-aanpassing en professionele motivatiebrieven."
-      },
-      popular: "POPULAIR",
-      processing: "Je verzoek wordt verwerkt...",
-      free: {
-        name: "Gratis Proefversie",
-        description: "Probeer voordat je koopt",
-        period: "Altijd gratis",
-        feature1: "3 CV-generaties per maand",
-        feature2: "Basis AI-aanpassing",
-        feature3: "Motivatiebrief generatie",
-        feature4: "Recruiter tips",
-        feature5: "Geen LinkedIn integratie",
-        feature6: "Geen PDF-sjablonen",
-        cta: "Begin Nu"
-      },
-      basic: {
-        name: "Basis",
-        description: "Voor actieve werkzoekenden",
-        period: "per maand",
-        feature1: "25 CV-generaties per maand",
-        feature2: "Geavanceerde AI-aanpassing",
-        feature3: "Motivatiebrief generatie",
-        feature4: "Geavanceerde recruiter tips",
-        feature5: "3 PDF-sjablonen",
-        feature6: "Prioriteit ondersteuning",
-        cta: "Kies Basis"
-      },
-      pro: {
-        name: "Pro",
-        description: "Voor serieuze professionals",
-        period: "per maand",
-        feature1: "Onbeperkte CV-generaties",
-        feature2: "Premium AI-aanpassing",
-        feature3: "LinkedIn profiel import",
-        feature4: "10+ premium PDF-sjablonen",
-        feature5: "Sollicitatiegesprek voorbereiding",
-        feature6: "Prioriteit e-mail ondersteuning",
-        feature7: "Vroege toegang tot nieuwe functies",
-        cta: "Kies Pro"
-      },
-      faq: {
-        title: "Veelgestelde Vragen",
-        q1: "Kan ik op elk moment opzeggen?",
-        a1: "Ja! Je kunt je abonnement op elk moment opzeggen. Je behoudt toegang tot het einde van je factureringsperiode.",
-        q2: "Welke betaalmethoden accepteren jullie?",
-        a2: "We accepteren alle grote creditcards, debitcards en diverse lokale betaalmethoden via Stripe.",
-        q3: "Zijn mijn gegevens veilig?",
-        a3: "Absoluut. We gebruiken industriestandaard encryptie en delen nooit je persoonlijke informatie. Je gegevens worden automatisch verwijderd na 30 dagen.",
-        q4: "Kan ik mijn plan upgraden of downgraden?",
-        a4: "Ja! Je kunt je plan op elk moment wijzigen. Wijzigingen worden doorgevoerd in je volgende factureringsperiode.",
-        q5: "Bieden jullie terugbetalingen aan?",
-        a5: "We bieden een 14-dagen geld-terug-garantie. Als je niet tevreden bent, neem contact met ons op voor een volledige terugbetaling."
-      }
-    },
-    success: {
-      title: "Betaling Geslaagd!",
-      subtitle: "Bedankt voor je abonnement op AI CV Aanpasser. Je account is geüpgraded!",
-      details: {
-        title: "Je Abonnement Details",
-        activated: "Abonnement geactiveerd",
-        confirmation: "Bevestigingsmail verzonden",
-        ready: "Klaar om onbeperkt CV's te maken"
-      },
-      next: {
-        title: "Wat Nu?",
-        step1: {
-          title: "Maak Je Eerste CV",
-          description: "Begin met het aanpassen van je CV voor specifieke vacatures"
-        },
-        step2: {
-          title: "Download als PDF",
-          description: "Exporteer je CV in professioneel PDF-formaat"
-        },
-        step3: {
-          title: "Krijg Interviews",
-          description: "Gebruik recruiter tips om je interviews te excelleren"
-        }
-      },
-      cta: {
-        create: "Begin Nu met CV's Maken",
-        support: "Contact Ondersteuning"
-      },
-      footer: {
-        manage: "Je kunt je abonnement op elk moment beheren via je accountinstellingen.",
-        questions: "Vragen?"
-      }
-    }
+    // Header
+    subtitle: "Transformeer Je CV voor Elke Baan",
+    tagline: "AI-optimalisatie • Motivatiebrieven • Interview tips",
+    
+    // Features
+    feature1: "Functie-Specifieke Aanpassing",
+    feature2: "Zie Wat Er Veranderde & Waarom",
+    feature3: "Professionele Motivatiebrief",
+    feature4: "Interview Voorbereiding",
+    
+    // Form
+    formTitle: "Begin in 3 Eenvoudige Stappen",
+    formDescription: "Plak je huidige CV en de functiebeschrijving, en laat onze AI een perfect op maat gemaakt sollicitatiepakket voor je maken.",
+    
+    cvTitle: "Stap 1: Je Huidige CV",
+    cvLabel: "Plak hier je CV (minimaal 50 tekens)",
+    cvTip: "Voeg al je ervaring, vaardigheden, opleiding en prestaties toe. Hoe completer, hoe beter de AI het kan aanpassen!",
+    
+    jobTitle: "Stap 2: Functiebeschrijving",
+    jobLabel: "Plak de functiebeschrijving (minimaal 30 tekens)",
+    jobTip: "Voeg de volledige vacaturetekst toe met vereisten, verantwoordelijkheden en gewenste kwalificaties voor het beste resultaat.",
+    
+    languageTitle: "Stap 3: Kies Output Taal",
+    languageLabel: "Selecteer de taal voor je CV en motivatiebrief",
+    languageNote: "Dit heeft alleen invloed op de output (CV, motivatiebrief, tips). De UI-taal kan worden gewijzigd met de knoppen hierboven.",
+    
+    // Buttons
+    submitBtn: "Genereer Mijn CV op Maat",
+    sampleBtn: "Laad Voorbeeldgegevens",
+    clearBtn: "Alles Wissen",
+    pasteBtn: "Plak van Klembord",
+    
+    // Misc
+    characters: "Tekens:",
+    minimum: " (minimaal ",
+    tip: "Tip:",
+    
+    // How it works
+    howItWorks: "🎯 Hoe Het Werkt",
+    step1Title: "Plak Je CV",
+    step1Desc: "Kopieer je huidige CV en plak het in het eerste veld. Voeg al je ervaring, vaardigheden en prestaties toe.",
+    step2Title: "Voeg Functiebeschrijving Toe",
+    step2Desc: "Plak de volledige functiebeschrijving voor de functie waarvoor je solliciteert. Hoe meer detail, hoe beter!",
+    step3Title: "Kies Taal",
+    step3Desc: "Selecteer of je je op maat gemaakte CV en motivatiebrief in het Engels of Nederlands wilt.",
+    step4Title: "Ontvang Resultaten",
+    step4Desc: "Ontvang je geoptimaliseerde CV, professionele motivatiebrief, gedetailleerd overzicht van wijzigingen en interview tips!",
+    
+    // Loading
+    loadingTitle: "✨ AI Doet Zijn Magie...",
+    loadingSubtext: "Dit duurt meestal 10-15 seconden. Even geduld...",
+    
+    // Footer
+    privacyNote: "Je gegevens worden veilig verwerkt en niet opgeslagen"
   }
 };
 
-// Make available globally
+// Export for use in app.js
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = translations;
 }
