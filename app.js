@@ -412,12 +412,12 @@ if (cvForm && submitBtn && loadingState && cvInput && jobInput && outputLanguage
             if (result.success && result.data) {
                 // Sla resultaten op
                 try {
-                    localStorage.setItem('cvResults', JSON.stringify(result.data));
+                    sessionStorage.setItem('cvResults', JSON.stringify(result.data));
                     window.location.href = '/improvements.html'; // Redirect to new page
                     return;
                 } catch (e) {
                     // CRITICAL: Fail here if results cannot be stored
-                    console.error('localStorage Error (Results): Could not save CV results.', e);
+                    console.error('sessionStorage Error (Results): Could not save CV results.', e);
                     throw new Error(getTranslation('error.storageResults', currentLanguage) || 'Could not save results locally. Please try again.');
                 }
 
@@ -506,3 +506,4 @@ function translatePage() {
     });
     document.documentElement.lang = currentLanguage;
 }
+
