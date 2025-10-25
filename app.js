@@ -265,347 +265,244 @@ if (jobScreenshotInput && jobInput && ocrStatusElement) {
             return;
         }
 
-        // Controleer of Tesseract geladen is
         if (typeof Tesseract === 'undefined') {
-            ocrStatusElement.textContent = getTranslation('error.ocrLoad', currentLanguage) || 'OCR library could not be loaded. Please refresh the page.';
-            ocrStatusElement.style.opacity = '1'; ocrStatusElement.classList.add('text-red-600');
-            if (nextButton2) nextButton2.disabled = !validateStep(2);
-            return;
+             ocrStatusElement.textContent = getTranslation('error.ocrLoad', currentLanguage) || 'OCR library could not be loaded. Please refresh the page.';
+             ocrStatusElement.style.opacity = '1'; ocrStatusElement.classList.add('text-red-600');
+             if (nextButton2) nextButton2.disabled = !validateStep(2);
+             return;
         }
 
-        // Start OCR
         ocrStatusElement.textContent = getTranslation('form.ocrProcessing', currentLanguage) || 'Reading screenshot with OCR... This may take a moment.';
         ocrStatusElement.style.opacity = '1';
 
         try {
-            // Voer OCR uit met Engels en Nederlands
-            const { data: { text } } = await Tesseract.recognize(file, 'eng+nld', { // Added Dutch
-                logger: m => { // Update de status voor de gebruiker
+            const { data: { text } } = await Tesseract.recognize(file, 'eng+nld', {
+                logger: m => {
                     if (m.status === 'recognizing text') {
                         ocrStatusElement.textContent = `${getTranslation('form.ocrProgress', currentLanguage) || 'Recognizing text'}... (${Math.round(m.progress * 100)}%)`;
                     } else if (m.status === 'loading language traineddata') {
                         ocrStatusElement.textContent = getTranslation('form.ocrLoadingLang', currentLanguage) || 'Loading language data...';
-                    } else if (m.progress === 0 && m.status !== 'initializing tesseract') {
-                        // Show other statuses like 'initializing api', 'initialized api'
+                    } else if (m.progress === 0 && m.status !== 'initializing tesseract') { // Show other statuses before recognition starts
                         ocrStatusElement.textContent = `${m.status}...`;
                     }
                 }
             });
 
-            // Plaats resultaat in textarea
             jobInput.value = text;
             ocrStatusElement.textContent = getTranslation('form.ocrSuccess', currentLanguage) || 'Text successfully extracted!';
             ocrStatusElement.classList.add('text-green-600');
             ocrStatusElement.style.opacity = '1';
-            // Fade out success message after 5 seconds
             setTimeout(() => { ocrStatusElement.style.opacity = '0'; }, 5000);
 
-            document.querySelector('.job-tab[data-tab="job-paste"]')?.click(); // Switch terug naar plak-tab
-            event.target.value = null; // Reset file input
-            validateStep(2); // Re-valideer de stap
+            document.querySelector('.job-tab[data-tab="job-paste"]')?.click(); // Switch back
+            event.target.value = null;
+            validateStep(2); // Re-validate step 2
 
         } catch (error) {
             console.error('OCR Error:', error);
             ocrStatusElement.textContent = getTranslation('form.ocrError', currentLanguage) || 'Error reading image. Please paste manually.';
             ocrStatusElement.style.opacity = '1'; ocrStatusElement.classList.add('text-red-600');
             event.target.value = null;
-            validateStep(2); // Re-valideer de stap zelfs bij een fout
+            validateStep(2); // Re-validate step 2
 
         } finally {
-            // Herstel 'Next' knop status
+            // Herstel 'Next' knop status gebaseerd op validatie
             if (nextButton2) nextButton2.disabled = !validateStep(2);
         }
     });
 } else {
-    console.warn("Job screenshot input ('jobScreenshot'), textarea ('jobInput'), or OCR status element ('ocrStatus') not found.");
+    console.warn("Job screenshot input ('jobScreenshot') or textarea ('jobInput') not found in the DOM.");
 }
 
-/**
- * Hulpfunctie: Plakken van Klembord met Fallback
- */
+
+// ----------------------------------------------------
+// OVERIGE FUNCTIES EN EVENT LISTENERS
+// ----------------------------------------------------
+
 function pasteFromClipboard(targetId) {
-    const targetElement = document.getElementById(targetId);
-    if (!targetElement) {
-        console.error("Target element for pasting not found:", targetId);
+     const targetElement = document.getElementById(targetId);
+     if (!targetElement) return;
+
+    if (!navigator.clipboard || !navigator.clipboard.readText) {
+        try {
+            targetElement.focus();
+            const successful = document.execCommand('paste');
+            if (!successful) { throw new Error('execCommand failed'); }
+             // Trigger validation after paste
+            if (targetId === 'cvInput') validateStep(1); else if (targetId === 'jobInput') validateStep(2);
+        } catch (fallbackErr) {
+            console.error('Fallback paste failed:', fallbackErr);
+            alert(getTranslation('error.pasteUnsupported', currentLanguage) || 'Pasting failed. Please paste manually.');
+        }
         return;
     }
-
-    // Probeer moderne Clipboard API (vereist HTTPS of localhost)
-    if (navigator.clipboard && navigator.clipboard.readText) {
-        navigator.clipboard.readText()
-            .then(text => {
-                targetElement.value = text;
-                // Trigger validatie na succesvol plakken
-                if (targetId === 'cvInput') validateStep(1);
-                else if (targetId === 'jobInput') validateStep(2);
-            })
-            .catch(err => {
-                console.warn('navigator.clipboard.readText failed:', err);
-                // Probeer fallback alleen als moderne API faalt (bv. geen permissie)
-                fallbackPaste(targetElement, targetId);
-            });
-    } else {
-        // Gebruik direct fallback als moderne API niet ondersteund wordt
-        console.warn('navigator.clipboard.readText not supported, using fallback.');
-        fallbackPaste(targetElement, targetId);
-    }
+    navigator.clipboard.readText()
+        .then(text => {
+            targetElement.value = text;
+            // Trigger validation after paste
+            if (targetId === 'cvInput') validateStep(1); else if (targetId === 'jobInput') validateStep(2);
+        })
+        .catch(err => {
+            console.error('Failed to read clipboard contents: ', err);
+            alert(getTranslation('error.paste', currentLanguage) || 'Could not paste from clipboard. Please paste manually.');
+        });
 }
 
-// Fallback Plakfunctie (minder betrouwbaar, gebruikt verouderde methode)
-function fallbackPaste(targetElement, targetId) {
-    try {
-        targetElement.focus(); // Element moet focus hebben
-        // execCommand is verouderd, maar nodig voor fallback
-        if (!document.execCommand('paste')) {
-            throw new Error('document.execCommand("paste") returned false.');
-        }
-        // Wacht even tot de browser de plak-actie verwerkt heeft
-        setTimeout(() => {
-            if (targetId === 'cvInput') validateStep(1);
-            else if (targetId === 'jobInput') validateStep(2);
-        }, 10); // Kleine vertraging
-    } catch (fallbackErr) {
-        console.error('Fallback paste method failed:', fallbackErr);
-        alert(getTranslation('error.pasteUnsupported', currentLanguage) || 'Automatic pasting failed. Please paste manually (Ctrl+V or Cmd+V).');
-    }
-}
-
-/**
- * Hulpfunctie: Selecteer Output Taal
- */
 function selectOutputLanguage(lang) {
-    // Update knop stijlen
     document.querySelectorAll('.language-option').forEach(el => {
-        el.classList.toggle('active', el.dataset.lang === lang);
+        el.classList.remove('active');
+        if (el.dataset.lang === lang) el.classList.add('active');
     });
-    // Update verborgen input waarde
     if (outputLanguageInput) outputLanguageInput.value = lang;
 }
 
-/**
- * Event Listener voor Formulier Submit (Stap 3)
- */
+// Event listener voor het hoofdformulier SUBMIT (alleen op stap 3)
 if (cvForm && submitBtn && loadingState && cvInput && jobInput && outputLanguageInput) {
     cvForm.addEventListener('submit', async function(event) {
-        event.preventDefault(); // Voorkom standaard formulierinzending
+        event.preventDefault();
 
-        // Controleer of we op de laatste stap zijn
-        if (currentStep !== totalSteps) {
-            console.warn("Submit triggered on incorrect step:", currentStep);
-            return; // Doe niets als niet op de laatste stap
-        }
-        // Valideer de laatste stap (taalkeuze is altijd geldig, check reCAPTCHA hieronder)
-        // Optioneel: valideer GDPR checkbox als die toegevoegd is
+        if (currentStep !== totalSteps) { console.warn("Submit on wrong step"); return; }
+        if (!validateStep(currentStep)) { alert(getTranslation('error.fillFields', currentLanguage) || 'Please complete step 3.'); return; }
 
-        // Controleer reCAPTCHA response
         const recaptchaResponse = grecaptcha.getResponse();
-        if (!recaptchaResponse) {
-            alert(getTranslation('error.recaptcha', currentLanguage) || 'Please complete the reCAPTCHA challenge before submitting.');
-            return;
-        }
+        if (!recaptchaResponse) { alert(getTranslation('error.recaptcha', currentLanguage) || 'Please complete the reCAPTCHA'); return; }
 
-        // Toon laadstatus, verberg huidige stap
         const currentStepElement = document.getElementById(`step-${currentStep}`);
-        if (currentStepElement) currentStepElement.style.display = 'none';
-        if (loadingState) loadingState.classList.remove('hidden');
-        if (submitBtn) submitBtn.disabled = true;
+        if(currentStepElement) currentStepElement.style.display = 'none';
+        loadingState.classList.remove('hidden');
+        submitBtn.disabled = true;
 
-        // Sla originele inputs op in localStorage voor de resultatenpagina
+        // --- Store original inputs for results page ---
         const originalCV = cvInput.value;
         const originalJobDesc = jobInput.value;
         try {
-            localStorage.setItem('originalCV', originalCV);
-            localStorage.setItem('originalJobDesc', originalJobDesc);
+             localStorage.setItem('originalCV', originalCV);
+             localStorage.setItem('originalJobDesc', originalJobDesc);
         } catch (e) {
-            console.warn("Could not save original data to localStorage:", e.message);
-            // Ga door, maar originele data is mogelijk niet beschikbaar op de resultatenpagina
+             console.error('localStorage Error (Original Data):', e);
+             alert(getTranslation('error.storage', currentLanguage) || 'Error saving data locally. Check browser settings.');
         }
+        // --- End store original inputs ---
 
-        // Bereid de data (payload) voor om naar de backend te sturen
         const payload = {
             cv: originalCV,
             jobDescription: originalJobDesc,
             outputLanguage: outputLanguageInput.value,
             recaptchaToken: recaptchaResponse
-            // userId: getUserID(), // Voeg eventueel een gebruikers-ID toe indien beschikbaar
+            // userId: userId, // Add if needed
         };
 
         try {
-            // Roep de Netlify serverless functie aan
             const response = await fetch('/.netlify/functions/analyze-cv', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             });
 
-            // Reset reCAPTCHA widget na de request
             if (typeof grecaptcha !== 'undefined') { grecaptcha.reset(); }
 
-            // Handel de server response af
             if (!response.ok) {
-                // Probeer de foutmelding uit de JSON body te halen
-                const errorData = await response.json().catch(() => ({ // Fallback als JSON parsen mislukt
-                    message: `Server error: ${response.status} ${response.statusText}`
-                }));
-                console.error('API Error Response:', response.status, errorData);
-                // Gooi een error met de server boodschap of een generieke melding
-                throw new Error(errorData.message || errorData.error || `Server responded with status ${response.status}`);
+                const errorData = await response.json().catch(() => ({ message: `Server error: ${response.status}` }));
+                console.error('API Error Response:', errorData);
+                throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
             }
 
-            // Parse de succesvolle JSON response
             const result = await response.json();
 
-            // Controleer of de operatie succesvol was en de data structuur klopt
-            if (result.success && result.data && result.data.improvedCV) {
-                // Sla de ontvangen resultaten (inclusief score) op in localStorage
+            if (result.success && result.data) {
+                // Sla resultaten op
                 try {
                     localStorage.setItem('cvResults', JSON.stringify(result.data));
-                } catch(e) {
-                     console.error("Could not save results to localStorage:", e.message);
-                     // Geef de gebruiker feedback dat opslaan mislukte, maar probeer wel door te sturen
-                     alert("Warning: Could not save results locally. Proceeding to results page.");
+                    window.location.href = '/improvements.html'; // Redirect to new page
+                    return;
+                } catch (e) {
+                    // CRITICAL: Fail here if results cannot be stored
+                    console.error('localStorage Error (Results): Could not save CV results.', e);
+                    throw new Error(getTranslation('error.storageResults', currentLanguage) || 'Could not save results locally. Please try again.');
                 }
-                // Stuur de gebruiker door naar de resultatenpagina
-                window.location.href = '/improvements.html';
-                return; // Belangrijk: stop verdere uitvoering hier na redirect
 
             } else {
-                 // API gaf een 2xx status maar de response body is niet zoals verwacht
-                 console.error('API Success Status but invalid/missing data in response:', result);
-                throw new Error(result.error || getTranslation('error.apiGeneric', currentLanguage) || 'Received an unexpected response from the analysis. Please try again.');
+                 console.error('API Success Response but invalid data:', result);
+                throw new Error(result.error || getTranslation('error.apiGeneric', currentLanguage) || 'Failed to get valid results from API');
             }
 
         } catch (error) {
-            // Handel netwerkfouten, JSON parse errors, of gegooide errors af
-            console.error('Error during form submission or API call:', error);
-            alert(`${getTranslation('error.apiSubmit', currentLanguage) || 'An error occurred during submission:'} ${error.message}`);
-             // Reset reCAPTCHA bij fout
+            console.error('Error submitting form:', error);
+            alert(`${getTranslation('error.apiSubmit', currentLanguage) || 'An error occurred:'} ${error.message}`);
              if (typeof grecaptcha !== 'undefined') { grecaptcha.reset(); }
-             // Toon de formulierstap weer aan de gebruiker
-             if (currentStepElement) currentStepElement.style.display = 'block';
 
         } finally {
-            // Verberg laadstatus en herstel knop ALLEEN als er NIET geredirect is (dus bij een fout)
-             // Controleer of de redirect al heeft plaatsgevonden
-            if (window.location.pathname.endsWith('/improvements.html') === false) {
-                 if(loadingState) loadingState.classList.add('hidden');
-                 if(submitBtn) submitBtn.disabled = false;
-                 // Zorg ervoor dat de stap weer zichtbaar is als er een fout optrad
-                 if (currentStepElement && currentStepElement.style.display === 'none') {
-                    currentStepElement.style.display = 'block';
-                 }
-            }
+             // Zorg ervoor dat de loading state altijd wordt verborgen en de knop weer wordt ingeschakeld
+             loadingState.classList.add('hidden');
+             submitBtn.disabled = false;
+             if (currentStepElement) currentStepElement.style.display = 'block';
         }
     });
 } else {
-    // Log een duidelijke fout als essentiële elementen niet gevonden zijn bij het laden
-    console.error('Initialization failed: One or more crucial form elements (cvForm, submitBtn, loadingState, cvInput, jobInput, outputLanguageInput) were not found in the DOM.');
+    console.error('One or more essential form elements missing or initialized incorrectly.');
 }
 
 
 // ----------------------------------------------------
-// TAALWISSEL-LOGICA
+// TAALWISSEL-LOGICA (Gekopieerd uit index.html)
 // ----------------------------------------------------
+// (Functies voor switchLanguage, updateLanguageButtons, translatePage, getTranslation)
+// Deze functies zijn afhankelijk van translations.js en moeten compleet zijn in de app.js
+// Zorg ervoor dat je alle bestaande code voor deze functies uit je oude app.js hieronder plakt.
 
-// Functie om vertaling op te halen (vereist geladen translations.js)
 function getTranslation(key, lang = currentLanguage) {
-    // Robuustere fallback logica
+    if (typeof translations === 'undefined' || !translations[lang]) {
+         lang = 'en';
+         if (typeof translations === 'undefined' || !translations[lang]) { return key; }
+    }
+    const keys = key.split('.');
+    let result = translations[lang];
     try {
-        let dictionary = (typeof translations !== 'undefined' && translations[lang]) ? translations[lang] :
-                         (typeof translations !== 'undefined' && translations['en']) ? translations['en'] : null; // Fallback naar EN
-
-        if (!dictionary) {
-            // console.warn(`No translations available for lang '${lang}' or fallback 'en'.`);
-            return key.includes('.') ? key.split('.').pop() : key;
-        }
-
-        const keys = key.split('.');
-        let result = dictionary;
         for (const k of keys) {
-            if (result === undefined || result === null || typeof result !== 'object') {
-                // Probeer fallback naar Engels als primaire taal faalde en niet al Engels is
-                if (lang !== 'en' && typeof translations !== 'undefined' && translations['en']) {
-                    let fallbackDict = translations['en'];
-                    let fallbackResult = fallbackDict;
-                    for (const fk of keys) {
-                        if (fallbackResult === undefined || fallbackResult === null || typeof fallbackResult !== 'object') {
-                            // console.warn(`Fallback translation path broken at '${fk}' for key '${key}'`);
-                            return key.includes('.') ? key.split('.').pop() : key;
-                        }
-                        fallbackResult = fallbackResult[fk];
-                    }
-                     // Gebruik fallback resultaat als het een string is
-                     if (typeof fallbackResult === 'string' && fallbackResult !== '') return fallbackResult;
-                }
-                 // console.warn(`Translation path broken or not found at '${k}' for key '${key}' in lang '${lang}'.`);
-                return key.includes('.') ? key.split('.').pop() : key; // Geef laatste deel terug
-            }
+            if (result === undefined) return key;
             result = result[k];
         }
-
-        // Controleer of het eindresultaat een string is
-        if (typeof result === 'string' && result !== '') {
-            return result;
-        } else {
-             // Probeer Engelse fallback als resultaat leeg/geen string is
-             if (lang !== 'en' && typeof translations !== 'undefined' && translations['en']) {
-                 let fallbackDict = translations['en'];
-                 let fallbackResult = fallbackDict;
-                 for (const k of keys) {
-                     if (fallbackResult === undefined || fallbackResult === null || typeof fallbackResult !== 'object') return key.includes('.') ? key.split('.').pop() : key;
-                     fallbackResult = fallbackResult[k];
-                 }
-                 if (typeof fallbackResult === 'string' && fallbackResult !== '') return fallbackResult;
+         if (result === undefined || result === null || result === '') {
+             if (lang !== 'en' && translations['en']) {
+                 let fallbackResult = translations['en'];
+                  for (const k of keys) { if (fallbackResult === undefined) return key; fallbackResult = fallbackResult[k]; }
+                  return fallbackResult || key;
              }
-             // console.warn(`Final translation result for '${key}' in lang '${lang}' is not a valid string:`, result);
-             return key.includes('.') ? key.split('.').pop() : key;
-        }
+             return key;
+         }
+        return result;
     } catch (e) {
-        console.error(`Unexpected error getting translation for key '${key}':`, e);
-        return key.includes('.') ? key.split('.').pop() : key; // Fallback bij onverwachte fout
+        return key;
     }
 }
 
-
-// Functie om UI taal te wisselen
 function switchLanguage(lang) {
-    // Controleer of de taal data bestaat
     if (typeof translations !== 'undefined' && translations[lang]) {
         currentLanguage = lang;
-        localStorage.setItem('preferredLanguage', lang); // Sla voorkeur op
-        translatePage(); // Vertaal alle elementen
-        updateLanguageButtons(); // Update knop stijlen
-        // Optioneel: Update validatieberichten als die taalafhankelijk zijn
+        localStorage.setItem('preferredLanguage', lang);
+        translatePage();
+        updateLanguageButtons();
     } else {
-        console.warn(`Attempted to switch to unavailable language: '${lang}'. Check translations.js.`);
+        console.warn(`Language '${lang}' not found.`);
     }
 }
 
-// Functie om taal knop stijlen bij te werken
 function updateLanguageButtons() {
     document.querySelectorAll('.language-btn').forEach(btn => {
         const isActive = btn.dataset.lang === currentLanguage;
-        btn.classList.toggle('bg-blue-100', isActive); // Achtergrond voor actieve knop
-        btn.classList.toggle('text-blue-700', isActive); // Tekstkleur voor actieve knop
-        btn.classList.toggle('font-semibold', isActive); // Dikkere tekst voor actieve knop
-        btn.classList.toggle('text-gray-600', !isActive); // Standaard tekstkleur
-        btn.classList.toggle('hover:bg-gray-100', !isActive); // Hover effect voor niet-actieve knop
+        btn.classList.toggle('bg-blue-100', isActive);
+        btn.classList.toggle('text-blue-700', isActive);
+        btn.classList.toggle('font-semibold', isActive);
+        btn.classList.toggle('text-gray-600', !isActive);
     });
 }
 
-// Functie om de pagina te vertalen met data-i18n attributen
 function translatePage() {
-    // Vertaal tekst inhoud
     document.querySelectorAll('[data-i18n]').forEach(el => {
-        el.textContent = getTranslation(el.dataset.i18n, currentLanguage);
+        el.textContent = getTranslation(el.dataset.i18n);
     });
-    // Vertaal placeholders
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-        el.placeholder = getTranslation(el.dataset.i18nPlaceholder, currentLanguage);
+        el.placeholder = getTranslation(el.dataset.i18nPlaceholder);
     });
-    // Update HTML lang attribuut voor toegankelijkheid en SEO
     document.documentElement.lang = currentLanguage;
 }
-
-// Initial Language Load gebeurt nu in de DOMContentLoaded listener bovenaan.
-
