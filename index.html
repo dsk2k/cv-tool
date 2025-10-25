@@ -109,76 +109,73 @@
                         </div>
                     </div>
                     
-                  <!-- Step 2: Job Description -->
-<div>
-    <label class="block text-sm font-medium text-gray-700 mb-2">
-        Step 2: Job Description
-    </label>
-    
-    <!-- Tab buttons for paste vs screenshot -->
-    <div class="flex space-x-2 mb-3">
-        <button 
-            id="jobPasteTab" 
-            class="px-4 py-2 rounded-lg font-medium bg-purple-600 text-white">
-            Paste Text
-        </button>
-        <button 
-            id="jobScreenshotTab" 
-            class="px-4 py-2 rounded-lg font-medium bg-gray-200 text-gray-700 hover:bg-gray-300">
-            Upload Screenshot
-        </button>
-    </div>
-    
-    <!-- Paste area (default) -->
-    <div id="jobPasteArea">
-        <textarea 
-            id="jobDescInput" 
-            class="w-full h-48 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-            placeholder="Paste the job description here..."></textarea>
-    </div>
-    
-    <!-- Screenshot upload area (hidden by default) -->
-    <div id="jobScreenshotArea" class="hidden">
-        <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-500 transition-colors">
-            <input 
-                type="file" 
-                id="jobScreenshotInput" 
-                accept="image/*"
-                class="hidden">
-            <label for="jobScreenshotInput" class="cursor-pointer">
-                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
-                <p class="mt-2 text-sm text-gray-600">
-                    <span class="font-semibold text-purple-600">Click to upload</span> a screenshot
-                </p>
-                <p class="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB (iOS/Android screenshots supported)</p>
-            </label>
-            
-            <!-- Preview area -->
-            <div id="jobScreenshotPreview" class="hidden mt-4">
-                <img id="jobScreenshotImg" class="max-h-64 mx-auto rounded-lg shadow-md" alt="Screenshot preview">
-                <div class="mt-3 p-3 bg-blue-50 rounded-lg">
-                    <div class="flex items-center justify-center space-x-2">
-                        <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span id="ocrStatus" class="text-sm font-medium text-blue-700">Extracting text from image...</span>
+                    <!-- Step 2: Job Description -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Step 2: Job Description
+                        </label>
+                        
+                        <!-- Tab buttons for paste vs screenshot -->
+                        <div class="flex space-x-2 mb-3">
+                            <button 
+                                id="jobPasteTab" 
+                                class="px-4 py-2 rounded-lg font-medium bg-purple-600 text-white">
+                                Paste Text
+                            </button>
+                            <button 
+                                id="jobScreenshotTab" 
+                                class="px-4 py-2 rounded-lg font-medium bg-gray-200 text-gray-700 hover:bg-gray-300">
+                                Upload Screenshot 📸
+                            </button>
+                        </div>
+                        
+                        <!-- Paste area (default) -->
+                        <div id="jobPasteArea">
+                            <textarea 
+                                id="jobDescInput" 
+                                class="w-full h-48 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                                placeholder="Paste the job description here..."></textarea>
+                        </div>
+                        
+                        <!-- Screenshot upload area (hidden by default) -->
+                        <div id="jobScreenshotArea" class="hidden">
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-500 transition-colors">
+                                <input 
+                                    type="file" 
+                                    id="jobScreenshotInput" 
+                                    accept="image/*"
+                                    class="hidden">
+                                <label for="jobScreenshotInput" class="cursor-pointer">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <p class="mt-2 text-sm text-gray-600">
+                                        <span class="font-semibold text-purple-600">Click to upload</span> a screenshot
+                                    </p>
+                                    <p class="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB (Perfect for iPhone/Android!)</p>
+                                </label>
+                                
+                                <!-- Preview area -->
+                                <div id="jobScreenshotPreview" class="hidden mt-4">
+                                    <img id="jobScreenshotImg" class="max-h-64 mx-auto rounded-lg shadow-md" alt="Screenshot preview">
+                                    <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                                        <div class="flex items-center justify-center space-x-2" id="ocrStatus">
+                                            <span class="text-sm font-medium text-blue-700">Processing...</span>
+                                        </div>
+                                    </div>
+                                    <button id="removeJobScreenshot" class="mt-3 text-red-500 hover:text-red-700 text-sm font-medium">
+                                        Remove and try again
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <p class="mt-2 text-xs text-gray-500">
+                                💡 <strong>Perfect for iPhone!</strong> Screenshot the job posting and upload. Text extracted in 2-3 seconds!
+                            </p>
+                        </div>
                     </div>
-                </div>
-                <button id="removeJobScreenshot" class="mt-3 text-red-500 hover:text-red-700 text-sm font-medium">
-                    Remove and try again
-                </button>
-            </div>
-        </div>
-        
-        <p class="mt-2 text-xs text-gray-500">
-            💡 Tip: Take a screenshot of the job posting on LinkedIn/Indeed and upload it here. We'll extract the text automatically!
-        </p>
-    </div>
-</div>
 
+                    </div>
                     
                     <!-- Step 3: Cover Letter -->
                     <div>
@@ -396,6 +393,20 @@
         let generatedImprovedCV = '';
         let generatedChangesMade = '';
         
+        // Job description screenshot elements
+        const jobPasteTab = document.getElementById('jobPasteTab');
+        const jobScreenshotTab = document.getElementById('jobScreenshotTab');
+        const jobPasteArea = document.getElementById('jobPasteArea');
+        const jobScreenshotArea = document.getElementById('jobScreenshotArea');
+        const jobScreenshotInput = document.getElementById('jobScreenshotInput');
+        const jobScreenshotPreview = document.getElementById('jobScreenshotPreview');
+        const jobScreenshotImg = document.getElementById('jobScreenshotImg');
+        const ocrStatus = document.getElementById('ocrStatus');
+        const removeJobScreenshot = document.getElementById('removeJobScreenshot');
+        
+        let extractedJobText = '';
+
+        
         // Usage tracking constants
         const FREE_USAGE_LIMIT = 2;
         const USAGE_KEY = 'cv_tool_usage';
@@ -497,6 +508,127 @@
             pasteTab.classList.add('bg-gray-200', 'text-gray-700');
             uploadArea.classList.remove('hidden');
             pasteArea.classList.add('hidden');
+        });
+        
+
+        // Job description tab switching
+        jobPasteTab.addEventListener('click', function() {
+            jobPasteTab.classList.remove('bg-gray-200', 'text-gray-700');
+            jobPasteTab.classList.add('bg-purple-600', 'text-white');
+            jobScreenshotTab.classList.remove('bg-purple-600', 'text-white');
+            jobScreenshotTab.classList.add('bg-gray-200', 'text-gray-700');
+            
+            jobPasteArea.classList.remove('hidden');
+            jobScreenshotArea.classList.add('hidden');
+        });
+
+        jobScreenshotTab.addEventListener('click', function() {
+            jobScreenshotTab.classList.remove('bg-gray-200', 'text-gray-700');
+            jobScreenshotTab.classList.add('bg-purple-600', 'text-white');
+            jobPasteTab.classList.remove('bg-purple-600', 'text-white');
+            jobPasteTab.classList.add('bg-gray-200', 'text-gray-700');
+            
+            jobScreenshotArea.classList.remove('hidden');
+            jobPasteArea.classList.add('hidden');
+        });
+
+        // Handle job screenshot upload with OCR
+        jobScreenshotInput.addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showError('Image is too large. Please upload an image smaller than 5MB.');
+                return;
+            }
+            
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showError('Please upload a valid image file.');
+                return;
+            }
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                jobScreenshotImg.src = event.target.result;
+                jobScreenshotPreview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+            
+            // Process with OCR
+            await extractTextFromImage(file);
+        });
+
+        // Extract text from image using backend
+        async function extractTextFromImage(file) {
+            try {
+                ocrStatus.innerHTML = `
+                    <svg class="animate-spin h-5 w-5 text-blue-500 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-blue-700">Extracting text from image...</span>
+                `;
+                
+                // Convert image to base64
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                
+                await new Promise((resolve) => {
+                    reader.onload = resolve;
+                });
+                
+                const base64Image = reader.result.split(',')[1];
+                
+                // Call backend OCR function
+                const response = await fetch('/.netlify/functions/ocr', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        image: base64Image,
+                        mimeType: file.type
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to extract text from image');
+                }
+                
+                extractedJobText = data.text;
+                
+                // Update status
+                ocrStatus.innerHTML = `
+                    <svg class="h-5 w-5 text-green-500 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span class="text-green-700">✅ Text extracted! (${extractedJobText.length} characters)</span>
+                `;
+                
+                // Also populate the paste textarea for preview
+                jobDescInput.value = extractedJobText;
+                
+            } catch (error) {
+                console.error('OCR Error:', error);
+                ocrStatus.innerHTML = `
+                    <svg class="h-5 w-5 text-red-500 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    <span class="text-red-700">Failed to extract text. Please try pasting instead.</span>
+                `;
+            }
+        }
+
+        // Remove screenshot
+        removeJobScreenshot.addEventListener('click', function() {
+            jobScreenshotInput.value = '';
+            jobScreenshotPreview.classList.add('hidden');
+            jobScreenshotImg.src = '';
+            extractedJobText = '';
+            jobDescInput.value = '';
         });
         
         // Handle file upload
@@ -1212,7 +1344,7 @@ downloadPdfBtn.addEventListener('click', async function() {
             
             // Validation
             const cv = currentInputMode === 'paste' ? cvInput.value.trim() : uploadedPdfText;
-            const jobDesc = jobDescInput.value.trim();
+            const jobDesc = jobDescInput.value.trim() || extractedJobText;
             const coverLetter = coverLetterInput.value.trim();
             const generateNew = generateNewCheckbox.checked;
             const recaptchaToken = grecaptcha.getResponse();
@@ -1315,4 +1447,3 @@ downloadPdfBtn.addEventListener('click', async function() {
     </script>
 </body>
 </html>
-
