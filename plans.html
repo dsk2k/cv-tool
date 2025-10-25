@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="plans.title">Pricing Plans - AI CV Tailor</title>
+    <meta name="description" content="Choose the perfect plan for your career success">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Stripe -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <style>
+        .plan-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .plan-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .popular-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .checkmark {
+            color: #10b981;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 min-h-screen">
+    
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-2xl font-bold text-blue-600">
+                    <i class="fas fa-file-alt mr-2"></i>
+                    <span data-i18n="nav.title">AI CV Tailor</span>
+                </a>
+                
+                <div class="flex items-center gap-4">
+                    <a href="/" class="text-gray-600 hover:text-blue-600 transition">
+                        <i class="fas fa-home mr-1"></i>
+                        <span data-i18n="nav.home">Home</span>
+                    </a>
+                    
+                    <!-- Language Switcher -->
+                    <div class="flex gap-2">
+                        <button onclick="switchLanguage('en')" 
+                                class="px-3 py-1 rounded transition language-btn" 
+                                data-lang="en">
+                            EN
+                        </button>
+                        <button onclick="switchLanguage('nl')" 
+                                class="px-3 py-1 rounded transition language-btn" 
+                                data-lang="nl">
+                            NL
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="py-16 text-center">
+        <div class="container mx-auto px-4">
+            <h1 class="text-5xl font-bold text-gray-800 mb-4" data-i18n="plans.hero.title">
+                Choose Your Plan
+            </h1>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto" data-i18n="plans.hero.subtitle">
+                Select the perfect plan for your career journey. All plans include AI-powered CV tailoring and professional cover letters.
+            </p>
+        </div>
+    </section>
+
+    <!-- Pricing Cards -->
+    <section class="pb-20">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                
+                <!-- Free Plan -->
+                <div class="plan-card bg-white rounded-2xl shadow-xl p-8 relative">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2" data-i18n="plans.free.name">
+                            Free Trial
+                        </h3>
+                        <p class="text-gray-600" data-i18n="plans.free.description">
+                            Try before you buy
+                        </p>
+                    </div>
+                    
+                    <div class="text-center mb-8">
+                        <div class="text-5xl font-bold text-gray-800">
+                            €0
+                        </div>
+                        <div class="text-gray-600 mt-2" data-i18n="plans.free.period">
+                            Forever free
+                        </div>
+                    </div>
+                    
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start">
+                            <i class="fas fa-check checkmark mt-1 mr-3"></i>
+                            <span data-i18n="plans.free.feature1">3 CV generations per month</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check checkmark mt-1 mr-3"></i>
+                            <span data-i18n="plans.free.feature2">Basic AI tailoring</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check checkmark mt-1 mr-3"></i>
+                            <span data-i18n="plans.free.feature3">Cover letter generation</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check checkmark mt-1 mr-3"></i>
+                            <span data-i18n="plans.free.feature4">Recruiter tips</span>
+                        </li>
+                        <li class="flex items-start text-gray-400">
+                            <i class="fas fa-times mt-1 mr-3"></i>
+                            <span data-i18n="plans.free.feature5">No LinkedIn integration</span>
+                        </li>
+                        <li class="flex items-start text-gray-400">
+                            <i class="fas fa-times mt-1 mr-3"></i>
+                            <span data-i18n="plans.free.feature6">No PDF templates</span>
+                        </li>
+                    </ul>
+                    
+                    <a href="/" class="block w-full bg-gray-200 text-gray-800 text-center py-3 rounded-lg font-semibold hover:bg-gray-300 transition">
+                        <span data-i18n="plans.free.cta">Get Started</span>
+                    </a>
+                </div>
+
+                <!-- Basic Plan -->
+                <div class="plan-card bg-white rounded-2xl shadow-xl p-8 relative border-4 border-blue-500">
+                    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <span class="popular-badge text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg" data-i18n="plans.popular">
+                            POPULAR
+                        </span>
+                    </div>
+                    
+                    <div class="text-center mb-6 mt-4">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2" data-i18n="plans.basic.name">
+                            Basic
+                        </h3>
+                        <p class="text-gray-600" data-i18n="plans.basic.description">
+                            For active job seekers
+                        </p>
+                    </div>
+                    
+                    <div class="text-center mb-8">
+                        <div class="text-5xl font-bold text-blue-600">
+                            €9.99
+                        </div>
+                        <div class="text-gray-600 mt-2" data-i18n="plans.basic.period">
+                            per month
+                        </div>
+                    </div>
+                    
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start">
+                            <i class="fas fa-check checkmark mt-1 mr-3"></i>
+                            <span data-i18n="plans.basic.feature1">25 CV generations per month</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check checkmark mt-1 mr-3"></i>
+                            <span data-i18n="plans.basic.feature2">Advanced AI tailoring</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check checkmark mt-1 mr-3"></i>
+                            <span data-i18n="plans.basic.feature3">Cover letter generation</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check checkmark mt-1 mr-3"></i>
+                            <span data-i18n="plans.basic.feature4">Advanced recruiter tips</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check checkmark mt-1 mr-3"></i>
+                            <span data-i18n="plans.basic.feature5">3 PDF templates</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check checkmark mt-1 mr-3"></i>
+                            <span data-i18n="plans.basic.feature6">Priority support</span>
+                        </li>
+                    </ul>
+                    
+                    <button onclick="selectPlan('basic')" class="block w-full bg-blue-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-blue-700 transition shadow-lg">
+                        <span data-i18n="plans.basic.cta">Choose Basic</span>
+                    </button>
+                </div>
+
+                <!-- Pro Plan -->
+                <div class="plan-card bg-gradient-to-br from-purple-600 to-blue-600 text-white rounded-2xl shadow-xl p-8">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-bold mb-2" data-i18n="plans.pro.name">
+                            Pro
+                        </h3>
+                        <p class="text-purple-100" data-i18n="plans.pro.description">
+                            For serious professionals
+                        </p>
+                    </div>
+                    
+                    <div class="text-center mb-8">
+                        <div class="text-5xl font-bold">
+                            €19.99
+                        </div>
+                        <div class="text-purple-100 mt-2" data-i18n="plans.pro.period">
+                            per month
+                        </div>
+                    </div>
+                    
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start">
+                            <i class="fas fa-check mt-1 mr-3"></i>
+                            <span data-i18n="plans.pro.feature1">Unlimited CV generations</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check mt-1 mr-3"></i>
+                            <span data-i18n="plans.pro.feature2">Premium AI tailoring</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check mt-1 mr-3"></i>
+                            <span data-i18n="plans.pro.feature3">LinkedIn profile import</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check mt-1 mr-3"></i>
+                            <span data-i18n="plans.pro.feature4">10+ premium PDF templates</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check mt-1 mr-3"></i>
+                            <span data-i18n="plans.pro.feature5">Interview preparation guide</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check mt-1 mr-3"></i>
+                            <span data-i18n="plans.pro.feature6">Priority email support</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check mt-1 mr-3"></i>
+                            <span data-i18n="plans.pro.feature7">Early access to new features</span>
+                        </li>
+                    </ul>
+                    
+                    <button onclick="selectPlan('pro')" class="block w-full bg-white text-purple-600 text-center py-3 rounded-lg font-semibold hover:bg-gray-100 transition shadow-lg">
+                        <span data-i18n="plans.pro.cta">Choose Pro</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4 max-w-4xl">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12" data-i18n="plans.faq.title">
+                Frequently Asked Questions
+            </h2>
+            
+            <div class="space-y-6">
+                <div class="border-b pb-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="plans.faq.q1">
+                        Can I cancel anytime?
+                    </h3>
+                    <p class="text-gray-600" data-i18n="plans.faq.a1">
+                        Yes! You can cancel your subscription at any time. You'll retain access until the end of your billing period.
+                    </p>
+                </div>
+                
+                <div class="border-b pb-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="plans.faq.q2">
+                        What payment methods do you accept?
+                    </h3>
+                    <p class="text-gray-600" data-i18n="plans.faq.a2">
+                        We accept all major credit cards, debit cards, and various local payment methods through Stripe.
+                    </p>
+                </div>
+                
+                <div class="border-b pb-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="plans.faq.q3">
+                        Is my data secure?
+                    </h3>
+                    <p class="text-gray-600" data-i18n="plans.faq.a3">
+                        Absolutely. We use industry-standard encryption and never share your personal information. Your data is automatically deleted after 30 days.
+                    </p>
+                </div>
+                
+                <div class="border-b pb-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="plans.faq.q4">
+                        Can I upgrade or downgrade my plan?
+                    </h3>
+                    <p class="text-gray-600" data-i18n="plans.faq.a4">
+                        Yes! You can change your plan at any time. Changes will be reflected in your next billing cycle.
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="plans.faq.q5">
+                        Do you offer refunds?
+                    </h3>
+                    <p class="text-gray-600" data-i18n="plans.faq.a5">
+                        We offer a 14-day money-back guarantee. If you're not satisfied, contact us for a full refund.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 max-w-sm">
+            <div class="text-center">
+                <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p class="text-gray-700 text-lg" data-i18n="plans.processing">Processing your request...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Translations -->
+    <script src="/translations.js"></script>
+
+    <!-- Main Script -->
+    <script>
+        let currentLanguage = localStorage.getItem('language') || 'en';
+        let stripe = null;
+
+        // Initialize Stripe (replace with your publishable key)
+        const STRIPE_PUBLISHABLE_KEY = 'pk_test_YOUR_STRIPE_KEY'; // TODO: Replace with actual key
+        
+        if (STRIPE_PUBLISHABLE_KEY.includes('YOUR_STRIPE_KEY')) {
+            console.warn('⚠️ Stripe key not configured. Payments will not work.');
+        } else {
+            stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initLanguage();
+        });
+
+        function initLanguage() {
+            updateLanguageButtons();
+            updateContent();
+        }
+
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('language', lang);
+            updateLanguageButtons();
+            updateContent();
+        }
+
+        function updateLanguageButtons() {
+            document.querySelectorAll('.language-btn').forEach(btn => {
+                if (btn.dataset.lang === currentLanguage) {
+                    btn.classList.add('bg-blue-600', 'text-white');
+                    btn.classList.remove('bg-gray-200', 'text-gray-700');
+                } else {
+                    btn.classList.remove('bg-blue-600', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-gray-700');
+                }
+            });
+        }
+
+        function updateContent() {
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                const keys = key.split('.');
+                let value = translations[currentLanguage];
+                
+                for (const k of keys) {
+                    value = value?.[k];
+                }
+                
+                if (value) {
+                    element.textContent = value;
+                }
+            });
+        }
+
+        async function selectPlan(planType) {
+            if (!stripe) {
+                alert('Payment processing is not configured yet. Please contact support.');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loadingModal').classList.remove('hidden');
+
+            try {
+                // Call your backend to create a checkout session
+                const response = await fetch('/.netlify/functions/create-checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        planType,
+                        language: currentLanguage
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // Redirect to Stripe Checkout
+                const { error } = await stripe.redirectToCheckout({
+                    sessionId: data.sessionId
+                });
+
+                if (error) {
+                    throw error;
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert(currentLanguage === 'nl' 
+                    ? 'Er is een fout opgetreden. Probeer het opnieuw.'
+                    : 'An error occurred. Please try again.'
+                );
+                document.getElementById('loadingModal').classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

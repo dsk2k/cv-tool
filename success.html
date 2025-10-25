@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful - AI CV Tailor</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fadeIn {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f0f;
+            position: absolute;
+            animation: confetti-fall 3s linear;
+        }
+        
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 min-h-screen">
+    
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-2xl font-bold text-blue-600">
+                    <i class="fas fa-file-alt mr-2"></i>
+                    <span data-i18n="nav.title">AI CV Tailor</span>
+                </a>
+                
+                <div class="flex items-center gap-4">
+                    <!-- Language Switcher -->
+                    <div class="flex gap-2">
+                        <button onclick="switchLanguage('en')" 
+                                class="px-3 py-1 rounded transition language-btn" 
+                                data-lang="en">
+                            EN
+                        </button>
+                        <button onclick="switchLanguage('nl')" 
+                                class="px-3 py-1 rounded transition language-btn" 
+                                data-lang="nl">
+                            NL
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Success Content -->
+    <div class="container mx-auto px-4 py-20">
+        <div class="max-w-3xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-2xl p-12 text-center animate-fadeIn">
+                
+                <!-- Success Icon -->
+                <div class="text-green-500 text-7xl mb-6 animate-bounce">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                
+                <!-- Success Message -->
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+                    <span data-i18n="success.title">Payment Successful!</span> 🎉
+                </h1>
+                
+                <p class="text-xl text-gray-600 mb-8" data-i18n="success.subtitle">
+                    Thank you for subscribing to AI CV Tailor. Your account has been upgraded!
+                </p>
+                
+                <!-- Subscription Details -->
+                <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-crown text-yellow-500 mr-2"></i>
+                        <span data-i18n="success.details.title">Your Subscription Details</span>
+                    </h2>
+                    <div id="subscriptionDetails" class="text-left space-y-2">
+                        <p class="text-gray-700">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span data-i18n="success.details.activated">Subscription activated</span>
+                        </p>
+                        <p class="text-gray-700">
+                            <i class="fas fa-envelope text-blue-500 mr-2"></i>
+                            <span data-i18n="success.details.confirmation">Confirmation email sent</span>
+                        </p>
+                        <p class="text-gray-700">
+                            <i class="fas fa-magic text-purple-500 mr-2"></i>
+                            <span data-i18n="success.details.ready">Ready to create unlimited CVs</span>
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- What's Next Section -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n="success.next.title">
+                        What's Next?
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-3 gap-6 text-left">
+                        <div class="bg-blue-50 p-6 rounded-lg">
+                            <div class="text-blue-600 text-3xl mb-3">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <h3 class="font-bold text-gray-800 mb-2" data-i18n="success.next.step1.title">
+                                Create Your First CV
+                            </h3>
+                            <p class="text-gray-600 text-sm" data-i18n="success.next.step1.description">
+                                Start tailoring your CV for specific job opportunities
+                            </p>
+                        </div>
+                        
+                        <div class="bg-purple-50 p-6 rounded-lg">
+                            <div class="text-purple-600 text-3xl mb-3">
+                                <i class="fas fa-download"></i>
+                            </div>
+                            <h3 class="font-bold text-gray-800 mb-2" data-i18n="success.next.step2.title">
+                                Download as PDF
+                            </h3>
+                            <p class="text-gray-600 text-sm" data-i18n="success.next.step2.description">
+                                Export your CV in professional PDF format
+                            </p>
+                        </div>
+                        
+                        <div class="bg-green-50 p-6 rounded-lg">
+                            <div class="text-green-600 text-3xl mb-3">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                            <h3 class="font-bold text-gray-800 mb-2" data-i18n="success.next.step3.title">
+                                Land Interviews
+                            </h3>
+                            <p class="text-gray-600 text-sm" data-i18n="success.next.step3.description">
+                                Use recruiter tips to ace your interviews
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="space-y-4">
+                    <a href="/" class="block w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-lg font-semibold hover:opacity-90 transition text-lg shadow-lg">
+                        <i class="fas fa-magic mr-2"></i>
+                        <span data-i18n="success.cta.create">Start Creating CVs Now</span>
+                    </a>
+                    
+                    <a href="mailto:support@aicvtailor.com" class="block w-full bg-gray-200 text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-300 transition">
+                        <i class="fas fa-headset mr-2"></i>
+                        <span data-i18n="success.cta.support">Contact Support</span>
+                    </a>
+                </div>
+                
+                <!-- Additional Info -->
+                <div class="mt-8 text-sm text-gray-500">
+                    <p data-i18n="success.footer.manage">
+                        You can manage your subscription anytime from your account settings.
+                    </p>
+                    <p class="mt-2">
+                        <span data-i18n="success.footer.questions">Questions?</span>
+                        <a href="mailto:support@aicvtailor.com" class="text-blue-600 hover:underline">
+                            support@aicvtailor.com
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Translations -->
+    <script src="/translations.js"></script>
+    
+    <!-- Page Script -->
+    <script>
+        let currentLanguage = localStorage.getItem('language') || 'en';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initLanguage();
+            showConfetti();
+            extractSessionId();
+        });
+
+        function initLanguage() {
+            updateLanguageButtons();
+            updateContent();
+        }
+
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('language', lang);
+            updateLanguageButtons();
+            updateContent();
+        }
+
+        function updateLanguageButtons() {
+            document.querySelectorAll('.language-btn').forEach(btn => {
+                if (btn.dataset.lang === currentLanguage) {
+                    btn.classList.add('bg-blue-600', 'text-white');
+                    btn.classList.remove('bg-gray-200', 'text-gray-700');
+                } else {
+                    btn.classList.remove('bg-blue-600', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-gray-700');
+                }
+            });
+        }
+
+        function updateContent() {
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                const keys = key.split('.');
+                let value = translations[currentLanguage];
+                
+                for (const k of keys) {
+                    value = value?.[k];
+                }
+                
+                if (value) {
+                    element.textContent = value;
+                }
+            });
+        }
+
+        function extractSessionId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session_id');
+            
+            if (sessionId) {
+                console.log('Stripe session ID:', sessionId);
+                // You can send this to your backend to verify the payment
+                // and activate the user's subscription
+            }
+        }
+
+        function showConfetti() {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+            const confettiCount = 50;
+            
+            for (let i = 0; i < confettiCount; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 30);
+            }
+        }
+    </script>
+</body>
+</html>

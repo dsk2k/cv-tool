@@ -3,1638 +3,472 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI CV Tailoring Tool - applyjobmatch.nl</title>
-    <meta name="description" content="AI-powered CV tailoring and cover letter generation. Upload your CV, get personalized suggestions, and download professional PDFs.">
+    <title data-i18n="hero.title">AI-Powered CV & Cover Letter Tailoring - AI CV Tailor</title>
+    <meta name="description" content="Transform your job applications with AI. Get perfectly tailored CVs and cover letters in seconds.">
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google reCAPTCHA -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    <script src="https://js.stripe.com/v3/"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
     <style>
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+        
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         }
+        
         .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .language-selector {
+            display: inline-flex;
+            gap: 0.5rem;
+            background: #f3f4f6;
+            padding: 0.25rem;
+            border-radius: 0.5rem;
+        }
+
+        .language-option {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .language-option.active {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
-<body class="gradient-bg min-h-screen py-8 px-4">
-    <div class="max-w-7xl mx-auto">
-        <h1 class="text-4xl font-bold text-white text-center mb-8">AI CV Tailoring Tool</h1>
-        
-        <!-- Usage Counter Banner -->
-        <div id="usageBanner" class="hidden glass-card rounded-lg shadow-lg p-4 mb-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-purple-100 rounded-full p-2">
-                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-gray-800 font-semibold" id="usageText"></p>
-                        <p class="text-sm text-gray-600" id="usageSubtext">Try it free, then subscribe for unlimited access</p>
-                    </div>
-                </div>
-                <a href="#subscription" class="text-purple-600 hover:text-purple-700 font-medium text-sm">
-                    View Plans →
+<body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-2xl font-bold text-blue-600">
+                    <i class="fas fa-file-alt mr-2"></i>
+                    <span data-i18n="nav.title">AI CV Tailor</span>
                 </a>
-            </div>
-        </div>
-        
-        <!-- Developer Mode Banner (only shows if whitelisted) -->
-        <div id="devModeBanner" class="hidden glass-card rounded-lg shadow-lg p-4 mb-6 border-2 border-green-500 bg-green-50">
-            <div class="flex items-center space-x-3">
-                <div class="bg-green-500 rounded-full p-2">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-                <div class="flex-1">
-                    <p class="text-green-800 font-bold">🔓 Developer Mode Active</p>
-                    <p class="text-sm text-green-700">Your IP is whitelisted - Unlimited testing enabled!</p>
-                </div>
-                <span class="text-xs text-green-600 font-mono bg-white px-3 py-1 rounded">UNLIMITED</span>
-            </div>
-        </div>
-        
-        <!-- Out of Trials Banner -->
-        <div id="outOfTrialsBanner" class="hidden glass-card rounded-lg shadow-lg p-6 mb-6 border-2 border-orange-400">
-            <div class="flex items-start space-x-4">
-                <div class="bg-orange-100 rounded-full p-3 flex-shrink-0">
-                    <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
-                </div>
-                <div class="flex-1">
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">🎉 Free Trials Used!</h3>
-                    <p class="text-gray-700 mb-4">
-                        You've used all <strong>3 free trials</strong>. Subscribe now for unlimited CV generation, premium PDF downloads, and priority support!
-                    </p>
-                    <div class="flex space-x-3">
-                        <button id="subscribeNowBtn" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition duration-300 shadow-lg">
-                            Subscribe Now - €9.99/month
+                
+                <div class="flex items-center gap-4">
+                    <a href="/plans.html" class="text-gray-600 hover:text-blue-600 transition">
+                        <i class="fas fa-crown mr-1"></i>
+                        <span data-i18n="nav.plans">Plans</span>
+                    </a>
+                    
+                    <!-- UI Language Switcher -->
+                    <div class="flex gap-2">
+                        <button onclick="switchLanguage('en')" 
+                                class="px-3 py-1 rounded transition language-btn" 
+                                data-lang="en">
+                            EN
                         </button>
-                        <button class="bg-gray-200 text-gray-700 font-medium py-3 px-6 rounded-lg hover:bg-gray-300 transition duration-300">
-                            Learn More
+                        <button onclick="switchLanguage('nl')" 
+                                class="px-3 py-1 rounded transition language-btn" 
+                                data-lang="nl">
+                            NL
                         </button>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <div class="glass-card rounded-2xl shadow-2xl p-8">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Input Column -->
-                <div class="space-y-6">
-                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Input</h2>
-                    
-                    <!-- Step 1: CV Input -->
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="py-20 text-center">
+        <div class="container mx-auto px-4">
+            <h1 class="text-5xl md:text-6xl font-bold text-gray-800 mb-6" data-i18n="hero.title">
+                AI-Powered CV & Cover Letter Tailoring
+            </h1>
+            <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto" data-i18n="hero.subtitle">
+                Transform your job applications in seconds with AI. Get a perfectly tailored CV and compelling cover letter for any job posting.
+            </p>
+            <a href="#form" class="inline-block bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition shadow-lg">
+                <i class="fas fa-magic mr-2"></i>
+                <span data-i18n="hero.cta">Start Tailoring Now</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12" data-i18n="features.title">
+                Why Choose AI CV Tailor?
+            </h2>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="feature-card bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl">
+                    <div class="text-blue-600 text-4xl mb-4">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="features.speed.title">
+                        Lightning Fast
+                    </h3>
+                    <p class="text-gray-600" data-i18n="features.speed.description">
+                        Get your tailored CV and cover letter in under 60 seconds
+                    </p>
+                </div>
+                
+                <div class="feature-card bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl">
+                    <div class="text-purple-600 text-4xl mb-4">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="features.smart.title">
+                        AI-Powered Intelligence
+                    </h3>
+                    <p class="text-gray-600" data-i18n="features.smart.description">
+                        Advanced AI analyzes job requirements and highlights your relevant experience
+                    </p>
+                </div>
+                
+                <div class="feature-card bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl">
+                    <div class="text-green-600 text-4xl mb-4">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="features.professional.title">
+                        Professional Quality
+                    </h3>
+                    <p class="text-gray-600" data-i18n="features.professional.description">
+                        Recruiter-approved formats and persuasive language that gets interviews
+                    </p>
+                </div>
+                
+                <div class="feature-card bg-gradient-to-br from-pink-50 to-pink-100 p-6 rounded-xl">
+                    <div class="text-pink-600 text-4xl mb-4">
+                        <i class="fas fa-language"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="features.multilingual.title">
+                        Bilingual Support
+                    </h3>
+                    <p class="text-gray-600" data-i18n="features.multilingual.description">
+                        Generate CVs and cover letters in English or Dutch
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Form Section -->
+    <section id="form" class="py-20">
+        <div class="container mx-auto px-4 max-w-4xl">
+            <div class="bg-white rounded-2xl shadow-2xl p-8">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-8" data-i18n="form.title">
+                    Tailor Your CV & Cover Letter
+                </h2>
+                
+                <form id="cvForm" class="space-y-6">
+                    <!-- CV Input -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Step 1: Your CV
+                        <label class="block text-lg font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-user mr-2 text-blue-600"></i>
+                            <span data-i18n="form.cvLabel">Your CV / Resume</span>
                         </label>
-                        
-                        <!-- Upload or Paste Tabs -->
-                        <div class="flex space-x-2 mb-3">
-                            <button 
-                                id="pasteTab" 
-                                class="px-4 py-2 rounded-lg font-medium bg-purple-600 text-white">
-                                Paste Text
-                            </button>
-                            <button 
-                                id="uploadTab" 
-                                class="px-4 py-2 rounded-lg font-medium bg-gray-200 text-gray-700 hover:bg-gray-300">
-                                Upload PDF
-                            </button>
-                        </div>
-                        
-                        <!-- Paste CV Area -->
-                        <div id="pasteArea">
+                        <div class="relative">
                             <textarea 
                                 id="cvInput" 
-                                class="w-full h-48 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                                placeholder="Paste your CV here..."></textarea>
-                        </div>
-                        
-                        <!-- Upload PDF Area -->
-                        <div id="uploadArea" class="hidden">
-                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-500 transition-colors">
-                                <input 
-                                    type="file" 
-                                    id="cvFileInput" 
-                                    accept=".pdf"
-                                    class="hidden">
-                                <label for="cvFileInput" class="cursor-pointer">
-                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                                    </svg>
-                                    <p class="mt-2 text-sm text-gray-600">
-                                        <span class="font-semibold text-purple-600">Click to upload</span> or drag and drop
-                                    </p>
-                                    <p class="text-xs text-gray-500 mt-1">PDF file only (max 2MB)</p>
-                                </label>
-                                <div id="fileNameDisplay" class="hidden mt-4 p-3 bg-green-50 rounded-lg">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center space-x-2">
-                                            <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            <span id="fileName" class="text-sm font-medium text-gray-700"></span>
-                                        </div>
-                                        <button id="removeFile" class="text-red-500 hover:text-red-700">
-                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                                rows="8" 
+                                class="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring focus:ring-blue-200 transition"
+                                data-i18n-placeholder="form.cvPlaceholder"
+                                placeholder="Paste your current CV or resume here..."
+                                required
+                            ></textarea>
+                            <button 
+                                type="button" 
+                                onclick="pasteFromClipboard('cvInput')"
+                                class="absolute top-2 right-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition text-sm"
+                            >
+                                <i class="fas fa-paste mr-1"></i>
+                                <span data-i18n="form.cvPaste">Paste from Clipboard</span>
+                            </button>
                         </div>
                     </div>
-                    
-                    <!-- Step 2: Job Description -->
+
+                    <!-- Job Description Input -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Step 2: Job Description
+                        <label class="block text-lg font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-briefcase mr-2 text-purple-600"></i>
+                            <span data-i18n="form.jobLabel">Job Description</span>
                         </label>
-                        
-                        <!-- Tab buttons for paste vs screenshot -->
-                        <div class="flex space-x-2 mb-3">
-                            <button 
-                                id="jobPasteTab" 
-                                class="px-4 py-2 rounded-lg font-medium bg-purple-600 text-white">
-                                Paste Text
-                            </button>
-                            <button 
-                                id="jobScreenshotTab" 
-                                class="px-4 py-2 rounded-lg font-medium bg-gray-200 text-gray-700 hover:bg-gray-300">
-                                Upload Screenshot 📸
-                            </button>
-                        </div>
-                        
-                        <!-- Paste area (default) -->
-                        <div id="jobPasteArea">
+                        <div class="relative">
                             <textarea 
-                                id="jobDescInput" 
-                                class="w-full h-48 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                                placeholder="Paste the job description here..."></textarea>
+                                id="jobInput" 
+                                rows="8" 
+                                class="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring focus:ring-purple-200 transition"
+                                data-i18n-placeholder="form.jobPlaceholder"
+                                placeholder="Paste the job description or vacancy text here..."
+                                required
+                            ></textarea>
+                            <button 
+                                type="button" 
+                                onclick="pasteFromClipboard('jobInput')"
+                                class="absolute top-2 right-2 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition text-sm"
+                            >
+                                <i class="fas fa-paste mr-1"></i>
+                                <span data-i18n="form.jobPaste">Paste from Clipboard</span>
+                            </button>
                         </div>
-                        
-                        <!-- Screenshot upload area (hidden by default) -->
-                        <div id="jobScreenshotArea" class="hidden">
-                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-500 transition-colors">
-                                <input 
-                                    type="file" 
-                                    id="jobScreenshotInput" 
-                                    accept="image/*"
-                                    class="hidden">
-                                <label for="jobScreenshotInput" class="cursor-pointer">
-                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
-                                    <p class="mt-2 text-sm text-gray-600">
-                                        <span class="font-semibold text-purple-600">Click to upload</span> a screenshot
-                                    </p>
-                                    <p class="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB (Perfect for iPhone/Android!)</p>
-                                </label>
-                                
-                                <!-- Preview area -->
-                                <div id="jobScreenshotPreview" class="hidden mt-4">
-                                    <img id="jobScreenshotImg" class="max-h-64 mx-auto rounded-lg shadow-md" alt="Screenshot preview">
-                                    <div class="mt-3 p-3 bg-blue-50 rounded-lg">
-                                        <div class="flex items-center justify-center space-x-2" id="ocrStatus">
-                                            <span class="text-sm font-medium text-blue-700">Processing...</span>
-                                        </div>
-                                    </div>
-                                    <button id="removeJobScreenshot" class="mt-3 text-red-500 hover:text-red-700 text-sm font-medium">
-                                        Remove and try again
-                                    </button>
-                                </div>
+                    </div>
+
+                    <!-- Output Language Selection -->
+                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border-2 border-blue-200">
+                        <label class="block text-lg font-semibold text-gray-700 mb-3">
+                            <i class="fas fa-globe mr-2 text-green-600"></i>
+                            <span data-i18n="form.outputLanguage">Output Language</span>
+                        </label>
+                        <p class="text-sm text-gray-600 mb-4" data-i18n="form.outputLanguageHelp">
+                            Choose the language for your CV and cover letter
+                        </p>
+                        <div class="language-selector">
+                            <div class="language-option active" data-lang="en" onclick="selectOutputLanguage('en')">
+                                <i class="fas fa-flag mr-2"></i>
+                                <span data-i18n="form.english">English</span>
                             </div>
-                            
-                            <p class="mt-2 text-xs text-gray-500">
-                                💡 <strong>Perfect for iPhone!</strong> Screenshot the job posting and upload. Text extracted in 2-3 seconds!
-                            </p>
+                            <div class="language-option" data-lang="nl" onclick="selectOutputLanguage('nl')">
+                                <i class="fas fa-flag mr-2"></i>
+                                <span data-i18n="form.dutch">Dutch</span>
+                            </div>
                         </div>
+                        <input type="hidden" id="outputLanguage" value="en">
                     </div>
-                    
-                    <!-- Step 3: Cover Letter -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Step 3: Paste Your Base Cover Letter (Optional)
-                        </label>
-                        <textarea 
-                            id="coverLetterInput" 
-                            class="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                            placeholder="Paste your base cover letter here (or check the box below)..."></textarea>
-                    </div>
-                    
-                    <!-- Generate New Checkbox -->
-                    <div class="flex items-center">
-                        <input 
-                            type="checkbox" 
-                            id="generateNewCheckbox" 
-                            class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
-                        <label for="generateNewCheckbox" class="ml-2 text-sm font-medium text-gray-700">
-                            Generate a new cover letter from scratch
-                        </label>
-                    </div>
-                    
+
                     <!-- reCAPTCHA -->
                     <div class="flex justify-center">
-                        <div class="g-recaptcha" data-sitekey="6LcPIfYrAAAAAC_4lDXPD4T1H0XXJ7SDrv_ZBkwY"></div>
+                        <div class="g-recaptcha" data-sitekey="YOUR_RECAPTCHA_SITE_KEY"></div>
                     </div>
-                    
-                    <!-- Generate Button -->
+
+                    <!-- Submit Button -->
                     <button 
-                        id="generateBtn" 
-                        class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition duration-300 shadow-lg flex items-center justify-center space-x-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
-                        </svg>
-                        <span>Generate Tailored Application</span>
+                        type="submit" 
+                        id="submitBtn"
+                        class="w-full gradient-bg text-white py-4 rounded-lg text-xl font-bold hover:opacity-90 transition shadow-lg"
+                    >
+                        <i class="fas fa-magic mr-2"></i>
+                        <span data-i18n="form.generateButton">Generate Tailored CV & Cover Letter</span>
                     </button>
+
+                    <!-- Loading State -->
+                    <div id="loadingState" class="hidden text-center py-8">
+                        <div class="spinner mx-auto mb-4"></div>
+                        <p class="text-gray-600 text-lg" data-i18n="form.processing">
+                            Processing... This may take up to 60 seconds
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12" data-i18n="howItWorks.title">
+                How It Works
+            </h2>
+            
+            <div class="grid md:grid-cols-4 gap-8 max-w-6xl mx-auto">
+                <div class="text-center">
+                    <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-blue-600 text-3xl font-bold">1</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="howItWorks.step1.title">
+                        Paste Your CV
+                    </h3>
+                    <p class="text-gray-600" data-i18n="howItWorks.step1.description">
+                        Copy and paste your current CV or LinkedIn profile
+                    </p>
                 </div>
                 
-                <!-- Output Column -->
-                <div class="space-y-6">
-                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Output</h2>
-                    
-                    <!-- Loading Spinner -->
-                    <div id="loadingSpinner" class="hidden flex flex-col items-center justify-center py-20">
-                        <svg class="spinner w-16 h-16 text-purple-600" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <p id="loadingText" class="mt-4 text-gray-600 font-medium">Processing...</p>
+                <div class="text-center">
+                    <div class="bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-purple-600 text-3xl font-bold">2</span>
                     </div>
-                    
-                    <!-- Results Container -->
-                    <div id="resultsContainer" class="hidden space-y-6">
-                        <!-- Download PDF Button -->
-                        <div class="flex justify-end">
-                            <button 
-                                id="downloadPdfBtn" 
-                                class="bg-green-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-green-700 transition duration-300 shadow-lg flex items-center space-x-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                                <span>Download as PDF</span>
-                            </button>
-                        </div>
-                        
-                        <!-- Cover Letter Box -->
-                        <div class="border border-gray-200 rounded-lg p-6 bg-white shadow-sm">
-                            <div class="flex items-center space-x-2 mb-4">
-                                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                                <h3 class="text-lg font-semibold text-gray-800">New Cover Letter</h3>
-                            </div>
-                            <div id="coverLetterOutput" class="prose prose-sm max-w-none overflow-y-auto max-h-96 text-gray-700"></div>
-                        </div>
-                        
-                        <!-- CV Edits Box -->
-                        <div class="border border-gray-200 rounded-lg p-6 bg-white shadow-sm">
-                            <div class="flex items-center space-x-2 mb-4">
-                                <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                </svg>
-                                <h3 class="text-lg font-semibold text-gray-800">Improved CV & Changes Made</h3>
-                            </div>
-                            <div id="cvEditsOutput" class="prose prose-sm max-w-none overflow-y-auto max-h-96 text-gray-700"></div>
-                        </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="howItWorks.step2.title">
+                        Add Job Description
+                    </h3>
+                    <p class="text-gray-600" data-i18n="howItWorks.step2.description">
+                        Paste the job posting you're applying for
+                    </p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-green-600 text-3xl font-bold">3</span>
                     </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="howItWorks.step3.title">
+                        Choose Language
+                    </h3>
+                    <p class="text-gray-600" data-i18n="howItWorks.step3.description">
+                        Select English or Dutch for your documents
+                    </p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="bg-pink-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-pink-600 text-3xl font-bold">4</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="howItWorks.step4.title">
+                        Get Results
+                    </h3>
+                    <p class="text-gray-600" data-i18n="howItWorks.step4.description">
+                        Receive your tailored CV, cover letter, and interview tips instantly
+                    </p>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Custom Error Modal -->
-    <div id="errorModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
-            <div class="flex items-center space-x-3 mb-4">
-                <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <h3 class="text-xl font-semibold text-gray-800">Error</h3>
-            </div>
-            <p id="errorMessage" class="text-gray-600 mb-6"></p>
-            <button 
-                id="closeErrorBtn" 
-                class="w-full bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600 transition duration-300">
-                Close
-            </button>
-        </div>
-    </div>
-    
-    <!-- Subscription Required Modal -->
-    <div id="subscriptionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg shadow-2xl max-w-lg w-full p-8">
-            <div class="text-center mb-6">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full mb-4">
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
-                    </svg>
-                </div>
-                <h3 class="text-2xl font-bold text-gray-800 mb-2">Unlock Unlimited Access</h3>
-                <p class="text-gray-600">You've used your free generations. Subscribe to continue tailoring your applications!</p>
-            </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-16">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12" data-i18n="testimonials.title">
+                Success Stories
+            </h2>
             
-            <!-- Pricing Card -->
-            <div class="border-2 border-purple-600 rounded-lg p-6 mb-6">
-                <div class="text-center mb-4">
-                    <p class="text-sm text-gray-600 uppercase font-semibold mb-2">Monthly Subscription</p>
-                    <div class="flex items-baseline justify-center">
-                        <span class="text-4xl font-bold text-gray-800">€9.99</span>
-                        <span class="text-gray-600 ml-2">/month</span>
+            <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <div class="text-yellow-400 text-2xl mb-4">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
                     </div>
+                    <p class="text-gray-700 mb-4 italic" data-i18n="testimonials.testimonial1.text">
+                        "I landed 3 interviews in one week using AI CV Tailor. The tailored approach really works!"
+                    </p>
+                    <p class="text-gray-600 font-semibold" data-i18n="testimonials.testimonial1.author">
+                        Sarah M., Marketing Manager
+                    </p>
                 </div>
-                <ul class="space-y-3 mb-6">
-                    <li class="flex items-center text-gray-700">
-                        <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        Unlimited CV tailoring
-                    </li>
-                    <li class="flex items-center text-gray-700">
-                        <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        AI-powered cover letters
-                    </li>
-                    <li class="flex items-center text-gray-700">
-                        <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        PDF download feature
-                    </li>
-                    <li class="flex items-center text-gray-700">
-                        <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        Cancel anytime
-                    </li>
-                </ul>
-                <button 
-                    id="subscribeBtn" 
-                    class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition duration-300 shadow-lg">
-                    Subscribe Now
-                </button>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <div class="text-yellow-400 text-2xl mb-4">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-700 mb-4 italic" data-i18n="testimonials.testimonial2.text">
+                        "This tool saved me hours of work. The AI understood exactly what the recruiter was looking for."
+                    </p>
+                    <p class="text-gray-600 font-semibold" data-i18n="testimonials.testimonial2.author">
+                        Michael T., Software Developer
+                    </p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <div class="text-yellow-400 text-2xl mb-4">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-700 mb-4 italic" data-i18n="testimonials.testimonial3.text">
+                        "The Dutch translations are perfect. Finally a tool that works for the Dutch job market!"
+                    </p>
+                    <p class="text-gray-600 font-semibold" data-i18n="testimonials.testimonial3.author">
+                        Emma V., Project Manager
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 gradient-bg text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl font-bold mb-4" data-i18n="cta.title">
+                Ready to Land Your Dream Job?
+            </h2>
+            <p class="text-xl mb-8 max-w-2xl mx-auto" data-i18n="cta.subtitle">
+                Join thousands of successful job seekers who transformed their applications with AI CV Tailor
+            </p>
+            <a href="#form" class="inline-block bg-white text-purple-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition shadow-lg">
+                <i class="fas fa-rocket mr-2"></i>
+                <span data-i18n="cta.button">Start Free Trial</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">
+                        <i class="fas fa-file-alt mr-2"></i>
+                        AI CV Tailor
+                    </h3>
+                    <p class="text-gray-400" data-i18n="footer.description">
+                        AI-powered CV and cover letter tailoring for job seekers worldwide.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" data-i18n="footer.product">Product</h4>
+                    <ul class="space-y-2">
+                        <li><a href="/" class="text-gray-400 hover:text-white transition" data-i18n="footer.home">Home</a></li>
+                        <li><a href="/plans.html" class="text-gray-400 hover:text-white transition" data-i18n="footer.pricing">Pricing</a></li>
+                        <li><a href="#features" class="text-gray-400 hover:text-white transition" data-i18n="footer.features">Features</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" data-i18n="footer.legal">Legal</h4>
+                    <ul class="space-y-2">
+                        <li><a href="/privacy.html" class="text-gray-400 hover:text-white transition" data-i18n="footer.privacy">Privacy Policy</a></li>
+                        <li><a href="/terms.html" class="text-gray-400 hover:text-white transition" data-i18n="footer.terms">Terms of Service</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" data-i18n="footer.support">Support</h4>
+                    <ul class="space-y-2">
+                        <li><a href="mailto:support@aicvtailor.com" class="text-gray-400 hover:text-white transition" data-i18n="footer.contact">Contact Us</a></li>
+                        <li><a href="/faq.html" class="text-gray-400 hover:text-white transition" data-i18n="footer.faq">FAQ</a></li>
+                    </ul>
+                </div>
             </div>
             
-            <button 
-                id="closeSubscriptionBtn" 
-                class="w-full text-gray-600 hover:text-gray-800 font-medium">
-                Maybe Later
-            </button>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 AI CV Tailor. <span data-i18n="footer.rights">All rights reserved.</span></p>
+            </div>
         </div>
-    </div>
-    
-    <script>
-        // Initialize Stripe
-        const stripe = Stripe('pk_test_51SLquTGRrJu2imtMe1eOBZkw1MY4g65k8iIBxzmS28SQeQt1eqEfrhtzWC0OePm2sgLilwOuCtk9icxmMB1vcPOI00hnhpKAHS');
-        
-        // DOM Elements
-        const cvInput = document.getElementById('cvInput');
-        const cvFileInput = document.getElementById('cvFileInput');
-        const jobDescInput = document.getElementById('jobDescInput');
-        const coverLetterInput = document.getElementById('coverLetterInput');
-        const generateNewCheckbox = document.getElementById('generateNewCheckbox');
-        const generateBtn = document.getElementById('generateBtn');
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        const loadingText = document.getElementById('loadingText');
-        const resultsContainer = document.getElementById('resultsContainer');
-        const coverLetterOutput = document.getElementById('coverLetterOutput');
-        const cvEditsOutput = document.getElementById('cvEditsOutput');
-        const errorModal = document.getElementById('errorModal');
-        const errorMessage = document.getElementById('errorMessage');
-        const closeErrorBtn = document.getElementById('closeErrorBtn');
-        const subscriptionModal = document.getElementById('subscriptionModal');
-        const subscribeBtn = document.getElementById('subscribeBtn');
-        const closeSubscriptionBtn = document.getElementById('closeSubscriptionBtn');
-        const usageBanner = document.getElementById('usageBanner');
-        const usageText = document.getElementById('usageText');
-        const usageSubtext = document.getElementById('usageSubtext');
-        const outOfTrialsBanner = document.getElementById('outOfTrialsBanner');
-        const subscribeNowBtn = document.getElementById('subscribeNowBtn');
-        const devModeBanner = document.getElementById('devModeBanner');
-        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-        
-        // Tab elements
-        const pasteTab = document.getElementById('pasteTab');
-        const uploadTab = document.getElementById('uploadTab');
-        const pasteArea = document.getElementById('pasteArea');
-        const uploadArea = document.getElementById('uploadArea');
-        const fileNameDisplay = document.getElementById('fileNameDisplay');
-        const fileName = document.getElementById('fileName');
-        const removeFile = document.getElementById('removeFile');
-        
-        // State
-        let uploadedPdfText = null;
-        let currentInputMode = 'paste';
-        
-        // Global variables to store generated content for PDF
-        let generatedCoverLetter = '';
-        let generatedImprovedCV = '';
-        let generatedChangesMade = '';
-        
-        // Job description screenshot elements
-        const jobPasteTab = document.getElementById('jobPasteTab');
-        const jobScreenshotTab = document.getElementById('jobScreenshotTab');
-        const jobPasteArea = document.getElementById('jobPasteArea');
-        const jobScreenshotArea = document.getElementById('jobScreenshotArea');
-        const jobScreenshotInput = document.getElementById('jobScreenshotInput');
-        const jobScreenshotPreview = document.getElementById('jobScreenshotPreview');
-        const jobScreenshotImg = document.getElementById('jobScreenshotImg');
-        const ocrStatus = document.getElementById('ocrStatus');
-        const removeJobScreenshot = document.getElementById('removeJobScreenshot');
-        
-        let extractedJobText = '';
+    </footer>
 
-        
-        // Usage tracking constants
-        const FREE_USAGE_LIMIT = 3;
-        const USAGE_KEY = 'cv_tool_usage_v2';
-        const FINGERPRINT_KEY = 'cv_tool_fp';
-        
-        // Generate browser fingerprint
-        async function generateFingerprint() {
-            // Collect browser characteristics
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            ctx.textBaseline = 'top';
-            ctx.font = '14px Arial';
-            ctx.fillText('fingerprint', 2, 2);
-            const canvasData = canvas.toDataURL();
-            
-            const data = {
-                userAgent: navigator.userAgent,
-                language: navigator.language,
-                platform: navigator.platform,
-                hardwareConcurrency: navigator.hardwareConcurrency || 0,
-                screenResolution: `${screen.width}x${screen.height}`,
-                colorDepth: screen.colorDepth,
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                canvas: canvasData.substring(0, 50)
-            };
-            
-            // Create simple hash
-            const str = JSON.stringify(data);
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) {
-                const char = str.charCodeAt(i);
-                hash = ((hash << 5) - hash) + char;
-                hash = hash & hash;
-            }
-            
-            return Math.abs(hash).toString(36);
-        }
-        
-        // Generate a simple user ID (for subscription tracking)
-        function generateUserId() {
-            const nav = window.navigator;
-            const screen = window.screen;
-            let uid = nav.userAgent.replace(/\D+/g, '');
-            uid += screen.height || '';
-            uid += screen.width || '';
-            uid += screen.pixelDepth || '';
-            return uid;
-        }
-        
-        // Get or create user ID
-        function getUserId() {
-            const USER_ID_KEY = 'cv_tool_user_id';
-            let userId = localStorage.getItem(USER_ID_KEY);
-            if (!userId) {
-                userId = generateUserId();
-                localStorage.setItem(USER_ID_KEY, userId);
-            }
-            return userId;
-        }
-        
-        // Check if user has active subscription
-        async function checkSubscriptionStatus() {
-            try {
-                const userId = getUserId();
-                const response = await fetch('/.netlify/functions/check-subscription', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: userId })
-                });
-                const data = await response.json();
-                return data.hasActiveSubscription || false;
-            } catch (error) {
-                return false;
-            }
-        }
-        
-        // Get usage count from localStorage
-        function getUsageCount() {
-            const usage = localStorage.getItem(USAGE_KEY);
-            return usage ? parseInt(usage, 10) : 0;
-        }
-        
-        // Check usage from multiple sources
-        async function checkUsageLimit() {
-            // Check if user has subscription
-            const hasSubscription = await checkSubscriptionStatus();
-            if (hasSubscription) {
-                return { canUse: true, remaining: 999, fingerprint: null, isWhitelisted: false };
-            }
-            
-            // Get local usage
-            const localUsage = getUsageCount();
-            
-            // Generate fingerprint
-            const fingerprint = await generateFingerprint();
-            localStorage.setItem(FINGERPRINT_KEY, fingerprint);
-            
-            // Check backend usage
-            let backendUsage = 0;
-            let isWhitelisted = false;
-            try {
-                const response = await fetch('/.netlify/functions/track-usage', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        fingerprint: fingerprint,
-                        action: 'check'
-                    })
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    backendUsage = data.usage || 0;
-                    isWhitelisted = data.whitelisted || false;
-                    
-                    // Log whitelist status for debugging
-                    if (isWhitelisted) {
-                        console.log('✅ DEVELOPER MODE: IP is whitelisted - Unlimited access!');
-                    }
-                }
-            } catch (error) {
-                console.log('Backend check unavailable, using local only');
-            }
-            
-            // Use the maximum of both tracking methods
-            const maxUsage = Math.max(localUsage, backendUsage);
-            const remaining = Math.max(0, FREE_USAGE_LIMIT - maxUsage);
-            const canUse = maxUsage < FREE_USAGE_LIMIT;
-            
-            return { canUse, remaining, fingerprint, isWhitelisted };
-        }
-        
-        // Increment usage
-        async function incrementUsage() {
-            // Increment local storage
-            const currentUsage = getUsageCount();
-            localStorage.setItem(USAGE_KEY, currentUsage + 1);
-            
-            // Get fingerprint
-            const fingerprint = localStorage.getItem(FINGERPRINT_KEY) || await generateFingerprint();
-            
-            // Increment backend
-            try {
-                await fetch('/.netlify/functions/track-usage', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        fingerprint: fingerprint,
-                        action: 'increment'
-                    })
-                });
-            } catch (error) {
-                console.log('Backend tracking unavailable');
-            }
-            
-            updateUsageBanner();
-        }
-        
-        // Update usage banner
-        async function updateUsageBanner() {
-            const { remaining, isWhitelisted } = await checkUsageLimit();
-            
-            // Show developer mode banner if whitelisted
-            if (isWhitelisted) {
-                devModeBanner.classList.remove('hidden');
-                console.log('🔓 Developer mode banner shown');
-            } else {
-                devModeBanner.classList.add('hidden');
-            }
-            
-            if (remaining > 0) {
-                // Show remaining trials
-                usageBanner.classList.remove('hidden');
-                outOfTrialsBanner.classList.add('hidden');
-                usageText.textContent = `Free trials remaining: ${remaining} of ${FREE_USAGE_LIMIT}`;
-                
-                // Update subtext based on remaining
-                if (remaining === 1) {
-                    usageSubtext.textContent = 'Last free trial! Subscribe for unlimited access';
-                } else if (isWhitelisted) {
-                    usageSubtext.textContent = 'Developer mode - Unlimited testing enabled';
-                } else {
-                    usageSubtext.textContent = 'Try it free, then subscribe for unlimited access';
-                }
-            } else {
-                // Out of trials - show subscribe banner (unless whitelisted)
-                if (!isWhitelisted) {
-                    usageBanner.classList.add('hidden');
-                    outOfTrialsBanner.classList.remove('hidden');
-                }
-            }
-        }
-        
-        // Subscribe button handler
-        if (subscribeNowBtn) {
-            subscribeNowBtn.addEventListener('click', function() {
-                showSubscriptionModal();
-            });
-        }
-        
-        // Check if user can use the tool
-        async function canUseToolWithoutPayment() {
-            const { canUse } = await checkUsageLimit();
-            return canUse;
-        }
-        
-        // Initialize on page load
-        updateUsageBanner();
-        
-        // Tab switching
-        pasteTab.addEventListener('click', function() {
-            currentInputMode = 'paste';
-            pasteTab.classList.remove('bg-gray-200', 'text-gray-700');
-            pasteTab.classList.add('bg-purple-600', 'text-white');
-            uploadTab.classList.remove('bg-purple-600', 'text-white');
-            uploadTab.classList.add('bg-gray-200', 'text-gray-700');
-            pasteArea.classList.remove('hidden');
-            uploadArea.classList.add('hidden');
-            uploadedPdfText = null;
-        });
-        
-        uploadTab.addEventListener('click', function() {
-            currentInputMode = 'upload';
-            uploadTab.classList.remove('bg-gray-200', 'text-gray-700');
-            uploadTab.classList.add('bg-purple-600', 'text-white');
-            pasteTab.classList.remove('bg-purple-600', 'text-white');
-            pasteTab.classList.add('bg-gray-200', 'text-gray-700');
-            uploadArea.classList.remove('hidden');
-            pasteArea.classList.add('hidden');
-        });
-        
+    <!-- Translations -->
+    <script src="/translations.js"></script>
 
-        // Job description tab switching
-        jobPasteTab.addEventListener('click', function() {
-            jobPasteTab.classList.remove('bg-gray-200', 'text-gray-700');
-            jobPasteTab.classList.add('bg-purple-600', 'text-white');
-            jobScreenshotTab.classList.remove('bg-purple-600', 'text-white');
-            jobScreenshotTab.classList.add('bg-gray-200', 'text-gray-700');
-            
-            jobPasteArea.classList.remove('hidden');
-            jobScreenshotArea.classList.add('hidden');
-        });
+    <!-- Main App Script -->
+    <script src="/app.js"></script>
 
-        jobScreenshotTab.addEventListener('click', function() {
-            jobScreenshotTab.classList.remove('bg-gray-200', 'text-gray-700');
-            jobScreenshotTab.classList.add('bg-purple-600', 'text-white');
-            jobPasteTab.classList.remove('bg-purple-600', 'text-white');
-            jobPasteTab.classList.add('bg-gray-200', 'text-gray-700');
-            
-            jobScreenshotArea.classList.remove('hidden');
-            jobPasteArea.classList.add('hidden');
-        });
-
-        // Handle job screenshot upload with OCR
-        jobScreenshotInput.addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            // Validate file size (max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                showError('Image is too large. Please upload an image smaller than 5MB.');
-                return;
-            }
-            
-            // Validate file type
-            if (!file.type.startsWith('image/')) {
-                showError('Please upload a valid image file.');
-                return;
-            }
-            
-            // Show preview
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                jobScreenshotImg.src = event.target.result;
-                jobScreenshotPreview.classList.remove('hidden');
-            };
-            reader.readAsDataURL(file);
-            
-            // Process with OCR
-            await extractTextFromImage(file);
-        });
-
-        // Extract text from image using backend
-        async function extractTextFromImage(file) {
-            try {
-                ocrStatus.innerHTML = `
-                    <svg class="animate-spin h-5 w-5 text-blue-500 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span class="text-blue-700">Extracting text from image...</span>
-                `;
-                
-                // Convert image to base64
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                
-                await new Promise((resolve) => {
-                    reader.onload = resolve;
-                });
-                
-                const base64Image = reader.result.split(',')[1];
-                
-                // Call backend OCR function
-                const response = await fetch('/.netlify/functions/ocr', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        image: base64Image,
-                        mimeType: file.type
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error || 'Failed to extract text from image');
-                }
-                
-                extractedJobText = data.text;
-                
-                // Update status
-                ocrStatus.innerHTML = `
-                    <svg class="h-5 w-5 text-green-500 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <span class="text-green-700">✅ Text extracted! (${extractedJobText.length} characters)</span>
-                `;
-                
-                // Also populate the paste textarea for preview
-                jobDescInput.value = extractedJobText;
-                
-            } catch (error) {
-                console.error('OCR Error:', error);
-                ocrStatus.innerHTML = `
-                    <svg class="h-5 w-5 text-red-500 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                    <span class="text-red-700">Failed to extract text. Please try pasting instead.</span>
-                `;
-            }
-        }
-
-        // Remove screenshot
-        removeJobScreenshot.addEventListener('click', function() {
-            jobScreenshotInput.value = '';
-            jobScreenshotPreview.classList.add('hidden');
-            jobScreenshotImg.src = '';
-            extractedJobText = '';
-            jobDescInput.value = '';
-        });
-        
-        // Handle file upload
-        cvFileInput.addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            // Validate file type
-            if (file.type !== 'application/pdf') {
-                showError('Please upload a PDF file only.');
-                cvFileInput.value = '';
-                return;
-            }
-            
-            // Reduced size limit for security (2MB)
-            if (file.size > 2 * 1024 * 1024) {
-                showError('File size must be less than 2MB. For larger CVs, please paste your text instead.');
-                cvFileInput.value = '';
-                return;
-            }
-            
-            // Minimum size check (avoid empty files)
-            if (file.size < 1024) {
-                showError('File is too small to be a valid CV. Please check your file.');
-                cvFileInput.value = '';
-                return;
-            }
-            
-            // Show file name
-            fileName.textContent = file.name;
-            fileNameDisplay.classList.remove('hidden');
-            
-            // Hide any previous results when uploading new CV
-            resultsContainer.classList.add('hidden');
-            
-            // Read PDF and extract text
-            try {
-                const formData = new FormData();
-                formData.append('pdf', file);
-                
-                // Show loading spinner while processing PDF
-                loadingText.textContent = 'Reading your PDF... This may take a few seconds.';
-                loadingSpinner.classList.remove('hidden');
-                
-                // Add timeout to fetch request
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 15000);
-                
-                const response = await fetch('/.netlify/functions/extract-pdf', {
-                    method: 'POST',
-                    body: formData,
-                    signal: controller.signal
-                });
-                
-                clearTimeout(timeoutId);
-                
-                const data = await response.json();
-                loadingSpinner.classList.add('hidden');
-                
-                if (!response.ok) {
-                    throw new Error(data.error || 'Failed to extract text from PDF');
-                }
-                
-                uploadedPdfText = data.text;
-                
-                if (data.truncated) {
-                    showError('Note: Your CV was very long and has been truncated. All important information should still be included.');
-                }
-                
-            } catch (error) {
-                loadingSpinner.classList.add('hidden');
-                
-                let errorMsg = 'Failed to read PDF file. ';
-                if (error.name === 'AbortError') {
-                    errorMsg += 'Processing took too long. Please try a simpler PDF or paste your CV text instead.';
-                } else {
-                    errorMsg += error.message;
-                }
-                
-                showError(errorMsg);
-                fileNameDisplay.classList.add('hidden');
-                cvFileInput.value = '';
-                uploadedPdfText = null;
-            }
-        });
-        
-        // Remove file
-        removeFile.addEventListener('click', function() {
-            cvFileInput.value = '';
-            uploadedPdfText = null;
-            fileNameDisplay.classList.add('hidden');
-        });
-        
-        // Drag and drop
-        uploadArea.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            this.classList.add('border-purple-500');
-        });
-        
-        uploadArea.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            this.classList.remove('border-purple-500');
-        });
-        
-        uploadArea.addEventListener('drop', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            this.classList.remove('border-purple-500');
-            
-            const file = e.dataTransfer.files[0];
-            if (file) {
-                cvFileInput.files = e.dataTransfer.files;
-                cvFileInput.dispatchEvent(new Event('change'));
-            }
-        });
-        
-        // Checkbox behavior
-        generateNewCheckbox.addEventListener('change', function() {
-            if (this.checked) {
-                coverLetterInput.disabled = true;
-                coverLetterInput.classList.add('bg-gray-100', 'text-gray-400');
-            } else {
-                coverLetterInput.disabled = false;
-                coverLetterInput.classList.remove('bg-gray-100', 'text-gray-400');
-            }
-        });
-        
-        // Error modal functions
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorModal.classList.remove('hidden');
-        }
-        
-        function hideError() {
-            errorModal.classList.add('hidden');
-        }
-        
-        closeErrorBtn.addEventListener('click', hideError);
-        errorModal.addEventListener('click', function(e) {
-            if (e.target === errorModal) hideError();
-        });
-        
-        // Subscription modal functions
-        function showSubscriptionModal() {
-            subscriptionModal.classList.remove('hidden');
-        }
-        
-        function hideSubscriptionModal() {
-            subscriptionModal.classList.add('hidden');
-        }
-        
-        closeSubscriptionBtn.addEventListener('click', hideSubscriptionModal);
-        
-        // Subscribe button handler
-        subscribeBtn.addEventListener('click', async function() {
-            const userId = getUserId();
-            try {
-                const response = await fetch('/.netlify/functions/create-checkout', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId })
-                });
-                const data = await response.json();
-                
-                if (data.sessionId) {
-                    stripe.redirectToCheckout({ sessionId: data.sessionId });
-                }
-            } catch (error) {
-                showError('Failed to start checkout. Please try again.');
-            }
-        });
-        
-        // Sanitize HTML content to plain text (security)
-        function sanitizeText(html) {
-            const temp = document.createElement('div');
-            temp.innerHTML = html;
-            
-            // Remove all script tags
-            const scripts = temp.querySelectorAll('script');
-            scripts.forEach(s => s.remove());
-            
-            // Remove all style tags
-            const styles = temp.querySelectorAll('style');
-            styles.forEach(s => s.remove());
-            
-            // Get only text content
-            let text = temp.textContent || temp.innerText || '';
-            
-            // Remove any remaining dangerous characters
-            text = text.replace(/[<>]/g, '');
-            
-            return text.trim();
-        }
-        
- // Download PDF function
-        // Download PDF function with professional formatting
-// ENHANCED PREMIUM PDF GENERATOR
-// Replace the downloadPdfBtn.addEventListener function with this
-
-downloadPdfBtn.addEventListener('click', async function() {
-    try {
-        // Check if jsPDF is loaded
-        if (typeof window.jspdf === 'undefined') {
-            showError('PDF library not loaded. Please refresh the page and try again.');
-            return;
-        }
-        
-        const { jsPDF } = window.jspdf;
-        
-        // Use global variables for content
-        const coverLetterText = generatedCoverLetter;
-        const improvedCVText = generatedImprovedCV;
-        const changesMadeText = generatedChangesMade;
-        
-        // Check content
-        if (!improvedCVText || improvedCVText.length < 50) {
-            showError('Please generate your application first before downloading PDF.');
-            return;
-        }
-        
-        const doc = new jsPDF('p', 'mm', 'a4');
-        
-        // Page settings
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const pageHeight = doc.internal.pageSize.getHeight();
-        const margin = 18;
-        const contentWidth = pageWidth - (2 * margin);
-        let yPosition = margin;
-        
-        // Premium Color Palette - Modern Professional
-        const colors = {
-            primary: [26, 82, 118],       // Deep professional blue
-            secondary: [41, 128, 185],    // Bright blue
-            accent: [39, 174, 96],        // Success green
-            warning: [243, 156, 18],      // Orange for highlights
-            text: [33, 37, 41],           // Almost black
-            textLight: [108, 117, 125],   // Gray for secondary text
-            bgLight: [248, 249, 250],     // Very light gray
-            border: [206, 212, 218],      // Border gray
-        };
-        
-        // Helper: Check if we need a new page
-        function checkNewPage(neededSpace = 20) {
-            if (yPosition + neededSpace > pageHeight - margin - 15) {
-                doc.addPage();
-                addWatermark();
-                yPosition = margin;
-                return true;
-            }
-            return false;
-        }
-        
-        // Add subtle watermark
-        function addWatermark() {
-            doc.setTextColor(245, 245, 245);
-            doc.setFontSize(60);
-            doc.setFont('helvetica', 'bold');
-            doc.text('CV', pageWidth / 2, pageHeight / 2, {
-                align: 'center',
-                angle: 45,
-                opacity: 0.1
-            });
-        }
-        
-        // Helper: Clean markdown formatting
-        function cleanText(text) {
-            return text
-                .replace(/\*\*/g, '')
-                .replace(/\[|\]/g, '')
-                .replace(/#{1,6}\s/g, '')
-                .trim();
-        }
-        
-        // Draw a skill badge/pill
-        function drawSkillBadge(skill, x, y) {
-            const padding = 3;
-            const textWidth = doc.getTextWidth(skill) + (padding * 2);
-            const badgeHeight = 6;
-            
-            // Check if badge fits on current line, if not move to next
-            if (x + textWidth > pageWidth - margin) {
-                return { x: margin, y: y + 8, drawn: false };
-            }
-            
-            // Draw rounded rectangle
-            doc.setFillColor(...colors.bgLight);
-            doc.setDrawColor(...colors.primary);
-            doc.setLineWidth(0.3);
-            doc.roundedRect(x, y - 4, textWidth, badgeHeight, 1.5, 1.5, 'FD');
-            
-            // Draw text
-            doc.setFontSize(8);
-            doc.setFont('helvetica', 'normal');
-            doc.setTextColor(...colors.primary);
-            doc.text(skill, x + padding, y);
-            
-            return { x: x + textWidth + 3, y: y, drawn: true };
-        }
-        
-        // Draw decorative section divider
-        function drawSectionDivider() {
-            doc.setDrawColor(...colors.border);
-            doc.setLineWidth(0.3);
-            doc.line(margin, yPosition, pageWidth - margin, yPosition);
-            yPosition += 1;
-            doc.setDrawColor(...colors.primary);
-            doc.setLineWidth(0.8);
-            doc.line(margin, yPosition, margin + 15, yPosition);
-            yPosition += 6;
-        }
-        
-        // Parse and format the CV with premium styling
-        function parseAndFormatCV(text) {
-            const lines = text.split('\n');
-            let isFirstLine = true;
-            let inContactInfo = false;
-            let contactInfoAdded = false;
-            let currentSection = '';
-            let skillBadgeMode = false;
-            let badgeX = margin;
-            let badgeY = yPosition;
-            
-            lines.forEach((line, index) => {
-                const trimmedLine = line.trim();
-                
-                // Skip empty lines
-                if (!trimmedLine) {
-                    if (skillBadgeMode && badgeX > margin) {
-                        yPosition = badgeY + 5;
-                        skillBadgeMode = false;
-                    } else if (yPosition > margin + 10) {
-                        yPosition += 2;
-                    }
-                    return;
-                }
-                
-                // Detect NAME (first non-empty line)
-                if (isFirstLine || (index < 3 && trimmedLine.includes('**') && trimmedLine.length < 60)) {
-                    isFirstLine = false;
-                    const name = cleanText(trimmedLine);
-                    
-                    if (name && name.length > 2 && !contactInfoAdded) {
-                        // Premium name header with background
-                        doc.setFillColor(...colors.primary);
-                        doc.rect(0, 0, pageWidth, 35, 'F');
-                        
-                        // Name
-                        doc.setFontSize(26);
-                        doc.setFont('helvetica', 'bold');
-                        doc.setTextColor(255, 255, 255);
-                        doc.text(name, margin, 18);
-                        
-                        yPosition = 40;
-                        inContactInfo = true;
-                    }
-                    return;
-                }
-                
-                // Detect CONTACT INFO
-                if ((inContactInfo || index < 5) && 
-                    (trimmedLine.includes('@') || trimmedLine.includes('|') || 
-                     trimmedLine.includes('+') || trimmedLine.toLowerCase().includes('linkedin') ||
-                     trimmedLine.toLowerCase().includes('phone'))) {
-                    
-                    const contactText = cleanText(trimmedLine);
-                    
-                    // Split by | to create contact items
-                    const contactParts = contactText.split('|').map(p => p.trim());
-                    
-                    doc.setFontSize(9);
-                    doc.setFont('helvetica', 'normal');
-                    doc.setTextColor(...colors.textLight);
-                    
-                    let contactX = margin;
-                    contactParts.forEach((part, i) => {
-                        if (i > 0) {
-                            // Add separator dot
-                            doc.setFillColor(...colors.textLight);
-                            doc.circle(contactX, yPosition - 1.5, 0.8, 'F');
-                            contactX += 4;
-                        }
-                        doc.text(part, contactX, yPosition);
-                        contactX += doc.getTextWidth(part) + 4;
-                    });
-                    
-                    yPosition += 4;
-                    
-                    if (!contactInfoAdded) {
-                        yPosition += 3;
-                        drawSectionDivider();
-                        contactInfoAdded = true;
-                        inContactInfo = false;
-                    }
-                    return;
-                }
-                
-                // Detect SECTION HEADERS
-                const sectionMatch = trimmedLine.match(/^\*\*([A-Z\s&]+)\*\*$/) || 
-                                   (trimmedLine === trimmedLine.toUpperCase() && 
-                                    trimmedLine.length > 3 && 
-                                    trimmedLine.length < 35 && 
-                                    !trimmedLine.includes('|'));
-                
-                if (sectionMatch) {
-                    if (skillBadgeMode) {
-                        yPosition = badgeY + 5;
-                        skillBadgeMode = false;
-                    }
-                    
-                    checkNewPage(25);
-                    yPosition += 5;
-                    
-                    const sectionTitle = cleanText(trimmedLine);
-                    currentSection = sectionTitle.toUpperCase();
-                    
-                    // Modern section header with icon area
-                    doc.setDrawColor(...colors.primary);
-                    doc.setLineWidth(2);
-                    doc.line(margin - 3, yPosition - 2, margin - 3, yPosition + 4);
-                    
-                    doc.setFontSize(12);
-                    doc.setFont('helvetica', 'bold');
-                    doc.setTextColor(...colors.primary);
-                    doc.text(sectionTitle, margin + 2, yPosition + 2);
-                    
-                    yPosition += 8;
-                    doc.setTextColor(...colors.text);
-                    
-                    // Enable badge mode for SKILLS section
-                    if (currentSection.includes('SKILL')) {
-                        skillBadgeMode = true;
-                        badgeX = margin;
-                        badgeY = yPosition;
-                    }
-                    
-                    return;
-                }
-                
-                // Detect SUBSECTION (company names, job titles)
-                if (trimmedLine.includes('**') && !sectionMatch) {
-                    if (skillBadgeMode) {
-                        yPosition = badgeY + 5;
-                        skillBadgeMode = false;
-                    }
-                    
-                    checkNewPage(15);
-                    yPosition += 2;
-                    
-                    const boldText = cleanText(trimmedLine);
-                    
-                    // Company/Job title with subtle background
-                    const textWidth = doc.getTextWidth(boldText);
-                    doc.setFillColor(...colors.bgLight);
-                    doc.rect(margin - 2, yPosition - 5, Math.min(textWidth + 4, contentWidth), 7, 'F');
-                    
-                    doc.setFontSize(10);
-                    doc.setFont('helvetica', 'bold');
-                    doc.setTextColor(...colors.secondary);
-                    
-                    const textLines = doc.splitTextToSize(boldText, contentWidth);
-                    textLines.forEach(textLine => {
-                        checkNewPage(10);
-                        doc.text(textLine, margin, yPosition);
-                        yPosition += 5;
-                    });
-                    yPosition += 1;
-                    return;
-                }
-                
-                // Detect BULLET POINTS
-                if (trimmedLine.match(/^[\*\-\•]/)) {
-                    if (skillBadgeMode) {
-                        yPosition = badgeY + 5;
-                        skillBadgeMode = false;
-                    }
-                    
-                    checkNewPage(10);
-                    const bulletText = trimmedLine.substring(1).trim();
-                    
-                    // Enhanced bullet with gradient effect simulation
-                    doc.setFillColor(...colors.accent);
-                    doc.circle(margin + 2.5, yPosition - 1.5, 1.5, 'F');
-                    doc.setFillColor(255, 255, 255);
-                    doc.circle(margin + 2.5, yPosition - 2, 0.7, 'F');
-                    
-                    doc.setFontSize(9);
-                    doc.setFont('helvetica', 'normal');
-                    doc.setTextColor(...colors.text);
-                    
-                    const textLines = doc.splitTextToSize(bulletText, contentWidth - 10);
-                    textLines.forEach((textLine, i) => {
-                        if (i > 0) checkNewPage(10);
-                        doc.text(textLine, margin + 7, yPosition);
-                        yPosition += 4.5;
-                    });
-                    yPosition += 0.5;
-                    return;
-                }
-                
-                // SKILLS as badges
-                if (skillBadgeMode && !trimmedLine.includes('**')) {
-                    checkNewPage(10);
-                    const skill = cleanText(trimmedLine);
-                    const result = drawSkillBadge(skill, badgeX, badgeY);
-                    badgeX = result.x;
-                    badgeY = result.y;
-                    if (!result.drawn) {
-                        badgeY += 8;
-                        const retry = drawSkillBadge(skill, margin, badgeY);
-                        badgeX = retry.x;
-                    }
-                    return;
-                }
-                
-                // Regular PARAGRAPH text
-                if (skillBadgeMode) {
-                    yPosition = badgeY + 5;
-                    skillBadgeMode = false;
-                }
-                
-                checkNewPage(10);
-                const cleanedText = cleanText(trimmedLine);
-                
-                doc.setFontSize(9);
-                doc.setFont('helvetica', 'normal');
-                doc.setTextColor(...colors.text);
-                
-                const textLines = doc.splitTextToSize(cleanedText, contentWidth);
-                textLines.forEach(textLine => {
-                    checkNewPage(10);
-                    doc.text(textLine, margin, yPosition);
-                    yPosition += 4.5;
-                });
-                yPosition += 2;
-            });
-        }
-        
-        // Add cover letter with premium design
-        function addCoverLetter(content) {
-            if (!content || !content.trim() || content.toLowerCase().includes('generation failed')) {
-                return;
-            }
-            
-            // Cover letter title page with design
-            doc.setFillColor(...colors.primary);
-            doc.rect(0, 0, pageWidth, 50, 'F');
-            
-            doc.setFontSize(24);
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(255, 255, 255);
-            doc.text('Cover Letter', pageWidth / 2, 30, { align: 'center' });
-            
-            yPosition = 65;
-            
-            // Add date
-            const currentDate = new Date().toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            });
-            doc.setFontSize(9);
-            doc.setFont('helvetica', 'normal');
-            doc.setTextColor(...colors.textLight);
-            doc.text(currentDate, margin, yPosition);
-            yPosition += 12;
-            
-            // Content
-            doc.setTextColor(...colors.text);
-            const paragraphs = content.split('\n\n');
-            
-            paragraphs.forEach(para => {
-                if (para.trim()) {
-                    checkNewPage(15);
-                    doc.setFontSize(10);
-                    doc.setFont('helvetica', 'normal');
-                    const lines = doc.splitTextToSize(para.trim(), contentWidth);
-                    lines.forEach(line => {
-                        checkNewPage(10);
-                        doc.text(line, margin, yPosition);
-                        yPosition += 5;
-                    });
-                    yPosition += 4;
-                }
-            });
-        }
-        
-        // Add changes section with better formatting
-        function addChangesSection(content) {
-            if (!content || !content.trim() || content.toLowerCase().includes('not available')) {
-                return;
-            }
-            
-            doc.addPage();
-            addWatermark();
-            yPosition = margin;
-            
-            // Title
-            doc.setFillColor(...colors.warning);
-            doc.rect(0, yPosition - 5, pageWidth, 15, 'F');
-            
-            doc.setFontSize(16);
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(255, 255, 255);
-            doc.text('Changes Made to Your CV', margin, yPosition + 4);
-            
-            yPosition += 20;
-            doc.setTextColor(...colors.text);
-            
-            // Parse and display changes with icons
-            const lines = content.split('\n');
-            let changeNumber = 1;
-            
-            lines.forEach(line => {
-                const trimmedLine = cleanText(line);
-                if (trimmedLine) {
-                    checkNewPage(12);
-                    
-                    if (trimmedLine.match(/^[\*\-\•]/)) {
-                        // Change item with number badge
-                        doc.setFillColor(...colors.accent);
-                        doc.circle(margin + 3, yPosition - 1.5, 3, 'F');
-                        
-                        doc.setFontSize(8);
-                        doc.setFont('helvetica', 'bold');
-                        doc.setTextColor(255, 255, 255);
-                        doc.text(changeNumber.toString(), margin + 3, yPosition, { align: 'center' });
-                        changeNumber++;
-                        
-                        const changeText = trimmedLine.substring(1).trim();
-                        doc.setFontSize(9);
-                        doc.setFont('helvetica', 'normal');
-                        doc.setTextColor(...colors.text);
-                        
-                        const textLines = doc.splitTextToSize(changeText, contentWidth - 12);
-                        textLines.forEach((textLine, i) => {
-                            if (i > 0) checkNewPage(10);
-                            doc.text(textLine, margin + 9, yPosition);
-                            yPosition += 4.5;
-                        });
-                        yPosition += 2;
-                    } else {
-                        doc.setFontSize(9);
-                        doc.setFont('helvetica', 'normal');
-                        const textLines = doc.splitTextToSize(trimmedLine, contentWidth);
-                        textLines.forEach(textLine => {
-                            checkNewPage(10);
-                            doc.text(textLine, margin, yPosition);
-                            yPosition += 4.5;
-                        });
-                        yPosition += 2;
-                    }
-                }
-            });
-        }
-        
-        // Generate the PDF
-        addWatermark();
-        
-        // 1. Cover Letter (if exists)
-        if (coverLetterText && coverLetterText.trim() && 
-            !coverLetterText.toLowerCase().includes('generation failed')) {
-            addCoverLetter(coverLetterText);
-            doc.addPage();
-            addWatermark();
-            yPosition = margin;
-        }
-        
-        // 2. Improved CV (main content)
-        parseAndFormatCV(improvedCVText);
-        
-        // 3. Changes Made
-        addChangesSection(changesMadeText);
-        
-        // Add premium footer to all pages
-        const pageCount = doc.internal.getNumberOfPages();
-        for (let i = 1; i <= pageCount; i++) {
-            doc.setPage(i);
-            
-            // Footer line
-            doc.setDrawColor(...colors.border);
-            doc.setLineWidth(0.5);
-            doc.line(margin, pageHeight - 12, pageWidth - margin, pageHeight - 12);
-            
-            // Footer text
-            doc.setFontSize(8);
-            doc.setTextColor(...colors.textLight);
-            doc.text('Generated by applyjobmatch.nl', pageWidth / 2, pageHeight - 8, { align: 'center' });
-            
-            // Page number in circle
-            doc.setDrawColor(...colors.primary);
-            doc.setLineWidth(0.5);
-            doc.circle(pageWidth - margin - 5, pageHeight - 8, 3, 'D');
-            doc.setFontSize(7);
-            doc.setTextColor(...colors.primary);
-            doc.text(`${i}`, pageWidth - margin - 5, pageHeight - 7, { align: 'center' });
-        }
-        
-        // Save PDF
-        const timestamp = new Date().toISOString().split('T')[0];
-        const fileName = `Professional_CV_${timestamp}.pdf`;
-        doc.save(fileName);
-        
-    } catch (error) {
-        console.error('Error generating PDF:', error);
-        showError('Failed to generate PDF. Please try again.');
-    }
-});
-        // Generate button click handler
-        generateBtn.addEventListener('click', async function() {
-            // Check if user can use the tool
-            const canUse = await canUseToolWithoutPayment();
-            if (!canUse) {
-                showSubscriptionModal();
-                return;
-            }
-            
-            // Validation
-            const cv = currentInputMode === 'paste' ? cvInput.value.trim() : uploadedPdfText;
-            const jobDesc = jobDescInput.value.trim() || extractedJobText;
-            const coverLetter = coverLetterInput.value.trim();
-            const generateNew = generateNewCheckbox.checked;
-            const recaptchaToken = grecaptcha.getResponse();
-            
-            if (!cv) {
-                if (currentInputMode === 'upload') {
-                    showError('Please upload your CV as a PDF file.');
-                } else {
-                    showError('Please paste your CV.');
-                }
-                return;
-            }
-            
-            if (!jobDesc) {
-                showError('Please paste the job description.');
-                return;
-            }
-            
-            if (!generateNew && !coverLetter) {
-                showError('Please paste your base cover letter or check the box to generate a new one.');
-                return;
-            }
-            
-            if (!recaptchaToken) {
-                showError('Please complete the reCAPTCHA verification.');
-                return;
-            }
-            
-            // Show loading state
-            loadingText.textContent = 'Generating your tailored application... This may take 10-20 seconds.';
-            loadingSpinner.classList.remove('hidden');
-            resultsContainer.classList.add('hidden');
-            
-            try {
-                const coverLetterValue = generateNew ? '[USER_REQUESTS_NEW_COVER_LETTER]' : coverLetter;
-                const userId = getUserId();
-                
-                // Make API call
-                const response = await fetch('/.netlify/functions/generate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        cv: cv,
-                        jobDescription: jobDesc,
-                        baseCoverLetter: generateNew ? '' : coverLetter,
-                        generateCoverLetter: true,
-                        recaptchaToken: recaptchaToken
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error || 'An error occurred while generating your application.');
-                }
-                
-                // Parse the response - new backend returns separate fields
-                const coverLetterText = data.coverLetter || '';
-                const improvedCVText = data.improvedCV || '';
-                const changesMadeText = data.changesMade || '';
-                
-                // Store in global variables for PDF export
-                generatedCoverLetter = coverLetterText;
-                generatedImprovedCV = improvedCVText;
-                generatedChangesMade = changesMadeText;
-                
-                // Combine improved CV and changes for display
-                const cvOutputText = `## Your Improved CV\n\n${improvedCVText}\n\n## Changes Made\n\n${changesMadeText}`;
-                
-                // Render with marked.js
-                coverLetterOutput.innerHTML = marked.parse(coverLetterText);
-                cvEditsOutput.innerHTML = marked.parse(cvOutputText);
-                
-                // Show results
-                loadingSpinner.classList.add('hidden');
-                resultsContainer.classList.remove('hidden');
-                
-                // Increment usage for non-subscribers
-                const hasSubscription = await checkSubscriptionStatus();
-                if (!hasSubscription) {
-                    incrementUsage();
-                }
-                
-                // Reset reCAPTCHA
-                grecaptcha.reset();
-                
-            } catch (error) {
-                loadingSpinner.classList.add('hidden');
-                showError(error.message);
-                grecaptcha.reset();
-            }
-        });
-        
-        // Check for successful payment in URL
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('success') === 'true') {
-            localStorage.removeItem(USAGE_KEY);
-            updateUsageBanner();
-            showError('Subscription successful! You now have unlimited access.');
-        }
-    </script>
 </body>
 </html>
