@@ -31,8 +31,7 @@ export const handler = async (event) => {
         // Parse the incoming request body
         const { cv, jobDescription, outputLanguage = 'en', userId = 'free-user', recaptchaToken } = JSON.parse(event.body);
 
-        // --- Optional: Server-side reCAPTCHA Verification ---
-        // ... (reCAPTCHA code remains the same, uncomment if used) ...
+        // --- Optional: Server-side reCAPTCHA Verification (niet nodig voor deze fix) ---
 
         // Validate essential inputs
         if (!cv || !jobDescription) {
@@ -93,67 +92,69 @@ EXPLANATION: [Your 1-2 sentence explanation]
 ---RECRUITER_TIPS_START---
 [Your 5-7 specific tips and questions here]
 ---RECRUITER_TIPS_END---
-`; // *** TYPO FIXED HERE ***
+`; 
 
         // Select the Gemini model and configure generation parameters
         const model = genAI.getGenerativeModel({
-            model: 'gemini-2.5-flash', // Gebruik het correcte, meest recente stabiele model
+            model: 'gemini-2.5-flash-lite', // *** GEBRUIK DE SNELSTE STABIELE LITE VERSIE ***
             generationConfig: {
                 temperature: 0.7, // Controls randomness (creativity)
-                maxOutputTokens: 4000 // *** MAX TOKENS SETTING***
+                maxOutputTokens: 4000 // Terug naar 4000: Lite kan dit veel sneller aan
             }
         });
 
-        console.log('Calling Google Gemini API with model gemini-2.5-flash...');
+        console.log('Calling Google Gemini API with model gemini-2.5-flash-lite...');
         // Generate content based on the prompt
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text(); // Get the generated text
         console.log(`Response received from Gemini. Length: ${text.length} characters.`);
-        // *** LOGGING TOEGEVOEGD VOOR DEBUGGEN ***
+        // Log de ruwe response om te helpen bij het debuggen van parsing
         console.log("----- RAW GEMINI RESPONSE START -----\n", text, "\n----- RAW GEMINI RESPONSE END -----");
 
 
         // --- Helper function to extract content between markers ---
         const extractSection = (startMarker, endMarker, content) => {
-            // Maak de zoekopdracht iets flexibeler m.b.t. witruimte voor/na de marker
             const startIndex = content.indexOf(startMarker);
             const endIndex = content.indexOf(endMarker);
+            // Zorg ervoor dat beide markers gevonden zijn en in de juiste volgorde staan
             if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
+                // Extraheer tekst en verwijder witruimte aan begin/eind
                 return content.substring(startIndex + startMarker.length, endIndex).trim();
             }
             console.warn(`Could not find or parse markers: ${startMarker} / ${endMarker}`);
-            return null;
+            return null; // Geef null terug als de sectie niet gevonden/foutief is
         };
 
         // --- Helper function to parse the score and explanation ---
         const parseScore = (scoreContent) => {
              if (!scoreContent) return { score: null, explanation: null };
-             // Maak regex iets robuuster voor witruimte
+             // Gebruik regex om SCORE: getal/100 te vinden (case-insensitive)
              const scoreMatch = scoreContent.match(/SCORE:\s*(\d+)\s*\/100/i);
+             // Gebruik regex om EXPLANATION: gevolgd door tekst te vinden (case-insensitive)
              const explanationMatch = scoreContent.match(/EXPLANATION:\s*([\s\S]+)/i);
              return {
-                 score: scoreMatch ? parseInt(scoreMatch[1], 10) : null,
-                 explanation: explanationMatch ? explanationMatch[1].trim() : null
+                 score: scoreMatch ? parseInt(scoreMatch[1], 10) : null, // Converteer score naar integer
+                 explanation: explanationMatch ? explanationMatch[1].trim() : null // Haal de uitleg tekst op
              };
          };
+        // --- End Helper Functions ---
 
-        // Extract each section using the helper function
+        // Extraheer elke sectie met de helper functie
         const scoreSection = extractSection('---CV_SCORE_START---', '---CV_SCORE_END---', text);
         const { score, explanation } = parseScore(scoreSection);
         const improvedCV = extractSection('---IMPROVED_CV_START---', '---IMPROVED_CV_END---', text);
         const coverLetter = extractSection('---COVER_LETTER_START---', '---COVER_LETTER_END---', text);
-        const recruiterTips = extractSection('---RECRUITER_TIPS_START---', '---RECRUITER_TIPS_END---', text); // *** TYPO FIXED HERE ***
+        const recruiterTips = extractSection('---RECRUITER_TIPS_START---', '---RECRUITER_TIPS_END---', text);
 
         // --- Define Fallbacks for robust error handling ---
-        const defaultLang = outputLanguage === 'nl'; // Boolean for Dutch
+        const defaultLang = outputLanguage === 'nl'; // Boolean voor Nederlands
         const fallbackCV = defaultLang ? "Kon CV niet genereren. Controleer de input en probeer het opnieuw." : "Could not generate CV. Please check input and try again.";
         const fallbackCL = defaultLang ? "Kon sollicitatiebrief niet genereren." : "Could not generate cover letter.";
         const fallbackTips = defaultLang ? "- Bereid vragen voor over de functie\n- Onderzoek het bedrijf grondig\n- Vraag naar de volgende stappen" : "- Prepare questions about the role\n- Research the company thoroughly\n- Ask about next steps";
         const fallbackExplanation = defaultLang ? "Score-evaluatie kon niet worden geëxtraheerd." : "Score evaluation could not be extracted.";
 
-        // Basic validation of extracted content length
-        // We loggen nu errors, maar sturen *altijd* een 200 terug met de (eventueel fallback) data
+        // Basisvalidatie van de lengte van de geëxtraheerde inhoud
         if (!improvedCV || improvedCV.length < 50) {
             console.error('Failed to extract valid Improved CV. Will use fallback.');
         }
@@ -170,7 +171,7 @@ EXPLANATION: [Your 1-2 sentence explanation]
         console.log(`Successfully parsed (or used fallback) - Score: ${score ?? 'N/A'}, CV: ${improvedCV?.length ?? 0} chars, CL: ${coverLetter?.length ?? 0} chars, Tips: ${recruiterTips?.length ?? 0} chars`);
 
         // --- Placeholder for Incrementing Usage Count ---
-        // ... (usage count logic blijft hetzelfde) ...
+        // ... (usage count logic remains the same) ...
 
         // Return the structured data successfully
         return {
@@ -213,5 +214,3 @@ EXPLANATION: [Your 1-2 sentence explanation]
 
 // --- Placeholder Helper Functions ---
 // ... (helper functions blijven hetzelfde) ...
-
-
