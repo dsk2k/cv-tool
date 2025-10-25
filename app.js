@@ -1,624 +1,715 @@
-// ============================================
-// AI CV TAILOR - MAIN APPLICATION
-// Complete app.js with fixed form submission
-// ============================================
-
-console.log('🚀 AI CV Tailor - Initializing...');
-
-// ============================================
-// CONFIGURATION
-// ============================================
-
-const CONFIG = {
-  apiEndpoint: '/.netlify/functions/analyze-cv',
-  minCVLength: 50,
-  minJobLength: 30,
-  defaultLanguage: 'en'
-};
-
-// ============================================
-// UI LANGUAGE MANAGEMENT
-// ============================================
-
-let currentUILanguage = localStorage.getItem('uiLanguage') || 'en';
-
-function setUILanguage(lang) {
-  currentUILanguage = lang;
-  localStorage.setItem('uiLanguage', lang);
-  updateUIText();
-  console.log('UI Language set to:', lang);
-}
-
-function updateUIText() {
-  // Update all elements with data-i18n attribute
-  document.querySelectorAll('[data-i18n]').forEach(element => {
-    const key = element.getAttribute('data-i18n');
-    if (translations[currentUILanguage] && translations[currentUILanguage][key]) {
-      element.textContent = translations[currentUILanguage][key];
-    }
-  });
-}
-
-// ============================================
-// CLIPBOARD FUNCTIONALITY
-// ============================================
-
-function setupClipboardButtons() {
-  const pasteButtons = document.querySelectorAll('[data-paste-target]');
-  
-  pasteButtons.forEach(button => {
-    button.addEventListener('click', async () => {
-      const targetId = button.getAttribute('data-paste-target');
-      const targetElement = document.getElementById(targetId);
-      
-      if (!targetElement) {
-        console.error('Paste target not found:', targetId);
-        return;
-      }
-      
-      try {
-        const text = await navigator.clipboard.readText();
-        targetElement.value = text;
-        
-        // Show feedback
-        const originalText = button.textContent;
-        button.textContent = '✓ Pasted!';
-        button.disabled = true;
-        
-        setTimeout(() => {
-          button.textContent = originalText;
-          button.disabled = false;
-        }, 2000);
-        
-        console.log('✅ Pasted', text.length, 'characters to', targetId);
-        
-      } catch (error) {
-        console.error('Clipboard error:', error);
-        alert('Could not access clipboard. Please paste manually (Ctrl+V / Cmd+V)');
-      }
-    });
-  });
-  
-  console.log('✅ Clipboard buttons initialized');
-}
-
-// ============================================
-// FORM VALIDATION
-// ============================================
-
-function validateFormData(currentCV, jobDescription) {
-  const errors = [];
-  
-  if (!currentCV || currentCV.trim().length === 0) {
-    errors.push('CV is required');
-  } else if (currentCV.trim().length < CONFIG.minCVLength) {
-    errors.push(`CV must be at least ${CONFIG.minCVLength} characters (currently ${currentCV.trim().length})`);
-  }
-  
-  if (!jobDescription || jobDescription.trim().length === 0) {
-    errors.push('Job description is required');
-  } else if (jobDescription.trim().length < CONFIG.minJobLength) {
-    errors.push(`Job description must be at least ${CONFIG.minJobLength} characters (currently ${jobDescription.trim().length})`);
-  }
-  
-  return errors;
-}
-
-// ============================================
-// MAIN FORM SUBMISSION HANDLER
-// ============================================
-
-function setupFormHandler() {
-  const form = document.getElementById('cvForm') || 
-               document.querySelector('form[data-cv-form]') || 
-               document.querySelector('form');
-  
-  if (!form) {
-    console.warn('⚠️ Form not found on this page');
-    return;
-  }
-  
-  form.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    console.log('🔍 DEBUG: Form submitted');
-    console.log('Form element:', form);
-    
-    // ============================================
-    // STEP 1: GET VALUES FROM FORM FIELDS
-    // ============================================
-    
-    const currentCV = document.getElementById('currentCV')?.value?.trim() || '';
-    const jobDescription = document.getElementById('jobDescription')?.value?.trim() || '';
-    
-    // Try multiple possible language field IDs
-    const language = document.getElementById('cvLanguage')?.value || 
-                     document.getElementById('language')?.value || 
-                     document.getElementById('outputLanguage')?.value ||
-                     CONFIG.defaultLanguage;
-    
-    // ============================================
-    // STEP 2: LOG FOR DEBUGGING
-    // ============================================
-    
-    console.log('📝 Current CV:', currentCV ? `${currentCV.substring(0, 100)}... (${currentCV.length} chars)` : 'EMPTY');
-    console.log('💼 Job Description:', jobDescription ? `${jobDescription.substring(0, 100)}... (${jobDescription.length} chars)` : 'EMPTY');
-    console.log('🌍 Language:', language);
-    console.log('📊 Data lengths:', {
-      cv: currentCV.length,
-      job: jobDescription.length
-    });
-    
-    // ============================================
-    // STEP 3: VALIDATE INPUT
-    // ============================================
-    
-    const validationErrors = validateFormData(currentCV, jobDescription);
-    
-    if (validationErrors.length > 0) {
-      const errorMessage = validationErrors.join('\n');
-      console.error('❌ Validation failed:', validationErrors);
-      alert('Please fix these issues:\n\n' + errorMessage);
-      return;
-    }
-    
-    console.log('✅ Validation passed');
-    
-    // ============================================
-    // STEP 4: PREPARE REQUEST BODY
-    // ============================================
-    
-    const requestBody = {
-      currentCV: currentCV,
-      jobDescription: jobDescription,
-      language: language
-    };
-    
-    console.log('📦 Request body prepared:', {
-      cvLength: requestBody.currentCV.length,
-      jobLength: requestBody.jobDescription.length,
-      language: requestBody.language
-    });
-    
-    // ============================================
-    // STEP 5: SHOW LOADING STATE
-    // ============================================
-    
-    const submitButton = form.querySelector('button[type="submit"]') || 
-                        form.querySelector('button.submit-btn') ||
-                        form.querySelector('button');
-    
-    const originalButtonText = submitButton?.textContent || 'Submit';
-    const loadingText = currentUILanguage === 'nl' ? '⏳ Verwerken...' : '⏳ Processing...';
-    
-    if (submitButton) {
-      submitButton.disabled = true;
-      submitButton.textContent = loadingText;
-      submitButton.style.cursor = 'wait';
-    }
-    
-    // Disable form inputs
-    const formInputs = form.querySelectorAll('input, textarea, select, button');
-    formInputs.forEach(input => input.disabled = true);
-    
-    // Show loading overlay if it exists
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    if (loadingOverlay) {
-      loadingOverlay.style.display = 'flex';
-    }
-    
-    try {
-      console.log('🚀 Sending request to:', CONFIG.apiEndpoint);
-      
-      // ============================================
-      // STEP 6: CALL API
-      // ============================================
-      
-      const response = await fetch(CONFIG.apiEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody)
-      });
-      
-      console.log('📥 Response received:', {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok,
-        headers: Object.fromEntries(response.headers.entries())
-      });
-      
-      // ============================================
-      // STEP 7: HANDLE RESPONSE
-      // ============================================
-      
-      if (!response.ok) {
-        let errorData;
-        try {
-          errorData = await response.json();
-        } catch (e) {
-          errorData = { 
-            error: `HTTP ${response.status}: ${response.statusText}` 
-          };
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI CV Tailor - Transform Your CV for Any Job</title>
+    <meta name="description" content="AI-powered CV tailoring tool that optimizes your resume for any job description. Get professional results in minutes.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
-        console.error('❌ API Error Response:', errorData);
-        throw new Error(errorData.error || errorData.message || `API returned ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      console.log('✅ Success! Data received:', {
-        hasCV: !!data.improvedCV,
-        cvLength: data.improvedCV?.length || 0,
-        hasCover: !!data.coverLetter,
-        coverLength: data.coverLetter?.length || 0,
-        hasTips: !!data.recruiterTips,
-        tipsLength: data.recruiterTips?.length || 0,
-        hasChanges: !!data.changesOverview,
-        changesLength: data.changesOverview?.length || 0,
-        metadata: data.metadata
-      });
-      
-      // Validate response data
-      if (!data.improvedCV || !data.coverLetter || !data.recruiterTips) {
-        console.warn('⚠️ Some response fields are missing');
-      }
-      
-      // ============================================
-      // STEP 8: SAVE TO SESSION STORAGE
-      // ============================================
-      
-      try {
-        sessionStorage.setItem('cvResults', JSON.stringify(data));
-        console.log('💾 Results saved to sessionStorage');
-        
-        // Verify it was saved
-        const saved = sessionStorage.getItem('cvResults');
-        if (!saved) {
-          throw new Error('Data was not saved to sessionStorage');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
-        console.log('✅ Verified: Data saved successfully');
-        
-      } catch (storageError) {
-        console.error('⚠️ sessionStorage Error:', storageError);
-        
-        // Try localStorage as backup
-        try {
-          localStorage.setItem('cvResults', JSON.stringify(data));
-          console.log('💾 Saved to localStorage as backup');
-        } catch (e) {
-          console.error('❌ Could not save to any storage');
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
         }
-      }
-      
-      // ============================================
-      // STEP 9: REDIRECT TO RESULTS PAGE
-      // ============================================
-      
-      console.log('➡️ Redirecting to improvements.html');
-      
-      // Small delay to ensure storage is written
-      setTimeout(() => {
-        window.location.href = 'improvements.html';
-      }, 100);
-      
-    } catch (error) {
-      // ============================================
-      // ERROR HANDLING
-      // ============================================
-      
-      console.error('❌ Error during submission:', error);
-      console.error('Error stack:', error.stack);
-      
-      // Show user-friendly error message
-      const errorMessage = currentUILanguage === 'nl' 
-        ? `Er is een fout opgetreden: ${error.message}\n\nProbeer het opnieuw of neem contact op met support als het probleem aanhoudt.`
-        : `An error occurred: ${error.message}\n\nPlease try again or contact support if the problem persists.`;
-      
-      alert(errorMessage);
-      
-      // Reset button and form
-      if (submitButton) {
-        submitButton.disabled = false;
-        submitButton.textContent = originalButtonText;
-        submitButton.style.cursor = 'pointer';
-      }
-      
-      // Re-enable form inputs
-      formInputs.forEach(input => input.disabled = false);
-      
-      // Hide loading overlay
-      if (loadingOverlay) {
-        loadingOverlay.style.display = 'none';
-      }
-    }
-  });
-  
-  console.log('✅ Form handler attached successfully');
-}
 
-// ============================================
-// CHARACTER COUNTER
-// ============================================
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+            padding: 40px 20px;
+        }
 
-function setupCharacterCounters() {
-  const textareas = document.querySelectorAll('textarea[data-counter]');
-  
-  textareas.forEach(textarea => {
-    const counterId = textarea.getAttribute('data-counter');
-    const counter = document.getElementById(counterId);
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            font-weight: 800;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .header .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            margin-bottom: 10px;
+        }
+
+        .header .tagline {
+            font-size: 1rem;
+            opacity: 0.85;
+        }
+
+        /* Language Switcher */
+        .language-switcher {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .language-switcher button {
+            padding: 10px 25px;
+            border: 2px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .language-switcher button:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .language-switcher button.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+        }
+
+        /* Features Banner */
+        .features-banner {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-item {
+            text-align: center;
+            color: white;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .feature-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Main Card */
+        .main-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            margin-bottom: 30px;
+        }
+
+        .card-header h2 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .card-header p {
+            color: #666;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        /* Form Styles */
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .form-section-header h3 {
+            color: #333;
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-section-header .icon {
+            font-size: 1.5rem;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            resize: vertical;
+            transition: all 0.3s;
+            line-height: 1.6;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        textarea::placeholder {
+            color: #aaa;
+        }
+
+        .textarea-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding: 0 5px;
+        }
+
+        .char-counter {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .char-counter span {
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .char-counter.warning span {
+            color: #ff6b6b;
+        }
+
+        .char-counter.success span {
+            color: #28a745;
+        }
+
+        .paste-button {
+            padding: 8px 16px;
+            background: #f0f4ff;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .paste-button:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .paste-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .form-note {
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102,126,234,0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: #666;
+            border: 2px solid #ddd;
+        }
+
+        .btn-ghost:hover {
+            background: #f8f9fa;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+
+        .loading-content {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #333;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .loading-subtext {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Help Section */
+        .help-section {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 30px;
+            color: white;
+            margin-top: 30px;
+        }
+
+        .help-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .help-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .help-item {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .help-item h4 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .help-item p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 30px 20px;
+            margin-top: 40px;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .header .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .main-card {
+                padding: 25px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .features-banner {
+                grid-template-columns: 1fr;
+            }
+
+            .textarea-footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .main-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .help-section {
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>✨ AI CV Tailor</h1>
+            <p class="subtitle" data-i18n="subtitle">Transform Your CV for Any Job</p>
+            <p class="tagline" data-i18n="tagline">AI-powered optimization • Cover letters • Interview tips</p>
+        </div>
+
+        <!-- Language Switcher -->
+        <div class="language-switcher">
+            <button data-language="en" class="active">🇬🇧 English</button>
+            <button data-language="nl">🇳🇱 Nederlands</button>
+        </div>
+
+        <!-- Features Banner -->
+        <div class="features-banner">
+            <div class="feature-item">
+                <div class="feature-icon">🎯</div>
+                <div class="feature-text" data-i18n="feature1">Job-Specific Tailoring</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">✨</div>
+                <div class="feature-text" data-i18n="feature2">See What Changed & Why</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">✉️</div>
+                <div class="feature-text" data-i18n="feature3">Professional Cover Letter</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">💡</div>
+                <div class="feature-text" data-i18n="feature4">Interview Preparation</div>
+            </div>
+        </div>
+
+        <!-- Main Form Card -->
+        <div class="main-card">
+            <div class="card-header">
+                <h2 data-i18n="formTitle">Get Started in 3 Simple Steps</h2>
+                <p data-i18n="formDescription">Paste your current CV and the job description, and let our AI create a perfectly tailored application package for you.</p>
+            </div>
+
+            <form id="cvForm">
+                <!-- CV Section -->
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <h3>
+                            <span class="icon">📄</span>
+                            <span data-i18n="cvTitle">Step 1: Your Current CV</span>
+                        </h3>
+                    </div>
+                    
+                    <label for="currentCV">
+                        <span data-i18n="cvLabel">Paste your CV here (minimum 50 characters)</span>
+                    </label>
+                    <textarea 
+                        id="currentCV" 
+                        name="currentCV"
+                        rows="10"
+                        data-counter="cvCounter"
+                        data-min-length="50"
+                        placeholder="Paste your complete CV here...&#10;&#10;Example:&#10;John Doe&#10;Software Developer&#10;&#10;Experience:&#10;• Senior Developer at TechCorp (2020-Present)&#10;• Built scalable applications using React and Node.js&#10;• Led team of 5 developers&#10;&#10;Skills:&#10;JavaScript, Python, React, Node.js..."
+                        required
+                    ></textarea>
+                    
+                    <div class="textarea-footer">
+                        <div class="char-counter">
+                            <span data-i18n="characters">Characters:</span> 
+                            <span id="cvCounter">0</span>
+                            <span data-i18n="minimum"> (minimum 50)</span>
+                        </div>
+                        <button type="button" class="paste-button" data-paste-target="currentCV">
+                            📋 <span data-i18n="pasteBtn">Paste from Clipboard</span>
+                        </button>
+                    </div>
+                    
+                    <div class="form-note">
+                        💡 <strong data-i18n="tip">Tip:</strong> 
+                        <span data-i18n="cvTip">Include all your experience, skills, education, and achievements. The more complete, the better the AI can tailor it!</span>
+                    </div>
+                </div>
+
+                <!-- Job Description Section -->
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <h3>
+                            <span class="icon">💼</span>
+                            <span data-i18n="jobTitle">Step 2: Job Description</span>
+                        </h3>
+                    </div>
+                    
+                    <label for="jobDescription">
+                        <span data-i18n="jobLabel">Paste the job description (minimum 30 characters)</span>
+                    </label>
+                    <textarea 
+                        id="jobDescription" 
+                        name="jobDescription"
+                        rows="10"
+                        data-counter="jobCounter"
+                        data-min-length="30"
+                        placeholder="Paste the complete job description here...&#10;&#10;Example:&#10;We are looking for a Senior Full-Stack Developer with 5+ years of experience.&#10;&#10;Requirements:&#10;• 5+ years with React and Node.js&#10;• Experience with TypeScript&#10;• Strong problem-solving skills&#10;• Team leadership experience..."
+                        required
+                    ></textarea>
+                    
+                    <div class="textarea-footer">
+                        <div class="char-counter">
+                            <span data-i18n="characters">Characters:</span> 
+                            <span id="jobCounter">0</span>
+                            <span data-i18n="minimum"> (minimum 30)</span>
+                        </div>
+                        <button type="button" class="paste-button" data-paste-target="jobDescription">
+                            📋 <span data-i18n="pasteBtn">Paste from Clipboard</span>
+                        </button>
+                    </div>
+                    
+                    <div class="form-note">
+                        💡 <strong data-i18n="tip">Tip:</strong> 
+                        <span data-i18n="jobTip">Include the full job posting with requirements, responsibilities, and desired qualifications for best results.</span>
+                    </div>
+                </div>
+
+                <!-- Language Selection -->
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <h3>
+                            <span class="icon">🌍</span>
+                            <span data-i18n="languageTitle">Step 3: Choose Output Language</span>
+                        </h3>
+                    </div>
+                    
+                    <label for="cvLanguage">
+                        <span data-i18n="languageLabel">Select the language for your CV and cover letter</span>
+                    </label>
+                    <select id="cvLanguage" name="cvLanguage" required>
+                        <option value="en" data-i18n-option="english">English</option>
+                        <option value="nl" data-i18n-option="dutch">Nederlands (Dutch)</option>
+                    </select>
+                    
+                    <div class="form-note">
+                        ℹ️ <span data-i18n="languageNote">This only affects the output (CV, cover letter, tips). The UI language can be changed using the buttons above.</span>
+                    </div>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">
+                        <span>🚀</span>
+                        <span data-i18n="submitBtn">Generate My Tailored CV</span>
+                    </button>
+                    
+                    <button type="button" class="btn btn-secondary" data-load-sample>
+                        <span>📝</span>
+                        <span data-i18n="sampleBtn">Load Sample Data</span>
+                    </button>
+                    
+                    <button type="button" class="btn btn-ghost" data-clear-draft>
+                        <span>🗑️</span>
+                        <span data-i18n="clearBtn">Clear All</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Help Section -->
+        <div class="help-section">
+            <h3 data-i18n="howItWorks">🎯 How It Works</h3>
+            <div class="help-grid">
+                <div class="help-item">
+                    <h4>
+                        <span>1️⃣</span>
+                        <span data-i18n="step1Title">Paste Your CV</span>
+                    </h4>
+                    <p data-i18n="step1Desc">Copy your current CV and paste it into the first field. Include all your experience, skills, and achievements.</p>
+                </div>
+                
+                <div class="help-item">
+                    <h4>
+                        <span>2️⃣</span>
+                        <span data-i18n="step2Title">Add Job Description</span>
+                    </h4>
+                    <p data-i18n="step2Desc">Paste the complete job description for the position you're applying to. The more detail, the better!</p>
+                </div>
+                
+                <div class="help-item">
+                    <h4>
+                        <span>3️⃣</span>
+                        <span data-i18n="step3Title">Choose Language</span>
+                    </h4>
+                    <p data-i18n="step3Desc">Select whether you want your tailored CV and cover letter in English or Dutch.</p>
+                </div>
+                
+                <div class="help-item">
+                    <h4>
+                        <span>4️⃣</span>
+                        <span data-i18n="step4Title">Get Results</span>
+                    </h4>
+                    <p data-i18n="step4Desc">Receive your optimized CV, professional cover letter, detailed changes overview, and interview tips!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Made with ❤️ for job seekers • <span data-i18n="privacyNote">Your data is processed securely and not stored</span></p>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <div class="loading-text" data-i18n="loadingTitle">✨ AI is Working Its Magic...</div>
+            <div class="loading-subtext" data-i18n="loadingSubtext">This usually takes 10-15 seconds. Please wait...</div>
+        </div>
+    </div>
+
+    <!-- Translations -->
+    <script src="translations.js"></script>
     
-    if (!counter) return;
-    
-    const updateCounter = () => {
-      const length = textarea.value.length;
-      counter.textContent = length.toLocaleString();
-      
-      // Color coding
-      const minLength = parseInt(textarea.getAttribute('data-min-length')) || 0;
-      if (length < minLength) {
-        counter.style.color = '#ff6b6b';
-      } else {
-        counter.style.color = '#28a745';
-      }
-    };
-    
-    textarea.addEventListener('input', updateCounter);
-    updateCounter(); // Initial count
-  });
-  
-  console.log('✅ Character counters initialized');
-}
-
-// ============================================
-// LANGUAGE SWITCHER
-// ============================================
-
-function setupLanguageSwitcher() {
-  const languageButtons = document.querySelectorAll('[data-language]');
-  
-  languageButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const lang = button.getAttribute('data-language');
-      setUILanguage(lang);
-      
-      // Update active state
-      languageButtons.forEach(btn => btn.classList.remove('active'));
-      button.classList.add('active');
-    });
-  });
-  
-  // Set initial active state
-  const activeButton = document.querySelector(`[data-language="${currentUILanguage}"]`);
-  if (activeButton) {
-    activeButton.classList.add('active');
-  }
-  
-  console.log('✅ Language switcher initialized');
-}
-
-// ============================================
-// FORM FIELD CHECKS (DEBUGGING)
-// ============================================
-
-function checkFormFields() {
-  console.log('🔍 Form Fields Check:');
-  
-  const cvField = document.getElementById('currentCV');
-  const jobField = document.getElementById('jobDescription');
-  const langField = document.getElementById('cvLanguage') || 
-                    document.getElementById('language') ||
-                    document.getElementById('outputLanguage');
-  
-  console.log('  CV field:', cvField ? '✅ Found' : '❌ Not found', cvField);
-  console.log('  Job field:', jobField ? '✅ Found' : '❌ Not found', jobField);
-  console.log('  Language field:', langField ? '✅ Found' : '❌ Not found', langField);
-  
-  if (cvField) {
-    console.log('    CV field ID:', cvField.id);
-    console.log('    CV field type:', cvField.tagName);
-  }
-  
-  if (jobField) {
-    console.log('    Job field ID:', jobField.id);
-    console.log('    Job field type:', jobField.tagName);
-  }
-  
-  const forms = document.querySelectorAll('form');
-  console.log('  Forms found:', forms.length);
-  forms.forEach((form, index) => {
-    console.log(`    Form ${index + 1}:`, form.id || '(no ID)', form);
-  });
-}
-
-// ============================================
-// SMOOTH SCROLLING
-// ============================================
-
-function setupSmoothScrolling() {
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-      const href = this.getAttribute('href');
-      if (href === '#') return;
-      
-      e.preventDefault();
-      const target = document.querySelector(href);
-      
-      if (target) {
-        target.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      }
-    });
-  });
-}
-
-// ============================================
-// AUTOSAVE TO LOCAL STORAGE (DRAFT)
-// ============================================
-
-function setupAutosave() {
-  const cvField = document.getElementById('currentCV');
-  const jobField = document.getElementById('jobDescription');
-  
-  if (!cvField || !jobField) return;
-  
-  // Load saved drafts
-  const savedCV = localStorage.getItem('draft_cv');
-  const savedJob = localStorage.getItem('draft_job');
-  
-  if (savedCV && cvField.value === '') {
-    cvField.value = savedCV;
-    console.log('📝 Loaded CV draft');
-  }
-  
-  if (savedJob && jobField.value === '') {
-    jobField.value = savedJob;
-    console.log('📝 Loaded job description draft');
-  }
-  
-  // Save on input (debounced)
-  let saveTimeout;
-  const saveDebounced = () => {
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(() => {
-      localStorage.setItem('draft_cv', cvField.value);
-      localStorage.setItem('draft_job', jobField.value);
-      console.log('💾 Draft auto-saved');
-    }, 2000); // Save after 2 seconds of no typing
-  };
-  
-  cvField.addEventListener('input', saveDebounced);
-  jobField.addEventListener('input', saveDebounced);
-  
-  console.log('✅ Autosave initialized');
-}
-
-// ============================================
-// CLEAR DRAFT BUTTON
-// ============================================
-
-function setupClearDraft() {
-  const clearButtons = document.querySelectorAll('[data-clear-draft]');
-  
-  clearButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      if (confirm('Clear all saved drafts?')) {
-        localStorage.removeItem('draft_cv');
-        localStorage.removeItem('draft_job');
-        
-        const cvField = document.getElementById('currentCV');
-        const jobField = document.getElementById('jobDescription');
-        
-        if (cvField) cvField.value = '';
-        if (jobField) jobField.value = '';
-        
-        console.log('🗑️ Drafts cleared');
-      }
-    });
-  });
-}
-
-// ============================================
-// SAMPLE DATA LOADER (FOR TESTING)
-// ============================================
-
-function setupSampleDataLoader() {
-  const sampleButton = document.querySelector('[data-load-sample]');
-  
-  if (sampleButton) {
-    sampleButton.addEventListener('click', () => {
-      const cvField = document.getElementById('currentCV');
-      const jobField = document.getElementById('jobDescription');
-      
-      if (cvField) {
-        cvField.value = `John Doe
-Software Developer
-
-Experience:
-- Worked on various projects
-- Used JavaScript and Python
-- Team collaboration
-
-Skills:
-JavaScript, Python, HTML, CSS
-
-Education:
-Bachelor in Computer Science, 2020`;
-      }
-      
-      if (jobField) {
-        jobField.value = `We are looking for a Senior Full-Stack Developer with 5+ years of experience in React, Node.js, and TypeScript. Must have proven track record of building scalable applications.`;
-      }
-      
-      console.log('📝 Sample data loaded');
-    });
-  }
-}
-
-// ============================================
-// INITIALIZATION
-// ============================================
-
-function init() {
-  console.log('🎬 Initializing AI CV Tailor...');
-  
-  // Check if we're on the main page or results page
-  const isMainPage = document.getElementById('currentCV') !== null;
-  const isResultsPage = document.getElementById('cv-content') !== null;
-  
-  console.log('Page type:', {
-    isMainPage,
-    isResultsPage
-  });
-  
-  if (isMainPage) {
-    // Main page initialization
-    setupFormHandler();
-    setupClipboardButtons();
-    setupCharacterCounters();
-    setupLanguageSwitcher();
-    setupSmoothScrolling();
-    setupAutosave();
-    setupClearDraft();
-    setupSampleDataLoader();
-    checkFormFields();
-  }
-  
-  if (isResultsPage) {
-    // Results page initialization
-    console.log('Results page detected');
-    updateUIText();
-  }
-  
-  // Common initialization
-  updateUIText();
-  
-  console.log('✅ AI CV Tailor initialized successfully');
-}
-
-// ============================================
-// RUN ON PAGE LOAD
-// ============================================
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
-
-// ============================================
-// EXPORT FOR TESTING
-// ============================================
-
-window.CVTailor = {
-  init,
-  setUILanguage,
-  validateFormData,
-  config: CONFIG
-};
-
-console.log('📦 App.js loaded successfully');
+    <!-- Main App -->
+    <script src="app.js"></script>
+</body>
+</html>
