@@ -92,7 +92,7 @@ EXPLANATION: [Your 1-2 sentence explanation]
 ---RECRUITER_TIPS_START---
 [Your 5-7 specific tips and questions here]
 ---RECRUITER_TIPS_END---
-`; 
+`;
 
         // Select the Gemini model and configure generation parameters
         const model = genAI.getGenerativeModel({
@@ -116,9 +116,10 @@ EXPLANATION: [Your 1-2 sentence explanation]
         // --- Helper function to extract content between markers (ROBUUSTE REGEX PARSING) ---
         const extractSection = (startMarker, endMarker, content) => {
              // Gebruikt een RegEx object: zoekt naar start marker, pakt alles ([\s\S]*?), non-greedy (?), tot eind marker
+             // De `i` zorgt voor case-insensitivity, de `[\s\S]*?` pakt ALLE karakters inclusief nieuwe lijnen
              const regex = new RegExp(startMarker.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '([\\s\\S]*?)' + endMarker.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
              const match = content.match(regex);
-             
+
              if (match && match[1]) {
                  return match[1].trim();
              }
@@ -143,9 +144,11 @@ EXPLANATION: [Your 1-2 sentence explanation]
         // Extraheer elke sectie met de helper functie
         const scoreSection = extractSection('---CV_SCORE_START---', '---CV_SCORE_END---', text);
         const { score, explanation } = parseScore(scoreSection);
+        // De kritische secties:
         const improvedCV = extractSection('---IMPROVED_CV_START---', '---IMPROVED_CV_END---', text);
         const coverLetter = extractSection('---COVER_LETTER_START---', '---COVER_LETTER_END---', text);
         const recruiterTips = extractSection('---RECRUITER_TIPS_START---', '---RECRUITER_TIPS_END---', text);
+
 
         // --- Define Fallbacks for robust error handling ---
         const defaultLang = outputLanguage === 'nl'; // Boolean voor Nederlands
@@ -202,6 +205,36 @@ EXPLANATION: [Your 1-2 sentence explanation]
         };
     }
 };
+// Helper functions for subscription management - KEEP THEM AT THE END
+// These are simplified - implement your own database logic
 
-// --- Placeholder Helper Functions ---
-// ... (helper functions blijven hetzelfde) ...
+async function checkSubscriptionTier(userId) {
+  // TODO: Implement actual database check
+  // For now, return 'free' for all users without a specific subscription
+  
+  // Example implementation with Stripe:
+  // const subscription = await stripe.subscriptions.retrieve(userId);
+  // return subscription.plan.nickname; // 'free', 'basic', 'pro'
+  
+  return 'free'; // Default to free tier
+}
+
+async function getUsageCount(userId) {
+  // TODO: Implement actual usage tracking
+  // This should check a database for how many times this user has used the service
+  
+  // Example with a simple key-value store:
+  // const count = await db.get(`usage:${userId}`) || 0;
+  // return parseInt(count);
+  
+  return 0; // For testing, always return 0 (unlimited)
+}
+
+async function incrementUsageCount(userId) {
+  // TODO: Implement actual usage increment
+  // Example:
+  // const current = await getUsageCount(userId);
+  // await db.set(`usage:${userId}`, current + 1);
+  
+  console.log(`Incremented usage count for user: ${userId}`);
+}
