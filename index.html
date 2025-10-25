@@ -5,68 +5,187 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="hero.title">AI-Powered CV & Cover Letter Tailoring - AI CV Tailor</title>
     <meta name="description" content="Transform your job applications with AI. Get perfectly tailored CVs and cover letters in seconds.">
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Google reCAPTCHA -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    
+
+    <!-- PDF.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script>
+        // Set worker location for pdf.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    </script>
+
+    <!-- Tesseract.js Library (for OCR) -->
+    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js' async></script>
+
     <style>
+        /* Basisstijlen (gradient, cards, spinner, etc.) */
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-        
         .feature-card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        
         .feature-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         }
-        
         .spinner {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #3b82f6;
+            border-top: 4px solid #3b82f6; /* blue-600 */
             border-radius: 50%;
             width: 50px;
             height: 50px;
             animation: spin 1s linear infinite;
         }
-        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
         .language-selector {
             display: inline-flex;
             gap: 0.5rem;
-            background: #f3f4f6;
+            background: #f3f4f6; /* gray-100 */
             padding: 0.25rem;
             border-radius: 0.5rem;
         }
-
         .language-option {
             padding: 0.5rem 1rem;
             border-radius: 0.375rem;
             cursor: pointer;
             transition: all 0.2s;
         }
-
         .language-option.active {
             background: white;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
+        /* Stijlen voor Tabs */
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid transparent;
+            border-bottom: 2px solid transparent;
+            color: #6b7280; /* gray-500 */
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+        }
+        .tab-btn.active {
+            color: #3b82f6; /* blue-600 */
+            border-bottom: 2px solid #3b82f6;
+        }
+        .tab-btn:hover:not(.active) {
+            color: #3b82f6; /* blue-600 */
+            background-color: #f3f4f6; /* gray-100 */
+        }
+        #ocrStatus {
+            transition: opacity 0.3s ease;
+        }
+
+        /* Stijlen voor Multi-Step Form */
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            position: relative;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .step-indicator::before { /* Lijn Achtergrond */
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 15%;
+            right: 15%;
+            height: 4px;
+            background-color: #e5e7eb; /* gray-200 */
+            transform: translateY(-50%);
+            z-index: 0;
+        }
+        #progress-line { /* Actieve Lijn */
+             content: '';
+             position: absolute;
+             top: 20px;
+             left: 15%;
+             width: 0%; /* Start op 0% */
+             height: 4px;
+             background-color: #3b82f6; /* blue-600 */
+             transform: translateY(-50%);
+             z-index: 1;
+             transition: width 0.4s ease-out;
+        }
+        .step-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            width: 30%; /* Voor spacing */
+        }
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #e5e7eb; /* gray-200 */
+            color: #6b7280; /* gray-500 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 4px solid #fff;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .step-item.active .step-circle {
+            background-color: #3b82f6; /* blue-600 */
+            color: white;
+            border-color: #eff6ff; /* blue-50 */
+            transform: scale(1.1);
+        }
+        .step-item.completed .step-circle {
+             background-color: #16a34a; /* green-600 */
+             color: white;
+             border-color: #f0fdf4; /* green-50 */
+        }
+        .step-label {
+            font-size: 0.875rem; /* text-sm */
+            color: #6b7280; /* gray-500 */
+            text-align: center;
+            font-weight: 500;
+        }
+         .step-item.active .step-label {
+             color: #1f2937; /* gray-800 */
+             font-weight: 600;
+         }
+         .step-item.completed .step-label {
+             color: #1f2937; /* gray-800 */
+         }
+        .form-step { /* Verberg stappen initieel */
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+        .form-step.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-    
-    <!-- Navigation -->
+
+    <!-- Navigatie -->
     <nav class="bg-white shadow-lg sticky top-0 z-50">
         <div class="container mx-auto px-4 py-4">
             <div class="flex justify-between items-center">
@@ -74,40 +193,26 @@
                     <i class="fas fa-file-alt mr-2"></i>
                     <span data-i18n="nav.title">AI CV Tailor</span>
                 </a>
-                
                 <div class="flex items-center gap-4">
                     <a href="/plans.html" class="text-gray-600 hover:text-blue-600 transition">
                         <i class="fas fa-crown mr-1"></i>
                         <span data-i18n="nav.plans">Plans</span>
                     </a>
-                    
-                    <!-- UI Language Switcher -->
+                    <!-- UI Taal Switcher -->
                     <div class="flex gap-2">
-                        <button onclick="switchLanguage('en')" 
-                                class="px-3 py-1 rounded transition language-btn" 
-                                data-lang="en">
-                            EN
-                        </button>
-                        <button onclick="switchLanguage('nl')" 
-                                class="px-3 py-1 rounded transition language-btn" 
-                                data-lang="nl">
-                            NL
-                        </button>
+                        <button onclick="switchLanguage('en')" class="px-3 py-1 rounded transition language-btn" data-lang="en">EN</button>
+                        <button onclick="switchLanguage('nl')" class="px-3 py-1 rounded transition language-btn" data-lang="nl">NL</button>
                     </div>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
+    <!-- Hero Sectie -->
     <section class="py-20 text-center">
         <div class="container mx-auto px-4">
-            <h1 class="text-5xl md:text-6xl font-bold text-gray-800 mb-6" data-i18n="hero.title">
-                AI-Powered CV & Cover Letter Tailoring
-            </h1>
-            <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto" data-i18n="hero.subtitle">
-                Transform your job applications in seconds with AI. Get a perfectly tailored CV and compelling cover letter for any job posting.
-            </p>
+            <h1 class="text-5xl md:text-6xl font-bold text-gray-800 mb-6" data-i18n="hero.title">AI-Powered CV & Cover Letter Tailoring</h1>
+            <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto" data-i18n="hero.subtitle">Transform your job applications in seconds with AI. Get a perfectly tailored CV and compelling cover letter for any job posting.</p>
             <a href="#form" class="inline-block bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition shadow-lg">
                 <i class="fas fa-magic mr-2"></i>
                 <span data-i18n="hero.cta">Start Tailoring Now</span>
@@ -115,305 +220,235 @@
         </div>
     </section>
 
-    <!-- Features Section -->
+    <!-- Features Sectie -->
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
-            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12" data-i18n="features.title">
-                Why Choose AI CV Tailor?
-            </h2>
-            
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12" data-i18n="features.title">Why Choose AI CV Tailor?</h2>
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Snelheid -->
                 <div class="feature-card bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl">
-                    <div class="text-blue-600 text-4xl mb-4">
-                        <i class="fas fa-bolt"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="features.speed.title">
-                        Lightning Fast
-                    </h3>
-                    <p class="text-gray-600" data-i18n="features.speed.description">
-                        Get your tailored CV and cover letter in under 60 seconds
-                    </p>
+                    <div class="text-blue-600 text-4xl mb-4"><i class="fas fa-bolt"></i></div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="features.speed.title">Lightning Fast</h3>
+                    <p class="text-gray-600" data-i18n="features.speed.description">Get your tailored CV and cover letter in under 60 seconds</p>
                 </div>
-                
+                <!-- Slim -->
                 <div class="feature-card bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl">
-                    <div class="text-purple-600 text-4xl mb-4">
-                        <i class="fas fa-brain"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="features.smart.title">
-                        AI-Powered Intelligence
-                    </h3>
-                    <p class="text-gray-600" data-i18n="features.smart.description">
-                        Advanced AI analyzes job requirements and highlights your relevant experience
-                    </p>
+                    <div class="text-purple-600 text-4xl mb-4"><i class="fas fa-brain"></i></div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="features.smart.title">AI-Powered Intelligence</h3>
+                    <p class="text-gray-600" data-i18n="features.smart.description">Advanced AI analyzes job requirements and highlights your relevant experience</p>
                 </div>
-                
+                <!-- Professioneel -->
                 <div class="feature-card bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl">
-                    <div class="text-green-600 text-4xl mb-4">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="features.professional.title">
-                        Professional Quality
-                    </h3>
-                    <p class="text-gray-600" data-i18n="features.professional.description">
-                        Recruiter-approved formats and persuasive language that gets interviews
-                    </p>
+                    <div class="text-green-600 text-4xl mb-4"><i class="fas fa-check-circle"></i></div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="features.professional.title">Professional Quality</h3>
+                    <p class="text-gray-600" data-i18n="features.professional.description">Recruiter-approved formats and persuasive language that gets interviews</p>
                 </div>
-                
+                 <!-- Tweetalig -->
                 <div class="feature-card bg-gradient-to-br from-pink-50 to-pink-100 p-6 rounded-xl">
-                    <div class="text-pink-600 text-4xl mb-4">
-                        <i class="fas fa-language"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="features.multilingual.title">
-                        Bilingual Support
-                    </h3>
-                    <p class="text-gray-600" data-i18n="features.multilingual.description">
-                        Generate CVs and cover letters in English or Dutch
-                    </p>
+                    <div class="text-pink-600 text-4xl mb-4"><i class="fas fa-language"></i></div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="features.multilingual.title">Bilingual Support</h3>
+                    <p class="text-gray-600" data-i18n="features.multilingual.description">Generate CVs and cover letters in English or Dutch</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Main Form Section -->
+    <!-- Hoofd Formulier Sectie (Multi-Step) -->
     <section id="form" class="py-20">
         <div class="container mx-auto px-4 max-w-4xl">
             <div class="bg-white rounded-2xl shadow-2xl p-8">
-                <h2 class="text-3xl font-bold text-center text-gray-800 mb-8" data-i18n="form.title">
-                    Tailor Your CV & Cover Letter
-                </h2>
-                
-                <form id="cvForm" class="space-y-6">
-                    <!-- CV Input -->
-                    <div>
-                        <label class="block text-lg font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-user mr-2 text-blue-600"></i>
-                            <span data-i18n="form.cvLabel">Your CV / Resume</span>
-                        </label>
-                        <div class="relative">
-                            <textarea 
-                                id="cvInput" 
-                                rows="8" 
-                                class="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring focus:ring-blue-200 transition"
-                                data-i18n-placeholder="form.cvPlaceholder"
-                                placeholder="Paste your current CV or resume here..."
-                                required
-                            ></textarea>
-                            <button 
-                                type="button" 
-                                onclick="pasteFromClipboard('cvInput')"
-                                class="absolute top-2 right-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition text-sm"
-                            >
-                                <i class="fas fa-paste mr-1"></i>
-                                <span data-i18n="form.cvPaste">Paste from Clipboard</span>
+                 <h2 class="text-3xl font-bold text-center text-gray-800 mb-6" data-i18n="form.multiStepTitle">Tailor Your Application in 3 Simple Steps</h2>
+                <p class="text-center text-gray-600 mb-10" data-i18n="form.multiStepSubtitle">Let's optimize your CV and cover letter for your dream job!</p>
+
+                <!-- Stappen Indicator -->
+                <div class="step-indicator">
+                    <div id="progress-line"></div> <!-- Actieve lijn -->
+                    <div class="step-item active" id="step-indicator-1">
+                        <div class="step-circle">1</div>
+                        <div class="step-label" data-i18n="form.step1">Your CV</div>
+                    </div>
+                    <div class="step-item" id="step-indicator-2">
+                        <div class="step-circle">2</div>
+                        <div class="step-label" data-i18n="form.step2">Job Description</div>
+                    </div>
+                    <div class="step-item" id="step-indicator-3">
+                        <div class="step-circle">3</div>
+                        <div class="step-label" data-i18n="form.step3">Generate</div>
+                    </div>
+                </div>
+
+                <form id="cvForm">
+                    <!-- Stap 1: CV Input -->
+                    <div id="step-1" class="form-step active">
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-6 text-center" data-i18n="form.step1Title">Step 1: Provide Your CV</h3>
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-lg font-semibold text-gray-700 mb-2"><i class="fas fa-user mr-2 text-blue-600"></i><span data-i18n="form.cvLabel">Your CV / Resume</span></label>
+                                <!-- CV Tabs -->
+                                <div class="mb-2 border-b border-gray-200">
+                                    <nav class="flex space-x-4" aria-label="CV Input Type">
+                                        <button type="button" class="tab-btn cv-tab active" data-tab="cv-paste" onclick="switchTab(event, 'cv')"><i class="fas fa-paste mr-2"></i> <span data-i18n="form.pasteText">Paste Text</span></button>
+                                        <button type="button" class="tab-btn cv-tab" data-tab="cv-upload" onclick="switchTab(event, 'cv')"><i class="fas fa-file-pdf mr-2"></i> <span data-i18n="form.uploadPdf">Upload PDF</span></button>
+                                    </nav>
+                                </div>
+                                <!-- CV Tab Panelen -->
+                                <div id="cv-paste" class="tab-panel cv-panel">
+                                    <div class="relative">
+                                        <textarea id="cvInput" rows="8" class="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring focus:ring-blue-200 transition" data-i18n-placeholder="form.cvPlaceholder" placeholder="Paste your current CV or resume here..." required></textarea>
+                                        <button type="button" onclick="pasteFromClipboard('cvInput')" class="absolute top-2 right-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition text-sm"><i class="fas fa-paste mr-1"></i><span data-i18n="form.pasteButton">Paste</span></button>
+                                    </div>
+                                </div>
+                                <div id="cv-upload" class="tab-panel cv-panel hidden">
+                                    <input type="file" id="cvFile" accept=".pdf" class="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                                    <p class="text-sm text-gray-500 mt-2" data-i18n="form.pdfHelp">Your PDF will be automatically converted to text and pasted above. Max 5MB.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Navigatie -->
+                        <div class="mt-8 flex justify-end">
+                            <button type="button" onclick="nextStep()" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed" id="nextBtn-1">
+                                <span data-i18n="form.next">Next: Job Description</span> <i class="fas fa-arrow-right ml-2"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Job Description Input -->
-                    <div>
-                        <label class="block text-lg font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-briefcase mr-2 text-purple-600"></i>
-                            <span data-i18n="form.jobLabel">Job Description</span>
-                        </label>
-                        <div class="relative">
-                            <textarea 
-                                id="jobInput" 
-                                rows="8" 
-                                class="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring focus:ring-purple-200 transition"
-                                data-i18n-placeholder="form.jobPlaceholder"
-                                placeholder="Paste the job description or vacancy text here..."
-                                required
-                            ></textarea>
-                            <button 
-                                type="button" 
-                                onclick="pasteFromClipboard('jobInput')"
-                                class="absolute top-2 right-2 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition text-sm"
-                            >
-                                <i class="fas fa-paste mr-1"></i>
-                                <span data-i18n="form.jobPaste">Paste from Clipboard</span>
+                    <!-- Stap 2: Vacature Input -->
+                    <div id="step-2" class="form-step">
+                         <h3 class="text-2xl font-semibold text-gray-800 mb-6 text-center" data-i18n="form.step2Title">Step 2: Add the Job Description</h3>
+                         <div class="space-y-6">
+                            <div>
+                                <label class="block text-lg font-semibold text-gray-700 mb-2"><i class="fas fa-briefcase mr-2 text-purple-600"></i><span data-i18n="form.jobLabel">Job Description</span></label>
+                                <!-- Vacature Tabs -->
+                                <div class="mb-2 border-b border-gray-200">
+                                    <nav class="flex space-x-4" aria-label="Job Description Input Type">
+                                        <button type="button" class="tab-btn job-tab active" data-tab="job-paste" onclick="switchTab(event, 'job')"><i class="fas fa-paste mr-2"></i> <span data-i18n="form.pasteText">Paste Text</span></button>
+                                        <button type="button" class="tab-btn job-tab" data-tab="job-ocr" onclick="switchTab(event, 'job')"><i class="fas fa-camera mr-2"></i> <span data-i18n="form.uploadScreenshot">Upload Screenshot</span></button>
+                                    </nav>
+                                </div>
+                                <!-- Vacature Tab Panelen -->
+                                <div id="job-paste" class="tab-panel job-panel">
+                                    <div class="relative">
+                                        <textarea id="jobInput" rows="8" class="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring focus:ring-purple-200 transition" data-i18n-placeholder="form.jobPlaceholder" placeholder="Paste the job description or vacancy text here..." required></textarea>
+                                        <button type="button" onclick="pasteFromClipboard('jobInput')" class="absolute top-2 right-2 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition text-sm"><i class="fas fa-paste mr-1"></i><span data-i18n="form.pasteButton">Paste</span></button>
+                                    </div>
+                                </div>
+                                <div id="job-ocr" class="tab-panel job-panel hidden">
+                                    <input type="file" id="jobScreenshot" accept="image/png, image/jpeg, image/webp, image/bmp" class="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 cursor-pointer">
+                                    <p class="text-sm text-gray-500 mt-2" data-i18n="form.ocrHelp">Your screenshot will be converted to text using OCR and pasted above. Max 5MB. This might take a moment.</p>
+                                    <p id="ocrStatus" class="text-sm text-purple-700 mt-2 font-medium opacity-0 transition-opacity duration-300"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Navigatie -->
+                        <div class="mt-8 flex justify-between">
+                             <button type="button" onclick="prevStep()" class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-400 transition shadow-md"><i class="fas fa-arrow-left mr-2"></i> <span data-i18n="form.previous">Previous</span></button>
+                            <button type="button" onclick="nextStep()" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed" id="nextBtn-2">
+                                <span data-i18n="form.nextFinal">Next: Final Step</span> <i class="fas fa-arrow-right ml-2"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Output Language Selection -->
-                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border-2 border-blue-200">
-                        <label class="block text-lg font-semibold text-gray-700 mb-3">
-                            <i class="fas fa-globe mr-2 text-green-600"></i>
-                            <span data-i18n="form.outputLanguage">Output Language</span>
-                        </label>
-                        <p class="text-sm text-gray-600 mb-4" data-i18n="form.outputLanguageHelp">
-                            Choose the language for your CV and cover letter
-                        </p>
-                        <div class="language-selector">
-                            <div class="language-option active" data-lang="en" onclick="selectOutputLanguage('en')">
-                                <i class="fas fa-flag mr-2"></i>
-                                <span data-i18n="form.english">English</span>
+                    <!-- Stap 3: Taal & Genereren -->
+                    <div id="step-3" class="form-step">
+                         <h3 class="text-2xl font-semibold text-gray-800 mb-6 text-center" data-i18n="form.step3Title">Step 3: Choose Output & Generate</h3>
+                         <div class="space-y-6">
+                            <!-- Output Taal Selectie -->
+                            <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border-2 border-blue-200">
+                                <label class="block text-lg font-semibold text-gray-700 mb-3"><i class="fas fa-globe mr-2 text-green-600"></i><span data-i18n="form.outputLanguage">Output Language</span></label>
+                                <p class="text-sm text-gray-600 mb-4" data-i18n="form.outputLanguageHelp">Choose the language for your tailored CV and cover letter</p>
+                                <div class="language-selector">
+                                    <div class="language-option active" data-lang="en" onclick="selectOutputLanguage('en')"><i class="fas fa-flag mr-2"></i><span data-i18n="form.english">English</span></div>
+                                    <div class="language-option" data-lang="nl" onclick="selectOutputLanguage('nl')"><i class="fas fa-flag mr-2"></i><span data-i18n="form.dutch">Dutch</span></div>
+                                </div>
+                                <input type="hidden" id="outputLanguage" value="en">
                             </div>
-                            <div class="language-option" data-lang="nl" onclick="selectOutputLanguage('nl')">
-                                <i class="fas fa-flag mr-2"></i>
-                                <span data-i18n="form.dutch">Dutch</span>
+                            <!-- reCAPTCHA -->
+                            <div class="flex justify-center">
+                                <div class="g-recaptcha" data-sitekey="6LcPIfYrAAAAAC_4lDXPD4T1H0XXJ7SDrv_ZBkwY"></div>
                             </div>
+                             <!-- GDPR Consent (Optioneel) -->
+                            <!-- <div class="flex items-start mb-4"> ... </div> -->
+                            <!-- Submit Knop -->
+                            <button type="submit" id="submitBtn" class="w-full gradient-bg text-white py-4 rounded-lg text-xl font-bold hover:opacity-90 transition shadow-lg flex items-center justify-center disabled:opacity-50 disabled:cursor-wait">
+                                <i class="fas fa-magic mr-2"></i><span data-i18n="form.generateButton">Generate Tailored CV & Cover Letter</span>
+                            </button>
                         </div>
-                        <input type="hidden" id="outputLanguage" value="en">
+                         <!-- Navigatie -->
+                        <div class="mt-8 flex justify-start">
+                             <button type="button" onclick="prevStep()" class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-400 transition shadow-md"><i class="fas fa-arrow-left mr-2"></i> <span data-i18n="form.previous">Previous</span></button>
+                        </div>
                     </div>
 
-                    <!-- reCAPTCHA -->
-                    <div class="flex justify-center">
-                        <div class="g-recaptcha" data-sitekey="6LcPIfYrAAAAAC_4lDXPD4T1H0XXJ7SDrv_ZBkwY"></div>
-                    </div>
-
-                    <!-- Submit Button -->
-                    <button 
-                        type="submit" 
-                        id="submitBtn"
-                        class="w-full gradient-bg text-white py-4 rounded-lg text-xl font-bold hover:opacity-90 transition shadow-lg"
-                    >
-                        <i class="fas fa-magic mr-2"></i>
-                        <span data-i18n="form.generateButton">Generate Tailored CV & Cover Letter</span>
-                    </button>
-
-                    <!-- Loading State -->
+                    <!-- Laadstatus (Buiten de stappen) -->
                     <div id="loadingState" class="hidden text-center py-8">
                         <div class="spinner mx-auto mb-4"></div>
-                        <p class="text-gray-600 text-lg" data-i18n="form.processing">
-                            Processing... This may take up to 60 seconds
-                        </p>
+                        <p class="text-gray-600 text-lg" data-i18n="form.processing">Processing your request... This may take up to 60 seconds</p>
                     </div>
                 </form>
             </div>
         </div>
     </section>
 
-    <!-- How It Works Section -->
+    <!-- Hoe Het Werkt Sectie -->
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
-            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12" data-i18n="howItWorks.title">
-                How It Works
-            </h2>
-            
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12" data-i18n="howItWorks.title">How It Works</h2>
             <div class="grid md:grid-cols-4 gap-8 max-w-6xl mx-auto">
                 <div class="text-center">
-                    <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span class="text-blue-600 text-3xl font-bold">1</span>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="howItWorks.step1.title">
-                        Paste Your CV
-                    </h3>
-                    <p class="text-gray-600" data-i18n="howItWorks.step1.description">
-                        Copy and paste your current CV or LinkedIn profile
-                    </p>
+                    <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"><span class="text-blue-600 text-3xl font-bold">1</span></div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="howItWorks.step1.title">Input Your CV</h3>
+                    <p class="text-gray-600" data-i18n="howItWorks.step1.description">Paste text or upload PDF</p>
                 </div>
-                
                 <div class="text-center">
-                    <div class="bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span class="text-purple-600 text-3xl font-bold">2</span>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="howItWorks.step2.title">
-                        Add Job Description
-                    </h3>
-                    <p class="text-gray-600" data-i18n="howItWorks.step2.description">
-                        Paste the job posting you're applying for
-                    </p>
+                    <div class="bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"><span class="text-purple-600 text-3xl font-bold">2</span></div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="howItWorks.step2.title">Add Job Description</h3>
+                    <p class="text-gray-600" data-i18n="howItWorks.step2.description">Paste text or upload screenshot</p>
                 </div>
-                
                 <div class="text-center">
-                    <div class="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span class="text-green-600 text-3xl font-bold">3</span>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="howItWorks.step3.title">
-                        Choose Language
-                    </h3>
-                    <p class="text-gray-600" data-i18n="howItWorks.step3.description">
-                        Select English or Dutch for your documents
-                    </p>
+                    <div class="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"><span class="text-green-600 text-3xl font-bold">3</span></div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="howItWorks.step3.title">Choose Language</h3>
+                    <p class="text-gray-600" data-i18n="howItWorks.step3.description">Select English or Dutch for your documents</p>
                 </div>
-                
                 <div class="text-center">
-                    <div class="bg-pink-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span class="text-pink-600 text-3xl font-bold">4</span>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="howItWorks.step4.title">
-                        Get Results
-                    </h3>
-                    <p class="text-gray-600" data-i18n="howItWorks.step4.description">
-                        Receive your tailored CV, cover letter, and interview tips instantly
-                    </p>
+                    <div class="bg-pink-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"><span class="text-pink-600 text-3xl font-bold">4</span></div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="howItWorks.step4.title">Get Results</h3>
+                    <p class="text-gray-600" data-i18n="howItWorks.step4.description">Receive your tailored CV, cover letter, and interview tips instantly</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Testimonials Section -->
+    <!-- Testimonials Sectie -->
     <section class="py-16">
-        <div class="container mx-auto px-4">
-            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12" data-i18n="testimonials.title">
-                Success Stories
-            </h2>
-            
-            <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                <div class="bg-white p-6 rounded-xl shadow-lg">
-                    <div class="text-yellow-400 text-2xl mb-4">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <p class="text-gray-700 mb-4 italic" data-i18n="testimonials.testimonial1.text">
-                        "I landed 3 interviews in one week using AI CV Tailor. The tailored approach really works!"
-                    </p>
-                    <p class="text-gray-600 font-semibold" data-i18n="testimonials.testimonial1.author">
-                        Sarah M., Marketing Manager
-                    </p>
-                </div>
-                
-                <div class="bg-white p-6 rounded-xl shadow-lg">
-                    <div class="text-yellow-400 text-2xl mb-4">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <p class="text-gray-700 mb-4 italic" data-i18n="testimonials.testimonial2.text">
-                        "This tool saved me hours of work. The AI understood exactly what the recruiter was looking for."
-                    </p>
-                    <p class="text-gray-600 font-semibold" data-i18n="testimonials.testimonial2.author">
-                        Michael T., Software Developer
-                    </p>
-                </div>
-                
-                <div class="bg-white p-6 rounded-xl shadow-lg">
-                    <div class="text-yellow-400 text-2xl mb-4">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <p class="text-gray-700 mb-4 italic" data-i18n="testimonials.testimonial3.text">
-                        "The Dutch translations are perfect. Finally a tool that works for the Dutch job market!"
-                    </p>
-                    <p class="text-gray-600 font-semibold" data-i18n="testimonials.testimonial3.author">
-                        Emma V., Project Manager
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
+         <div class="container mx-auto px-4">
+             <h2 class="text-4xl font-bold text-center text-gray-800 mb-12" data-i18n="testimonials.title">Success Stories</h2>
+             <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                 <div class="bg-white p-6 rounded-xl shadow-lg">
+                     <div class="text-yellow-400 text-2xl mb-4"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                     <p class="text-gray-700 mb-4 italic" data-i18n="testimonials.testimonial1.text">"I landed 3 interviews in one week using AI CV Tailor. The tailored approach really works!"</p>
+                     <p class="text-gray-600 font-semibold" data-i18n="testimonials.testimonial1.author">Sarah M., Marketing Manager</p>
+                 </div>
+                 <div class="bg-white p-6 rounded-xl shadow-lg">
+                     <div class="text-yellow-400 text-2xl mb-4"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                     <p class="text-gray-700 mb-4 italic" data-i18n="testimonials.testimonial2.text">"This tool saved me hours of work. The AI understood exactly what the recruiter was looking for."</p>
+                     <p class="text-gray-600 font-semibold" data-i18n="testimonials.testimonial2.author">Michael T., Software Developer</p>
+                 </div>
+                 <div class="bg-white p-6 rounded-xl shadow-lg">
+                     <div class="text-yellow-400 text-2xl mb-4"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                     <p class="text-gray-700 mb-4 italic" data-i18n="testimonials.testimonial3.text">"The Dutch translations are perfect. Finally a tool that works for the Dutch job market!"</p>
+                     <p class="text-gray-600 font-semibold" data-i18n="testimonials.testimonial3.author">Emma V., Project Manager</p>
+                 </div>
+             </div>
+         </div>
+     </section>
 
-    <!-- CTA Section -->
+    <!-- CTA Sectie -->
     <section class="py-20 gradient-bg text-white">
         <div class="container mx-auto px-4 text-center">
-            <h2 class="text-4xl font-bold mb-4" data-i18n="cta.title">
-                Ready to Land Your Dream Job?
-            </h2>
-            <p class="text-xl mb-8 max-w-2xl mx-auto" data-i18n="cta.subtitle">
-                Join thousands of successful job seekers who transformed their applications with AI CV Tailor
-            </p>
+            <h2 class="text-4xl font-bold mb-4" data-i18n="cta.title">Ready to Land Your Dream Job?</h2>
+            <p class="text-xl mb-8 max-w-2xl mx-auto" data-i18n="cta.subtitle">Join thousands of successful job seekers who transformed their applications with AI CV Tailor</p>
             <a href="#form" class="inline-block bg-white text-purple-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition shadow-lg">
-                <i class="fas fa-rocket mr-2"></i>
-                <span data-i18n="cta.button">Start Free Trial</span>
+                <i class="fas fa-rocket mr-2"></i><span data-i18n="cta.button">Start Free Trial</span>
             </a>
         </div>
     </section>
@@ -423,32 +458,24 @@
         <div class="container mx-auto px-4">
             <div class="grid md:grid-cols-4 gap-8">
                 <div>
-                    <h3 class="text-xl font-bold mb-4">
-                        <i class="fas fa-file-alt mr-2"></i>
-                        AI CV Tailor
-                    </h3>
-                    <p class="text-gray-400" data-i18n="footer.description">
-                        AI-powered CV and cover letter tailoring for job seekers worldwide.
-                    </p>
+                    <h3 class="text-xl font-bold mb-4"><i class="fas fa-file-alt mr-2"></i> AI CV Tailor</h3>
+                    <p class="text-gray-400" data-i18n="footer.description">AI-powered CV and cover letter tailoring for job seekers worldwide.</p>
                 </div>
-                
                 <div>
                     <h4 class="text-lg font-semibold mb-4" data-i18n="footer.product">Product</h4>
                     <ul class="space-y-2">
                         <li><a href="/" class="text-gray-400 hover:text-white transition" data-i18n="footer.home">Home</a></li>
                         <li><a href="/plans.html" class="text-gray-400 hover:text-white transition" data-i18n="footer.pricing">Pricing</a></li>
-                        <li><a href="#features" class="text-gray-400 hover:text-white transition" data-i18n="footer.features">Features</a></li>
+                        <li><a href="#form" class="text-gray-400 hover:text-white transition" data-i18n="footer.features">Try Now</a></li>
                     </ul>
                 </div>
-                
-                <div>
+                 <div>
                     <h4 class="text-lg font-semibold mb-4" data-i18n="footer.legal">Legal</h4>
                     <ul class="space-y-2">
                         <li><a href="/privacy.html" class="text-gray-400 hover:text-white transition" data-i18n="footer.privacy">Privacy Policy</a></li>
                         <li><a href="/terms.html" class="text-gray-400 hover:text-white transition" data-i18n="footer.terms">Terms of Service</a></li>
                     </ul>
                 </div>
-                
                 <div>
                     <h4 class="text-lg font-semibold mb-4" data-i18n="footer.support">Support</h4>
                     <ul class="space-y-2">
@@ -457,7 +484,6 @@
                     </ul>
                 </div>
             </div>
-            
             <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
                 <p>&copy; 2025 AI CV Tailor. <span data-i18n="footer.rights">All rights reserved.</span></p>
             </div>
@@ -470,5 +496,9 @@
     <!-- Main App Script -->
     <script src="/app.js"></script>
 
+    <!-- Cookie Consent (Optioneel) -->
+    <!-- <script src="/cookie-consent.js"></script> -->
+
 </body>
 </html>
+
