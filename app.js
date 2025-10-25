@@ -1,509 +1,624 @@
-/**
- * Globale variabelen en initialisatie
- */
-let currentStep = 1;
-const totalSteps = 3;
-const steps = document.querySelectorAll('.form-step');
-const stepIndicators = document.querySelectorAll('.step-item');
-const progressLine = document.getElementById('progress-line');
-let currentLanguage = 'en'; // Default taal
+// ============================================
+// AI CV TAILOR - MAIN APPLICATION
+// Complete app.js with fixed form submission
+// ============================================
 
-// Element Referenties (om null checks te vermijden)
-const cvForm = document.getElementById('cvForm');
-const submitBtn = document.getElementById('submitBtn');
-const loadingState = document.getElementById('loadingState');
-const cvInput = document.getElementById('cvInput');
-const jobInput = document.getElementById('jobInput');
-const outputLanguageInput = document.getElementById('outputLanguage');
-const cvFileInput = document.getElementById('cvFile');
-const jobScreenshotInput = document.getElementById('jobScreenshot');
-const ocrStatusElement = document.getElementById('ocrStatus');
+console.log('🚀 AI CV Tailor - Initializing...');
 
-/**
- * Functies voor Multi-Step Formulier Navigatie en Validatie
- */
-function updateStepIndicator() {
-    stepIndicators.forEach((indicator, index) => {
-        const stepNum = index + 1;
-        indicator.classList.remove('active', 'completed');
-        if (stepNum < currentStep) {
-            indicator.classList.add('completed');
-        } else if (stepNum === currentStep) {
-            indicator.classList.add('active');
-        }
-    });
-    // Update voortgangsbalk
-    if (progressLine) {
-        // Bereken percentage: Start op 15%, 50% bij stap 2, 85% bij stap 3
-        const progressPercentage = (currentStep - 1) * (100 / (totalSteps -1) * 0.70 / 2) * 2 + 15; // Geeft 15%, 50%, 85%
-        progressLine.style.width = `${Math.min(100, progressPercentage)}%`;
+// ============================================
+// CONFIGURATION
+// ============================================
+
+const CONFIG = {
+  apiEndpoint: '/.netlify/functions/analyze-cv',
+  minCVLength: 50,
+  minJobLength: 30,
+  defaultLanguage: 'en'
+};
+
+// ============================================
+// UI LANGUAGE MANAGEMENT
+// ============================================
+
+let currentUILanguage = localStorage.getItem('uiLanguage') || 'en';
+
+function setUILanguage(lang) {
+  currentUILanguage = lang;
+  localStorage.setItem('uiLanguage', lang);
+  updateUIText();
+  console.log('UI Language set to:', lang);
+}
+
+function updateUIText() {
+  // Update all elements with data-i18n attribute
+  document.querySelectorAll('[data-i18n]').forEach(element => {
+    const key = element.getAttribute('data-i18n');
+    if (translations[currentUILanguage] && translations[currentUILanguage][key]) {
+      element.textContent = translations[currentUILanguage][key];
     }
+  });
 }
 
+// ============================================
+// CLIPBOARD FUNCTIONALITY
+// ============================================
 
-function showStep(stepNum) {
-    if (stepNum < 1 || stepNum > totalSteps) return;
-    currentStep = stepNum;
-    steps.forEach((step, index) => {
-        step.classList.toggle('active', index + 1 === currentStep);
-    });
-    updateStepIndicator();
-    // Scroll naar bovenkant formulier
-    const formElement = document.getElementById('form');
-    if (formElement) {
-        // Gebruik scrollIntoView voor betere compatibiliteit
-        formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-}
-
-function validateStep(stepNum) {
-    const currentStepElement = document.getElementById(`step-${stepNum}`);
-    if (!currentStepElement) return false;
-
-    let isValid = true;
-    // Selecteer alleen 'required' inputs die niet 'disabled' zijn binnen de huidige stap
-    const requiredInputs = currentStepElement.querySelectorAll('[required]:not(:disabled)');
-
-    requiredInputs.forEach(input => {
-        const parentPanel = input.closest('.tab-panel');
-        // Controleer of de input zichtbaar is (niet in een verborgen tab)
-        const isVisible = !parentPanel || !parentPanel.classList.contains('hidden');
-
-        // Reset error state
-        input.classList.remove('border-red-500');
-        input.classList.add('border-gray-300');
-
-        // Valideer alleen als zichtbaar
-        if (isVisible && (!input.value || !input.value.trim())) {
-            isValid = false;
-            input.classList.add('border-red-500');
-            input.classList.remove('border-gray-300');
-            // Verwijder rode rand zodra gebruiker begint te typen
-            input.addEventListener('input', () => {
-                 input.classList.remove('border-red-500');
-                 input.classList.add('border-gray-300');
-                 // Re-valideer direct om 'Next' knop eventueel te enablen
-                 validateStep(stepNum);
-            }, { once: true });
-        }
-    });
-
-    // Update de status van de 'Next' knop voor deze stap
-    const nextButton = document.getElementById(`nextBtn-${stepNum}`);
-    if (nextButton) {
-        nextButton.disabled = !isValid;
-    }
-    return isValid;
-}
-
-
-function nextStep() {
-    if (validateStep(currentStep)) {
-        showStep(currentStep + 1);
-        // Valideer de nieuwe stap direct (voor het geval deze al ingevuld was)
-        validateStep(currentStep);
-    } else {
-         // Geef een melding als de huidige stap niet valide is
-         alert(getTranslation('error.fillFields', currentLanguage) || 'Please fill in all required fields for this step.');
-    }
-}
-
-function prevStep() {
-    showStep(currentStep - 1);
-    // Valideer de (nu vorige) stap opnieuw (belangrijk voor 'Next' knop status)
-     validateStep(currentStep);
-}
-
-// Initial setup on DOM ready
-document.addEventListener('DOMContentLoaded', () => {
-    // Toon de eerste stap en initialiseer validatie
-    showStep(1);
-    validateStep(1);
-    validateStep(2); // Valideer ook stap 2 voor het geval de pagina herlaadt
-
-    // Voeg listeners toe om stappen te valideren bij typen
-    if (cvInput) cvInput.addEventListener('input', () => validateStep(1));
-    if (jobInput) jobInput.addEventListener('input', () => validateStep(2));
-
-     // Stel de taal in en vertaal de pagina
-    currentLanguage = localStorage.getItem('preferredLanguage') || 'en';
-    if (typeof translations !== 'undefined') {
-        translatePage();
-        updateLanguageButtons();
-    } else {
-        console.error('translations.js not loaded or defined. Cannot translate page.');
-        // Overweeg een fallback of foutmelding
-    }
-});
-
-
-/**
- * Functies voor Tabs
- */
-function switchTab(event, type) {
-    const clickedTab = event.currentTarget;
-    const tabId = clickedTab.dataset.tab;
-
-    // Update tab knop stijlen
-    document.querySelectorAll(`.${type}-tab`).forEach(tab => tab.classList.remove('active'));
-    clickedTab.classList.add('active');
-
-    // Toon/verberg panelen
-    document.querySelectorAll(`.${type}-panel`).forEach(panel => {
-        panel.classList.toggle('hidden', panel.id !== tabId);
-    });
-
-    // Update 'required' status dynamisch
-    // Alleen het tekstveld in de *zichtbare* tab moet vereist zijn
-    if (type === 'cv' && cvInput) {
-        cvInput.required = (tabId === 'cv-paste');
-    } else if (type === 'job' && jobInput) {
-        jobInput.required = (tabId === 'job-paste');
-    }
-
-    // Re-valideer de huidige stap na het wisselen van tab
-    validateStep(currentStep);
-}
-
-/**
- * PDF Parser Logica
- */
-if (cvFileInput && cvInput) {
-    cvFileInput.addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        const nextButton1 = document.getElementById('nextBtn-1');
-        if (nextButton1) nextButton1.disabled = true; // Schakel 'Next' uit tijdens verwerking
-
-        // Validatie: Type
-        if (!file || file.type !== 'application/pdf') {
-            alert(getTranslation('error.pdfOnly', currentLanguage) || 'Please select a PDF file.');
-            event.target.value = null; // Reset input
-            if (nextButton1) nextButton1.disabled = !validateStep(1); // Herstel knop status
-            return;
-        }
-
-        // Validatie: Grootte
-        const MAX_PDF_SIZE_MB = 5;
-        const MAX_PDF_SIZE_BYTES = MAX_PDF_SIZE_MB * 1024 * 1024;
-        if (file.size > MAX_PDF_SIZE_BYTES) {
-            alert((getTranslation('error.fileTooLarge', currentLanguage) || `File is too large (Max ${MAX_PDF_SIZE_MB}MB).`).replace('${maxSize}', MAX_PDF_SIZE_MB));
-            event.target.value = null;
-            if (nextButton1) nextButton1.disabled = !validateStep(1);
-            return;
-        }
-
-        // Lees bestand
-        const fileReader = new FileReader();
-        fileReader.onload = function() {
-            const typedarray = new Uint8Array(this.result);
-            cvInput.value = getTranslation('form.pdfReading', currentLanguage) || 'Reading PDF... one moment.';
-
-            // Verwerk met pdf.js
-            pdfjsLib.getDocument(typedarray).promise.then(pdf => {
-                let pagePromises = [];
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    pagePromises.push(
-                        pdf.getPage(i).then(page =>
-                            page.getTextContent().then(textContent =>
-                                textContent.items.map(item => item.str).join(' ') // Tekst per pagina
-                            )
-                        )
-                    );
-                }
-                return Promise.all(pagePromises); // Wacht op alle pagina's
-            }).then(pagesText => {
-                cvInput.value = pagesText.join('\n\n'); // Voeg samen met witregel
-                document.querySelector('.cv-tab[data-tab="cv-paste"]')?.click(); // Switch naar plak-tab
-                validateStep(1); // Re-valideer
-            }).catch(error => {
-                console.error('Error reading PDF:', error);
-                cvInput.value = getTranslation('form.pdfError', currentLanguage) || 'Error reading PDF. Please try pasting the text manually.';
-                validateStep(1); // Re-valideer
-            }).finally(() => {
-                // Herstel 'Next' knop status gebaseerd op validatie
-                if (nextButton1) nextButton1.disabled = !validateStep(1);
-            });
-        };
-        fileReader.readAsArrayBuffer(file);
-    });
-} else {
-    console.warn("CV file input ('cvFile') or textarea ('cvInput') not found in the DOM.");
-}
-
-/**
- * OCR Logica voor Screenshots
- */
-if (jobScreenshotInput && jobInput && ocrStatusElement) {
-    jobScreenshotInput.addEventListener('change', async function(event) {
-        const file = event.target.files[0];
-        const nextButton2 = document.getElementById('nextBtn-2');
-        if (nextButton2) nextButton2.disabled = true; // Schakel 'Next' uit
-
-        // Reset status
-        ocrStatusElement.textContent = '';
-        ocrStatusElement.style.opacity = '0';
-        ocrStatusElement.classList.remove('text-red-600', 'text-green-600');
-
-        // Validatie: Type
-        const allowedTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/bmp'];
-        if (!file || !allowedTypes.includes(file.type)) {
-            ocrStatusElement.textContent = getTranslation('error.imageOnly', currentLanguage) || 'Please select an image file (PNG, JPG, WEBP, BMP).';
-            ocrStatusElement.style.opacity = '1'; ocrStatusElement.classList.add('text-red-600');
-            event.target.value = null;
-            if (nextButton2) nextButton2.disabled = !validateStep(2); // Herstel knop status
-            return;
-        }
-
-        // Validatie: Grootte
-        const MAX_IMG_SIZE_MB = 5;
-        const MAX_IMG_SIZE_BYTES = MAX_IMG_SIZE_MB * 1024 * 1024;
-        if (file.size > MAX_IMG_SIZE_BYTES) {
-            ocrStatusElement.textContent = (getTranslation('error.fileTooLarge', currentLanguage) || `File is too large (Max ${MAX_IMG_SIZE_MB}MB).`).replace('${maxSize}', MAX_IMG_SIZE_MB);
-            ocrStatusElement.style.opacity = '1'; ocrStatusElement.classList.add('text-red-600');
-            event.target.value = null;
-            if (nextButton2) nextButton2.disabled = !validateStep(2);
-            return;
-        }
-
-        if (typeof Tesseract === 'undefined') {
-             ocrStatusElement.textContent = getTranslation('error.ocrLoad', currentLanguage) || 'OCR library could not be loaded. Please refresh the page.';
-             ocrStatusElement.style.opacity = '1'; ocrStatusElement.classList.add('text-red-600');
-             if (nextButton2) nextButton2.disabled = !validateStep(2);
-             return;
-        }
-
-        ocrStatusElement.textContent = getTranslation('form.ocrProcessing', currentLanguage) || 'Reading screenshot with OCR... This may take a moment.';
-        ocrStatusElement.style.opacity = '1';
-
-        try {
-            const { data: { text } } = await Tesseract.recognize(file, 'eng+nld', {
-                logger: m => {
-                    if (m.status === 'recognizing text') {
-                        ocrStatusElement.textContent = `${getTranslation('form.ocrProgress', currentLanguage) || 'Recognizing text'}... (${Math.round(m.progress * 100)}%)`;
-                    } else if (m.status === 'loading language traineddata') {
-                        ocrStatusElement.textContent = getTranslation('form.ocrLoadingLang', currentLanguage) || 'Loading language data...';
-                    } else if (m.progress === 0 && m.status !== 'initializing tesseract') { // Show other statuses before recognition starts
-                        ocrStatusElement.textContent = `${m.status}...`;
-                    }
-                }
-            });
-
-            jobInput.value = text;
-            ocrStatusElement.textContent = getTranslation('form.ocrSuccess', currentLanguage) || 'Text successfully extracted!';
-            ocrStatusElement.classList.add('text-green-600');
-            ocrStatusElement.style.opacity = '1';
-            setTimeout(() => { ocrStatusElement.style.opacity = '0'; }, 5000);
-
-            document.querySelector('.job-tab[data-tab="job-paste"]')?.click(); // Switch back
-            event.target.value = null;
-            validateStep(2); // Re-validate step 2
-
-        } catch (error) {
-            console.error('OCR Error:', error);
-            ocrStatusElement.textContent = getTranslation('form.ocrError', currentLanguage) || 'Error reading image. Please paste manually.';
-            ocrStatusElement.style.opacity = '1'; ocrStatusElement.classList.add('text-red-600');
-            event.target.value = null;
-            validateStep(2); // Re-validate step 2
-
-        } finally {
-            // Herstel 'Next' knop status gebaseerd op validatie
-            if (nextButton2) nextButton2.disabled = !validateStep(2);
-        }
-    });
-} else {
-    console.warn("Job screenshot input ('jobScreenshot') or textarea ('jobInput') not found in the DOM.");
-}
-
-
-// ----------------------------------------------------
-// OVERIGE FUNCTIES EN EVENT LISTENERS
-// ----------------------------------------------------
-
-function pasteFromClipboard(targetId) {
-     const targetElement = document.getElementById(targetId);
-     if (!targetElement) return;
-
-    if (!navigator.clipboard || !navigator.clipboard.readText) {
-        try {
-            targetElement.focus();
-            const successful = document.execCommand('paste');
-            if (!successful) { throw new Error('execCommand failed'); }
-             // Trigger validation after paste
-            if (targetId === 'cvInput') validateStep(1); else if (targetId === 'jobInput') validateStep(2);
-        } catch (fallbackErr) {
-            console.error('Fallback paste failed:', fallbackErr);
-            alert(getTranslation('error.pasteUnsupported', currentLanguage) || 'Pasting failed. Please paste manually.');
-        }
+function setupClipboardButtons() {
+  const pasteButtons = document.querySelectorAll('[data-paste-target]');
+  
+  pasteButtons.forEach(button => {
+    button.addEventListener('click', async () => {
+      const targetId = button.getAttribute('data-paste-target');
+      const targetElement = document.getElementById(targetId);
+      
+      if (!targetElement) {
+        console.error('Paste target not found:', targetId);
         return;
-    }
-    navigator.clipboard.readText()
-        .then(text => {
-            targetElement.value = text;
-            // Trigger validation after paste
-            if (targetId === 'cvInput') validateStep(1); else if (targetId === 'jobInput') validateStep(2);
-        })
-        .catch(err => {
-            console.error('Failed to read clipboard contents: ', err);
-            alert(getTranslation('error.paste', currentLanguage) || 'Could not paste from clipboard. Please paste manually.');
-        });
-}
-
-function selectOutputLanguage(lang) {
-    document.querySelectorAll('.language-option').forEach(el => {
-        el.classList.remove('active');
-        if (el.dataset.lang === lang) el.classList.add('active');
+      }
+      
+      try {
+        const text = await navigator.clipboard.readText();
+        targetElement.value = text;
+        
+        // Show feedback
+        const originalText = button.textContent;
+        button.textContent = '✓ Pasted!';
+        button.disabled = true;
+        
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.disabled = false;
+        }, 2000);
+        
+        console.log('✅ Pasted', text.length, 'characters to', targetId);
+        
+      } catch (error) {
+        console.error('Clipboard error:', error);
+        alert('Could not access clipboard. Please paste manually (Ctrl+V / Cmd+V)');
+      }
     });
-    if (outputLanguageInput) outputLanguageInput.value = lang;
+  });
+  
+  console.log('✅ Clipboard buttons initialized');
 }
 
-// Event listener voor het hoofdformulier SUBMIT (alleen op stap 3)
-if (cvForm && submitBtn && loadingState && cvInput && jobInput && outputLanguageInput) {
-    cvForm.addEventListener('submit', async function(event) {
-        event.preventDefault();
+// ============================================
+// FORM VALIDATION
+// ============================================
 
-        if (currentStep !== totalSteps) { console.warn("Submit on wrong step"); return; }
-        if (!validateStep(currentStep)) { alert(getTranslation('error.fillFields', currentLanguage) || 'Please complete step 3.'); return; }
+function validateFormData(currentCV, jobDescription) {
+  const errors = [];
+  
+  if (!currentCV || currentCV.trim().length === 0) {
+    errors.push('CV is required');
+  } else if (currentCV.trim().length < CONFIG.minCVLength) {
+    errors.push(`CV must be at least ${CONFIG.minCVLength} characters (currently ${currentCV.trim().length})`);
+  }
+  
+  if (!jobDescription || jobDescription.trim().length === 0) {
+    errors.push('Job description is required');
+  } else if (jobDescription.trim().length < CONFIG.minJobLength) {
+    errors.push(`Job description must be at least ${CONFIG.minJobLength} characters (currently ${jobDescription.trim().length})`);
+  }
+  
+  return errors;
+}
 
-        const recaptchaResponse = grecaptcha.getResponse();
-        if (!recaptchaResponse) { alert(getTranslation('error.recaptcha', currentLanguage) || 'Please complete the reCAPTCHA'); return; }
+// ============================================
+// MAIN FORM SUBMISSION HANDLER
+// ============================================
 
-        const currentStepElement = document.getElementById(`step-${currentStep}`);
-        if(currentStepElement) currentStepElement.style.display = 'none';
-        loadingState.classList.remove('hidden');
-        submitBtn.disabled = true;
-
-        // --- Store original inputs for results page ---
-        const originalCV = cvInput.value;
-        const originalJobDesc = jobInput.value;
-        try {
-             localStorage.setItem('originalCV', originalCV);
-             localStorage.setItem('originalJobDesc', originalJobDesc);
-        } catch (e) {
-             console.error('localStorage Error (Original Data):', e);
-             alert(getTranslation('error.storage', currentLanguage) || 'Error saving data locally. Check browser settings.');
-        }
-        // --- End store original inputs ---
-
-        const payload = {
-            cv: originalCV,
-            jobDescription: originalJobDesc,
-            outputLanguage: outputLanguageInput.value,
-            recaptchaToken: recaptchaResponse
-            // userId: userId, // Add if needed
-        };
-
-        try {
-            const response = await fetch('/.netlify/functions/analyze-cv', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-
-            if (typeof grecaptcha !== 'undefined') { grecaptcha.reset(); }
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ message: `Server error: ${response.status}` }));
-                console.error('API Error Response:', errorData);
-                throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
-            }
-
-            const result = await response.json();
-
-            if (result.success && result.data) {
-                // Sla resultaten op
-                try {
-                    sessionStorage.setItem('cvResults', JSON.stringify(result.data));
-                    window.location.href = '/improvements.html'; // Redirect to new page
-                    return;
-                } catch (e) {
-                    // CRITICAL: Fail here if results cannot be stored
-                    console.error('sessionStorage Error (Results): Could not save CV results.', e);
-                    throw new Error(getTranslation('error.storageResults', currentLanguage) || 'Could not save results locally. Please try again.');
-                }
-
-            } else {
-                 console.error('API Success Response but invalid data:', result);
-                throw new Error(result.error || getTranslation('error.apiGeneric', currentLanguage) || 'Failed to get valid results from API');
-            }
-
-        } catch (error) {
-            console.error('Error submitting form:', error);
-            alert(`${getTranslation('error.apiSubmit', currentLanguage) || 'An error occurred:'} ${error.message}`);
-             if (typeof grecaptcha !== 'undefined') { grecaptcha.reset(); }
-
-        } finally {
-             // Zorg ervoor dat de loading state altijd wordt verborgen en de knop weer wordt ingeschakeld
-             loadingState.classList.add('hidden');
-             submitBtn.disabled = false;
-             if (currentStepElement) currentStepElement.style.display = 'block';
-        }
+function setupFormHandler() {
+  const form = document.getElementById('cvForm') || 
+               document.querySelector('form[data-cv-form]') || 
+               document.querySelector('form');
+  
+  if (!form) {
+    console.warn('⚠️ Form not found on this page');
+    return;
+  }
+  
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    console.log('🔍 DEBUG: Form submitted');
+    console.log('Form element:', form);
+    
+    // ============================================
+    // STEP 1: GET VALUES FROM FORM FIELDS
+    // ============================================
+    
+    const currentCV = document.getElementById('currentCV')?.value?.trim() || '';
+    const jobDescription = document.getElementById('jobDescription')?.value?.trim() || '';
+    
+    // Try multiple possible language field IDs
+    const language = document.getElementById('cvLanguage')?.value || 
+                     document.getElementById('language')?.value || 
+                     document.getElementById('outputLanguage')?.value ||
+                     CONFIG.defaultLanguage;
+    
+    // ============================================
+    // STEP 2: LOG FOR DEBUGGING
+    // ============================================
+    
+    console.log('📝 Current CV:', currentCV ? `${currentCV.substring(0, 100)}... (${currentCV.length} chars)` : 'EMPTY');
+    console.log('💼 Job Description:', jobDescription ? `${jobDescription.substring(0, 100)}... (${jobDescription.length} chars)` : 'EMPTY');
+    console.log('🌍 Language:', language);
+    console.log('📊 Data lengths:', {
+      cv: currentCV.length,
+      job: jobDescription.length
     });
-} else {
-    console.error('One or more essential form elements missing or initialized incorrectly.');
-}
-
-
-// ----------------------------------------------------
-// TAALWISSEL-LOGICA (Gekopieerd uit index.html)
-// ----------------------------------------------------
-// (Functies voor switchLanguage, updateLanguageButtons, translatePage, getTranslation)
-// Deze functies zijn afhankelijk van translations.js en moeten compleet zijn in de app.js
-// Zorg ervoor dat je alle bestaande code voor deze functies uit je oude app.js hieronder plakt.
-
-function getTranslation(key, lang = currentLanguage) {
-    if (typeof translations === 'undefined' || !translations[lang]) {
-         lang = 'en';
-         if (typeof translations === 'undefined' || !translations[lang]) { return key; }
+    
+    // ============================================
+    // STEP 3: VALIDATE INPUT
+    // ============================================
+    
+    const validationErrors = validateFormData(currentCV, jobDescription);
+    
+    if (validationErrors.length > 0) {
+      const errorMessage = validationErrors.join('\n');
+      console.error('❌ Validation failed:', validationErrors);
+      alert('Please fix these issues:\n\n' + errorMessage);
+      return;
     }
-    const keys = key.split('.');
-    let result = translations[lang];
+    
+    console.log('✅ Validation passed');
+    
+    // ============================================
+    // STEP 4: PREPARE REQUEST BODY
+    // ============================================
+    
+    const requestBody = {
+      currentCV: currentCV,
+      jobDescription: jobDescription,
+      language: language
+    };
+    
+    console.log('📦 Request body prepared:', {
+      cvLength: requestBody.currentCV.length,
+      jobLength: requestBody.jobDescription.length,
+      language: requestBody.language
+    });
+    
+    // ============================================
+    // STEP 5: SHOW LOADING STATE
+    // ============================================
+    
+    const submitButton = form.querySelector('button[type="submit"]') || 
+                        form.querySelector('button.submit-btn') ||
+                        form.querySelector('button');
+    
+    const originalButtonText = submitButton?.textContent || 'Submit';
+    const loadingText = currentUILanguage === 'nl' ? '⏳ Verwerken...' : '⏳ Processing...';
+    
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = loadingText;
+      submitButton.style.cursor = 'wait';
+    }
+    
+    // Disable form inputs
+    const formInputs = form.querySelectorAll('input, textarea, select, button');
+    formInputs.forEach(input => input.disabled = true);
+    
+    // Show loading overlay if it exists
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) {
+      loadingOverlay.style.display = 'flex';
+    }
+    
     try {
-        for (const k of keys) {
-            if (result === undefined) return key;
-            result = result[k];
+      console.log('🚀 Sending request to:', CONFIG.apiEndpoint);
+      
+      // ============================================
+      // STEP 6: CALL API
+      // ============================================
+      
+      const response = await fetch(CONFIG.apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+      });
+      
+      console.log('📥 Response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+      
+      // ============================================
+      // STEP 7: HANDLE RESPONSE
+      // ============================================
+      
+      if (!response.ok) {
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (e) {
+          errorData = { 
+            error: `HTTP ${response.status}: ${response.statusText}` 
+          };
         }
-         if (result === undefined || result === null || result === '') {
-             if (lang !== 'en' && translations['en']) {
-                 let fallbackResult = translations['en'];
-                  for (const k of keys) { if (fallbackResult === undefined) return key; fallbackResult = fallbackResult[k]; }
-                  return fallbackResult || key;
-             }
-             return key;
-         }
-        return result;
-    } catch (e) {
-        return key;
+        
+        console.error('❌ API Error Response:', errorData);
+        throw new Error(errorData.error || errorData.message || `API returned ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      console.log('✅ Success! Data received:', {
+        hasCV: !!data.improvedCV,
+        cvLength: data.improvedCV?.length || 0,
+        hasCover: !!data.coverLetter,
+        coverLength: data.coverLetter?.length || 0,
+        hasTips: !!data.recruiterTips,
+        tipsLength: data.recruiterTips?.length || 0,
+        hasChanges: !!data.changesOverview,
+        changesLength: data.changesOverview?.length || 0,
+        metadata: data.metadata
+      });
+      
+      // Validate response data
+      if (!data.improvedCV || !data.coverLetter || !data.recruiterTips) {
+        console.warn('⚠️ Some response fields are missing');
+      }
+      
+      // ============================================
+      // STEP 8: SAVE TO SESSION STORAGE
+      // ============================================
+      
+      try {
+        sessionStorage.setItem('cvResults', JSON.stringify(data));
+        console.log('💾 Results saved to sessionStorage');
+        
+        // Verify it was saved
+        const saved = sessionStorage.getItem('cvResults');
+        if (!saved) {
+          throw new Error('Data was not saved to sessionStorage');
+        }
+        console.log('✅ Verified: Data saved successfully');
+        
+      } catch (storageError) {
+        console.error('⚠️ sessionStorage Error:', storageError);
+        
+        // Try localStorage as backup
+        try {
+          localStorage.setItem('cvResults', JSON.stringify(data));
+          console.log('💾 Saved to localStorage as backup');
+        } catch (e) {
+          console.error('❌ Could not save to any storage');
+        }
+      }
+      
+      // ============================================
+      // STEP 9: REDIRECT TO RESULTS PAGE
+      // ============================================
+      
+      console.log('➡️ Redirecting to improvements.html');
+      
+      // Small delay to ensure storage is written
+      setTimeout(() => {
+        window.location.href = 'improvements.html';
+      }, 100);
+      
+    } catch (error) {
+      // ============================================
+      // ERROR HANDLING
+      // ============================================
+      
+      console.error('❌ Error during submission:', error);
+      console.error('Error stack:', error.stack);
+      
+      // Show user-friendly error message
+      const errorMessage = currentUILanguage === 'nl' 
+        ? `Er is een fout opgetreden: ${error.message}\n\nProbeer het opnieuw of neem contact op met support als het probleem aanhoudt.`
+        : `An error occurred: ${error.message}\n\nPlease try again or contact support if the problem persists.`;
+      
+      alert(errorMessage);
+      
+      // Reset button and form
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
+        submitButton.style.cursor = 'pointer';
+      }
+      
+      // Re-enable form inputs
+      formInputs.forEach(input => input.disabled = false);
+      
+      // Hide loading overlay
+      if (loadingOverlay) {
+        loadingOverlay.style.display = 'none';
+      }
     }
+  });
+  
+  console.log('✅ Form handler attached successfully');
 }
 
-function switchLanguage(lang) {
-    if (typeof translations !== 'undefined' && translations[lang]) {
-        currentLanguage = lang;
-        localStorage.setItem('preferredLanguage', lang);
-        translatePage();
-        updateLanguageButtons();
-    } else {
-        console.warn(`Language '${lang}' not found.`);
-    }
+// ============================================
+// CHARACTER COUNTER
+// ============================================
+
+function setupCharacterCounters() {
+  const textareas = document.querySelectorAll('textarea[data-counter]');
+  
+  textareas.forEach(textarea => {
+    const counterId = textarea.getAttribute('data-counter');
+    const counter = document.getElementById(counterId);
+    
+    if (!counter) return;
+    
+    const updateCounter = () => {
+      const length = textarea.value.length;
+      counter.textContent = length.toLocaleString();
+      
+      // Color coding
+      const minLength = parseInt(textarea.getAttribute('data-min-length')) || 0;
+      if (length < minLength) {
+        counter.style.color = '#ff6b6b';
+      } else {
+        counter.style.color = '#28a745';
+      }
+    };
+    
+    textarea.addEventListener('input', updateCounter);
+    updateCounter(); // Initial count
+  });
+  
+  console.log('✅ Character counters initialized');
 }
 
-function updateLanguageButtons() {
-    document.querySelectorAll('.language-btn').forEach(btn => {
-        const isActive = btn.dataset.lang === currentLanguage;
-        btn.classList.toggle('bg-blue-100', isActive);
-        btn.classList.toggle('text-blue-700', isActive);
-        btn.classList.toggle('font-semibold', isActive);
-        btn.classList.toggle('text-gray-600', !isActive);
+// ============================================
+// LANGUAGE SWITCHER
+// ============================================
+
+function setupLanguageSwitcher() {
+  const languageButtons = document.querySelectorAll('[data-language]');
+  
+  languageButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const lang = button.getAttribute('data-language');
+      setUILanguage(lang);
+      
+      // Update active state
+      languageButtons.forEach(btn => btn.classList.remove('active'));
+      button.classList.add('active');
     });
+  });
+  
+  // Set initial active state
+  const activeButton = document.querySelector(`[data-language="${currentUILanguage}"]`);
+  if (activeButton) {
+    activeButton.classList.add('active');
+  }
+  
+  console.log('✅ Language switcher initialized');
 }
 
-function translatePage() {
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        el.textContent = getTranslation(el.dataset.i18n);
-    });
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-        el.placeholder = getTranslation(el.dataset.i18nPlaceholder);
-    });
-    document.documentElement.lang = currentLanguage;
+// ============================================
+// FORM FIELD CHECKS (DEBUGGING)
+// ============================================
+
+function checkFormFields() {
+  console.log('🔍 Form Fields Check:');
+  
+  const cvField = document.getElementById('currentCV');
+  const jobField = document.getElementById('jobDescription');
+  const langField = document.getElementById('cvLanguage') || 
+                    document.getElementById('language') ||
+                    document.getElementById('outputLanguage');
+  
+  console.log('  CV field:', cvField ? '✅ Found' : '❌ Not found', cvField);
+  console.log('  Job field:', jobField ? '✅ Found' : '❌ Not found', jobField);
+  console.log('  Language field:', langField ? '✅ Found' : '❌ Not found', langField);
+  
+  if (cvField) {
+    console.log('    CV field ID:', cvField.id);
+    console.log('    CV field type:', cvField.tagName);
+  }
+  
+  if (jobField) {
+    console.log('    Job field ID:', jobField.id);
+    console.log('    Job field type:', jobField.tagName);
+  }
+  
+  const forms = document.querySelectorAll('form');
+  console.log('  Forms found:', forms.length);
+  forms.forEach((form, index) => {
+    console.log(`    Form ${index + 1}:`, form.id || '(no ID)', form);
+  });
 }
 
+// ============================================
+// SMOOTH SCROLLING
+// ============================================
+
+function setupSmoothScrolling() {
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      const href = this.getAttribute('href');
+      if (href === '#') return;
+      
+      e.preventDefault();
+      const target = document.querySelector(href);
+      
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+}
+
+// ============================================
+// AUTOSAVE TO LOCAL STORAGE (DRAFT)
+// ============================================
+
+function setupAutosave() {
+  const cvField = document.getElementById('currentCV');
+  const jobField = document.getElementById('jobDescription');
+  
+  if (!cvField || !jobField) return;
+  
+  // Load saved drafts
+  const savedCV = localStorage.getItem('draft_cv');
+  const savedJob = localStorage.getItem('draft_job');
+  
+  if (savedCV && cvField.value === '') {
+    cvField.value = savedCV;
+    console.log('📝 Loaded CV draft');
+  }
+  
+  if (savedJob && jobField.value === '') {
+    jobField.value = savedJob;
+    console.log('📝 Loaded job description draft');
+  }
+  
+  // Save on input (debounced)
+  let saveTimeout;
+  const saveDebounced = () => {
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+      localStorage.setItem('draft_cv', cvField.value);
+      localStorage.setItem('draft_job', jobField.value);
+      console.log('💾 Draft auto-saved');
+    }, 2000); // Save after 2 seconds of no typing
+  };
+  
+  cvField.addEventListener('input', saveDebounced);
+  jobField.addEventListener('input', saveDebounced);
+  
+  console.log('✅ Autosave initialized');
+}
+
+// ============================================
+// CLEAR DRAFT BUTTON
+// ============================================
+
+function setupClearDraft() {
+  const clearButtons = document.querySelectorAll('[data-clear-draft]');
+  
+  clearButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      if (confirm('Clear all saved drafts?')) {
+        localStorage.removeItem('draft_cv');
+        localStorage.removeItem('draft_job');
+        
+        const cvField = document.getElementById('currentCV');
+        const jobField = document.getElementById('jobDescription');
+        
+        if (cvField) cvField.value = '';
+        if (jobField) jobField.value = '';
+        
+        console.log('🗑️ Drafts cleared');
+      }
+    });
+  });
+}
+
+// ============================================
+// SAMPLE DATA LOADER (FOR TESTING)
+// ============================================
+
+function setupSampleDataLoader() {
+  const sampleButton = document.querySelector('[data-load-sample]');
+  
+  if (sampleButton) {
+    sampleButton.addEventListener('click', () => {
+      const cvField = document.getElementById('currentCV');
+      const jobField = document.getElementById('jobDescription');
+      
+      if (cvField) {
+        cvField.value = `John Doe
+Software Developer
+
+Experience:
+- Worked on various projects
+- Used JavaScript and Python
+- Team collaboration
+
+Skills:
+JavaScript, Python, HTML, CSS
+
+Education:
+Bachelor in Computer Science, 2020`;
+      }
+      
+      if (jobField) {
+        jobField.value = `We are looking for a Senior Full-Stack Developer with 5+ years of experience in React, Node.js, and TypeScript. Must have proven track record of building scalable applications.`;
+      }
+      
+      console.log('📝 Sample data loaded');
+    });
+  }
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+
+function init() {
+  console.log('🎬 Initializing AI CV Tailor...');
+  
+  // Check if we're on the main page or results page
+  const isMainPage = document.getElementById('currentCV') !== null;
+  const isResultsPage = document.getElementById('cv-content') !== null;
+  
+  console.log('Page type:', {
+    isMainPage,
+    isResultsPage
+  });
+  
+  if (isMainPage) {
+    // Main page initialization
+    setupFormHandler();
+    setupClipboardButtons();
+    setupCharacterCounters();
+    setupLanguageSwitcher();
+    setupSmoothScrolling();
+    setupAutosave();
+    setupClearDraft();
+    setupSampleDataLoader();
+    checkFormFields();
+  }
+  
+  if (isResultsPage) {
+    // Results page initialization
+    console.log('Results page detected');
+    updateUIText();
+  }
+  
+  // Common initialization
+  updateUIText();
+  
+  console.log('✅ AI CV Tailor initialized successfully');
+}
+
+// ============================================
+// RUN ON PAGE LOAD
+// ============================================
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+
+// ============================================
+// EXPORT FOR TESTING
+// ============================================
+
+window.CVTailor = {
+  init,
+  setUILanguage,
+  validateFormData,
+  config: CONFIG
+};
+
+console.log('📦 App.js loaded successfully');
