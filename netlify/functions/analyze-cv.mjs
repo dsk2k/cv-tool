@@ -31,8 +31,6 @@ export const handler = async (event) => {
         // Parse the incoming request body
         const { cv, jobDescription, outputLanguage = 'en', userId = 'free-user', recaptchaToken } = JSON.parse(event.body);
 
-        // --- Optional: Server-side reCAPTCHA Verification (niet nodig voor deze fix) ---
-
         // Validate essential inputs
         if (!cv || !jobDescription) {
             return {
@@ -92,7 +90,7 @@ EXPLANATION: [Your 1-2 sentence explanation]
 ---RECRUITER_TIPS_START---
 [Your 5-7 specific tips and questions here]
 ---RECRUITER_TIPS_END---
-`;
+`; 
 
         // Select the Gemini model and configure generation parameters
         const model = genAI.getGenerativeModel({
@@ -113,18 +111,21 @@ EXPLANATION: [Your 1-2 sentence explanation]
         console.log("----- RAW GEMINI RESPONSE START -----\n", text, "\n----- RAW GEMINI RESPONSE END -----");
 
 
-        // --- Helper function to extract content between markers (ROBUUSTE REGEX PARSING) ---
+        // --- Helper function to extract content between markers (SIMPLE INDEXOF PARSING) ---
+        // Deze methode is het meest betrouwbaar, zelfs als Regex faalt.
         const extractSection = (startMarker, endMarker, content) => {
-             // Gebruikt een RegEx object: zoekt naar start marker, pakt alles ([\s\S]*?), non-greedy (?), tot eind marker
-             // De `i` zorgt voor case-insensitivity, de `[\s\S]*?` pakt ALLE karakters inclusief nieuwe lijnen
-             const regex = new RegExp(startMarker.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '([\\s\\S]*?)' + endMarker.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
-             const match = content.match(regex);
-
-             if (match && match[1]) {
-                 return match[1].trim();
+             const startIndex = content.indexOf(startMarker);
+             const endIndex = content.indexOf(endMarker);
+             
+             // Check 1: Markers gevonden?
+             if (startIndex === -1 || endIndex === -1 || endIndex <= startIndex) {
+                 console.warn(`Could not find markers: ${startMarker} / ${endMarker}`);
+                 return null;
              }
-             console.warn(`Could not find or parse markers using Regex: ${startMarker} / ${endMarker}`);
-             return null;
+
+             // Check 2: Extractie en trimming
+             let extractedText = content.substring(startIndex + startMarker.length, endIndex);
+             return extractedText.trim();
          };
 
         // --- Helper function to parse the score and explanation ---
@@ -144,11 +145,9 @@ EXPLANATION: [Your 1-2 sentence explanation]
         // Extraheer elke sectie met de helper functie
         const scoreSection = extractSection('---CV_SCORE_START---', '---CV_SCORE_END---', text);
         const { score, explanation } = parseScore(scoreSection);
-        // De kritische secties:
         const improvedCV = extractSection('---IMPROVED_CV_START---', '---IMPROVED_CV_END---', text);
         const coverLetter = extractSection('---COVER_LETTER_START---', '---COVER_LETTER_END---', text);
         const recruiterTips = extractSection('---RECRUITER_TIPS_START---', '---RECRUITER_TIPS_END---', text);
-
 
         // --- Define Fallbacks for robust error handling ---
         const defaultLang = outputLanguage === 'nl'; // Boolean voor Nederlands
@@ -160,6 +159,7 @@ EXPLANATION: [Your 1-2 sentence explanation]
         // Controleer of het parsen succesvol was
         if (!improvedCV || !coverLetter || !recruiterTips) {
             console.error('CRITICAL PARSING FAILURE: One or more sections were null. Using fallbacks.');
+            // Dit is de meest waarschijnlijke plek waar de 500/fallback vandaan komt.
         }
 
         console.log(`Successfully parsed (or used fallback) - Score: ${score ?? 'N/A'}, CV: ${improvedCV?.length ?? 0} chars, CL: ${coverLetter?.length ?? 0} chars, Tips: ${recruiterTips?.length ?? 0} chars`);
