@@ -502,13 +502,36 @@
             return Math.abs(hash).toString(36);
         }
         
+        // Generate a simple user ID (for subscription tracking)
+        function generateUserId() {
+            const nav = window.navigator;
+            const screen = window.screen;
+            let uid = nav.userAgent.replace(/\D+/g, '');
+            uid += screen.height || '';
+            uid += screen.width || '';
+            uid += screen.pixelDepth || '';
+            return uid;
+        }
+        
+        // Get or create user ID
+        function getUserId() {
+            const USER_ID_KEY = 'cv_tool_user_id';
+            let userId = localStorage.getItem(USER_ID_KEY);
+            if (!userId) {
+                userId = generateUserId();
+                localStorage.setItem(USER_ID_KEY, userId);
+            }
+            return userId;
+        }
+        
         // Check if user has active subscription
         async function checkSubscriptionStatus() {
             try {
+                const userId = getUserId();
                 const response = await fetch('/.netlify/functions/check-subscription', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: 'test' })
+                    body: JSON.stringify({ userId: userId })
                 });
                 const data = await response.json();
                 return data.hasActiveSubscription || false;
