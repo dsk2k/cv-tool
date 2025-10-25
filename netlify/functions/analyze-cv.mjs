@@ -114,9 +114,8 @@ EXPLANATION: [Your 1-2 sentence explanation]
 
 
         // --- Helper function to extract content between markers (ROBUUSTE REGEX PARSING) ---
-        // Gebruikt een reguliere expressie om flexibeler te zijn met witruimte/nieuwe regels rond markers
         const extractSection = (startMarker, endMarker, content) => {
-             // Maak een RegEx object: zoekt naar start marker, pakt alles ([\s\S]*?), non-greedy (?), tot eind marker
+             // Gebruikt een RegEx object: zoekt naar start marker, pakt alles ([\s\S]*?), non-greedy (?), tot eind marker
              const regex = new RegExp(startMarker.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '([\\s\\S]*?)' + endMarker.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
              const match = content.match(regex);
              
@@ -172,7 +171,6 @@ EXPLANATION: [Your 1-2 sentence explanation]
             body: JSON.stringify({
                 success: true,
                 data: {
-                    // Gebruik geëxtraheerde data of fallbacks als extractie mislukte
                     cvScore: score,
                     scoreExplanation: explanation || fallbackExplanation,
                     improvedCV: improvedCV || fallbackCV,
@@ -185,7 +183,7 @@ EXPLANATION: [Your 1-2 sentence explanation]
         };
 
     } catch (error) {
-        // Log de fout voor debuggen
+        // ... (error handling blijft hetzelfde) ...
         console.error('Error in analyze-cv function:', error);
         let errorMessage = 'Internal server error occurred.';
         if (error.name === 'GoogleGenerativeAIFetchError') {
