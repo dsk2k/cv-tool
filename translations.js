@@ -1,125 +1,241 @@
-// ============================================
-// TRANSLATIONS
-// English and Dutch translations for the UI
-// ============================================
-
+// Complete translations for AI CV Tailor
 const translations = {
-  en: {
-    // Header
-    subtitle: "Transform Your CV for Any Job",
-    tagline: "AI-powered optimization • Cover letters • Interview tips",
+    en: {
+        // Header
+        'site-title': 'AI CV Tailor',
+        'header-cta': '👑 Get Premium',
+        'save-badge': 'SAVE 50%',
+        
+        // Hero Section
+        'hero-badge': 'AI-Powered CV Optimization',
+        'hero-title': 'Tailor Your CV to Any Job in 60 Seconds',
+        'hero-subtitle': 'Our AI analyzes job descriptions and optimizes your CV to match exactly what employers are looking for. Get more interviews, faster.',
+        'hero-cta-primary': '🚀 Try Free Now',
+        'hero-cta-secondary': '💎 View Premium Plans',
+        
+        // Testimonials
+        'testimonials-title': 'What Our Users Say',
+        'testimonial-1-role': 'Marketing Manager',
+        'testimonial-1-text': 'Got 3 interview invitations within a week of using the tailored CV. The AI really understands what recruiters want to see!',
+        'testimonial-2-role': 'Software Engineer',
+        'testimonial-2-text': 'Saved me hours of manual CV editing. The keyword optimization is spot-on and helped me land my dream job at a tech startup!',
+        'testimonial-3-role': 'Project Manager',
+        'testimonial-3-text': 'The Pro plan is worth every penny. Unlimited tailored CVs and priority support helped me apply to 20+ positions efficiently.',
+        
+        // Stats
+        'stat-time': 'Processing Time',
+        'stat-match': 'Average Match Score',
+        'stat-powered': 'Powered',
+        
+        // Features
+        'features-title': 'Why Choose AI CV Tailor?',
+        'feature-1-title': 'Lightning Fast',
+        'feature-1-desc': 'Get your optimized CV in under 60 seconds. No waiting, no hassle.',
+        'feature-2-title': 'ATS Optimized',
+        'feature-2-desc': 'Beat applicant tracking systems with keyword-rich, formatted CVs.',
+        'feature-3-title': 'Smart Matching',
+        'feature-3-desc': 'AI analyzes job descriptions and highlights your relevant skills.',
+        'feature-4-title': '100% Private',
+        'feature-4-desc': 'Your data is secure and never shared. Full GDPR compliance.',
+        
+        // Pricing
+        'pricing-title': 'Simple, Transparent Pricing',
+        'pricing-subtitle': 'Choose the plan that works for you',
+        'most-popular': 'MOST POPULAR',
+        
+        // Free Plan
+        'plan-free-name': 'Free',
+        'plan-free-period': 'Forever',
+        'plan-free-feat-1': '1 CV per month',
+        'plan-free-feat-2': 'Basic optimization',
+        'plan-free-feat-3': 'PDF & DOCX output',
+        'plan-free-cta': 'Start Free',
+        
+        // Pro Plan
+        'plan-pro-name': 'Pro',
+        'plan-pro-period': 'per month',
+        'plan-pro-save': 'Save 50% for limited time!',
+        'plan-pro-feat-1': 'Unlimited CVs',
+        'plan-pro-feat-2': 'Advanced AI optimization',
+        'plan-pro-feat-3': 'Priority processing',
+        'plan-pro-feat-4': 'Cover letter generation',
+        'plan-pro-feat-5': 'Email support',
+        'plan-pro-cta': '🚀 Get Pro Now',
+        
+        // Enterprise Plan
+        'plan-enterprise-name': 'Enterprise',
+        'plan-enterprise-period': 'per month',
+        'plan-enterprise-feat-1': 'Everything in Pro',
+        'plan-enterprise-feat-2': 'Team accounts (5 users)',
+        'plan-enterprise-feat-3': 'API access',
+        'plan-enterprise-feat-4': 'Custom branding',
+        'plan-enterprise-feat-5': 'Dedicated support',
+        'plan-enterprise-cta': 'Contact Sales',
+        
+        // Form
+        'form-title': 'Get Started - Upload Your CV',
+        'form-cv-label': 'Your Current CV *',
+        'form-cv-help': 'Upload your CV in PDF, DOC, or DOCX format',
+        'form-job-label': 'Job Description *',
+        'form-job-placeholder': 'Paste the complete job description here...',
+        'form-job-help': 'Paste the full job posting for best results',
+        'form-email-label': 'Email (Optional)',
+        'form-email-placeholder': 'your@email.com',
+        'form-email-help': 'Receive your optimized CV via email',
+        'form-submit': '✨ Optimize My CV',
+        
+        // Loading
+        'loading-title': 'Analyzing Your CV...',
+        'loading-text': 'Our AI is optimizing your CV to match the job requirements. This usually takes 30-60 seconds.',
+        
+        // Footer
+        'footer-tagline': 'Your AI-powered career companion',
+        'footer-privacy': 'Privacy',
+        'footer-terms': 'Terms',
+        'footer-contact': 'Contact',
+        'footer-rights': 'All rights reserved.'
+    },
     
-    // Features
-    feature1: "Job-Specific Tailoring",
-    feature2: "See What Changed & Why",
-    feature3: "Professional Cover Letter",
-    feature4: "Interview Preparation",
-    
-    // Form
-    formTitle: "Get Started in 3 Simple Steps",
-    formDescription: "Paste your current CV and the job description, and let our AI create a perfectly tailored application package for you.",
-    
-    cvTitle: "Step 1: Your Current CV",
-    cvLabel: "Paste your CV here (minimum 50 characters)",
-    cvTip: "Include all your experience, skills, education, and achievements. The more complete, the better the AI can tailor it!",
-    
-    jobTitle: "Step 2: Job Description",
-    jobLabel: "Paste the job description (minimum 30 characters)",
-    jobTip: "Include the full job posting with requirements, responsibilities, and desired qualifications for best results.",
-    
-    languageTitle: "Step 3: Choose Output Language",
-    languageLabel: "Select the language for your CV and cover letter",
-    languageNote: "This only affects the output (CV, cover letter, tips). The UI language can be changed using the buttons above.",
-    
-    // Buttons
-    submitBtn: "Generate My Tailored CV",
-    sampleBtn: "Load Sample Data",
-    clearBtn: "Clear All",
-    pasteBtn: "Paste from Clipboard",
-    
-    // Misc
-    characters: "Characters:",
-    minimum: " (minimum ",
-    tip: "Tip:",
-    
-    // How it works
-    howItWorks: "🎯 How It Works",
-    step1Title: "Paste Your CV",
-    step1Desc: "Copy your current CV and paste it into the first field. Include all your experience, skills, and achievements.",
-    step2Title: "Add Job Description",
-    step2Desc: "Paste the complete job description for the position you're applying to. The more detail, the better!",
-    step3Title: "Choose Language",
-    step3Desc: "Select whether you want your tailored CV and cover letter in English or Dutch.",
-    step4Title: "Get Results",
-    step4Desc: "Receive your optimized CV, professional cover letter, detailed changes overview, and interview tips!",
-    
-    // Loading
-    loadingTitle: "✨ AI is Working Its Magic...",
-    loadingSubtext: "This usually takes 10-15 seconds. Please wait...",
-    
-    // Footer
-    privacyNote: "Your data is processed securely and not stored"
-  },
-  
-  nl: {
-    // Header
-    subtitle: "Transformeer Je CV voor Elke Baan",
-    tagline: "AI-optimalisatie • Motivatiebrieven • Interview tips",
-    
-    // Features
-    feature1: "Functie-Specifieke Aanpassing",
-    feature2: "Zie Wat Er Veranderde & Waarom",
-    feature3: "Professionele Motivatiebrief",
-    feature4: "Interview Voorbereiding",
-    
-    // Form
-    formTitle: "Begin in 3 Eenvoudige Stappen",
-    formDescription: "Plak je huidige CV en de functiebeschrijving, en laat onze AI een perfect op maat gemaakt sollicitatiepakket voor je maken.",
-    
-    cvTitle: "Stap 1: Je Huidige CV",
-    cvLabel: "Plak hier je CV (minimaal 50 tekens)",
-    cvTip: "Voeg al je ervaring, vaardigheden, opleiding en prestaties toe. Hoe completer, hoe beter de AI het kan aanpassen!",
-    
-    jobTitle: "Stap 2: Functiebeschrijving",
-    jobLabel: "Plak de functiebeschrijving (minimaal 30 tekens)",
-    jobTip: "Voeg de volledige vacaturetekst toe met vereisten, verantwoordelijkheden en gewenste kwalificaties voor het beste resultaat.",
-    
-    languageTitle: "Stap 3: Kies Output Taal",
-    languageLabel: "Selecteer de taal voor je CV en motivatiebrief",
-    languageNote: "Dit heeft alleen invloed op de output (CV, motivatiebrief, tips). De UI-taal kan worden gewijzigd met de knoppen hierboven.",
-    
-    // Buttons
-    submitBtn: "Genereer Mijn CV op Maat",
-    sampleBtn: "Laad Voorbeeldgegevens",
-    clearBtn: "Alles Wissen",
-    pasteBtn: "Plak van Klembord",
-    
-    // Misc
-    characters: "Tekens:",
-    minimum: " (minimaal ",
-    tip: "Tip:",
-    
-    // How it works
-    howItWorks: "🎯 Hoe Het Werkt",
-    step1Title: "Plak Je CV",
-    step1Desc: "Kopieer je huidige CV en plak het in het eerste veld. Voeg al je ervaring, vaardigheden en prestaties toe.",
-    step2Title: "Voeg Functiebeschrijving Toe",
-    step2Desc: "Plak de volledige functiebeschrijving voor de functie waarvoor je solliciteert. Hoe meer detail, hoe beter!",
-    step3Title: "Kies Taal",
-    step3Desc: "Selecteer of je je op maat gemaakte CV en motivatiebrief in het Engels of Nederlands wilt.",
-    step4Title: "Ontvang Resultaten",
-    step4Desc: "Ontvang je geoptimaliseerde CV, professionele motivatiebrief, gedetailleerd overzicht van wijzigingen en interview tips!",
-    
-    // Loading
-    loadingTitle: "✨ AI Doet Zijn Magie...",
-    loadingSubtext: "Dit duurt meestal 10-15 seconden. Even geduld...",
-    
-    // Footer
-    privacyNote: "Je gegevens worden veilig verwerkt en niet opgeslagen"
-  }
+    nl: {
+        // Header
+        'site-title': 'AI CV Tailor',
+        'header-cta': '👑 Word Premium',
+        'save-badge': 'BESPAAR 50%',
+        
+        // Hero Section
+        'hero-badge': 'AI-Gestuurde CV Optimalisatie',
+        'hero-title': 'Pas Uw CV Aan Voor Elke Baan in 60 Seconden',
+        'hero-subtitle': 'Onze AI analyseert vacatures en optimaliseert uw CV om exact te matchen met wat werkgevers zoeken. Krijg sneller meer sollicitatiegesprekken.',
+        'hero-cta-primary': '🚀 Probeer Gratis',
+        'hero-cta-secondary': '💎 Bekijk Premium Plannen',
+        
+        // Testimonials
+        'testimonials-title': 'Wat Onze Gebruikers Zeggen',
+        'testimonial-1-role': 'Marketing Manager',
+        'testimonial-1-text': 'Kreeg binnen een week 3 uitnodigingen voor gesprekken na gebruik van het aangepaste CV. De AI begrijpt echt wat recruiters willen zien!',
+        'testimonial-2-role': 'Software Engineer',
+        'testimonial-2-text': 'Bespaarde uren aan handmatige CV-bewerking. De keyword optimalisatie is perfect en hielp me mijn droombaan bij een tech startup te krijgen!',
+        'testimonial-3-role': 'Projectmanager',
+        'testimonial-3-text': 'Het Pro abonnement is elke euro waard. Onbeperkte aangepaste CV\'s en prioriteitsondersteuning hielpen me efficiënt te solliciteren op 20+ posities.',
+        
+        // Stats
+        'stat-time': 'Verwerkingstijd',
+        'stat-match': 'Gemiddelde Match Score',
+        'stat-powered': 'Aangedreven',
+        
+        // Features
+        'features-title': 'Waarom Kiezen Voor AI CV Tailor?',
+        'feature-1-title': 'Bliksem Snel',
+        'feature-1-desc': 'Ontvang uw geoptimaliseerde CV in minder dan 60 seconden. Geen wachten, geen gedoe.',
+        'feature-2-title': 'ATS Geoptimaliseerd',
+        'feature-2-desc': 'Versla applicant tracking systemen met keyword-rijke, geformatteerde CV\'s.',
+        'feature-3-title': 'Slimme Matching',
+        'feature-3-desc': 'AI analyseert vacatureteksten en benadrukt uw relevante vaardigheden.',
+        'feature-4-title': '100% Privé',
+        'feature-4-desc': 'Uw gegevens zijn veilig en worden nooit gedeeld. Volledige AVG-naleving.',
+        
+        // Pricing
+        'pricing-title': 'Eenvoudige, Transparante Prijzen',
+        'pricing-subtitle': 'Kies het plan dat bij u past',
+        'most-popular': 'MEEST POPULAIR',
+        
+        // Free Plan
+        'plan-free-name': 'Gratis',
+        'plan-free-period': 'Voor Altijd',
+        'plan-free-feat-1': '1 CV per maand',
+        'plan-free-feat-2': 'Basis optimalisatie',
+        'plan-free-feat-3': 'PDF & DOCX output',
+        'plan-free-cta': 'Start Gratis',
+        
+        // Pro Plan
+        'plan-pro-name': 'Pro',
+        'plan-pro-period': 'per maand',
+        'plan-pro-save': 'Bespaar 50% voor beperkte tijd!',
+        'plan-pro-feat-1': 'Onbeperkt CV\'s',
+        'plan-pro-feat-2': 'Geavanceerde AI optimalisatie',
+        'plan-pro-feat-3': 'Prioriteit verwerking',
+        'plan-pro-feat-4': 'Motivatiebrief generatie',
+        'plan-pro-feat-5': 'E-mail ondersteuning',
+        'plan-pro-cta': '🚀 Word Nu Pro',
+        
+        // Enterprise Plan
+        'plan-enterprise-name': 'Enterprise',
+        'plan-enterprise-period': 'per maand',
+        'plan-enterprise-feat-1': 'Alles van Pro',
+        'plan-enterprise-feat-2': 'Team accounts (5 gebruikers)',
+        'plan-enterprise-feat-3': 'API toegang',
+        'plan-enterprise-feat-4': 'Aangepaste branding',
+        'plan-enterprise-feat-5': 'Toegewijde ondersteuning',
+        'plan-enterprise-cta': 'Contact Verkoop',
+        
+        // Form
+        'form-title': 'Start Nu - Upload Uw CV',
+        'form-cv-label': 'Uw Huidige CV *',
+        'form-cv-help': 'Upload uw CV in PDF, DOC of DOCX formaat',
+        'form-job-label': 'Vacaturetekst *',
+        'form-job-placeholder': 'Plak hier de volledige vacaturetekst...',
+        'form-job-help': 'Plak de volledige vacature voor de beste resultaten',
+        'form-email-label': 'E-mail (Optioneel)',
+        'form-email-placeholder': 'uw@email.com',
+        'form-email-help': 'Ontvang uw geoptimaliseerde CV via e-mail',
+        'form-submit': '✨ Optimaliseer Mijn CV',
+        
+        // Loading
+        'loading-title': 'Uw CV Wordt Geanalyseerd...',
+        'loading-text': 'Onze AI optimaliseert uw CV om te matchen met de functie-eisen. Dit duurt meestal 30-60 seconden.',
+        
+        // Footer
+        'footer-tagline': 'Uw AI-gestuurde carrière begeleider',
+        'footer-privacy': 'Privacy',
+        'footer-terms': 'Voorwaarden',
+        'footer-contact': 'Contact',
+        'footer-rights': 'Alle rechten voorbehouden.'
+    }
 };
 
-// Export for use in app.js
+// Language switcher functionality
+let currentLang = localStorage.getItem('preferred-language') || 'en';
+
+function setLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem('preferred-language', lang);
+    
+    // Update all elements with data-i18n attribute
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (translations[lang][key]) {
+            element.textContent = translations[lang][key];
+        }
+    });
+    
+    // Update placeholders
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        const key = element.getAttribute('data-i18n-placeholder');
+        if (translations[lang][key]) {
+            element.placeholder = translations[lang][key];
+        }
+    });
+    
+    // Update active language button
+    document.getElementById('lang-en').classList.toggle('bg-indigo-600', lang === 'en');
+    document.getElementById('lang-en').classList.toggle('text-white', lang === 'en');
+    document.getElementById('lang-en').classList.toggle('hover:bg-gray-100', lang !== 'en');
+    
+    document.getElementById('lang-nl').classList.toggle('bg-indigo-600', lang === 'nl');
+    document.getElementById('lang-nl').classList.toggle('text-white', lang === 'nl');
+    document.getElementById('lang-nl').classList.toggle('hover:bg-gray-100', lang !== 'nl');
+}
+
+// Initialize language on page load
+document.addEventListener('DOMContentLoaded', () => {
+    setLanguage(currentLang);
+    
+    // Add click handlers for language buttons
+    document.getElementById('lang-en').addEventListener('click', () => setLanguage('en'));
+    document.getElementById('lang-nl').addEventListener('click', () => setLanguage('nl'));
+});
+
+// Export for use in other scripts
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = translations;
+    module.exports = { translations, setLanguage, currentLang };
 }

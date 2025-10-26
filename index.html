@@ -3,713 +3,631 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI CV Tailor - Transform Your CV for Any Job</title>
-    <meta name="description" content="AI-powered CV tailoring tool that optimizes your resume for any job description. Get professional results in minutes.">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>AI CV Tailor - Perfect CV for Every Job</title>
+    <!-- Production Tailwind CSS - Compiled locally (15KB instead of 3.5MB!) -->
+    <link rel="stylesheet" href="/dist/output.css">
     <style>
-        * {
+        /* Fallback styling if CDN doesn't load */
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
         }
-
-        body {
-            font-family: 'Inter', sans-serif;
+        
+        /* Ensure icons are not huge */
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        /* Custom animations and effects */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(34, 197, 94, 0.8); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes badge-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        
+        .float {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .badge-pulse {
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+        
+        .gradient-text {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        
+        .card-hover {
+            transition: all 0.3s ease;
         }
-
-        /* Header */
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            color: white;
-            padding: 40px 20px;
+        
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
-
-        .header h1 {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            font-weight: 800;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-
-        .header .subtitle {
-            font-size: 1.3rem;
-            opacity: 0.95;
-            margin-bottom: 10px;
-        }
-
-        .header .tagline {
-            font-size: 1rem;
-            opacity: 0.85;
-        }
-
-        /* Language Switcher */
-        .language-switcher {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-
-        .language-switcher button {
-            padding: 10px 25px;
-            border: 2px solid rgba(255,255,255,0.3);
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            backdrop-filter: blur(10px);
-        }
-
-        .language-switcher button:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-2px);
-        }
-
-        .language-switcher button.active {
-            background: white;
-            color: #667eea;
-            border-color: white;
-        }
-
-        /* Features Banner */
-        .features-banner {
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 30px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .feature-item {
-            text-align: center;
-            color: white;
-        }
-
-        .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-
-        .feature-text {
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        /* Main Card */
-        .main-card {
-            background: white;
-            border-radius: 16px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            margin-bottom: 30px;
-        }
-
-        .card-header {
-            margin-bottom: 30px;
-        }
-
-        .card-header h2 {
-            color: #667eea;
-            font-size: 2rem;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .card-header p {
-            color: #666;
-            font-size: 1rem;
-            line-height: 1.6;
-        }
-
-        /* Form Styles */
-        .form-section {
-            margin-bottom: 30px;
-        }
-
-        .form-section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .form-section-header h3 {
-            color: #333;
-            font-size: 1.3rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .form-section-header .icon {
-            font-size: 1.5rem;
-        }
-
-        label {
-            display: block;
-            color: #333;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-        }
-
-        textarea {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            resize: vertical;
-            transition: all 0.3s;
-            line-height: 1.6;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
-        }
-
-        textarea::placeholder {
-            color: #aaa;
-        }
-
-        .textarea-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-            padding: 0 5px;
-        }
-
-        .char-counter {
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .char-counter span {
-            font-weight: 700;
-            color: #667eea;
-        }
-
-        .char-counter.warning span {
-            color: #ff6b6b;
-        }
-
-        .char-counter.success span {
-            color: #28a745;
-        }
-
-        .paste-button {
-            padding: 8px 16px;
-            background: #f0f4ff;
-            color: #667eea;
-            border: 2px solid #667eea;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .paste-button:hover {
-            background: #667eea;
-            color: white;
-        }
-
-        .paste-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
-        }
-
-        .form-note {
-            background: #f0f4ff;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            margin-top: 15px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            color: #555;
-        }
-
-        /* Buttons */
-        .button-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 16px 32px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            justify-content: center;
-        }
-
+        
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            flex: 1;
-            min-width: 200px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
         }
-
+        
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102,126,234,0.4);
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
         }
-
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
+        
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
         }
-
-        .btn-secondary {
-            background: #f8f9fa;
-            color: #667eea;
-            border: 2px solid #667eea;
+        
+        .btn-success:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
         }
-
-        .btn-secondary:hover {
-            background: #667eea;
-            color: white;
+        
+        .pricing-featured {
+            transform: scale(1.05);
+            border: 3px solid #22c55e;
+            box-shadow: 0 20px 50px rgba(34, 197, 94, 0.2);
         }
-
-        .btn-ghost {
-            background: transparent;
-            color: #666;
-            border: 2px solid #ddd;
-        }
-
-        .btn-ghost:hover {
-            background: #f8f9fa;
-        }
-
-        /* Loading Overlay */
-        .loading-overlay {
-            position: fixed;
+        
+        .sticky-header {
+            position: sticky;
             top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.8);
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Loading overlay */
+        #loadingOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 9999;
-            backdrop-filter: blur(5px);
+            z-index: 100;
         }
-
-        .loading-content {
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            text-align: center;
-            max-width: 400px;
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            color: #333;
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .loading-subtext {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        /* Help Section */
-        .help-section {
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            padding: 30px;
-            color: white;
-            margin-top: 30px;
-        }
-
-        .help-section h3 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            font-weight: 700;
-        }
-
-        .help-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .help-item {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .help-item h4 {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
+        
+        #loadingOverlay.flex {
             display: flex;
-            align-items: center;
-            gap: 8px;
         }
-
-        .help-item p {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            line-height: 1.6;
+        
+        .spinner {
+            width: 96px;
+            height: 96px;
+            position: relative;
         }
-
-        /* Footer */
-        .footer {
-            text-align: center;
-            color: white;
-            padding: 30px 20px;
-            margin-top: 40px;
+        
+        .spinner-ring {
+            position: absolute;
+            inset: 0;
+            border: 4px solid #e5e7eb;
+            border-radius: 50%;
         }
-
-        .footer a {
-            color: white;
-            text-decoration: underline;
+        
+        .spinner-ring-active {
+            position: absolute;
+            inset: 0;
+            border: 4px solid #4f46e5;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
-            }
-
-            .header .subtitle {
-                font-size: 1.1rem;
-            }
-
-            .main-card {
-                padding: 25px;
-            }
-
-            .button-group {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-            }
-
-            .features-banner {
-                grid-template-columns: 1fr;
-            }
-
-            .textarea-footer {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .main-card {
-            animation: fadeInUp 0.6s ease-out;
-        }
-
-        .help-section {
-            animation: fadeInUp 0.6s ease-out 0.2s both;
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>✨ AI CV Tailor</h1>
-            <p class="subtitle" data-i18n="subtitle">Transform Your CV for Any Job</p>
-            <p class="tagline" data-i18n="tagline">AI-powered optimization • Cover letters • Interview tips</p>
-        </div>
-
-        <!-- Language Switcher -->
-        <div class="language-switcher">
-            <button data-language="en" class="active">🇬🇧 English</button>
-            <button data-language="nl">🇳🇱 Nederlands</button>
-        </div>
-
-        <!-- Features Banner -->
-        <div class="features-banner">
-            <div class="feature-item">
-                <div class="feature-icon">🎯</div>
-                <div class="feature-text" data-i18n="feature1">Job-Specific Tailoring</div>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">✨</div>
-                <div class="feature-text" data-i18n="feature2">See What Changed & Why</div>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">✉️</div>
-                <div class="feature-text" data-i18n="feature3">Professional Cover Letter</div>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">💡</div>
-                <div class="feature-text" data-i18n="feature4">Interview Preparation</div>
-            </div>
-        </div>
-
-        <!-- Main Form Card -->
-        <div class="main-card">
-            <div class="card-header">
-                <h2 data-i18n="formTitle">Get Started in 3 Simple Steps</h2>
-                <p data-i18n="formDescription">Paste your current CV and the job description, and let our AI create a perfectly tailored application package for you.</p>
-            </div>
-
-            <form id="cvForm">
-                <!-- CV Section -->
-                <div class="form-section">
-                    <div class="form-section-header">
-                        <h3>
-                            <span class="icon">📄</span>
-                            <span data-i18n="cvTitle">Step 1: Your Current CV</span>
-                        </h3>
-                    </div>
-                    
-                    <label for="currentCV">
-                        <span data-i18n="cvLabel">Paste your CV here (minimum 50 characters)</span>
-                    </label>
-                    <textarea 
-                        id="currentCV" 
-                        name="currentCV"
-                        rows="10"
-                        data-counter="cvCounter"
-                        data-min-length="50"
-                        placeholder="Paste your complete CV here...&#10;&#10;Example:&#10;John Doe&#10;Software Developer&#10;&#10;Experience:&#10;• Senior Developer at TechCorp (2020-Present)&#10;• Built scalable applications using React and Node.js&#10;• Led team of 5 developers&#10;&#10;Skills:&#10;JavaScript, Python, React, Node.js..."
-                        required
-                    ></textarea>
-                    
-                    <div class="textarea-footer">
-                        <div class="char-counter">
-                            <span data-i18n="characters">Characters:</span> 
-                            <span id="cvCounter">0</span>
-                            <span data-i18n="minimum"> (minimum 50)</span>
-                        </div>
-                        <button type="button" class="paste-button" data-paste-target="currentCV">
-                            📋 <span data-i18n="pasteBtn">Paste from Clipboard</span>
+<body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 min-h-screen">
+    
+    <!-- Sticky Header with Prominent Plans Button -->
+    <header class="sticky-header">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <svg class="w-8 h-8 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                    </svg>
+                    <h1 class="text-2xl font-bold gradient-text" data-i18n="site-title">AI CV Tailor</h1>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- Language Switcher -->
+                    <div class="flex bg-white rounded-lg shadow-md overflow-hidden">
+                        <button id="lang-en" class="px-3 py-2 text-sm font-medium transition-colors bg-indigo-600 text-white">
+                            EN
+                        </button>
+                        <button id="lang-nl" class="px-3 py-2 text-sm font-medium transition-colors hover:bg-gray-100">
+                            NL
                         </button>
                     </div>
                     
-                    <div class="form-note">
-                        💡 <strong data-i18n="tip">Tip:</strong> 
-                        <span data-i18n="cvTip">Include all your experience, skills, education, and achievements. The more complete, the better the AI can tailor it!</span>
-                    </div>
+                    <!-- HUGE GET PREMIUM BUTTON -->
+                    <button onclick="scrollToPricing()" class="relative btn-success text-white px-8 py-3 rounded-full font-bold text-lg shadow-xl pulse-glow">
+                        <span data-i18n="header-cta">👑 Get Premium</span>
+                        <span class="absolute -top-2 -right-2 bg-yellow-400 text-purple-900 text-xs font-bold px-2 py-1 rounded-full badge-pulse">
+                            <span data-i18n="save-badge">SAVE 50%</span>
+                        </span>
+                    </button>
                 </div>
+            </div>
+        </div>
+    </header>
 
-                <!-- Job Description Section -->
-                <div class="form-section">
-                    <div class="form-section-header">
-                        <h3>
-                            <span class="icon">💼</span>
-                            <span data-i18n="jobTitle">Step 2: Job Description</span>
-                        </h3>
+    <!-- Hero Section -->
+    <section class="container mx-auto px-4 py-20">
+        <div class="text-center max-w-4xl mx-auto">
+            <div class="inline-block mb-6">
+                <span class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-full text-sm font-semibold shadow-lg float">
+                    ✨ <span data-i18n="hero-badge">AI-Powered CV Optimization</span>
+                </span>
+            </div>
+            
+            <h2 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+                <span data-i18n="hero-title" class="gradient-text">
+                    Tailor Your CV to Any Job in 60 Seconds
+                </span>
+            </h2>
+            
+            <p class="text-xl text-gray-700 mb-8" data-i18n="hero-subtitle">
+                Our AI analyzes job descriptions and optimizes your CV to match exactly what employers are looking for. Get more interviews, faster.
+            </p>
+            
+            <!-- CTA Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+                <button onclick="scrollToForm()" class="btn-primary text-white px-8 py-4 rounded-lg font-semibold text-lg shadow-lg">
+                    <span data-i18n="hero-cta-primary">🚀 Try Free Now</span>
+                </button>
+                <button onclick="scrollToPricing()" class="bg-white text-indigo-600 px-8 py-4 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transition-all border-2 border-indigo-600">
+                    <span data-i18n="hero-cta-secondary">💎 View Premium Plans</span>
+                </button>
+            </div>
+            
+            <!-- Testimonials Section (Social Proof) -->
+            <div class="mt-16 mb-8">
+                <h3 class="text-2xl font-bold mb-8 gradient-text" data-i18n="testimonials-title">
+                    What Our Users Say
+                </h3>
+                
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- Testimonial 1 -->
+                    <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                                S
+                            </div>
+                            <div class="ml-3 text-left">
+                                <div class="font-semibold text-gray-900">Sarah M.</div>
+                                <div class="text-sm text-gray-600" data-i18n="testimonial-1-role">Marketing Manager</div>
+                            </div>
+                        </div>
+                        <div class="flex mb-3">
+                            <span class="text-yellow-400">⭐⭐⭐⭐⭐</span>
+                        </div>
+                        <p class="text-gray-700 text-sm leading-relaxed" data-i18n="testimonial-1-text">
+                            "Got 3 interview invitations within a week of using the tailored CV. The AI really understands what recruiters want to see!"
+                        </p>
                     </div>
                     
-                    <label for="jobDescription">
-                        <span data-i18n="jobLabel">Paste the job description (minimum 30 characters)</span>
+                    <!-- Testimonial 2 -->
+                    <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                                M
+                            </div>
+                            <div class="ml-3 text-left">
+                                <div class="font-semibold text-gray-900">Michael K.</div>
+                                <div class="text-sm text-gray-600" data-i18n="testimonial-2-role">Software Engineer</div>
+                            </div>
+                        </div>
+                        <div class="flex mb-3">
+                            <span class="text-yellow-400">⭐⭐⭐⭐⭐</span>
+                        </div>
+                        <p class="text-gray-700 text-sm leading-relaxed" data-i18n="testimonial-2-text">
+                            "Saved me hours of manual CV editing. The keyword optimization is spot-on and helped me land my dream job at a tech startup!"
+                        </p>
+                    </div>
+                    
+                    <!-- Testimonial 3 -->
+                    <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-pink-400 to-red-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                                L
+                            </div>
+                            <div class="ml-3 text-left">
+                                <div class="font-semibold text-gray-900">Lisa T.</div>
+                                <div class="text-sm text-gray-600" data-i18n="testimonial-3-role">Project Manager</div>
+                            </div>
+                        </div>
+                        <div class="flex mb-3">
+                            <span class="text-yellow-400">⭐⭐⭐⭐⭐</span>
+                        </div>
+                        <p class="text-gray-700 text-sm leading-relaxed" data-i18n="testimonial-3-text">
+                            "The Pro plan is worth every penny. Unlimited tailored CVs and priority support helped me apply to 20+ positions efficiently."
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trust Stats -->
+            <div class="grid grid-cols-3 gap-8 max-w-2xl mx-auto mt-12">
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-indigo-600 mb-2">
+                        &lt;60s
+                    </div>
+                    <div class="text-sm text-gray-600" data-i18n="stat-time">Processing Time</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-indigo-600 mb-2">
+                        94%
+                    </div>
+                    <div class="text-sm text-gray-600" data-i18n="stat-match">Average Match Score</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-indigo-600 mb-2">
+                        AI
+                    </div>
+                    <div class="text-sm text-gray-600" data-i18n="stat-powered">Powered</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="container mx-auto px-4 py-16">
+        <h3 class="text-4xl font-bold text-center mb-12 gradient-text" data-i18n="features-title">
+            Why Choose AI CV Tailor?
+        </h3>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Feature 1 -->
+            <div class="bg-white p-6 rounded-2xl shadow-xl card-hover">
+                <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mb-4 shadow-lg">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+                <h4 class="text-xl font-bold mb-3 text-gray-900" data-i18n="feature-1-title">Lightning Fast</h4>
+                <p class="text-gray-600" data-i18n="feature-1-desc">Get your optimized CV in under 60 seconds. No waiting, no hassle.</p>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="bg-white p-6 rounded-2xl shadow-xl card-hover">
+                <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-teal-600 rounded-xl flex items-center justify-center mb-4 shadow-lg">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h4 class="text-xl font-bold mb-3 text-gray-900" data-i18n="feature-2-title">ATS Optimized</h4>
+                <p class="text-gray-600" data-i18n="feature-2-desc">Beat applicant tracking systems with keyword-rich, formatted CVs.</p>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="bg-white p-6 rounded-2xl shadow-xl card-hover">
+                <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center mb-4 shadow-lg">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                    </svg>
+                </div>
+                <h4 class="text-xl font-bold mb-3 text-gray-900" data-i18n="feature-3-title">Smart Matching</h4>
+                <p class="text-gray-600" data-i18n="feature-3-desc">AI analyzes job descriptions and highlights your relevant skills.</p>
+            </div>
+            
+            <!-- Feature 4 -->
+            <div class="bg-white p-6 rounded-2xl shadow-xl card-hover">
+                <div class="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center mb-4 shadow-lg">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                </div>
+                <h4 class="text-xl font-bold mb-3 text-gray-900" data-i18n="feature-4-title">100% Private</h4>
+                <p class="text-gray-600" data-i18n="feature-4-desc">Your data is secure and never shared. Full GDPR compliance.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="container mx-auto px-4 py-20">
+        <div class="text-center mb-12">
+            <h3 class="text-4xl font-bold mb-4 gradient-text" data-i18n="pricing-title">
+                Simple, Transparent Pricing
+            </h3>
+            <p class="text-xl text-gray-600" data-i18n="pricing-subtitle">
+                Choose the plan that works for you
+            </p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <!-- Free Plan -->
+            <div class="bg-white rounded-2xl shadow-xl p-8 card-hover">
+                <div class="text-center mb-6">
+                    <h4 class="text-2xl font-bold mb-2 text-gray-900" data-i18n="plan-free-name">Free</h4>
+                    <div class="text-4xl font-bold text-indigo-600 mb-2">€0</div>
+                    <div class="text-gray-600" data-i18n="plan-free-period">Forever</div>
+                </div>
+                <ul class="space-y-4 mb-8">
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="text-gray-700" data-i18n="plan-free-feat-1">1 CV per month</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="text-gray-700" data-i18n="plan-free-feat-2">Basic optimization</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="text-gray-700" data-i18n="plan-free-feat-3">PDF & DOCX output</span>
+                    </li>
+                </ul>
+                <button onclick="scrollToForm()" class="w-full bg-gray-100 text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors">
+                    <span data-i18n="plan-free-cta">Start Free</span>
+                </button>
+            </div>
+            
+            <!-- Pro Plan - FEATURED -->
+            <div class="bg-white rounded-2xl shadow-2xl p-8 card-hover pricing-featured relative">
+                <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <span class="bg-gradient-to-r from-green-500 to-teal-500 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
+                        ⭐ <span data-i18n="most-popular">MOST POPULAR</span>
+                    </span>
+                </div>
+                <div class="text-center mb-6 mt-4">
+                    <h4 class="text-2xl font-bold mb-2 text-gray-900" data-i18n="plan-pro-name">Pro</h4>
+                    <div class="flex items-center justify-center">
+                        <div class="text-4xl font-bold text-green-600 mb-2">€15</div>
+                        <div class="text-gray-400 line-through ml-2 text-xl">€30</div>
+                    </div>
+                    <div class="text-gray-600" data-i18n="plan-pro-period">per month</div>
+                    <div class="text-sm text-green-600 font-semibold mt-1" data-i18n="plan-pro-save">Save 50% for limited time!</div>
+                </div>
+                <ul class="space-y-4 mb-8">
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="text-gray-700 font-semibold" data-i18n="plan-pro-feat-1">Unlimited CVs</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="text-gray-700 font-semibold" data-i18n="plan-pro-feat-2">Advanced AI optimization</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="text-gray-700 font-semibold" data-i18n="plan-pro-feat-3">Priority processing</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="text-gray-700 font-semibold" data-i18n="plan-pro-feat-4">Cover letter generation</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="text-gray-700 font-semibold" data-i18n="plan-pro-feat-5">Email support</span>
+                    </li>
+                </ul>
+                <button class="w-full btn-success text-white py-4 rounded-lg font-bold text-lg shadow-xl pulse-glow">
+                    <span data-i18n="plan-pro-cta">🚀 Get Pro Now</span>
+                </button>
+            </div>
+            
+            <!-- Enterprise Plan -->
+            <div class="bg-white rounded-2xl shadow-xl p-8 card-hover">
+                <div class="text-center mb-6">
+                    <h4 class="text-2xl font-bold mb-2 text-gray-900" data-i18n="plan-enterprise-name">Enterprise</h4>
+                    <div class="text-4xl font-bold text-indigo-600 mb-2">€99</div>
+                    <div class="text-gray-600" data-i18n="plan-enterprise-period">per month</div>
+                </div>
+                <ul class="space-y-4 mb-8">
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="text-gray-700" data-i18n="plan-enterprise-feat-1">Everything in Pro</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="text-gray-700" data-i18n="plan-enterprise-feat-2">Team accounts (5 users)</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="text-gray-700" data-i18n="plan-enterprise-feat-3">API access</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="text-gray-700" data-i18n="plan-enterprise-feat-4">Custom branding</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="text-gray-700" data-i18n="plan-enterprise-feat-5">Dedicated support</span>
+                    </li>
+                </ul>
+                <button class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors shadow-lg">
+                    <span data-i18n="plan-enterprise-cta">Contact Sales</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- CV Upload Form -->
+    <section id="upload-form" class="container mx-auto px-4 py-20">
+        <div class="max-w-3xl mx-auto bg-white rounded-3xl shadow-2xl p-8 md:p-12">
+            <h3 class="text-3xl font-bold text-center mb-8 gradient-text" data-i18n="form-title">
+                Get Started - Upload Your CV
+            </h3>
+            
+            <form id="cvForm" class="space-y-6">
+                <!-- CV Upload -->
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2" data-i18n="form-cv-label">
+                        Your Current CV *
+                    </label>
+                    <div class="relative">
+                        <input 
+                            type="file" 
+                            id="cvFile" 
+                            name="cvFile"
+                            accept=".pdf,.doc,.docx"
+                            required 
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-700 file:font-semibold hover:file:bg-indigo-100"
+                        />
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2" data-i18n="form-cv-help">
+                        Upload your CV in PDF, DOC, or DOCX format
+                    </p>
+                </div>
+
+                <!-- Job Description -->
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2" data-i18n="form-job-label">
+                        Job Description *
                     </label>
                     <textarea 
                         id="jobDescription" 
                         name="jobDescription"
-                        rows="10"
-                        data-counter="jobCounter"
-                        data-min-length="30"
-                        placeholder="Paste the complete job description here...&#10;&#10;Example:&#10;We are looking for a Senior Full-Stack Developer with 5+ years of experience.&#10;&#10;Requirements:&#10;• 5+ years with React and Node.js&#10;• Experience with TypeScript&#10;• Strong problem-solving skills&#10;• Team leadership experience..."
-                        required
+                        required 
+                        rows="8"
+                        placeholder="Paste the complete job description here..."
+                        data-i18n-placeholder="form-job-placeholder"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none resize-none"
                     ></textarea>
-                    
-                    <div class="textarea-footer">
-                        <div class="char-counter">
-                            <span data-i18n="characters">Characters:</span> 
-                            <span id="jobCounter">0</span>
-                            <span data-i18n="minimum"> (minimum 30)</span>
-                        </div>
-                        <button type="button" class="paste-button" data-paste-target="jobDescription">
-                            📋 <span data-i18n="pasteBtn">Paste from Clipboard</span>
-                        </button>
-                    </div>
-                    
-                    <div class="form-note">
-                        💡 <strong data-i18n="tip">Tip:</strong> 
-                        <span data-i18n="jobTip">Include the full job posting with requirements, responsibilities, and desired qualifications for best results.</span>
-                    </div>
+                    <p class="text-sm text-gray-500 mt-2" data-i18n="form-job-help">
+                        Paste the full job posting for best results
+                    </p>
                 </div>
 
-                <!-- Language Selection -->
-                <div class="form-section">
-                    <div class="form-section-header">
-                        <h3>
-                            <span class="icon">🌍</span>
-                            <span data-i18n="languageTitle">Step 3: Choose Output Language</span>
-                        </h3>
-                    </div>
-                    
-                    <label for="cvLanguage">
-                        <span data-i18n="languageLabel">Select the language for your CV and cover letter</span>
+                <!-- Email (Optional) -->
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2" data-i18n="form-email-label">
+                        Email (Optional)
                     </label>
-                    <select id="cvLanguage" name="cvLanguage" required>
-                        <option value="en" data-i18n-option="english">English</option>
-                        <option value="nl" data-i18n-option="dutch">Nederlands (Dutch)</option>
-                    </select>
-                    
-                    <div class="form-note">
-                        ℹ️ <span data-i18n="languageNote">This only affects the output (CV, cover letter, tips). The UI language can be changed using the buttons above.</span>
-                    </div>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email"
+                        placeholder="your@email.com"
+                        data-i18n-placeholder="form-email-placeholder"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none"
+                    />
+                    <p class="text-sm text-gray-500 mt-2" data-i18n="form-email-help">
+                        Receive your optimized CV via email
+                    </p>
                 </div>
 
-                <!-- Submit Buttons -->
-                <div class="button-group">
-                    <button type="submit" class="btn btn-primary">
-                        <span>🚀</span>
-                        <span data-i18n="submitBtn">Generate My Tailored CV</span>
-                    </button>
-                    
-                    <button type="button" class="btn btn-secondary" data-load-sample>
-                        <span>📝</span>
-                        <span data-i18n="sampleBtn">Load Sample Data</span>
-                    </button>
-                    
-                    <button type="button" class="btn btn-ghost" data-clear-draft>
-                        <span>🗑️</span>
-                        <span data-i18n="clearBtn">Clear All</span>
-                    </button>
-                </div>
+                <!-- Submit Button -->
+                <button 
+                    type="submit" 
+                    class="w-full btn-primary text-white py-4 rounded-lg font-bold text-lg shadow-xl"
+                >
+                    <span data-i18n="form-submit">✨ Optimize My CV</span>
+                </button>
             </form>
         </div>
-
-        <!-- Help Section -->
-        <div class="help-section">
-            <h3 data-i18n="howItWorks">🎯 How It Works</h3>
-            <div class="help-grid">
-                <div class="help-item">
-                    <h4>
-                        <span>1️⃣</span>
-                        <span data-i18n="step1Title">Paste Your CV</span>
-                    </h4>
-                    <p data-i18n="step1Desc">Copy your current CV and paste it into the first field. Include all your experience, skills, and achievements.</p>
-                </div>
-                
-                <div class="help-item">
-                    <h4>
-                        <span>2️⃣</span>
-                        <span data-i18n="step2Title">Add Job Description</span>
-                    </h4>
-                    <p data-i18n="step2Desc">Paste the complete job description for the position you're applying to. The more detail, the better!</p>
-                </div>
-                
-                <div class="help-item">
-                    <h4>
-                        <span>3️⃣</span>
-                        <span data-i18n="step3Title">Choose Language</span>
-                    </h4>
-                    <p data-i18n="step3Desc">Select whether you want your tailored CV and cover letter in English or Dutch.</p>
-                </div>
-                
-                <div class="help-item">
-                    <h4>
-                        <span>4️⃣</span>
-                        <span data-i18n="step4Title">Get Results</span>
-                    </h4>
-                    <p data-i18n="step4Desc">Receive your optimized CV, professional cover letter, detailed changes overview, and interview tips!</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            <p>Made with ❤️ for job seekers • <span data-i18n="privacyNote">Your data is processed securely and not stored</span></p>
-        </div>
-    </div>
+    </section>
 
     <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-content">
-            <div class="spinner"></div>
-            <div class="loading-text" data-i18n="loadingTitle">✨ AI is Working Its Magic...</div>
-            <div class="loading-subtext" data-i18n="loadingSubtext">This usually takes 10-15 seconds. Please wait...</div>
+    <div id="loadingOverlay">
+        <div class="bg-white rounded-3xl p-12 shadow-2xl text-center max-w-md mx-4">
+            <div class="spinner mx-auto mb-6">
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring-active"></div>
+            </div>
+            <h4 class="text-2xl font-bold mb-3 gradient-text" data-i18n="loading-title">
+                Analyzing Your CV...
+            </h4>
+            <p class="text-gray-600" data-i18n="loading-text">
+                Our AI is optimizing your CV to match the job requirements. This usually takes 30-60 seconds.
+            </p>
         </div>
     </div>
 
-    <!-- Translations -->
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-4">
+                <svg class="w-8 h-8 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                </svg>
+                <h1 class="text-2xl font-bold">AI CV Tailor</h1>
+            </div>
+            <p class="text-gray-400 mb-6" data-i18n="footer-tagline">
+                Your AI-powered career companion
+            </p>
+            <div class="space-x-6">
+                <a href="#" class="text-gray-400 hover:text-white transition-colors" data-i18n="footer-privacy">Privacy</a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors" data-i18n="footer-terms">Terms</a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors" data-i18n="footer-contact">Contact</a>
+            </div>
+            <p class="text-gray-500 text-sm mt-6">
+                © 2025 AI CV Tailor. <span data-i18n="footer-rights">All rights reserved.</span>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
     <script src="translations.js"></script>
-    
-    <!-- Main App -->
     <script src="app.js"></script>
+    <script>
+        // Smooth scroll functions
+        function scrollToPricing() {
+            document.getElementById('pricing').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        function scrollToForm() {
+            document.getElementById('upload-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    </script>
 </body>
 </html>

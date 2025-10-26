@@ -1,715 +1,186 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI CV Tailor - Transform Your CV for Any Job</title>
-    <meta name="description" content="AI-powered CV tailoring tool that optimizes your resume for any job description. Get professional results in minutes.">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        /* Header */
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            color: white;
-            padding: 40px 20px;
-        }
-
-        .header h1 {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            font-weight: 800;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-
-        .header .subtitle {
-            font-size: 1.3rem;
-            opacity: 0.95;
-            margin-bottom: 10px;
-        }
-
-        .header .tagline {
-            font-size: 1rem;
-            opacity: 0.85;
-        }
-
-        /* Language Switcher */
-        .language-switcher {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-
-        .language-switcher button {
-            padding: 10px 25px;
-            border: 2px solid rgba(255,255,255,0.3);
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            backdrop-filter: blur(10px);
-        }
-
-        .language-switcher button:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-2px);
-        }
-
-        .language-switcher button.active {
-            background: white;
-            color: #667eea;
-            border-color: white;
-        }
-
-        /* Features Banner */
-        .features-banner {
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 30px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .feature-item {
-            text-align: center;
-            color: white;
-        }
-
-        .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-
-        .feature-text {
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        /* Main Card */
-        .main-card {
-            background: white;
-            border-radius: 16px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            margin-bottom: 30px;
-        }
-
-        .card-header {
-            margin-bottom: 30px;
-        }
-
-        .card-header h2 {
-            color: #667eea;
-            font-size: 2rem;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .card-header p {
-            color: #666;
-            font-size: 1rem;
-            line-height: 1.6;
-        }
-
-        /* Form Styles */
-        .form-section {
-            margin-bottom: 30px;
-        }
-
-        .form-section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .form-section-header h3 {
-            color: #333;
-            font-size: 1.3rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .form-section-header .icon {
-            font-size: 1.5rem;
-        }
-
-        label {
-            display: block;
-            color: #333;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-        }
-
-        textarea {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            resize: vertical;
-            transition: all 0.3s;
-            line-height: 1.6;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
-        }
-
-        textarea::placeholder {
-            color: #aaa;
-        }
-
-        .textarea-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-            padding: 0 5px;
-        }
-
-        .char-counter {
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .char-counter span {
-            font-weight: 700;
-            color: #667eea;
-        }
-
-        .char-counter.warning span {
-            color: #ff6b6b;
-        }
-
-        .char-counter.success span {
-            color: #28a745;
-        }
-
-        .paste-button {
-            padding: 8px 16px;
-            background: #f0f4ff;
-            color: #667eea;
-            border: 2px solid #667eea;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .paste-button:hover {
-            background: #667eea;
-            color: white;
-        }
-
-        .paste-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
-        }
-
-        .form-note {
-            background: #f0f4ff;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            margin-top: 15px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            color: #555;
-        }
-
-        /* Buttons */
-        .button-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 16px 32px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102,126,234,0.4);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-secondary {
-            background: #f8f9fa;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
-
-        .btn-secondary:hover {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-ghost {
-            background: transparent;
-            color: #666;
-            border: 2px solid #ddd;
-        }
-
-        .btn-ghost:hover {
-            background: #f8f9fa;
-        }
-
-        /* Loading Overlay */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.8);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            backdrop-filter: blur(5px);
-        }
-
-        .loading-content {
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            text-align: center;
-            max-width: 400px;
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            color: #333;
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .loading-subtext {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        /* Help Section */
-        .help-section {
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            padding: 30px;
-            color: white;
-            margin-top: 30px;
-        }
-
-        .help-section h3 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            font-weight: 700;
-        }
-
-        .help-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .help-item {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .help-item h4 {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .help-item p {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            line-height: 1.6;
-        }
-
-        /* Footer */
-        .footer {
-            text-align: center;
-            color: white;
-            padding: 30px 20px;
-            margin-top: 40px;
-        }
-
-        .footer a {
-            color: white;
-            text-decoration: underline;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
-            }
-
-            .header .subtitle {
-                font-size: 1.1rem;
-            }
-
-            .main-card {
-                padding: 25px;
-            }
-
-            .button-group {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-            }
-
-            .features-banner {
-                grid-template-columns: 1fr;
-            }
-
-            .textarea-footer {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .main-card {
-            animation: fadeInUp 0.6s ease-out;
-        }
-
-        .help-section {
-            animation: fadeInUp 0.6s ease-out 0.2s both;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>✨ AI CV Tailor</h1>
-            <p class="subtitle" data-i18n="subtitle">Transform Your CV for Any Job</p>
-            <p class="tagline" data-i18n="tagline">AI-powered optimization • Cover letters • Interview tips</p>
-        </div>
-
-        <!-- Language Switcher -->
-        <div class="language-switcher">
-            <button data-language="en" class="active">🇬🇧 English</button>
-            <button data-language="nl">🇳🇱 Nederlands</button>
-        </div>
-
-        <!-- Features Banner -->
-        <div class="features-banner">
-            <div class="feature-item">
-                <div class="feature-icon">🎯</div>
-                <div class="feature-text" data-i18n="feature1">Job-Specific Tailoring</div>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">✨</div>
-                <div class="feature-text" data-i18n="feature2">See What Changed & Why</div>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">✉️</div>
-                <div class="feature-text" data-i18n="feature3">Professional Cover Letter</div>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">💡</div>
-                <div class="feature-text" data-i18n="feature4">Interview Preparation</div>
-            </div>
-        </div>
-
-        <!-- Main Form Card -->
-        <div class="main-card">
-            <div class="card-header">
-                <h2 data-i18n="formTitle">Get Started in 3 Simple Steps</h2>
-                <p data-i18n="formDescription">Paste your current CV and the job description, and let our AI create a perfectly tailored application package for you.</p>
-            </div>
-
-            <form id="cvForm">
-                <!-- CV Section -->
-                <div class="form-section">
-                    <div class="form-section-header">
-                        <h3>
-                            <span class="icon">📄</span>
-                            <span data-i18n="cvTitle">Step 1: Your Current CV</span>
-                        </h3>
-                    </div>
-                    
-                    <label for="currentCV">
-                        <span data-i18n="cvLabel">Paste your CV here (minimum 50 characters)</span>
-                    </label>
-                    <textarea 
-                        id="currentCV" 
-                        name="currentCV"
-                        rows="10"
-                        data-counter="cvCounter"
-                        data-min-length="50"
-                        placeholder="Paste your complete CV here...&#10;&#10;Example:&#10;John Doe&#10;Software Developer&#10;&#10;Experience:&#10;• Senior Developer at TechCorp (2020-Present)&#10;• Built scalable applications using React and Node.js&#10;• Led team of 5 developers&#10;&#10;Skills:&#10;JavaScript, Python, React, Node.js..."
-                        required
-                    ></textarea>
-                    
-                    <div class="textarea-footer">
-                        <div class="char-counter">
-                            <span data-i18n="characters">Characters:</span> 
-                            <span id="cvCounter">0</span>
-                            <span data-i18n="minimum"> (minimum 50)</span>
-                        </div>
-                        <button type="button" class="paste-button" data-paste-target="currentCV">
-                            📋 <span data-i18n="pasteBtn">Paste from Clipboard</span>
-                        </button>
-                    </div>
-                    
-                    <div class="form-note">
-                        💡 <strong data-i18n="tip">Tip:</strong> 
-                        <span data-i18n="cvTip">Include all your experience, skills, education, and achievements. The more complete, the better the AI can tailor it!</span>
-                    </div>
-                </div>
-
-                <!-- Job Description Section -->
-                <div class="form-section">
-                    <div class="form-section-header">
-                        <h3>
-                            <span class="icon">💼</span>
-                            <span data-i18n="jobTitle">Step 2: Job Description</span>
-                        </h3>
-                    </div>
-                    
-                    <label for="jobDescription">
-                        <span data-i18n="jobLabel">Paste the job description (minimum 30 characters)</span>
-                    </label>
-                    <textarea 
-                        id="jobDescription" 
-                        name="jobDescription"
-                        rows="10"
-                        data-counter="jobCounter"
-                        data-min-length="30"
-                        placeholder="Paste the complete job description here...&#10;&#10;Example:&#10;We are looking for a Senior Full-Stack Developer with 5+ years of experience.&#10;&#10;Requirements:&#10;• 5+ years with React and Node.js&#10;• Experience with TypeScript&#10;• Strong problem-solving skills&#10;• Team leadership experience..."
-                        required
-                    ></textarea>
-                    
-                    <div class="textarea-footer">
-                        <div class="char-counter">
-                            <span data-i18n="characters">Characters:</span> 
-                            <span id="jobCounter">0</span>
-                            <span data-i18n="minimum"> (minimum 30)</span>
-                        </div>
-                        <button type="button" class="paste-button" data-paste-target="jobDescription">
-                            📋 <span data-i18n="pasteBtn">Paste from Clipboard</span>
-                        </button>
-                    </div>
-                    
-                    <div class="form-note">
-                        💡 <strong data-i18n="tip">Tip:</strong> 
-                        <span data-i18n="jobTip">Include the full job posting with requirements, responsibilities, and desired qualifications for best results.</span>
-                    </div>
-                </div>
-
-                <!-- Language Selection -->
-                <div class="form-section">
-                    <div class="form-section-header">
-                        <h3>
-                            <span class="icon">🌍</span>
-                            <span data-i18n="languageTitle">Step 3: Choose Output Language</span>
-                        </h3>
-                    </div>
-                    
-                    <label for="cvLanguage">
-                        <span data-i18n="languageLabel">Select the language for your CV and cover letter</span>
-                    </label>
-                    <select id="cvLanguage" name="cvLanguage" required>
-                        <option value="en" data-i18n-option="english">English</option>
-                        <option value="nl" data-i18n-option="dutch">Nederlands (Dutch)</option>
-                    </select>
-                    
-                    <div class="form-note">
-                        ℹ️ <span data-i18n="languageNote">This only affects the output (CV, cover letter, tips). The UI language can be changed using the buttons above.</span>
-                    </div>
-                </div>
-
-                <!-- Submit Buttons -->
-                <div class="button-group">
-                    <button type="submit" class="btn btn-primary">
-                        <span>🚀</span>
-                        <span data-i18n="submitBtn">Generate My Tailored CV</span>
-                    </button>
-                    
-                    <button type="button" class="btn btn-secondary" data-load-sample>
-                        <span>📝</span>
-                        <span data-i18n="sampleBtn">Load Sample Data</span>
-                    </button>
-                    
-                    <button type="button" class="btn btn-ghost" data-clear-draft>
-                        <span>🗑️</span>
-                        <span data-i18n="clearBtn">Clear All</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Help Section -->
-        <div class="help-section">
-            <h3 data-i18n="howItWorks">🎯 How It Works</h3>
-            <div class="help-grid">
-                <div class="help-item">
-                    <h4>
-                        <span>1️⃣</span>
-                        <span data-i18n="step1Title">Paste Your CV</span>
-                    </h4>
-                    <p data-i18n="step1Desc">Copy your current CV and paste it into the first field. Include all your experience, skills, and achievements.</p>
-                </div>
-                
-                <div class="help-item">
-                    <h4>
-                        <span>2️⃣</span>
-                        <span data-i18n="step2Title">Add Job Description</span>
-                    </h4>
-                    <p data-i18n="step2Desc">Paste the complete job description for the position you're applying to. The more detail, the better!</p>
-                </div>
-                
-                <div class="help-item">
-                    <h4>
-                        <span>3️⃣</span>
-                        <span data-i18n="step3Title">Choose Language</span>
-                    </h4>
-                    <p data-i18n="step3Desc">Select whether you want your tailored CV and cover letter in English or Dutch.</p>
-                </div>
-                
-                <div class="help-item">
-                    <h4>
-                        <span>4️⃣</span>
-                        <span data-i18n="step4Title">Get Results</span>
-                    </h4>
-                    <p data-i18n="step4Desc">Receive your optimized CV, professional cover letter, detailed changes overview, and interview tips!</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            <p>Made with ❤️ for job seekers • <span data-i18n="privacyNote">Your data is processed securely and not stored</span></p>
-        </div>
-    </div>
-
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-content">
-            <div class="spinner"></div>
-            <div class="loading-text" data-i18n="loadingTitle">✨ AI is Working Its Magic...</div>
-            <div class="loading-subtext" data-i18n="loadingSubtext">This usually takes 10-15 seconds. Please wait...</div>
-        </div>
-    </div>
-
-    <!-- Translations -->
-    <script src="translations.js"></script>
+// AI CV Tailor - Main Application Logic
+
+// Form submission handler with file upload support
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('cvForm');
+    const loadingOverlay = document.getElementById('loadingOverlay');
     
-    <!-- Main App -->
-    <script src="app.js"></script>
-</body>
-</html>
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Get form data
+            const cvFile = document.getElementById('cvFile').files[0];
+            const jobDescription = document.getElementById('jobDescription').value.trim();
+            const email = document.getElementById('email').value.trim();
+            
+            // Validate inputs
+            if (!cvFile) {
+                alert('Please upload your CV');
+                return;
+            }
+            
+            if (!jobDescription) {
+                alert('Please paste the job description');
+                return;
+            }
+            
+            // Validate file type
+            const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            if (!allowedTypes.includes(cvFile.type)) {
+                alert('Please upload a PDF, DOC, or DOCX file');
+                return;
+            }
+            
+            // Validate file size (max 10MB)
+            const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+            if (cvFile.size > maxSize) {
+                alert('File size must be less than 10MB');
+                return;
+            }
+            
+            // Show loading overlay
+            loadingOverlay.classList.remove('hidden');
+            loadingOverlay.classList.add('flex');
+            
+            try {
+                // Create FormData for file upload
+                const formData = new FormData();
+                formData.append('cvFile', cvFile);
+                formData.append('jobDescription', jobDescription);
+                if (email) {
+                    formData.append('email', email);
+                }
+                
+                // Send to backend
+                const response = await fetch('/.netlify/functions/analyze-cv', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                // Store result in sessionStorage
+                sessionStorage.setItem('cvAnalysisResult', JSON.stringify(result));
+                
+                // Redirect to results page
+                window.location.href = 'improvements.html';
+                
+            } catch (error) {
+                console.error('Error:', error);
+                
+                // Hide loading overlay
+                loadingOverlay.classList.add('hidden');
+                loadingOverlay.classList.remove('flex');
+                
+                // Show user-friendly error message
+                alert('Sorry, there was an error processing your CV. Please try again or contact support if the problem persists.');
+            }
+        });
+    }
+    
+    // File input change handler - show file name
+    const cvFileInput = document.getElementById('cvFile');
+    if (cvFileInput) {
+        cvFileInput.addEventListener('change', (e) => {
+            const fileName = e.target.files[0]?.name;
+            if (fileName) {
+                console.log('Selected file:', fileName);
+                // You can add visual feedback here if needed
+            }
+        });
+    }
+});
+
+// Smooth scroll helper functions
+function scrollToPricing() {
+    const pricingSection = document.getElementById('pricing');
+    if (pricingSection) {
+        pricingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+function scrollToForm() {
+    const formSection = document.getElementById('upload-form');
+    if (formSection) {
+        formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+// Expose functions globally for onclick handlers
+window.scrollToPricing = scrollToPricing;
+window.scrollToForm = scrollToForm;
+
+// Analytics and tracking (placeholder - replace with your analytics)
+function trackEvent(eventName, eventData = {}) {
+    console.log('Event:', eventName, eventData);
+    
+    // Example: Google Analytics
+    if (typeof gtag !== 'undefined') {
+        gtag('event', eventName, eventData);
+    }
+    
+    // Example: Facebook Pixel
+    if (typeof fbq !== 'undefined') {
+        fbq('track', eventName, eventData);
+    }
+}
+
+// Track page views
+document.addEventListener('DOMContentLoaded', () => {
+    trackEvent('PageView', {
+        page: window.location.pathname
+    });
+});
+
+// Track pricing plan clicks
+document.addEventListener('DOMContentLoaded', () => {
+    const pricingButtons = document.querySelectorAll('[data-i18n="plan-free-cta"], [data-i18n="plan-pro-cta"], [data-i18n="plan-enterprise-cta"]');
+    
+    pricingButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const planName = button.closest('.card-hover')?.querySelector('[data-i18n*="plan-"]').getAttribute('data-i18n');
+            trackEvent('PricingPlanClick', {
+                plan: planName
+            });
+        });
+    });
+});
+
+// Track form starts
+document.addEventListener('DOMContentLoaded', () => {
+    let formStartTracked = false;
+    const formInputs = document.querySelectorAll('#cvForm input, #cvForm textarea');
+    
+    formInputs.forEach(input => {
+        input.addEventListener('focus', () => {
+            if (!formStartTracked) {
+                trackEvent('FormStart');
+                formStartTracked = true;
+            }
+        });
+    });
+});
+
+// Prevent double submission
+let isSubmitting = false;
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('cvForm');
+    if (form) {
+        form.addEventListener('submit', () => {
+            if (isSubmitting) {
+                return false;
+            }
+            isSubmitting = true;
+            
+            // Reset after 60 seconds in case of error
+            setTimeout(() => {
+                isSubmitting = false;
+            }, 60000);
+        });
+    }
+});

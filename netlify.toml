@@ -1,14 +1,42 @@
+# Netlify Build Configuration
 [build]
-  command = "npm install" # Zorg dat dit commando klopt voor jouw setup
+  # Command to run before deploy
+  command = "npm install && npm run build:css"
+  
+  # Directory to publish (root of your site)
+  publish = "."
+  
+  # Functions directory (if you have Netlify functions)
   functions = "netlify/functions"
-  publish = "." # Zorg dat dit de map is met je index.html
 
-# Correcte manier om timeout voor ALLE functies in te stellen
-[functions."*"]
-  timeout = 25 # Timeout in seconden (max ~26s voor betaalde plannen)
-
-# Eventuele redirects (deze stonden al in je eerdere guide)
+# Redirect rules (optional)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = false
+  
+# Headers for better caching
+[[headers]]
+  for = "/dist/output.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Environment (optional - for debugging)
+[build.environment]
+  NODE_VERSION = "18"

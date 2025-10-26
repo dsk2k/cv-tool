@@ -1,0 +1,3 @@
+# Set default behavior: check out platform-native (CRLF on Windows),
+# but always commit LF to the repository.
+* text=auto

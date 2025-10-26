@@ -1,12 +1,21 @@
 {
-  "name": "ai-cv-tailor-backend",
+  "name": "ai-cv-tailor",
   "version": "1.0.0",
-  "description": "Backend for AI CV Tailor with Stripe subscription",
-  "main": "netlify/functions/generate.js",
-  "dependencies": {
-    "@google/generative-ai": "^0.21.0",
-    "stripe": "^14.0.0",
-    "pdf-parse": "^1.1.1",
-    "parse-multipart-data": "^1.5.0"
+  "description": "AI-powered CV tailoring tool with optimized Tailwind CSS",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/input.css -o ./dist/output.css --minify",
+    "watch:css": "tailwindcss -i ./src/input.css -o ./dist/output.css --watch",
+    "dev": "npm run watch:css"
+  },
+  "keywords": [
+    "cv",
+    "resume",
+    "ai",
+    "tailwind"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "tailwindcss": "^3.4.1"
   }
 }
