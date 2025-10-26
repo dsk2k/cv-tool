@@ -5,19 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Improved CV - AI CV Tailor</title>
     
-    <!-- Production Tailwind CSS -->
     <link rel="stylesheet" href="/dist/output.css">
     
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- PDF Generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
-    <!-- Markdown Parser -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.0/marked.min.js"></script>
     
     <style>
@@ -353,10 +348,8 @@
 </head>
 <body class="animated-gradient">
     
-    <!-- Header -->
     <div class="container mx-auto px-4 py-8 max-w-7xl">
         <div class="flex justify-between items-center flex-wrap gap-4">
-            <!-- Logo & Title -->
             <div>
                 <h1 class="text-4xl font-bold text-white mb-2">
                     <i class="fas fa-sparkles mr-2"></i>
@@ -367,7 +360,6 @@
                 </p>
             </div>
             
-            <!-- Language Toggle -->
             <div class="language-toggle">
                 <button class="lang-btn active" data-lang="en" onclick="switchLanguage('en')">
                     <i class="fas fa-globe mr-2"></i>English
@@ -378,7 +370,6 @@
             </div>
         </div>
         
-        <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
             <div class="stat-card">
                 <div class="stat-number" id="matchScore">--</div>
@@ -401,7 +392,6 @@
             </div>
         </div>
         
-        <!-- Action Buttons -->
         <div class="flex gap-4 mt-8 flex-wrap justify-center">
             <button class="action-btn btn-primary" onclick="downloadPDF()">
                 <i class="fas fa-download"></i>
@@ -421,7 +411,6 @@
             </a>
         </div>
         
-        <!-- Tabs -->
         <div class="flex gap-4 mt-8 flex-wrap justify-center">
             <button class="tab-button active" data-tab="changes" onclick="switchTab('changes')">
                 <i class="fas fa-list-check mr-2"></i>
@@ -441,10 +430,8 @@
             </button>
         </div>
         
-        <!-- Content Container -->
         <div class="content-wrapper">
             
-            <!-- Changes Tab -->
             <div id="tab-changes" class="tab-content">
                 <div class="text-center mb-8">
                     <h2 class="text-3xl font-bold text-gray-900 mb-3">
@@ -457,7 +444,6 @@
                 </div>
                 
                 <div id="changesContainer">
-                    <!-- Changes will be dynamically inserted here -->
                     <div class="empty-state">
                         <div class="empty-icon">
                             <i class="fas fa-circle-notch fa-spin"></i>
@@ -467,7 +453,6 @@
                 </div>
             </div>
             
-            <!-- Improved CV Tab -->
             <div id="tab-cv" class="tab-content" style="display: none;">
                 <div class="text-center mb-8">
                     <h2 class="text-3xl font-bold text-gray-900 mb-3">
@@ -480,16 +465,14 @@
                 </div>
                 
                 <div id="cvContent" class="markdown-content">
-                    <!-- CV content will be inserted here -->
-                </div>
+                    </div>
             </div>
             
-            <!-- Cover Letter Tab -->
             <div id="tab-cover" class="tab-content" style="display: none;">
                 <div class="text-center mb-8">
                     <h2 class="text-3xl font-bold text-gray-900 mb-3">
                         <i class="fas fa-envelope mr-2" style="color: #667eea;"></i>
-                        <span data-i18n="improvements.cover.title">Professional Cover Letter</span>
+                        <span data-i1tran="improvements.cover.title">Professional Cover Letter</span>
                     </h2>
                     <p class="text-gray-600 text-lg" data-i18n="improvements.cover.subtitle">
                         Tailored to the job description
@@ -497,11 +480,9 @@
                 </div>
                 
                 <div id="coverContent" class="markdown-content">
-                    <!-- Cover letter content will be inserted here -->
-                </div>
+                    </div>
             </div>
             
-            <!-- Analysis Tab -->
             <div id="tab-analysis" class="tab-content" style="display: none;">
                 <div class="text-center mb-8">
                     <h2 class="text-3xl font-bold text-gray-900 mb-3">
@@ -514,18 +495,16 @@
                 </div>
                 
                 <div id="analysisContent" class="markdown-content">
-                    <!-- Analysis content will be inserted here -->
-                </div>
+                    </div>
             </div>
             
         </div>
     </div>
     
-    <!-- Translations Script -->
     <script src="translations.js"></script>
     
-    <!-- Main Script -->
     <script>
+    
         // Current language
         let currentLanguage = 'en';
         
@@ -560,89 +539,56 @@
             displayAnalysis();
         }
         
-        // Update stats cards
+        // ==================================================================
+        // === HIER STARTEN DE REPARATIES ===
+        // ==================================================================
+
+        // REPARATIE 1: De 'updateStats' functie is aangepast om stats uit de tekst te parsen
         function updateStats() {
-            // Match score
-            const matchScore = resultData.matchScore || resultData.match_score || 0;
+            const overviewText = resultData.changesOverview || '';
+
+            // Match score: Zoek naar "Job match score: 85%"
+            const matchRegex = /Job match score:\s*"?(\d+)%?/i;
+            const match = overviewText.match(matchRegex);
+            const matchScore = match ? match[1] : 0; // Gebruik 0 als fallback
             document.getElementById('matchScore').textContent = matchScore + '%';
             
-            // Changes count
-            const changes = resultData.changes || [];
-            document.getElementById('changesCount').textContent = changes.length;
+            // Changes count: Zoek naar "Total changes made: 10"
+            const changesRegex = /Total changes made:\s*(\d+)/i;
+            const changesMatch = overviewText.match(changesRegex);
+            const changesCount = changesMatch ? changesMatch[1] : 0; // Gebruik 0 als fallback
+            document.getElementById('changesCount').textContent = changesCount;
             
-            // Average impact
-            if (changes.length > 0) {
-                const avgImpact = changes.reduce((sum, c) => sum + (c.impact || 0), 0) / changes.length;
-                document.getElementById('avgImpact').textContent = '⭐' + avgImpact.toFixed(1);
-            }
+            // Average impact: We hebben geen array meer, dus toon een vinkje
+            document.getElementById('avgImpact').textContent = (changesCount > 0) ? '✓' : '--';
         }
         
-        // Display changes with beautiful highlighting
+        // REPARATIE 2: De 'displayChanges' functie is aangepast om 'changesOverview' (string) te lezen
         function displayChanges() {
             const container = document.getElementById('changesContainer');
-            const changes = resultData.changes || [];
+            // FIX: Lees 'changesOverview' (een string) i.p.v. 'changes' (een array)
+            const changesMarkdown = resultData.changesOverview || '';
             
-            if (changes.length === 0) {
+            if (changesMarkdown.length < 50) { // Check op lengte van de string
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-icon"><i class="fas fa-info-circle"></i></div>
                         <p class="text-gray-500" data-i18n="improvements.changes.none">No specific changes tracked. Check other tabs for your improved CV.</p>
                     </div>
                 `;
+                // Voer vertaling opnieuw uit voor de zojuist ingevoegde HTML
+                if (typeof setLanguage === 'function') setLanguage(currentLanguage);
                 return;
             }
             
-            container.innerHTML = changes.map((change, index) => `
-                <div class="change-card">
-                    <div class="change-number">${index + 1}</div>
-                    
-                    <!-- Original Text -->
-                    <div class="text-box original-text">
-                        <div class="label label-original">
-                            <i class="fas fa-circle-xmark"></i>
-                            <span data-i18n="improvements.changes.original">ORIGINAL</span>
-                        </div>
-                        <div style="color: #92400e; font-weight: 500; line-height: 1.6;">
-                            ${escapeHtml(change.original || 'N/A')}
-                        </div>
-                    </div>
-                    
-                    <!-- Improved Text -->
-                    <div class="text-box improved-text">
-                        <div class="label label-improved">
-                            <i class="fas fa-circle-check"></i>
-                            <span data-i18n="improvements.changes.improved">IMPROVED</span>
-                        </div>
-                        <div style="color: #065f46; font-weight: 600; line-height: 1.6;">
-                            ${escapeHtml(change.improved || change.suggestion || 'N/A')}
-                        </div>
-                    </div>
-                    
-                    <!-- Reason -->
-                    <div class="text-box reason-box">
-                        <div class="label label-reason">
-                            <i class="fas fa-lightbulb"></i>
-                            <span data-i18n="improvements.changes.why">WHY IT MATTERS</span>
-                        </div>
-                        <div style="color: #1e40af; font-weight: 500; line-height: 1.6;">
-                            ${escapeHtml(change.reason || change.explanation || 'Improves clarity and professional appeal')}
-                        </div>
-                    </div>
-                    
-                    <!-- Impact Rating -->
-                    <div class="impact-stars">
-                        <span style="font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 8px;">
-                            <span data-i18n="improvements.changes.impact">IMPACT:</span>
-                        </span>
-                        ${generateStars(change.impact || 3)}
-                    </div>
-                </div>
-            `).join('');
+            // FIX: Render de markdown-string direct, i.p.v. te proberen te 'mappen'
+            container.innerHTML = marked.parse(changesMarkdown);
         }
         
         // Display improved CV
         function displayCV() {
             const container = document.getElementById('cvContent');
+            // (Deze was al correct, leest de juiste key 'improvedCV')
             const improvedCV = resultData.improvedCV || resultData.improved_cv || resultData.cv || '';
             
             if (!improvedCV) {
@@ -656,6 +602,7 @@
         // Display cover letter
         function displayCoverLetter() {
             const container = document.getElementById('coverContent');
+            // (Deze was al correct, leest de juiste key 'coverLetter')
             const coverLetter = resultData.coverLetter || resultData.cover_letter || '';
             
             if (!coverLetter) {
@@ -666,10 +613,11 @@
             container.innerHTML = marked.parse(coverLetter);
         }
         
-        // Display analysis
+        // REPARATIE 3: De 'displayAnalysis' functie is aangepast om 'recruiterTips' te lezen
         function displayAnalysis() {
             const container = document.getElementById('analysisContent');
-            const analysis = resultData.analysis || resultData.insights || '';
+            // FIX: Lees 'recruiterTips' i.p.v. 'analysis' of 'insights'
+            const analysis = resultData.recruiterTips || '';
             
             if (!analysis) {
                 container.innerHTML = '<p class="text-gray-500">No analysis available.</p>';
@@ -678,6 +626,10 @@
             
             container.innerHTML = marked.parse(analysis);
         }
+        
+        // ==================================================================
+        // === HIER EINDIGEN DE REPARATIES ===
+        // ==================================================================
         
         // Generate star rating
         function generateStars(rating) {
@@ -693,8 +645,9 @@
             return html;
         }
         
-        // Escape HTML
+        // Escape HTML (Deze functie wordt niet meer gebruikt door de fixes, maar we laten hem staan)
         function escapeHtml(text) {
+            if (!text) return '';
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
@@ -712,6 +665,10 @@
                     </a>
                 </div>
             `;
+            // Update stats to show defaults on empty state
+            document.getElementById('matchScore').textContent = '0%';
+            document.getElementById('changesCount').textContent = '0';
+            document.getElementById('avgImpact').textContent = '--';
         }
         
         // Tab switching
@@ -755,6 +712,13 @@
         // Download PDF
         function downloadPDF() {
             const element = document.getElementById('tab-cv');
+            
+            // Toon de tab tijdelijk als deze verborgen is, voor correcte PDF-rendering
+            const wasHidden = element.style.display === 'none';
+            if (wasHidden) {
+                element.style.display = 'block';
+            }
+
             const opt = {
                 margin: 1,
                 filename: 'improved-cv.pdf',
@@ -763,7 +727,12 @@
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
             
-            html2pdf().set(opt).from(element).save();
+            html2pdf().set(opt).from(element).save().then(() => {
+                // Verberg de tab weer als deze verborgen was
+                if (wasHidden) {
+                    element.style.display = 'none';
+                }
+            });
         }
         
         // Copy to clipboard
@@ -771,6 +740,8 @@
             const cvContent = document.getElementById('cvContent').innerText;
             navigator.clipboard.writeText(cvContent).then(() => {
                 alert('CV copied to clipboard!');
+            }, () => {
+                alert('Failed to copy CV. Please try again.');
             });
         }
     </script>
