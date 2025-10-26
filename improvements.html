@@ -4,9 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Improved CV - AI CV Tailor</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Production Tailwind CSS -->
+    <link rel="stylesheet" href="/dist/output.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- PDF Generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <!-- Markdown Parser -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.0/marked.min.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -18,544 +31,748 @@
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
         }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
+        
+        /* Premium gradient animations */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
-
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
+        
+        .animated-gradient {
+            background: linear-gradient(270deg, #667eea, #764ba2, #f093fb, #667eea);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+        
+        /* Change highlighting styles */
+        .change-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .change-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+        
+        .change-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .nav-buttons {
+            border-radius: 50%;
             display: flex;
-            gap: 15px;
+            align-items: center;
             justify-content: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 16px;
         }
-
-        .btn {
-            padding: 12px 24px;
+        
+        .text-box {
+            padding: 16px;
+            border-radius: 12px;
+            margin: 12px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .text-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+        
+        .original-text {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .improved-text {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-left: 4px solid #10b981;
+        }
+        
+        .reason-box {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .label-original {
+            color: #d97706;
+        }
+        
+        .label-improved {
+            color: #059669;
+        }
+        
+        .label-reason {
+            color: #2563eb;
+        }
+        
+        /* Impact stars */
+        .impact-stars {
+            display: flex;
+            gap: 4px;
+            margin-top: 12px;
+        }
+        
+        .star {
+            color: #fbbf24;
+            font-size: 18px;
+        }
+        
+        .star.empty {
+            color: #d1d5db;
+        }
+        
+        /* Tab styling */
+        .tab-button {
+            padding: 16px 32px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        
+        .tab-button:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-2px);
+        }
+        
+        .tab-button.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        /* Action buttons */
+        .action-btn {
+            padding: 14px 28px;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            font-size: 1rem;
-            text-decoration: none;
-            display: inline-block;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
         }
-
+        
         .btn-primary {
             background: white;
             color: #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-
+        
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.15);
         }
-
+        
         .btn-secondary {
             background: rgba(255,255,255,0.2);
             color: white;
             border: 2px solid white;
+            backdrop-filter: blur(10px);
         }
-
+        
         .btn-secondary:hover {
             background: rgba(255,255,255,0.3);
         }
-
-        .tabs {
+        
+        /* Language toggle */
+        .language-toggle {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .tab {
-            padding: 15px 30px;
             background: rgba(255,255,255,0.2);
-            color: white;
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 4px;
             border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .lang-btn {
+            padding: 10px 24px;
+            border: none;
+            background: transparent;
+            color: white;
+            font-weight: 600;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            position: relative;
+            transition: all 0.3s ease;
         }
-
-        .tab:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        .tab.active {
+        
+        .lang-btn.active {
             background: white;
             color: #667eea;
-            border-color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-
-        .tab.new-badge::after {
-            content: 'NEW';
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #ff6b6b;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 700;
+        
+        /* Stats cards */
+        .stat-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
-
-        .content {
+        
+        .stat-number {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-label {
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 8px;
+        }
+        
+        /* Content container */
+        .content-wrapper {
             background: white;
-            border-radius: 12px;
+            border-radius: 24px;
             padding: 40px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            min-height: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            margin-top: 30px;
         }
-
-        .section {
-            display: none;
+        
+        .markdown-content {
+            line-height: 1.8;
+            color: #374151;
         }
-
-        .section.active {
-            display: block;
-            animation: fadeIn 0.3s;
+        
+        .markdown-content h1, 
+        .markdown-content h2, 
+        .markdown-content h3 {
+            color: #1f2937;
+            font-weight: 700;
+            margin-top: 24px;
+            margin-bottom: 16px;
         }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
+        
+        .markdown-content ul {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+        
+        .markdown-content li {
+            margin-bottom: 8px;
+        }
+        
+        /* Loading state */
+        .skeleton {
+            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content-wrapper {
+                padding: 24px;
             }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            
+            .stat-number {
+                font-size: 36px;
+            }
+            
+            .tab-button {
+                padding: 12px 20px;
+                font-size: 14px;
             }
         }
-
-        .loading {
+        
+        /* Premium badge */
+        .premium-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Empty state */
+        .empty-state {
             text-align: center;
             padding: 60px 20px;
         }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .error {
-            background: #fee;
-            border: 2px solid #fcc;
-            border-radius: 8px;
-            padding: 20px;
-            color: #c33;
-            margin: 20px 0;
-        }
-
-        .cv-content, .cover-letter-content, .tips-content, .changes-content {
-            line-height: 1.8;
-        }
-
-        .cv-content h1, .cover-letter-content h1, .tips-content h1, .changes-content h1 {
-            color: #667eea;
+        
+        .empty-icon {
+            font-size: 64px;
+            color: #d1d5db;
             margin-bottom: 20px;
-            font-size: 2rem;
-        }
-
-        .cv-content h2, .cover-letter-content h2, .tips-content h2, .changes-content h2 {
-            color: #764ba2;
-            margin-top: 30px;
-            margin-bottom: 15px;
-            font-size: 1.5rem;
-        }
-
-        .cv-content h3, .cover-letter-content h3, .tips-content h3, .changes-content h3 {
-            color: #667eea;
-            margin-top: 20px;
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-        }
-
-        .cv-content p, .cover-letter-content p, .tips-content p, .changes-content p {
-            margin-bottom: 15px;
-        }
-
-        .cv-content ul, .tips-content ul, .changes-content ul {
-            margin-left: 25px;
-            margin-bottom: 15px;
-        }
-
-        .cv-content li, .tips-content li, .changes-content li {
-            margin-bottom: 8px;
-        }
-
-        .cv-content strong, .tips-content strong, .changes-content strong {
-            color: #333;
-        }
-
-        /* Special styling for Changes Overview */
-        .changes-content {
-            background: #f8f9fa;
-            padding: 30px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-
-        .change-item {
-            background: white;
-            padding: 25px;
-            border-radius: 8px;
-            margin-bottom: 25px;
-            border-left: 4px solid #667eea;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .change-item h3 {
-            color: #667eea;
-            margin-top: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .change-item .original {
-            background: #fff3cd;
-            padding: 15px;
-            border-radius: 6px;
-            margin: 15px 0;
-            border-left: 3px solid #ffc107;
-        }
-
-        .change-item .improved {
-            background: #d4edda;
-            padding: 15px;
-            border-radius: 6px;
-            margin: 15px 0;
-            border-left: 3px solid #28a745;
-        }
-
-        .change-item .label {
-            font-weight: 600;
-            color: #666;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-        }
-
-        .change-item .explanation {
-            background: #e7f3ff;
-            padding: 15px;
-            border-radius: 6px;
-            margin: 15px 0;
-            border-left: 3px solid #007bff;
-        }
-
-        .impact-stars {
-            color: #ffc107;
-            font-size: 1.2rem;
-            margin-top: 10px;
-        }
-
-        .summary-box {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 12px;
-            margin-top: 30px;
-        }
-
-        .summary-box h3 {
-            color: white !important;
-            margin-top: 0;
-        }
-
-        .summary-box ul {
-            list-style: none;
-            margin-left: 0;
-        }
-
-        .summary-box li {
-            padding-left: 25px;
-            position: relative;
-        }
-
-        .summary-box li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            font-weight: bold;
-        }
-
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
-            }
-
-            .content {
-                padding: 20px;
-            }
-
-            .tabs {
-                flex-direction: column;
-            }
-
-            .tab {
-                width: 100%;
-            }
-        }
-
-        @media print {
-            body {
-                background: white;
-            }
-            .nav-buttons, .tabs {
-                display: none;
-            }
-            .content {
-                box-shadow: none;
-            }
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🎉 Your Improved Application</h1>
-            <p>AI-tailored for maximum impact</p>
+<body class="animated-gradient">
+    
+    <!-- Header -->
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <div class="flex justify-between items-center flex-wrap gap-4">
+            <!-- Logo & Title -->
+            <div>
+                <h1 class="text-4xl font-bold text-white mb-2">
+                    <i class="fas fa-sparkles mr-2"></i>
+                    <span data-i18n="improvements.title">Your Improved CV</span>
+                </h1>
+                <p class="text-white/90 text-lg">
+                    <span data-i18n="improvements.subtitle">AI-powered optimization results</span>
+                </p>
+            </div>
+            
+            <!-- Language Toggle -->
+            <div class="language-toggle">
+                <button class="lang-btn active" data-lang="en" onclick="switchLanguage('en')">
+                    <i class="fas fa-globe mr-2"></i>English
+                </button>
+                <button class="lang-btn" data-lang="nl" onclick="switchLanguage('nl')">
+                    <i class="fas fa-globe mr-2"></i>Nederlands
+                </button>
+            </div>
         </div>
-
-        <div class="nav-buttons">
-            <button class="btn btn-primary" onclick="downloadPDF('cv')">📄 Download CV</button>
-            <button class="btn btn-primary" onclick="downloadPDF('cover')">📄 Download Cover Letter</button>
-            <button class="btn btn-primary" onclick="downloadPDF('all')">📦 Download All</button>
-            <a href="index.html" class="btn btn-secondary">← Back to Home</a>
+        
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+            <div class="stat-card">
+                <div class="stat-number" id="matchScore">--</div>
+                <div class="stat-label" data-i18n="improvements.stats.match">Match Score</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="changesCount">--</div>
+                <div class="stat-label" data-i18n="improvements.stats.changes">Changes Made</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="avgImpact">--</div>
+                <div class="stat-label" data-i18n="improvements.stats.impact">Avg Impact</div>
+            </div>
+            <div class="stat-card">
+                <div class="premium-badge">
+                    <i class="fas fa-crown"></i>
+                    <span data-i18n="improvements.stats.premium">PREMIUM</span>
+                </div>
+                <div class="stat-label mt-2" data-i18n="improvements.stats.quality">Professional Quality</div>
+            </div>
         </div>
-
-        <div class="tabs">
-            <div class="tab active" data-tab="cv">📄 Your Tailored CV</div>
-            <div class="tab new-badge" data-tab="changes">✨ What Changed & Why</div>
-            <div class="tab" data-tab="cover">✉️ Cover Letter</div>
-            <div class="tab" data-tab="tips">💡 Interview Tips</div>
+        
+        <!-- Action Buttons -->
+        <div class="flex gap-4 mt-8 flex-wrap justify-center">
+            <button class="action-btn btn-primary" onclick="downloadPDF()">
+                <i class="fas fa-download"></i>
+                <span data-i18n="improvements.actions.download">Download PDF</span>
+            </button>
+            <button class="action-btn btn-secondary" onclick="copyToClipboard()">
+                <i class="fas fa-copy"></i>
+                <span data-i18n="improvements.actions.copy">Copy Text</span>
+            </button>
+            <a href="/" class="action-btn btn-secondary">
+                <i class="fas fa-home"></i>
+                <span data-i18n="improvements.actions.home">New CV</span>
+            </a>
+            <a href="/plans.html" class="action-btn btn-primary" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                <i class="fas fa-rocket"></i>
+                <span data-i18n="improvements.actions.upgrade">Upgrade to Pro</span>
+            </a>
         </div>
-
-        <div class="content">
-            <!-- CV Section -->
-            <div id="cv-section" class="section active">
-                <div id="cv-content" class="cv-content">
-                    <div class="loading">
-                        <div class="spinner"></div>
-                        <p>Loading your improved CV...</p>
+        
+        <!-- Tabs -->
+        <div class="flex gap-4 mt-8 flex-wrap justify-center">
+            <button class="tab-button active" data-tab="changes" onclick="switchTab('changes')">
+                <i class="fas fa-list-check mr-2"></i>
+                <span data-i18n="improvements.tabs.changes">What Changed & Why</span>
+            </button>
+            <button class="tab-button" data-tab="cv" onclick="switchTab('cv')">
+                <i class="fas fa-file-alt mr-2"></i>
+                <span data-i18n="improvements.tabs.cv">Improved CV</span>
+            </button>
+            <button class="tab-button" data-tab="cover" onclick="switchTab('cover')">
+                <i class="fas fa-envelope mr-2"></i>
+                <span data-i18n="improvements.tabs.cover">Cover Letter</span>
+            </button>
+            <button class="tab-button" data-tab="analysis" onclick="switchTab('analysis')">
+                <i class="fas fa-chart-line mr-2"></i>
+                <span data-i18n="improvements.tabs.analysis">Analysis</span>
+            </button>
+        </div>
+        
+        <!-- Content Container -->
+        <div class="content-wrapper">
+            
+            <!-- Changes Tab -->
+            <div id="tab-changes" class="tab-content">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-3">
+                        <i class="fas fa-magic mr-2" style="color: #667eea;"></i>
+                        <span data-i18n="improvements.changes.title">AI-Powered Improvements</span>
+                    </h2>
+                    <p class="text-gray-600 text-lg" data-i18n="improvements.changes.subtitle">
+                        See exactly what we changed and why it matters
+                    </p>
+                </div>
+                
+                <div id="changesContainer">
+                    <!-- Changes will be dynamically inserted here -->
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-circle-notch fa-spin"></i>
+                        </div>
+                        <p class="text-gray-500" data-i18n="improvements.loading">Loading your improvements...</p>
                     </div>
                 </div>
             </div>
-
-            <!-- NEW: Changes Overview Section -->
-            <div id="changes-section" class="section">
-                <div id="changes-content" class="changes-content">
-                    <div class="loading">
-                        <div class="spinner"></div>
-                        <p>Loading changes overview...</p>
-                    </div>
+            
+            <!-- Improved CV Tab -->
+            <div id="tab-cv" class="tab-content" style="display: none;">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-3">
+                        <i class="fas fa-file-alt mr-2" style="color: #667eea;"></i>
+                        <span data-i18n="improvements.cv.title">Your Improved CV</span>
+                    </h2>
+                    <p class="text-gray-600 text-lg" data-i18n="improvements.cv.subtitle">
+                        Optimized for ATS systems and recruiter appeal
+                    </p>
+                </div>
+                
+                <div id="cvContent" class="markdown-content">
+                    <!-- CV content will be inserted here -->
                 </div>
             </div>
-
-            <!-- Cover Letter Section -->
-            <div id="cover-section" class="section">
-                <div id="cover-content" class="cover-letter-content">
-                    <div class="loading">
-                        <div class="spinner"></div>
-                        <p>Loading your cover letter...</p>
-                    </div>
+            
+            <!-- Cover Letter Tab -->
+            <div id="tab-cover" class="tab-content" style="display: none;">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-3">
+                        <i class="fas fa-envelope mr-2" style="color: #667eea;"></i>
+                        <span data-i18n="improvements.cover.title">Professional Cover Letter</span>
+                    </h2>
+                    <p class="text-gray-600 text-lg" data-i18n="improvements.cover.subtitle">
+                        Tailored to the job description
+                    </p>
+                </div>
+                
+                <div id="coverContent" class="markdown-content">
+                    <!-- Cover letter content will be inserted here -->
                 </div>
             </div>
-
-            <!-- Tips Section -->
-            <div id="tips-section" class="section">
-                <div id="tips-content" class="tips-content">
-                    <div class="loading">
-                        <div class="spinner"></div>
-                        <p>Loading recruiter tips...</p>
-                    </div>
+            
+            <!-- Analysis Tab -->
+            <div id="tab-analysis" class="tab-content" style="display: none;">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-3">
+                        <i class="fas fa-chart-line mr-2" style="color: #667eea;"></i>
+                        <span data-i18n="improvements.analysis.title">Detailed Analysis</span>
+                    </h2>
+                    <p class="text-gray-600 text-lg" data-i18n="improvements.analysis.subtitle">
+                        How your CV matches the job requirements
+                    </p>
+                </div>
+                
+                <div id="analysisContent" class="markdown-content">
+                    <!-- Analysis content will be inserted here -->
                 </div>
             </div>
+            
         </div>
     </div>
-
+    
+    <!-- Translations Script -->
+    <script src="translations.js"></script>
+    
+    <!-- Main Script -->
     <script>
-        // Tab switching
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                // Remove active class from all tabs and sections
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-                
-                // Add active class to clicked tab
-                this.classList.add('active');
-                
-                // Show corresponding section
-                const tabName = this.getAttribute('data-tab');
-                document.getElementById(tabName + '-section').classList.add('active');
-            });
+        // Current language
+        let currentLanguage = 'en';
+        
+        // Get data from sessionStorage
+        const resultData = JSON.parse(sessionStorage.getItem('cvAnalysisResult') || '{}');
+        
+        console.log('Result data:', resultData);
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            
+            // Set initial language from localStorage
+            const savedLang = localStorage.getItem('preferred-language') || 'en';
+            switchLanguage(savedLang);
         });
-
-        // Load data from sessionStorage
+        
+        // Load and display data
         function loadData() {
-            try {
-               const data = sessionStorage.getItem('cvAnalysisResult'); // Fix: Gebruik de juiste key
-                
-                if (!data) {
-                    showError('No results found. Please go back and generate your CV first.');
-                    return;
-                }
-
-                const results = JSON.parse(data);
-                
-                console.log('📦 Loaded data:', {
-                    hasCV: !!results.improvedCV,
-                    hasCover: !!results.coverLetter,
-                    hasTips: !!results.recruiterTips,
-                    hasChanges: !!results.changesOverview
-                });
-
-                // Display CV
-                if (results.improvedCV) {
-                    displayMarkdown('cv-content', results.improvedCV);
-                } else {
-                    document.getElementById('cv-content').innerHTML = 
-                        '<div class="error">Could not load improved CV.</div>';
-                }
-
-                // Display Changes Overview (NEW)
-                if (results.changesOverview) {
-                    displayMarkdown('changes-content', results.changesOverview);
-                } else {
-                    document.getElementById('changes-content').innerHTML = 
-                        '<div class="error">Changes overview not available. This feature requires the updated backend.</div>';
-                }
-
-                // Display Cover Letter
-                if (results.coverLetter) {
-                    displayMarkdown('cover-content', results.coverLetter);
-                } else {
-                    document.getElementById('cover-content').innerHTML = 
-                        '<div class="error">Could not load cover letter.</div>';
-                }
-
-                // Display Tips
-                if (results.recruiterTips) {
-                    displayMarkdown('tips-content', results.recruiterTips);
-                } else {
-                    document.getElementById('tips-content').innerHTML = 
-                        '<div class="error">Could not load recruiter tips.</div>';
-                }
-
-            } catch (error) {
-                console.error('Error loading data:', error);
-                showError('Error loading results. Please try generating your CV again.');
+            if (!resultData || Object.keys(resultData).length === 0) {
+                showEmptyState();
+                return;
+            }
+            
+            // Update stats
+            updateStats();
+            
+            // Display content
+            displayChanges();
+            displayCV();
+            displayCoverLetter();
+            displayAnalysis();
+        }
+        
+        // Update stats cards
+        function updateStats() {
+            // Match score
+            const matchScore = resultData.matchScore || resultData.match_score || 0;
+            document.getElementById('matchScore').textContent = matchScore + '%';
+            
+            // Changes count
+            const changes = resultData.changes || [];
+            document.getElementById('changesCount').textContent = changes.length;
+            
+            // Average impact
+            if (changes.length > 0) {
+                const avgImpact = changes.reduce((sum, c) => sum + (c.impact || 0), 0) / changes.length;
+                document.getElementById('avgImpact').textContent = '⭐' + avgImpact.toFixed(1);
             }
         }
-
-        function displayMarkdown(elementId, markdownText) {
-            const element = document.getElementById(elementId);
-            if (typeof marked !== 'undefined') {
-                element.innerHTML = marked.parse(markdownText);
-            } else {
-                // Fallback if marked.js fails to load
-                element.innerHTML = markdownText.replace(/\n/g, '<br>');
-            }
-        }
-
-        function showError(message) {
-            const sections = ['cv-content', 'changes-content', 'cover-content', 'tips-content'];
-            sections.forEach(id => {
-                document.getElementById(id).innerHTML = `
-                    <div class="error">
-                        <h3>⚠️ Error</h3>
-                        <p>${message}</p>
-                        <a href="index.html" class="btn btn-primary" style="margin-top: 15px;">← Back to Home</a>
+        
+        // Display changes with beautiful highlighting
+        function displayChanges() {
+            const container = document.getElementById('changesContainer');
+            const changes = resultData.changes || [];
+            
+            if (changes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon"><i class="fas fa-info-circle"></i></div>
+                        <p class="text-gray-500" data-i18n="improvements.changes.none">No specific changes tracked. Check other tabs for your improved CV.</p>
                     </div>
                 `;
-            });
+                return;
+            }
+            
+            container.innerHTML = changes.map((change, index) => `
+                <div class="change-card">
+                    <div class="change-number">${index + 1}</div>
+                    
+                    <!-- Original Text -->
+                    <div class="text-box original-text">
+                        <div class="label label-original">
+                            <i class="fas fa-circle-xmark"></i>
+                            <span data-i18n="improvements.changes.original">ORIGINAL</span>
+                        </div>
+                        <div style="color: #92400e; font-weight: 500; line-height: 1.6;">
+                            ${escapeHtml(change.original || 'N/A')}
+                        </div>
+                    </div>
+                    
+                    <!-- Improved Text -->
+                    <div class="text-box improved-text">
+                        <div class="label label-improved">
+                            <i class="fas fa-circle-check"></i>
+                            <span data-i18n="improvements.changes.improved">IMPROVED</span>
+                        </div>
+                        <div style="color: #065f46; font-weight: 600; line-height: 1.6;">
+                            ${escapeHtml(change.improved || change.suggestion || 'N/A')}
+                        </div>
+                    </div>
+                    
+                    <!-- Reason -->
+                    <div class="text-box reason-box">
+                        <div class="label label-reason">
+                            <i class="fas fa-lightbulb"></i>
+                            <span data-i18n="improvements.changes.why">WHY IT MATTERS</span>
+                        </div>
+                        <div style="color: #1e40af; font-weight: 500; line-height: 1.6;">
+                            ${escapeHtml(change.reason || change.explanation || 'Improves clarity and professional appeal')}
+                        </div>
+                    </div>
+                    
+                    <!-- Impact Rating -->
+                    <div class="impact-stars">
+                        <span style="font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 8px;">
+                            <span data-i18n="improvements.changes.impact">IMPACT:</span>
+                        </span>
+                        ${generateStars(change.impact || 3)}
+                    </div>
+                </div>
+            `).join('');
         }
-
-        // PDF Download Functions
-        function downloadPDF(type) {
+        
+        // Display improved CV
+        function displayCV() {
+            const container = document.getElementById('cvContent');
+            const improvedCV = resultData.improvedCV || resultData.improved_cv || resultData.cv || '';
+            
+            if (!improvedCV) {
+                container.innerHTML = '<p class="text-gray-500">No CV content available.</p>';
+                return;
+            }
+            
+            container.innerHTML = marked.parse(improvedCV);
+        }
+        
+        // Display cover letter
+        function displayCoverLetter() {
+            const container = document.getElementById('coverContent');
+            const coverLetter = resultData.coverLetter || resultData.cover_letter || '';
+            
+            if (!coverLetter) {
+                container.innerHTML = '<p class="text-gray-500">No cover letter available.</p>';
+                return;
+            }
+            
+            container.innerHTML = marked.parse(coverLetter);
+        }
+        
+        // Display analysis
+        function displayAnalysis() {
+            const container = document.getElementById('analysisContent');
+            const analysis = resultData.analysis || resultData.insights || '';
+            
+            if (!analysis) {
+                container.innerHTML = '<p class="text-gray-500">No analysis available.</p>';
+                return;
+            }
+            
+            container.innerHTML = marked.parse(analysis);
+        }
+        
+        // Generate star rating
+        function generateStars(rating) {
+            const maxStars = 5;
+            let html = '';
+            for (let i = 1; i <= maxStars; i++) {
+                if (i <= rating) {
+                    html += '<span class="star"><i class="fas fa-star"></i></span>';
+                } else {
+                    html += '<span class="star empty"><i class="far fa-star"></i></span>';
+                }
+            }
+            return html;
+        }
+        
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Show empty state
+        function showEmptyState() {
+            document.getElementById('changesContainer').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fas fa-exclamation-circle"></i></div>
+                    <h3 class="text-xl font-bold text-gray-700 mb-2">No Results Found</h3>
+                    <p class="text-gray-500 mb-6">Please go back and analyze a CV first.</p>
+                    <a href="/" class="action-btn btn-primary">
+                        <i class="fas fa-home mr-2"></i>Go to Homepage
+                    </a>
+                </div>
+            `;
+        }
+        
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById('tab-' + tabName).style.display = 'block';
+            
+            // Add active class to clicked button
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        }
+        
+        // Language switching
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('preferred-language', lang);
+            
+            // Update language buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-lang') === lang) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Update all translatable elements
+            if (typeof setLanguage === 'function') {
+                setLanguage(lang);
+            }
+        }
+        
+        // Download PDF
+        function downloadPDF() {
+            const element = document.getElementById('tab-cv');
             const opt = {
                 margin: 1,
-                filename: `${type}-${Date.now()}.pdf`,
+                filename: 'improved-cv.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
-
-            let element;
-            switch(type) {
-                case 'cv':
-                    element = document.getElementById('cv-content');
-                    opt.filename = 'tailored-cv.pdf';
-                    break;
-                case 'cover':
-                    element = document.getElementById('cover-content');
-                    opt.filename = 'cover-letter.pdf';
-                    break;
-                case 'all':
-                    // Create a combined element
-                    const combined = document.createElement('div');
-                    combined.innerHTML = `
-                        <div style="padding: 20px;">
-                            <h1 style="text-align: center; color: #667eea;">Your Complete Application Package</h1>
-                            <hr style="margin: 20px 0;">
-                            <h2 style="color: #764ba2;">Tailored CV</h2>
-                            ${document.getElementById('cv-content').innerHTML}
-                            <div style="page-break-before: always;"></div>
-                            <h2 style="color: #764ba2;">Cover Letter</h2>
-                            ${document.getElementById('cover-content').innerHTML}
-                            <div style="page-break-before: always;"></div>
-                            <h2 style="color: #764ba2;">Interview Preparation Tips</h2>
-                            ${document.getElementById('tips-content').innerHTML}
-                        </div>
-                    `;
-                    element = combined;
-                    opt.filename = 'complete-application-package.pdf';
-                    break;
-            }
-
+            
             html2pdf().set(opt).from(element).save();
         }
-
-        // Load data when page loads
-        window.addEventListener('DOMContentLoaded', loadData);
+        
+        // Copy to clipboard
+        function copyToClipboard() {
+            const cvContent = document.getElementById('cvContent').innerText;
+            navigator.clipboard.writeText(cvContent).then(() => {
+                alert('CV copied to clipboard!');
+            });
+        }
     </script>
 </body>
 </html>
