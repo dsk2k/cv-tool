@@ -432,7 +432,7 @@
         // Load data from sessionStorage
         function loadData() {
             try {
-                const data = sessionStorage.getItem('cvResults');
+               const data = sessionStorage.getItem('cvAnalysisResult'); // Fix: Gebruik de juiste key
                 
                 if (!data) {
                     showError('No results found. Please go back and generate your CV first.');
