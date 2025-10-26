@@ -56,10 +56,10 @@ exports.handler = async (event) => { // Aangepast van 'export const'
     const jobDescription = jobDescriptionPart.data.toString('utf-8');
     const language = languagePart ? languagePart.data.toString('utf-8') : 'en'; // Fallback naar 'en'
     
-    // 5. Lees de tekst uit de PDF buffer
-    // Lees de tekst uit de PDF buffer
-    const pdfData = await pdf(cvFilePart.data); // fix
-    const currentCV = pdfData.text;
+   // 5. Lees de tekst uit de PDF buffer (met dynamische import)
+const pdf = await import('pdf-parse'); // Dynamische import
+const pdfData = await pdf.default(cvFilePart.data); // Roep .default aan na dynamische import
+const currentCV = pdfData.text;
 
 
     // Validate inputs
