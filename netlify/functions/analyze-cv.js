@@ -1,12 +1,13 @@
-// analyze-cv.js
+// Volledige code voor: netlify/functions/analyze-cv.js
+
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { parse } = require('parse-multipart-data');
-const pdf = require('pdf-parse'); // FIX
+const multipart = require('parse-multipart-data'); // FIX 1
+const pdf = require('pdf-parse'); // FIX 2
 
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-exports.handler = async (event) => { //  FIX
+exports.handler = async (event) => { // Aangepast van 'export const'
   // CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -30,21 +31,21 @@ exports.handler = async (event) => { //  FIX
   }
 
   try {
-    // === DIT IS DE GROTE WIJZIGING ===
+    // === FIX VOOR FORMDATA PARSING ===
     // 1. Haal de 'boundary' uit de headers
     const contentType = event.headers['content-type'] || event.headers['Content-Type'];
-    const boundary = contentType.split('boundary=')[1];
+    const boundary = multipart.getBoundary(contentType); // Gebruik 'multipart.getBoundary'
     
     // 2. Converteer de body van base64 naar een Buffer
     const bodyBuffer = Buffer.from(event.body, 'base64');
 
     // 3. Parse de multipart data
-    const parts = parse(bodyBuffer, boundary);
+    const parts = multipart.parse(bodyBuffer, boundary); // Gebruik 'multipart.parse'
 
     // 4. Haal de velden en het bestand eruit
     const cvFilePart = parts.find(part => part.name === 'cvFile');
     const jobDescriptionPart = parts.find(part => part.name === 'jobDescription');
-    // const emailPart = parts.find(part => part.name === 'email'); // Optioneel
+    const languagePart = parts.find(part => part.name === 'language'); // Optioneel taal ophalen
 
     if (!cvFilePart || !jobDescriptionPart) {
       return {
@@ -55,11 +56,13 @@ exports.handler = async (event) => { //  FIX
     }
 
     const jobDescription = jobDescriptionPart.data.toString('utf-8');
+    const language = languagePart ? languagePart.data.toString('utf-8') : 'en'; // Fallback naar 'en'
     
     // 5. Lees de tekst uit de PDF buffer
-    const pdfData = await pdf(cvFilePart.data);
-    const currentCV = pdfData.text; // Dit is nu de CV-tekst!
-    // === EINDE VAN DE WIJZIGING ===
+    // Roep .default() aan omdat 'pdf' een module-object is
+    const pdfData = await pdf.default(cvFilePart.data); // FIX 2
+    const currentCV = pdfData.text;
+    // === EINDE FIX ===
 
 
     // Validate inputs
@@ -82,24 +85,30 @@ exports.handler = async (event) => { //  FIX
         }),
       };
     }
-    
-    // ... de rest van je code (vanaf regel 55) blijft hetzelfde ...
-    // ... want vanaf hier heb je `currentCV` en `jobDescription` als tekst ...
-    
+
+    if (jobDescription.length < 30) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ 
+          error: 'Job description is too short. Please provide more details.' 
+        }),
+      };
+    }
+
     console.log('🚀 Starting CV analysis...');
     console.log(`📄 CV length: ${currentCV.length} chars`);
     console.log(`💼 Job description length: ${jobDescription.length} chars`);
+    console.log(`🌍 Language: ${language}`);
 
-    // Create the prompt (DEZE FUNCTIE BESTAAT AL ONDERAAN JE BESTAND)
-    const prompt = createPrompt(currentCV, jobDescription, 'en'); // Je kunt 'language' ook nog toevoegen aan de form data
+    // Create the prompt
+    const prompt = createPrompt(currentCV, jobDescription, language);
 
     // Call Gemini API
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     
     console.log('🤖 Calling Gemini API...');
     const result = await model.generateContent(prompt);
-    // ... de rest van je logica ...
-    
     const response = result.response;
     const fullText = response.text();
     
@@ -114,45 +123,64 @@ exports.handler = async (event) => { //  FIX
       '---IMPROVED_CV_END---',
       'Could not generate improved CV. Please check input and try again.'
     );
-    // ... etc.
-
-    // (Zorg ervoor dat de functies createPrompt en extractSection nog steeds 
-    // onderaan je bestand staan, net als voorheen)
-    
-    // === PLAATS HIER DE REST VAN JE CODE (vanaf regel 75) ===
-    // ...
-    // ...
-    // ...
-    // (De code voor het parsen van de Gemini-response en het terugsturen van de JSON)
-    // ...
-    // ...
-    // === EINDIG MET JE CATCH BLOCK EN DE HELPER FUNCTIES ===
-    
-    // --- DIT IS EEN VOORBEELD ---
-    // (Je moet de code vanaf regel 75 tot het einde plakken)
-    
     console.log(`${improvedCV.success ? '✅' : '❌'} CV extraction: ${improvedCV.content.length} chars`);
-    // ... (alle andere extracties) ...
-    
+    if (improvedCV.success) console.log(`📝 CV Preview: ${improvedCV.content.substring(0, 100)}...`);
+
+    const coverLetter = extractSection(
+      fullText, 
+      '---COVER_LETTER_START---', 
+      '---COVER_LETTER_END---',
+      'Could not generate cover letter. Please check input and try again.'
+    );
+    console.log(`${coverLetter.success ? '✅' : '❌'} Cover Letter extraction: ${coverLetter.content.length} chars`);
+    if (coverLetter.success) console.log(`📝 CL Preview: ${coverLetter.content.substring(0, 100)}...`);
+
+    const recruiterTips = extractSection(
+      fullText, 
+      '---RECRUITER_TIPS_START---', 
+      '---RECRUITER_TIPS_END---',
+      'Could not generate recruiter tips.'
+    );
+    console.log(`${recruiterTips.success ? '✅' : '❌'} Recruiter Tips extraction: ${recruiterTips.content.length} chars`);
+
+    // NEW: Extract changes overview
+    const changesOverview = extractSection(
+      fullText, 
+      '---CHANGES_OVERVIEW_START---', 
+      '---CHANGES_OVERVIEW_END---',
+      'Could not generate changes overview.'
+    );
+    console.log(`${changesOverview.success ? '✅' : '❌'} Changes Overview extraction: ${changesOverview.content.length} chars`);
+    if (changesOverview.success) console.log(`📝 Changes Preview: ${changesOverview.content.substring(0, 100)}...`);
+
+    console.log('--- END EXTRACTION PHASE ---\n');
+
+    // Prepare response
     const responseData = {
       improvedCV: improvedCV.content,
-      coverLetter: '...', // (vul hier je echte variabelen in)
-      recruiterTips: '...',
-      changesOverview: '...', 
+      coverLetter: coverLetter.content,
+      recruiterTips: recruiterTips.content,
+      changesOverview: changesOverview.content, // NEW: Include changes overview
       metadata: {
         originalCVLength: currentCV.length,
         jobDescriptionLength: jobDescription.length,
-        language: 'en',
+        language: language,
         timestamp: new Date().toISOString(),
       }
     };
+
+    console.log('\n--- FINAL DATA SUMMARY ---');
+    console.log(`Using CV: ${improvedCV.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${improvedCV.content.length} chars)`);
+    console.log(`Using CL: ${coverLetter.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${coverLetter.content.length} chars)`);
+    console.log(`Using Tips: ${recruiterTips.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${recruiterTips.content.length} chars)`);
+    console.log(`Using Changes: ${changesOverview.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${changesOverview.content.length} chars)`);
+    console.log('--- END SUMMARY ---\n');
 
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify(responseData),
     };
-
 
   } catch (error) {
     console.error('❌ Error processing CV:', error);
@@ -168,9 +196,11 @@ exports.handler = async (event) => { //  FIX
   }
 };
 
-// Zorg dat deze functies onderaan je bestand blijven staan
+/**
+ * Extract a section from the full text using start and end markers
+ * Now with robust fallback strategies
+ */
 function extractSection(fullText, startMarker, endMarker, fallbackMessage) {
-  // ... (deze functie is prima)
   try {
     const startIndex = fullText.indexOf(startMarker);
     
@@ -182,6 +212,7 @@ function extractSection(fullText, startMarker, endMarker, fallbackMessage) {
     const contentStart = startIndex + startMarker.length;
     let endIndex = fullText.indexOf(endMarker, contentStart);
     
+    // If end marker not found, try to find the next section marker
     if (endIndex === -1) {
       console.log(`⚠️  Could not find ${endMarker}, using next section or end of text`);
       const nextMarkers = [
@@ -195,6 +226,7 @@ function extractSection(fullText, startMarker, endMarker, fallbackMessage) {
         '---CHANGES_OVERVIEW_END---'
       ].filter(m => m !== startMarker && m !== endMarker);
 
+      // Find the nearest next marker
       let nearestIndex = fullText.length;
       for (const marker of nextMarkers) {
         const idx = fullText.indexOf(marker, contentStart);
@@ -220,13 +252,143 @@ function extractSection(fullText, startMarker, endMarker, fallbackMessage) {
   }
 }
 
+/**
+ * Create the prompt for Gemini AI
+ */
 function createPrompt(currentCV, jobDescription, language) {
-  // ... (deze functie is ook prima)
   const isNL = language === 'nl';
   
   return `You are an expert CV consultant and career coach. Your task is to:
-  // ... (de rest van je prompt)
-  ---
+
+1. Analyze the provided CV and job description
+2. Improve the CV to better match the job requirements
+3. Generate a professional cover letter
+4. Provide recruiter conversation tips
+5. **NEW: Create a detailed overview of all changes made and why**
+
+**IMPORTANT OUTPUT FORMAT:**
+You must wrap each section with the exact markers shown below. Do not skip any section.
+
+---IMPROVED_CV_START---
+[Your improved CV in ${isNL ? 'Dutch' : 'English'} - Use markdown formatting, keep the same structure but optimize content]
+---IMPROVED_CV_END---
+
+---COVER_LETTER_START---
+[Your professional cover letter in ${isNL ? 'Dutch' : 'English'}]
+---COVER_LETTER_END---
+
+---RECRUITER_TIPS_START---
+[Your recruiter conversation tips in ${isNL ? 'Dutch' : 'English'} - Use markdown with headers and bullet points]
+---RECRUITER_TIPS_END---
+
+---CHANGES_OVERVIEW_START---
+[Your detailed changes overview - see instructions below]
+---CHANGES_OVERVIEW_END---
+
+## Instructions for CV Improvement:
+- Keep the original structure and formatting
+- Enhance bullet points to match job requirements
+- Quantify achievements where possible
+- Use action verbs and industry keywords from the job description
+- Improve clarity and impact
+- Keep it professional and honest
+- Output language: ${isNL ? 'Dutch' : 'English'}
+
+## Instructions for Cover Letter:
+- Professional and personalized
+- Reference specific job requirements
+- Highlight relevant experience
+- Show enthusiasm and cultural fit
+- Keep it concise (300-400 words)
+- Output language: ${isNL ? 'Dutch' : 'English'}
+
+## Instructions for Recruiter Tips:
+Create a section with these topics (use markdown headers and formatting):
+1. **Key Points to Emphasize** - What to highlight in interviews
+2. **Questions They'll Ask** - Common questions for this role
+3. **Questions You Should Ask** - Smart questions to ask the recruiter
+4. **Red Flags to Watch** - What to be careful about
+5. **Salary Negotiation Tips** - How to approach compensation
+6. **Cultural Fit Signals** - What the company values
+7. **Next Steps** - What to do after the interview
+
+Output language: ${isNL ? 'Dutch' : 'English'}
+
+## **NEW: Instructions for Changes Overview**
+
+Create a comprehensive list of ALL changes made to the CV with explanations. Use this exact format:
+
+${isNL ? `
+**📝 Overzicht van Wijzigingen**
+
+Hieronder zie je alle wijzigingen die zijn aangebracht in je CV, met uitleg waarom elke wijziging belangrijk is voor deze functie.
+
+### 1. [Sectienaam of Element]
+**Origineel:**
+[Wat er stond]
+
+**Nieuw:**
+[Wat het nu is]
+
+**Waarom deze wijziging:**
+[Duidelijke uitleg hoe dit je kandidatuur versterkt, refererend aan de functiebeschrijving]
+
+**Impact:** ⭐⭐⭐⭐⭐ (1-5 sterren voor belang)
+
+---
+
+[Herhaal voor elke wijziging...]
+
+### Samenvatting
+**Totaal aantal wijzigingen:** [nummer]
+**Belangrijkste verbeteringen:**
+- [Key improvement 1]
+- [Key improvement 2]
+- [Key improvement 3]
+
+**Afstemming op functie:** [Percentage, bijv. "85% match"]
+` : `
+**📝 Changes Overview**
+
+Below you'll see all the changes made to your CV, with explanations of why each change matters for this specific role.
+
+### 1. [Section Name or Element]
+**Original:**
+[What it said before]
+
+**Improved:**
+[What it says now]
+
+**Why this change matters:**
+[Clear explanation of how this strengthens your candidacy, referencing the job description]
+
+**Impact Rating:** ⭐⭐⭐⭐⭐ (1-5 stars for importance)
+
+---
+
+[Repeat for each change...]
+
+### Samenvatting
+**Total changes made:** [number]
+**Key improvements:**
+- [Key improvement 1]
+- [Key improvement 2]
+- [Key improvement 3]
+
+**Job match score:** [Percentage, e.g., "85% match"]
+`}
+
+**CRITICAL RULES FOR CHANGES OVERVIEW:**
+- List EVERY meaningful change (aim for 8-15 changes)
+- Be specific about what changed
+- Explain WHY using the job description
+- Rate impact (1-5 stars)
+- Include changes to: keywords, action verbs, quantifications, structure, emphasis, formatting
+- If no change in a section, still explain why it's good as-is
+- Focus on what makes the candidate more competitive
+- Use markdown formatting for readability
+
+---
 
 ## Original CV:
 ${currentCV}
