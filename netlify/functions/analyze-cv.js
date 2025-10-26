@@ -1,5 +1,3 @@
-// Volledige code voor: netlify/functions/analyze-cv.js
-
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const multipart = require('parse-multipart-data'); // FIX 1
 const pdf = require('pdf-parse'); // FIX 2
@@ -59,10 +57,9 @@ exports.handler = async (event) => { // Aangepast van 'export const'
     const language = languagePart ? languagePart.data.toString('utf-8') : 'en'; // Fallback naar 'en'
     
     // 5. Lees de tekst uit de PDF buffer
-    // Roep .default() aan omdat 'pdf' een module-object is
-    const pdfData = await pdf.default(cvFilePart.data); // FIX 2
+    // Lees de tekst uit de PDF buffer
+    const pdfData = await pdf(cvFilePart.data); // fix
     const currentCV = pdfData.text;
-    // === EINDE FIX ===
 
 
     // Validate inputs
