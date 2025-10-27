@@ -551,6 +551,17 @@
                 font-size: 1rem;
             }
         }
+        
+        /* Highlight animation for updated stats */
+        @keyframes highlight {
+            0%, 100% { 
+                background-color: transparent; 
+            }
+            50% { 
+                background-color: rgba(34, 197, 94, 0.2);
+                transform: scale(1.05);
+            }
+        }
     </style>
 </head>
 <body class="animated-gradient">
@@ -824,24 +835,101 @@
         // === HIER STARTEN DE REPARATIES ===
         // ==================================================================
 
-        // REPARATIE 1: De 'updateStats' functie is aangepast om stats uit de tekst te parsen
+        // ===== IMPROVED STATS EXTRACTION WITH MULTIPLE PATTERNS =====
         function updateStats() {
-            const overviewText = resultData.changesOverview || '';
-
-            // Match score: Zoek naar "Job match score: 85%"
-            const matchRegex = /Job match score:\s*"?(\d+)%?/i;
-            const match = overviewText.match(matchRegex);
-            const matchScore = match ? match[1] : 0; // Gebruik 0 als fallback
+            console.log('📊 Extracting stats...');
+            const overviewText = resultData.changesOverview || resultData.improvedCV || '';
+            
+            if (!overviewText) {
+                console.warn('⚠️ No text available for stats extraction');
+                document.getElementById('matchScore').textContent = '0%';
+                document.getElementById('changesCount').textContent = '0';
+                document.getElementById('avgImpact').textContent = '--';
+                return;
+            }
+            
+            let matchScore = 0;
+            let changesCount = 0;
+            
+            // ===== MATCH SCORE EXTRACTION (Multiple patterns) =====
+            const matchPatterns = [
+                /Job match score:\s*"?(\d+)%?/i,
+                /match\s*score[:\s]+(\d+)%/i,
+                /score[:\s]+(\d+)%/i,
+                /(\d+)%\s*match/i,
+                /afstemming[:\s]+(\d+)%/i,
+                /cv\s*match[:\s]+(\d+)%/i,
+                /overall\s*match[:\s]+(\d+)%/i
+            ];
+            
+            for (const pattern of matchPatterns) {
+                const match = overviewText.match(pattern);
+                if (match && match[1]) {
+                    matchScore = parseInt(match[1]);
+                    console.log(`✅ Match score found: ${matchScore}% (pattern: ${pattern})`);
+                    break;
+                }
+            }
+            
+            // ===== CHANGES COUNT EXTRACTION (Multiple patterns) =====
+            const changesPatterns = [
+                /Total changes made:\s*(\d+)/i,
+                /(\d+)\s*changes?\s*made/i,
+                /made\s*(\d+)\s*changes?/i,
+                /total\s*changes?[:\s]+(\d+)/i,
+                /changes?\s*count[:\s]+(\d+)/i,
+                /(\d+)\s*improvements?/i,
+                /implemented\s*(\d+)/i,
+                /totaal\s*(\d+)\s*wijzigingen/i
+            ];
+            
+            for (const pattern of changesPatterns) {
+                const match = overviewText.match(pattern);
+                if (match && match[1]) {
+                    changesCount = parseInt(match[1]);
+                    console.log(`✅ Changes count found: ${changesCount} (pattern: ${pattern})`);
+                    break;
+                }
+            }
+            
+            // ===== FALLBACK 1: Count numbered items =====
+            if (changesCount === 0) {
+                const numberedItems = (overviewText.match(/^\s*\d+\./gm) || []).length;
+                if (numberedItems > 0) {
+                    changesCount = numberedItems;
+                    console.log(`💡 Fallback 1: Counted ${changesCount} numbered items`);
+                }
+            }
+            
+            // ===== FALLBACK 2: Count ### headers =====
+            if (changesCount === 0) {
+                const headers = (overviewText.match(/^### /gm) || []).length;
+                if (headers > 0) {
+                    changesCount = headers;
+                    console.log(`💡 Fallback 2: Counted ${changesCount} section headers`);
+                }
+            }
+            
+            // ===== FALLBACK 3: Count bullet points =====
+            if (changesCount === 0) {
+                const bulletPoints = (overviewText.match(/^[\s]*[-•*]\s/gm) || []).length;
+                if (bulletPoints > 0) {
+                    changesCount = bulletPoints;
+                    console.log(`💡 Fallback 3: Counted ${changesCount} bullet points`);
+                }
+            }
+            
+            // ===== UPDATE UI =====
+            console.log(`📊 Final stats: ${matchScore}% match, ${changesCount} changes`);
             document.getElementById('matchScore').textContent = matchScore + '%';
-            
-            // Changes count: Zoek naar "Total changes made: 10"
-            const changesRegex = /Total changes made:\s*(\d+)/i;
-            const changesMatch = overviewText.match(changesRegex);
-            const changesCount = changesMatch ? changesMatch[1] : 0; // Gebruik 0 als fallback
             document.getElementById('changesCount').textContent = changesCount;
-            
-            // Average impact: We hebben geen array meer, dus toon een vinkje
             document.getElementById('avgImpact').textContent = (changesCount > 0) ? '✓' : '--';
+            
+            // Add highlight animation
+            const matchEl = document.getElementById('matchScore');
+            const changesEl = document.getElementById('changesCount');
+            if (matchEl) matchEl.style.animation = 'highlight 1s ease';
+            if (changesEl) changesEl.style.animation = 'highlight 1s ease';
         }
         
         // REPARATIE 2: De 'displayChanges' functie is aangepast om 'changesOverview' (string) te lezen

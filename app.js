@@ -39,9 +39,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            // Show loading overlay
+            // Show loading overlay with animated progress steps
             loadingOverlay.classList.remove('hidden');
             loadingOverlay.classList.add('flex');
+            
+            // Reset all steps
+            document.querySelectorAll('.progress-step').forEach((step, index) => {
+                step.classList.remove('active', 'completed');
+                if (index === 0) step.classList.add('active');
+            });
+            
+            // Animate progress steps
+            setTimeout(() => {
+                const step1 = document.querySelector('[data-step="1"]');
+                if (step1) {
+                    step1.classList.add('completed');
+                }
+                const step2 = document.querySelector('[data-step="2"]');
+                if (step2) {
+                    step2.classList.add('active');
+                    step2.style.opacity = '1';
+                }
+            }, 2000);
+            
+            setTimeout(() => {
+                const step2 = document.querySelector('[data-step="2"]');
+                if (step2) {
+                    step2.classList.add('completed');
+                }
+                const step3 = document.querySelector('[data-step="3"]');
+                if (step3) {
+                    step3.classList.add('active');
+                    step3.style.opacity = '1';
+                }
+            }, 5000);
             
             try {
                 // Create FormData for file upload
