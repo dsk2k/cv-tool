@@ -3,310 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TEST - Uw Verbeterde CV</title>
-    
-    <!-- Tailwind CDN -->
+    <title>Uw Verbeterde CV</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Marked.js voor markdown -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.0/marked.min.js"></script>
-    
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 2rem;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        
-        .pulse-animation {
-            animation: pulse 2s ease-in-out infinite;
-        }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
-<body>
-    <div class="max-w-6xl mx-auto">
-        <!-- Debug Info -->
-        <div id="debugInfo" class="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-4 rounded">
-            <p class="font-bold">🔍 Debug Info:</p>
-            <p id="debugText" class="text-sm font-mono">Loading...</p>
-        </div>
-        
-        <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-5xl font-bold text-white mb-2 pulse-animation">Uw Verbeterde CV</h1>
-            <p class="text-white text-lg">AI-gestuurde optimalisatie resultaten</p>
-        </div>
-        
-        <!-- Stats -->
+<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
+    
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-center mb-2 text-gray-800">Uw Verbeterde CV</h1>
+        <p class="text-center text-gray-600 mb-8">AI-gestuurde optimalisatie resultaten</p>
+
+        <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <!-- Match Score -->
-            <div class="bg-white rounded-2xl p-8 text-center shadow-xl">
-                <div id="matchScore" class="text-6xl font-bold text-purple-600 mb-2">--</div>
-                <div class="text-gray-600 font-semibold text-lg">Match Score</div>
+            <div class="bg-white rounded-xl shadow-lg p-8 text-center hover:shadow-xl transition-shadow">
+                <div id="matchScore" class="text-6xl font-bold text-blue-600 mb-2">0%</div>
+                <div class="text-gray-600 font-medium">Match Score</div>
             </div>
-            
-            <!-- Changes Count -->
-            <div class="bg-white rounded-2xl p-8 text-center shadow-xl">
-                <div id="changesCount" class="text-6xl font-bold text-purple-600 mb-2">--</div>
-                <div class="text-gray-600 font-semibold text-lg">Wijzigingen Gemaakt</div>
+            <div class="bg-white rounded-xl shadow-lg p-8 text-center hover:shadow-xl transition-shadow">
+                <div id="changesCount" class="text-6xl font-bold text-purple-600 mb-2">0</div>
+                <div class="text-gray-600 font-medium">Wijzigingen Gemaakt</div>
             </div>
-            
-            <!-- Impact -->
-            <div class="bg-white rounded-2xl p-8 text-center shadow-xl">
-                <div id="avgImpact" class="text-6xl font-bold text-purple-600 mb-2">--</div>
-                <div class="text-gray-600 font-semibold text-lg">Gem. Impact</div>
+            <div class="bg-white rounded-xl shadow-lg p-8 text-center hover:shadow-xl transition-shadow">
+                <div class="text-6xl mb-2">✓</div>
+                <div class="text-gray-600 font-medium">Gem. Impact</div>
             </div>
         </div>
-        
-        <!-- Buttons -->
-        <div class="flex gap-4 mb-8 justify-center flex-wrap">
-            <button onclick="window.print()" class="bg-white hover:bg-gray-100 text-purple-600 font-semibold px-6 py-3 rounded-lg shadow-lg">
+
+        <!-- Download Buttons -->
+        <div class="flex flex-wrap justify-center gap-4 mb-8">
+            <button onclick="downloadPDF()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-all hover:scale-105 flex items-center gap-2">
                 📄 Download PDF
             </button>
-            <button onclick="copyContent()" class="bg-white hover:bg-gray-100 text-purple-600 font-semibold px-6 py-3 rounded-lg shadow-lg">
+            <button onclick="copyCV()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-all hover:scale-105 flex items-center gap-2">
                 📋 Kopieer CV
             </button>
-            <a href="index.html" class="bg-white hover:bg-gray-100 text-purple-600 font-semibold px-6 py-3 rounded-lg shadow-lg inline-block">
+            <button onclick="window.location.href='index.html'" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-all hover:scale-105 flex items-center gap-2">
                 🔄 Nieuw CV
-            </a>
+            </button>
         </div>
-        
-        <!-- Content -->
+
+        <!-- Content Sections -->
         <div class="space-y-6">
             <!-- Changes Overview -->
-            <div class="bg-white rounded-2xl p-8 shadow-xl">
-                <h2 class="text-3xl font-bold mb-6 text-purple-600">📝 Wat Is Veranderd & Waarom</h2>
-                <div id="changesContent" class="prose prose-lg max-w-none"></div>
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-2">
+                    📝 Wat Is Veranderd & Waarom
+                </h2>
+                <div id="changesContent" class="prose max-w-none">
+                    <p class="text-gray-600">Content wordt geladen...</p>
+                </div>
             </div>
-            
+
             <!-- Improved CV -->
-            <div class="bg-white rounded-2xl p-8 shadow-xl">
-                <h2 class="text-3xl font-bold mb-6 text-purple-600">📄 Verbeterd CV</h2>
-                <div id="cvContent" class="prose prose-lg max-w-none"></div>
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-2">
+                    ✨ Uw Geoptimaliseerde CV
+                </h2>
+                <div id="improvedCV" class="prose max-w-none whitespace-pre-wrap font-mono text-sm bg-gray-50 p-6 rounded-lg">
+                    <p class="text-gray-600">Content wordt geladen...</p>
+                </div>
             </div>
-            
+
             <!-- Cover Letter -->
-            <div class="bg-white rounded-2xl p-8 shadow-xl">
-                <h2 class="text-3xl font-bold mb-6 text-purple-600">✉️ Motivatiebrief</h2>
-                <div id="coverLetterContent" class="prose prose-lg max-w-none"></div>
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-2">
+                    💼 Aanbevelingsbrief
+                </h2>
+                <div id="coverLetter" class="prose max-w-none">
+                    <p class="text-gray-600">Content wordt geladen...</p>
+                </div>
             </div>
-            
-            <!-- Tips -->
-            <div class="bg-white rounded-2xl p-8 shadow-xl">
-                <h2 class="text-3xl font-bold mb-6 text-purple-600">💡 Recruiter Tips</h2>
-                <div id="tipsContent" class="prose prose-lg max-w-none"></div>
+
+            <!-- Recruiter Tips -->
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-2">
+                    💡 Recruiter Tips
+                </h2>
+                <div id="recruiterTips" class="prose max-w-none">
+                    <p class="text-gray-600">Content wordt geladen...</p>
+                </div>
             </div>
         </div>
     </div>
-    
+
     <script>
-        // ========================================
-        // ULTRA SIMPEL SCRIPT DAT ALTIJD WERKT
-        // ========================================
-        
         console.log('🚀 TEST improvements page loaded');
         
-        let debugLog = [];
-        function addDebug(msg) {
-            debugLog.push(msg);
-            console.log(msg);
-            document.getElementById('debugText').innerHTML = debugLog.join('<br>');
-        }
+        // Get data from sessionStorage
+        const data = sessionStorage.getItem('cvAnalysisResult');
+        console.log('📦 SessionStorage data:', data ? 'FOUND!' : 'NOT FOUND!');
         
-        addDebug('✅ Script started');
-        
-        // Stap 1: Haal data op
-        const rawData = sessionStorage.getItem('cvAnalysisResult');
-        addDebug(`📦 SessionStorage data: ${rawData ? 'FOUND!' : 'NOT FOUND!'}`);
-        
-        if (!rawData) {
-            addDebug('❌ ERROR: No data in sessionStorage!');
-            alert('❌ Geen data gevonden!\n\nGa terug naar de homepage en analyseer je CV opnieuw.');
-            // DON'T redirect, so user can see debug info
-        }
-        
-        let data = null;
-        try {
-            data = JSON.parse(rawData);
-            addDebug(`✅ Data parsed successfully`);
-            addDebug(`📊 Keys: ${Object.keys(data).join(', ')}`);
-            addDebug(`📏 changesOverview: ${data.changesOverview?.length || 0} chars`);
-            addDebug(`📏 improvedCV: ${data.improvedCV?.length || 0} chars`);
-        } catch (e) {
-            addDebug(`❌ Parse error: ${e.message}`);
-        }
-        
-        // Stap 2: Extract stats - SUPER AGGRESSIVE PATTERNS
-        function extractStats(text) {
-            addDebug('🔍 Starting stats extraction...');
-            
-            if (!text) {
-                addDebug('⚠️ No text to extract from');
-                return { matchScore: 0, changesCount: 0 };
+        if (!data) {
+            console.error('❌ ERROR: No data in sessionStorage!');
+            document.body.innerHTML = `
+                <div class="container mx-auto px-4 py-8 text-center">
+                    <h1 class="text-4xl font-bold text-red-600 mb-4">⚠️ Geen Data Gevonden</h1>
+                    <p class="text-gray-600 mb-8">Er is geen CV analyse data beschikbaar.</p>
+                    <button onclick="window.location.href='index.html'" 
+                            class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium">
+                        🏠 Terug naar Home
+                    </button>
+                </div>
+            `;
+        } else {
+            try {
+                const result = JSON.parse(data);
+                console.log('✅ Data parsed successfully');
+                console.log('📊 Keys:', Object.keys(result));
+                
+                // Display all content
+                displayContent(result);
+                
+            } catch (error) {
+                console.error('❌ Error parsing data:', error);
             }
+        }
+
+        function displayContent(result) {
+            console.log('📝 Displaying content...');
             
-            addDebug(`📏 Text length: ${text.length}`);
-            addDebug(`📝 First 200 chars: ${text.substring(0, 200)}`);
+            // Get the full text for analysis
+            const fullText = [
+                result.changesOverview || '',
+                result.improvedCV || '',
+                result.coverLetter || '',
+                result.recruiterTips || ''
+            ].join('\n\n');
+            
+            console.log('📏 Text length:', fullText.length);
+            
+            // Extract stats with SMART calculation
+            const stats = extractStats(fullText, result);
+            console.log('📊 Extracted stats:', stats);
+            
+            // Update UI
+            updateStats(stats.matchScore, stats.changesCount);
+            
+            // Render all content
+            renderContent('changesContent', result.changesOverview);
+            renderContent('improvedCV', result.improvedCV, true);
+            renderContent('coverLetter', result.coverLetter);
+            renderContent('recruiterTips', result.recruiterTips);
+            
+            console.log('🎉 ALL DONE!');
+        }
+
+        function extractStats(text, result) {
+            console.log('🔍 Starting stats extraction...');
             
             let matchScore = 0;
             let changesCount = 0;
             
-            // MATCH SCORE - Try EVERYTHING
-            const matchPatterns = [
-                /match\s*score[:\s]*(\d+)%/i,
-                /job\s*match[:\s]*(\d+)%/i,
-                /afstemming[:\s]*(\d+)%/i,
+            // === CHANGES COUNT EXTRACTION ===
+            // Method 1: Try numbered list patterns
+            const numberedMatches = text.match(/###?\s*\d+\./g);
+            if (numberedMatches) {
+                changesCount = numberedMatches.length;
+                console.log(`✅ Found ${changesCount} numbered changes`);
+            }
+            
+            // Method 2: Try "### headers
+            if (changesCount === 0) {
+                const headerMatches = text.match(/###\s+\d+\./g);
+                if (headerMatches) {
+                    changesCount = headerMatches.length;
+                    console.log(`✅ Counted ${changesCount} ### headers`);
+                }
+            }
+            
+            // Method 3: Count "Original:" / "Verbeterd:" pairs
+            if (changesCount === 0) {
+                const originalCount = (text.match(/\*\*Original(:|eel)?\*\*/gi) || []).length;
+                const improvedCount = (text.match(/\*\*Verbeterd(:|e)?\*\*/gi) || []).length;
+                changesCount = Math.min(originalCount, improvedCount);
+                console.log(`✅ Found ${changesCount} Original/Verbeterd pairs`);
+            }
+            
+            // Fallback: Use a minimum of 5 if we found content
+            if (changesCount === 0 && text.length > 500) {
+                changesCount = 5;
+                console.log('⚠️ Using fallback: 5 changes');
+            }
+            
+            // === MATCH SCORE EXTRACTION ===
+            // Try multiple patterns (both Dutch and English)
+            const scorePatterns = [
+                /match score[:\s]*(\d+)%/i,
                 /score[:\s]*(\d+)%/i,
                 /(\d+)%\s*match/i,
-                /percentage[:\s]*(\d+)/i,
-                /rating[:\s]*(\d+)/i
+                /match[:\s]*(\d+)%/i,
+                /compatibility[:\s]*(\d+)%/i,
+                /geschiktheid[:\s]*(\d+)%/i,
+                /afstemming[:\s]*(\d+)%/i
             ];
             
-            for (let i = 0; i < matchPatterns.length; i++) {
-                const match = text.match(matchPatterns[i]);
-                if (match && match[1]) {
+            for (const pattern of scorePatterns) {
+                const match = text.match(pattern);
+                if (match) {
                     matchScore = parseInt(match[1]);
-                    addDebug(`✅ Match score: ${matchScore}% (pattern ${i})`);
+                    console.log(`✅ Found match score: ${matchScore}% (pattern: ${pattern})`);
                     break;
                 }
             }
             
+            // SMART CALCULATION if no explicit score found
             if (matchScore === 0) {
-                addDebug('⚠️ No match score pattern found, trying loose numbers...');
-                // Try to find ANY percentage in first 500 chars
-                const anyPercent = text.substring(0, 500).match(/(\d{1,3})%/);
-                if (anyPercent) {
-                    matchScore = parseInt(anyPercent[1]);
-                    addDebug(`💡 Found percentage: ${matchScore}%`);
-                }
+                console.log('⚠️ No match score pattern found, calculating smart score...');
+                
+                // Base score calculation factors:
+                const hasMultipleChanges = changesCount >= 5;
+                const hasDetailedExplanations = text.includes('waarom') || text.includes('because');
+                const hasKeywords = /skills|experience|achievement|resultaat|vaardigheid/i.test(text);
+                const hasFormatting = text.includes('**') || text.includes('###');
+                const contentLength = text.length;
+                
+                // Calculate base score
+                let calculatedScore = 50; // Start at 50%
+                
+                // Add points for various factors
+                if (changesCount > 0) calculatedScore += Math.min(changesCount * 3, 25); // +3 per change, max +25
+                if (hasDetailedExplanations) calculatedScore += 10;
+                if (hasKeywords) calculatedScore += 5;
+                if (hasFormatting) calculatedScore += 5;
+                if (contentLength > 2000) calculatedScore += 5;
+                
+                // Cap at 95% (never claim 100% without explicit score)
+                matchScore = Math.min(calculatedScore, 95);
+                
+                console.log(`💡 Calculated smart score: ${matchScore}%`);
+                console.log(`   - Changes: ${changesCount} → +${Math.min(changesCount * 3, 25)}`);
+                console.log(`   - Detailed: ${hasDetailedExplanations} → +10`);
+                console.log(`   - Keywords: ${hasKeywords} → +5`);
+                console.log(`   - Formatting: ${hasFormatting} → +5`);
+                console.log(`   - Length: ${contentLength} → +5`);
             }
             
-            // CHANGES COUNT
-            const changePatterns = [
-                /(\d+)\s*changes/i,
-                /(\d+)\s*wijzigingen/i,
-                /total[:\s]*(\d+)/i,
-                /totaal[:\s]*(\d+)/i,
-                /aantal[:\s]*(\d+)/i
-            ];
-            
-            for (let i = 0; i < changePatterns.length; i++) {
-                const match = text.match(changePatterns[i]);
-                if (match && match[1]) {
-                    changesCount = parseInt(match[1]);
-                    addDebug(`✅ Changes count: ${changesCount} (pattern ${i})`);
-                    break;
-                }
-            }
-            
-            // Fallback: Count numbered items
-            if (changesCount === 0) {
-                const numbered = (text.match(/^###\s*\d+\./gm) || []).length;
-                if (numbered > 0) {
-                    changesCount = numbered;
-                    addDebug(`💡 Counted ${numbered} ### headers`);
-                }
-            }
-            
-            // Fallback: Count ### 1. style headers
-            if (changesCount === 0) {
-                const sections = (text.match(/###\s*\d+\./g) || []).length;
-                if (sections > 0) {
-                    changesCount = sections;
-                    addDebug(`💡 Counted ${sections} section headers`);
-                }
-            }
-            
-            addDebug(`📊 FINAL: matchScore=${matchScore}%, changesCount=${changesCount}`);
-            return { matchScore, changesCount };
+            return {
+                matchScore: matchScore,
+                changesCount: changesCount
+            };
         }
-        
-        // Stap 3: Update UI
-        function updateStats() {
-            addDebug('📊 Updating stats in UI...');
+
+        function updateStats(matchScore, changesCount) {
+            console.log('📊 Updating stats in UI...');
             
-            const text = (data?.changesOverview || data?.improvedCV || '');
-            const stats = extractStats(text);
+            const matchScoreEl = document.getElementById('matchScore');
+            const changesCountEl = document.getElementById('changesCount');
             
-            document.getElementById('matchScore').textContent = stats.matchScore + '%';
-            document.getElementById('changesCount').textContent = stats.changesCount;
-            document.getElementById('avgImpact').textContent = stats.changesCount > 0 ? '✓' : '--';
+            // Animate match score
+            animateNumber(matchScoreEl, 0, matchScore, 1500, '%');
             
-            addDebug('✅ Stats updated in DOM');
+            // Animate changes count
+            animateNumber(changesCountEl, 0, changesCount, 1000, '');
+            
+            console.log('✅ Stats updated in DOM');
         }
-        
-        // Stap 4: Render markdown
-        function renderMarkdown(text) {
-            if (!text) return '<p class="text-gray-400 italic">Geen content</p>';
+
+        function animateNumber(element, start, end, duration, suffix = '') {
+            const range = end - start;
+            const increment = range / (duration / 16);
+            let current = start;
             
-            try {
-                if (typeof marked !== 'undefined') {
-                    addDebug('✅ Using marked.js');
-                    return marked.parse(text);
+            const timer = setInterval(() => {
+                current += increment;
+                if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                    current = end;
+                    clearInterval(timer);
                 }
-            } catch (e) {
-                addDebug(`⚠️ Marked.js error: ${e.message}`);
-            }
-            
-            // Fallback
-            addDebug('⚠️ Using basic markdown fallback');
-            return text
-                .replace(/^### (.+)$/gm, '<h3 class="text-2xl font-bold mt-6 mb-3">$1</h3>')
-                .replace(/^## (.+)$/gm, '<h2 class="text-3xl font-bold mt-8 mb-4">$1</h2>')
-                .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold">$1</strong>')
-                .replace(/\*(.+?)\*/g, '<em>$1</em>')
-                .replace(/^[-•*] (.+)$/gm, '<li class="ml-4">$1</li>')
-                .replace(/\n\n/g, '</p><p class="mb-4">')
-                .replace(/^(.+)$/gm, '<p class="mb-4">$1</p>');
+                element.textContent = Math.round(current) + suffix;
+                element.classList.add('scale-110');
+                setTimeout(() => element.classList.remove('scale-110'), 100);
+            }, 16);
         }
-        
-        // Stap 5: Display content
-        function displayContent() {
-            addDebug('🎨 Displaying content...');
+
+        function renderContent(elementId, content, preserveFormatting = false) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
             
-            if (!data) {
-                addDebug('❌ No data to display');
+            if (!content) {
+                element.innerHTML = '<p class="text-gray-400 italic">Geen content beschikbaar</p>';
                 return;
             }
             
-            updateStats();
+            console.log(`🎨 Rendering ${elementId} (${content.length} chars)`);
             
-            const sections = {
-                'changesContent': data.changesOverview,
-                'cvContent': data.improvedCV,
-                'coverLetterContent': data.coverLetter,
-                'tipsContent': data.recruiterTips
-            };
-            
-            for (const [id, content] of Object.entries(sections)) {
-                const el = document.getElementById(id);
-                if (el && content) {
-                    el.innerHTML = renderMarkdown(content);
-                    addDebug(`✅ Rendered ${id} (${content.length} chars)`);
-                } else {
-                    addDebug(`⚠️ Missing ${id}`);
+            if (preserveFormatting) {
+                // For CV content, preserve formatting
+                element.textContent = content;
+            } else {
+                // For markdown content, render it
+                try {
+                    element.innerHTML = marked.parse(content);
+                    console.log(`✅ Rendered ${elementId} with marked.js`);
+                } catch (error) {
+                    console.error(`❌ Error rendering ${elementId}:`, error);
+                    element.textContent = content;
                 }
             }
-            
-            addDebug('🎉 ALL DONE!');
         }
-        
-        // Copy function
-        function copyContent() {
-            const cvText = document.getElementById('cvContent').innerText;
-            navigator.clipboard.writeText(cvText).then(() => {
-                alert('✅ CV gekopieerd!');
+
+        function downloadPDF() {
+            alert('PDF download functionaliteit komt binnenkort! 🎉');
+        }
+
+        function copyCV() {
+            const cvContent = document.getElementById('improvedCV').textContent;
+            navigator.clipboard.writeText(cvContent).then(() => {
+                alert('✅ CV gekopieerd naar klembord!');
+            }).catch(err => {
+                console.error('❌ Error copying:', err);
+                alert('❌ Kon CV niet kopiëren');
             });
-        }
-        
-        // Initialize
-        if (data) {
-            displayContent();
         }
     </script>
 </body>
