@@ -1,11 +1,12 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const multipart = require('parse-multipart-data'); // FIX 1
-const pdf = require('pdf-parse'); // FIX 2
+const multipart = require('parse-multipart-data');
+const pdf = require('pdf-parse');
+const { checkCache, saveToCache } = require('./cache-helper'); // ← CACHING TOEGEVOEGD
 
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-exports.handler = async (event) => { // Aangepast van 'export const'
+exports.handler = async (event) => {
   // CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -32,18 +33,18 @@ exports.handler = async (event) => { // Aangepast van 'export const'
     // === FIX VOOR FORMDATA PARSING ===
     // 1. Haal de 'boundary' uit de headers
     const contentType = event.headers['content-type'] || event.headers['Content-Type'];
-    const boundary = multipart.getBoundary(contentType); // Gebruik 'multipart.getBoundary'
+    const boundary = multipart.getBoundary(contentType);
     
     // 2. Converteer de body van base64 naar een Buffer
     const bodyBuffer = Buffer.from(event.body, 'base64');
 
     // 3. Parse de multipart data
-    const parts = multipart.parse(bodyBuffer, boundary); // Gebruik 'multipart.parse'
+    const parts = multipart.parse(bodyBuffer, boundary);
 
     // 4. Haal de velden en het bestand eruit
     const cvFilePart = parts.find(part => part.name === 'cvFile');
     const jobDescriptionPart = parts.find(part => part.name === 'jobDescription');
-    const languagePart = parts.find(part => part.name === 'language'); // Optioneel taal ophalen
+    const languagePart = parts.find(part => part.name === 'language');
 
     if (!cvFilePart || !jobDescriptionPart) {
       return {
@@ -54,13 +55,29 @@ exports.handler = async (event) => { // Aangepast van 'export const'
     }
 
     const jobDescription = jobDescriptionPart.data.toString('utf-8');
-    const language = languagePart ? languagePart.data.toString('utf-8') : 'en'; // Fallback naar 'en'
+    const language = languagePart ? languagePart.data.toString('utf-8') : 'en';
     
-   // 5. Lees de tekst uit de PDF buffer (met dynamische import)
-const pdf = await import('pdf-parse'); // Dynamische import
-const pdfData = await pdf.default(cvFilePart.data); // Roep .default aan na dynamische import
-const currentCV = pdfData.text;
+    // 5. Lees de tekst uit de PDF buffer (met dynamische import)
+    const pdf = await import('pdf-parse');
+    const pdfData = await pdf.default(cvFilePart.data);
+    const currentCV = pdfData.text;
 
+    // === ✨ CACHING CHECK - NIEUW! ✨ ===
+    console.log('🔍 Checking cache...');
+    const cachedResult = await checkCache(currentCV, jobDescription, language);
+    
+    if (cachedResult) {
+      console.log('✅ Cache HIT - returning cached result!');
+      console.log(`💰 Saved API cost! Hit count: ${cachedResult.metadata.hitCount}`);
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify(cachedResult),
+      };
+    }
+    
+    console.log('❌ Cache miss - calling AI...');
+    // === EINDE CACHING CHECK ===
 
     // Validate inputs
     if (!currentCV || !jobDescription) {
@@ -140,7 +157,7 @@ const currentCV = pdfData.text;
     );
     console.log(`${recruiterTips.success ? '✅' : '❌'} Recruiter Tips extraction: ${recruiterTips.content.length} chars`);
 
-    // NEW: Extract changes overview
+    // Extract changes overview
     const changesOverview = extractSection(
       fullText, 
       '---CHANGES_OVERVIEW_START---', 
@@ -157,7 +174,7 @@ const currentCV = pdfData.text;
       improvedCV: improvedCV.content,
       coverLetter: coverLetter.content,
       recruiterTips: recruiterTips.content,
-      changesOverview: changesOverview.content, // NEW: Include changes overview
+      changesOverview: changesOverview.content,
       metadata: {
         originalCVLength: currentCV.length,
         jobDescriptionLength: jobDescription.length,
@@ -165,6 +182,21 @@ const currentCV = pdfData.text;
         timestamp: new Date().toISOString(),
       }
     };
+
+    // === ✨ SAVE TO CACHE - NIEUW! ✨ ===
+    console.log('💾 Saving result to cache...');
+    const cacheSaved = await saveToCache(currentCV, jobDescription, language, responseData);
+    
+    if (cacheSaved) {
+      console.log('✅ Successfully saved to cache');
+    } else {
+      console.log('⚠️ Cache save failed (non-critical)');
+    }
+    
+    // Add cache metadata
+    responseData.metadata.cached = false;
+    responseData.metadata.hitCount = 1;
+    // === EINDE SAVE TO CACHE ===
 
     console.log('\n--- FINAL DATA SUMMARY ---');
     console.log(`Using CV: ${improvedCV.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${improvedCV.content.length} chars)`);
