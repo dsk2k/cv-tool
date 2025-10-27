@@ -3,323 +3,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uw Verbeterde CV - AI CV Tailor</title>
+    <title>TEST - Uw Verbeterde CV</title>
     
+    <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Marked.js voor markdown -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.0/marked.min.js"></script>
     
     <style>
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            font-family: system-ui, -apple-system, sans-serif;
-        }
-        
-        .stat-card {
-            background: white;
-            border-radius: 1rem;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-        
-        .stat-number {
-            font-size: 3rem;
-            font-weight: 700;
-            color: #667eea;
-        }
-        
-        .content-card {
-            background: white;
-            border-radius: 1rem;
             padding: 2rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
         
-        .markdown-content h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-top: 1.5rem;
-            margin-bottom: 1rem;
-            color: #1f2937;
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
         
-        .markdown-content h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-top: 1rem;
-            margin-bottom: 0.5rem;
-            color: #374151;
-        }
-        
-        .markdown-content p {
-            margin-bottom: 1rem;
-            line-height: 1.6;
-            color: #4b5563;
-        }
-        
-        .markdown-content strong {
-            font-weight: 600;
-            color: #1f2937;
-        }
-        
-        .markdown-content ul, .markdown-content ol {
-            margin-left: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .markdown-content li {
-            margin-bottom: 0.5rem;
-            line-height: 1.6;
-        }
-        
-        @keyframes highlight {
-            0%, 100% { background-color: transparent; }
-            50% { background-color: rgba(34, 197, 94, 0.2); }
-        }
-        
-        .stat-animated {
-            animation: highlight 1s ease;
+        .pulse-animation {
+            animation: pulse 2s ease-in-out infinite;
         }
     </style>
 </head>
-<body class="p-4">
+<body>
     <div class="max-w-6xl mx-auto">
+        <!-- Debug Info -->
+        <div id="debugInfo" class="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-4 rounded">
+            <p class="font-bold">🔍 Debug Info:</p>
+            <p id="debugText" class="text-sm font-mono">Loading...</p>
+        </div>
+        
         <!-- Header -->
         <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-white mb-2">Uw Verbeterde CV</h1>
-            <p class="text-white text-opacity-80">AI-gestuurde optimalisatie resultaten</p>
+            <h1 class="text-5xl font-bold text-white mb-2 pulse-animation">Uw Verbeterde CV</h1>
+            <p class="text-white text-lg">AI-gestuurde optimalisatie resultaten</p>
         </div>
         
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div class="stat-card">
-                <div id="matchScore" class="stat-number">--</div>
-                <div class="text-gray-600 font-medium">Match Score</div>
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Match Score -->
+            <div class="bg-white rounded-2xl p-8 text-center shadow-xl">
+                <div id="matchScore" class="text-6xl font-bold text-purple-600 mb-2">--</div>
+                <div class="text-gray-600 font-semibold text-lg">Match Score</div>
             </div>
-            <div class="stat-card">
-                <div id="changesCount" class="stat-number">--</div>
-                <div class="text-gray-600 font-medium">Wijzigingen Gemaakt</div>
+            
+            <!-- Changes Count -->
+            <div class="bg-white rounded-2xl p-8 text-center shadow-xl">
+                <div id="changesCount" class="text-6xl font-bold text-purple-600 mb-2">--</div>
+                <div class="text-gray-600 font-semibold text-lg">Wijzigingen Gemaakt</div>
             </div>
-            <div class="stat-card">
-                <div id="avgImpact" class="stat-number">--</div>
-                <div class="text-gray-600 font-medium">Gem. Impact</div>
+            
+            <!-- Impact -->
+            <div class="bg-white rounded-2xl p-8 text-center shadow-xl">
+                <div id="avgImpact" class="text-6xl font-bold text-purple-600 mb-2">--</div>
+                <div class="text-gray-600 font-semibold text-lg">Gem. Impact</div>
             </div>
         </div>
         
-        <!-- Action Buttons -->
-        <div class="flex gap-4 mb-8 flex-wrap justify-center">
-            <button onclick="window.print()" class="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold shadow hover:shadow-lg transition">
+        <!-- Buttons -->
+        <div class="flex gap-4 mb-8 justify-center flex-wrap">
+            <button onclick="window.print()" class="bg-white hover:bg-gray-100 text-purple-600 font-semibold px-6 py-3 rounded-lg shadow-lg">
                 📄 Download PDF
             </button>
-            <button onclick="copyCV()" class="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold shadow hover:shadow-lg transition">
+            <button onclick="copyContent()" class="bg-white hover:bg-gray-100 text-purple-600 font-semibold px-6 py-3 rounded-lg shadow-lg">
                 📋 Kopieer CV
             </button>
-            <a href="index.html" class="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold shadow hover:shadow-lg transition inline-block">
+            <a href="index.html" class="bg-white hover:bg-gray-100 text-purple-600 font-semibold px-6 py-3 rounded-lg shadow-lg inline-block">
                 🔄 Nieuw CV
             </a>
         </div>
         
-        <!-- Content Sections -->
+        <!-- Content -->
         <div class="space-y-6">
             <!-- Changes Overview -->
-            <div class="content-card">
-                <h2 class="text-2xl font-bold mb-4 text-purple-600">📝 Wat Is Veranderd & Waarom</h2>
-                <div id="changesContent" class="markdown-content"></div>
+            <div class="bg-white rounded-2xl p-8 shadow-xl">
+                <h2 class="text-3xl font-bold mb-6 text-purple-600">📝 Wat Is Veranderd & Waarom</h2>
+                <div id="changesContent" class="prose prose-lg max-w-none"></div>
             </div>
             
             <!-- Improved CV -->
-            <div class="content-card">
-                <h2 class="text-2xl font-bold mb-4 text-purple-600">📄 Verbeterd CV</h2>
-                <div id="cvContent" class="markdown-content"></div>
+            <div class="bg-white rounded-2xl p-8 shadow-xl">
+                <h2 class="text-3xl font-bold mb-6 text-purple-600">📄 Verbeterd CV</h2>
+                <div id="cvContent" class="prose prose-lg max-w-none"></div>
             </div>
             
             <!-- Cover Letter -->
-            <div class="content-card">
-                <h2 class="text-2xl font-bold mb-4 text-purple-600">✉️ Motivatiebrief</h2>
-                <div id="coverLetterContent" class="markdown-content"></div>
+            <div class="bg-white rounded-2xl p-8 shadow-xl">
+                <h2 class="text-3xl font-bold mb-6 text-purple-600">✉️ Motivatiebrief</h2>
+                <div id="coverLetterContent" class="prose prose-lg max-w-none"></div>
             </div>
             
-            <!-- Recruiter Tips -->
-            <div class="content-card">
-                <h2 class="text-2xl font-bold mb-4 text-purple-600">💡 Recruiter Tips</h2>
-                <div id="tipsContent" class="markdown-content"></div>
+            <!-- Tips -->
+            <div class="bg-white rounded-2xl p-8 shadow-xl">
+                <h2 class="text-3xl font-bold mb-6 text-purple-600">💡 Recruiter Tips</h2>
+                <div id="tipsContent" class="prose prose-lg max-w-none"></div>
             </div>
         </div>
     </div>
     
     <script>
-        console.log('🚀 Improvements page loaded');
+        // ========================================
+        // ULTRA SIMPEL SCRIPT DAT ALTIJD WERKT
+        // ========================================
         
-        // Load data from sessionStorage
-        const resultData = sessionStorage.getItem('cvAnalysisResult');
-        console.log('📦 Raw data:', resultData ? 'found' : 'NOT FOUND');
+        console.log('🚀 TEST improvements page loaded');
         
-        if (!resultData) {
-            alert('Geen data gevonden. Ga terug en analyseer je CV opnieuw.');
-            window.location.href = 'index.html';
+        let debugLog = [];
+        function addDebug(msg) {
+            debugLog.push(msg);
+            console.log(msg);
+            document.getElementById('debugText').innerHTML = debugLog.join('<br>');
         }
         
-        let data;
+        addDebug('✅ Script started');
+        
+        // Stap 1: Haal data op
+        const rawData = sessionStorage.getItem('cvAnalysisResult');
+        addDebug(`📦 SessionStorage data: ${rawData ? 'FOUND!' : 'NOT FOUND!'}`);
+        
+        if (!rawData) {
+            addDebug('❌ ERROR: No data in sessionStorage!');
+            alert('❌ Geen data gevonden!\n\nGa terug naar de homepage en analyseer je CV opnieuw.');
+            // DON'T redirect, so user can see debug info
+        }
+        
+        let data = null;
         try {
-            data = JSON.parse(resultData);
-            console.log('✅ Data parsed successfully');
-            console.log('📊 Data keys:', Object.keys(data));
+            data = JSON.parse(rawData);
+            addDebug(`✅ Data parsed successfully`);
+            addDebug(`📊 Keys: ${Object.keys(data).join(', ')}`);
+            addDebug(`📏 changesOverview: ${data.changesOverview?.length || 0} chars`);
+            addDebug(`📏 improvedCV: ${data.improvedCV?.length || 0} chars`);
         } catch (e) {
-            console.error('❌ Parse error:', e);
-            alert('Error loading data. Ga terug en probeer opnieuw.');
-            window.location.href = 'index.html';
+            addDebug(`❌ Parse error: ${e.message}`);
         }
         
-        // Extract stats with SUPER ROBUST patterns
+        // Stap 2: Extract stats - SUPER AGGRESSIVE PATTERNS
         function extractStats(text) {
-            console.log('🔍 Extracting stats from text length:', text?.length || 0);
+            addDebug('🔍 Starting stats extraction...');
             
-            if (!text) return { matchScore: 0, changesCount: 0 };
+            if (!text) {
+                addDebug('⚠️ No text to extract from');
+                return { matchScore: 0, changesCount: 0 };
+            }
+            
+            addDebug(`📏 Text length: ${text.length}`);
+            addDebug(`📝 First 200 chars: ${text.substring(0, 200)}`);
             
             let matchScore = 0;
             let changesCount = 0;
             
-            // MATCH SCORE - 15 patterns!
+            // MATCH SCORE - Try EVERYTHING
             const matchPatterns = [
                 /match\s*score[:\s]*(\d+)%/i,
                 /job\s*match[:\s]*(\d+)%/i,
                 /afstemming[:\s]*(\d+)%/i,
                 /score[:\s]*(\d+)%/i,
                 /(\d+)%\s*match/i,
-                /match[:\s]*"(\d+)%"/i,
-                /cv\s*score[:\s]*(\d+)/i,
-                /overall[:\s]*(\d+)%/i,
-                /percentage[:\s]*(\d+)%/i,
-                /rating[:\s]*(\d+)%/i
+                /percentage[:\s]*(\d+)/i,
+                /rating[:\s]*(\d+)/i
             ];
             
-            for (const pattern of matchPatterns) {
-                const match = text.match(pattern);
+            for (let i = 0; i < matchPatterns.length; i++) {
+                const match = text.match(matchPatterns[i]);
                 if (match && match[1]) {
                     matchScore = parseInt(match[1]);
-                    console.log(`✅ Match score: ${matchScore}% (pattern: ${pattern})`);
+                    addDebug(`✅ Match score: ${matchScore}% (pattern ${i})`);
                     break;
                 }
             }
             
-            // CHANGES COUNT - 15 patterns!
-            const changesPatterns = [
-                /(\d+)\s*changes?\s*made/i,
+            if (matchScore === 0) {
+                addDebug('⚠️ No match score pattern found, trying loose numbers...');
+                // Try to find ANY percentage in first 500 chars
+                const anyPercent = text.substring(0, 500).match(/(\d{1,3})%/);
+                if (anyPercent) {
+                    matchScore = parseInt(anyPercent[1]);
+                    addDebug(`💡 Found percentage: ${matchScore}%`);
+                }
+            }
+            
+            // CHANGES COUNT
+            const changePatterns = [
+                /(\d+)\s*changes/i,
                 /(\d+)\s*wijzigingen/i,
-                /total\s*changes?[:\s]*(\d+)/i,
-                /made\s*(\d+)\s*changes?/i,
+                /total[:\s]*(\d+)/i,
                 /totaal[:\s]*(\d+)/i,
-                /aantal[:\s]*(\d+)/i,
-                /(\d+)\s*improvements?/i,
-                /(\d+)\s*verbeteringen/i,
-                /changes?[:\s]*(\d+)/i,
-                /count[:\s]*(\d+)/i
+                /aantal[:\s]*(\d+)/i
             ];
             
-            for (const pattern of changesPatterns) {
-                const match = text.match(pattern);
+            for (let i = 0; i < changePatterns.length; i++) {
+                const match = text.match(changePatterns[i]);
                 if (match && match[1]) {
                     changesCount = parseInt(match[1]);
-                    console.log(`✅ Changes count: ${changesCount} (pattern: ${pattern})`);
+                    addDebug(`✅ Changes count: ${changesCount} (pattern ${i})`);
                     break;
                 }
             }
             
-            // FALLBACK: Count numbered items (1. 2. 3.)
+            // Fallback: Count numbered items
             if (changesCount === 0) {
-                const numbered = (text.match(/^\s*\d+\./gm) || []).length;
+                const numbered = (text.match(/^###\s*\d+\./gm) || []).length;
                 if (numbered > 0) {
                     changesCount = numbered;
-                    console.log(`💡 Counted ${numbered} numbered items`);
+                    addDebug(`💡 Counted ${numbered} ### headers`);
                 }
             }
             
-            // FALLBACK: Count ### headers
+            // Fallback: Count ### 1. style headers
             if (changesCount === 0) {
-                const headers = (text.match(/^###\s+\d+\./gm) || []).length;
-                if (headers > 0) {
-                    changesCount = headers;
-                    console.log(`💡 Counted ${headers} section headers`);
+                const sections = (text.match(/###\s*\d+\./g) || []).length;
+                if (sections > 0) {
+                    changesCount = sections;
+                    addDebug(`💡 Counted ${sections} section headers`);
                 }
             }
             
-            // FALLBACK: Count bullet points
-            if (changesCount === 0) {
-                const bullets = (text.match(/^[-•*]\s/gm) || []).length;
-                if (bullets > 0) {
-                    changesCount = Math.min(bullets, 20); // Cap at 20
-                    console.log(`💡 Counted ${changesCount} bullet points`);
-                }
-            }
-            
-            console.log(`📊 FINAL: ${matchScore}% match, ${changesCount} changes`);
+            addDebug(`📊 FINAL: matchScore=${matchScore}%, changesCount=${changesCount}`);
             return { matchScore, changesCount };
         }
         
-        // Update stats in UI
+        // Stap 3: Update UI
         function updateStats() {
-            const text = data.changesOverview || data.improvedCV || '';
+            addDebug('📊 Updating stats in UI...');
+            
+            const text = (data?.changesOverview || data?.improvedCV || '');
             const stats = extractStats(text);
             
-            const matchEl = document.getElementById('matchScore');
-            const changesEl = document.getElementById('changesCount');
-            const impactEl = document.getElementById('avgImpact');
+            document.getElementById('matchScore').textContent = stats.matchScore + '%';
+            document.getElementById('changesCount').textContent = stats.changesCount;
+            document.getElementById('avgImpact').textContent = stats.changesCount > 0 ? '✓' : '--';
             
-            if (matchEl) {
-                matchEl.textContent = stats.matchScore + '%';
-                matchEl.classList.add('stat-animated');
-            }
-            
-            if (changesEl) {
-                changesEl.textContent = stats.changesCount;
-                changesEl.classList.add('stat-animated');
-            }
-            
-            if (impactEl) {
-                impactEl.textContent = stats.changesCount > 0 ? '✓' : '--';
-                impactEl.classList.add('stat-animated');
-            }
+            addDebug('✅ Stats updated in DOM');
         }
         
-        // Render markdown to HTML
+        // Stap 4: Render markdown
         function renderMarkdown(text) {
-            if (!text) return '<p class="text-gray-500">Geen content beschikbaar</p>';
+            if (!text) return '<p class="text-gray-400 italic">Geen content</p>';
             
             try {
                 if (typeof marked !== 'undefined') {
-                    marked.setOptions({
-                        breaks: true,
-                        gfm: true
-                    });
+                    addDebug('✅ Using marked.js');
                     return marked.parse(text);
                 }
             } catch (e) {
-                console.warn('Marked.js error, using fallback:', e);
+                addDebug(`⚠️ Marked.js error: ${e.message}`);
             }
             
-            // Fallback: basic conversion
+            // Fallback
+            addDebug('⚠️ Using basic markdown fallback');
             return text
-                .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-                .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-                .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/^### (.+)$/gm, '<h3 class="text-2xl font-bold mt-6 mb-3">$1</h3>')
+                .replace(/^## (.+)$/gm, '<h2 class="text-3xl font-bold mt-8 mb-4">$1</h2>')
+                .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold">$1</strong>')
                 .replace(/\*(.+?)\*/g, '<em>$1</em>')
-                .replace(/^[-•*] (.+)$/gm, '<li>$1</li>')
-                .replace(/(<li>.*<\/li>\n?)+/gs, '<ul>$&</ul>')
-                .replace(/\n\n/g, '</p><p>')
-                .replace(/^(.+)$/gm, '<p>$1</p>');
+                .replace(/^[-•*] (.+)$/gm, '<li class="ml-4">$1</li>')
+                .replace(/\n\n/g, '</p><p class="mb-4">')
+                .replace(/^(.+)$/gm, '<p class="mb-4">$1</p>');
         }
         
-        // Display all content
+        // Stap 5: Display content
         function displayContent() {
-            console.log('🎨 Displaying content...');
+            addDebug('🎨 Displaying content...');
             
-            // Update stats
+            if (!data) {
+                addDebug('❌ No data to display');
+                return;
+            }
+            
             updateStats();
             
-            // Render sections
             const sections = {
                 'changesContent': data.changesOverview,
                 'cvContent': data.improvedCV,
@@ -328,28 +284,23 @@
             };
             
             for (const [id, content] of Object.entries(sections)) {
-                const element = document.getElementById(id);
-                if (element && content) {
-                    element.innerHTML = renderMarkdown(content);
-                    console.log(`✅ Rendered ${id}`);
+                const el = document.getElementById(id);
+                if (el && content) {
+                    el.innerHTML = renderMarkdown(content);
+                    addDebug(`✅ Rendered ${id} (${content.length} chars)`);
                 } else {
-                    console.warn(`⚠️ Missing: ${id}`);
-                    if (element) {
-                        element.innerHTML = '<p class="text-gray-500 italic">Geen content beschikbaar voor deze sectie</p>';
-                    }
+                    addDebug(`⚠️ Missing ${id}`);
                 }
             }
             
-            console.log('🎉 All content displayed!');
+            addDebug('🎉 ALL DONE!');
         }
         
-        // Copy CV to clipboard
-        function copyCV() {
+        // Copy function
+        function copyContent() {
             const cvText = document.getElementById('cvContent').innerText;
             navigator.clipboard.writeText(cvText).then(() => {
-                alert('✅ CV gekopieerd naar clipboard!');
-            }).catch(() => {
-                alert('❌ Kon CV niet kopiëren. Probeer opnieuw.');
+                alert('✅ CV gekopieerd!');
             });
         }
         
