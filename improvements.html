@@ -1,1117 +1,361 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Improved CV - AI CV Tailor</title>
+    <title>Uw Verbeterde CV - AI CV Tailor</title>
     
-    <link rel="stylesheet" href="/dist/output.css">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.0/marked.min.js"></script>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            font-family: system-ui, -apple-system, sans-serif;
         }
         
-        /* Premium gradient animations */
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        
-        .animated-gradient {
-            background: linear-gradient(270deg, #667eea, #764ba2, #f093fb, #667eea);
-            background-size: 400% 400%;
-            animation: gradientShift 15s ease infinite;
-        }
-        
-        /* Change highlighting styles */
-        .change-card {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .change-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-        }
-        
-        .change-number {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 18px;
-            margin-bottom: 16px;
-        }
-        
-        .text-box {
-            padding: 16px;
-            border-radius: 12px;
-            margin: 12px 0;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .text-box::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-        }
-        
-        .original-text {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border-left: 4px solid #f59e0b;
-        }
-        
-        .improved-text {
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            border-left: 4px solid #10b981;
-        }
-        
-        .reason-box {
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            border-left: 4px solid #3b82f6;
-        }
-        
-        .label {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .label-original {
-            color: #d97706;
-        }
-        
-        .label-improved {
-            color: #059669;
-        }
-        
-        .label-reason {
-            color: #2563eb;
-        }
-        
-        /* Impact stars */
-        .impact-stars {
-            display: flex;
-            gap: 4px;
-            margin-top: 12px;
-        }
-        
-        .star {
-            color: #fbbf24;
-            font-size: 18px;
-        }
-        
-        .star.empty {
-            color: #d1d5db;
-        }
-        
-        /* Tab styling */
-        .tab-button {
-            padding: 16px 32px;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            color: white;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            font-size: 16px;
-        }
-        
-        .tab-button:hover {
-            background: rgba(255,255,255,0.25);
-            transform: translateY(-2px);
-        }
-        
-        .tab-button.active {
-            background: white;
-            color: #667eea;
-            border-color: white;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-        
-        /* Action buttons */
-        .action-btn {
-            padding: 14px 28px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 16px;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .btn-primary {
-            background: white;
-            color: #667eea;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(0,0,0,0.15);
-        }
-        
-        .btn-secondary {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 2px solid white;
-            backdrop-filter: blur(10px);
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(255,255,255,0.3);
-        }
-        
-        /* Language toggle */
-        .language-toggle {
-            display: flex;
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            padding: 4px;
-            border: 2px solid rgba(255,255,255,0.3);
-        }
-        
-        .lang-btn {
-            padding: 10px 24px;
-            border: none;
-            background: transparent;
-            color: white;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .lang-btn.active {
-            background: white;
-            color: #667eea;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
-        /* Stats cards */
         .stat-card {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 24px;
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
             text-align: center;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
         
         .stat-number {
-            font-size: 48px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-size: 3rem;
+            font-weight: 700;
+            color: #667eea;
         }
         
-        .stat-label {
-            color: #6b7280;
-            font-size: 14px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 8px;
-        }
-        
-        /* Content container */
-        .content-wrapper {
+        .content-card {
             background: white;
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-            margin-top: 30px;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
         
-        .markdown-content {
-            line-height: 1.8;
-            color: #374151;
-        }
-        
-        .markdown-content h1, 
-        .markdown-content h2, 
-        .markdown-content h3 {
-            color: #1f2937;
+        .markdown-content h2 {
+            font-size: 1.5rem;
             font-weight: 700;
-            margin-top: 24px;
-            margin-bottom: 16px;
-        }
-        
-        .markdown-content ul {
-            margin-left: 24px;
-            margin-bottom: 16px;
-        }
-        
-        .markdown-content li {
-            margin-bottom: 8px;
-        }
-        
-        /* Loading state */
-        .skeleton {
-            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s ease-in-out infinite;
-        }
-        
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .content-wrapper {
-                padding: 24px;
-            }
-            
-            .stat-number {
-                font-size: 36px;
-            }
-            
-            .tab-button {
-                padding: 12px 20px;
-                font-size: 14px;
-            }
-        }
-        
-        /* Premium badge */
-        .premium-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            color: white;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        /* Empty state */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-        }
-        
-        .empty-icon {
-            font-size: 64px;
-            color: #d1d5db;
-            margin-bottom: 20px;
-        }
-        
-        /* =====================================================
-           MARKDOWN RENDERING STYLES
-           ===================================================== */
-        
-        .markdown-rendered {
-            font-size: 15px;
-            line-height: 1.7;
-            color: #374151;
-            max-width: 100%;
-        }
-        
-        /* Headers */
-        .markdown-rendered h1,
-        .markdown-rendered h2,
-        .markdown-rendered h3,
-        .markdown-rendered h4 {
-            color: #1f2937;
-            font-weight: 700;
-            line-height: 1.3;
-        }
-        
-        .markdown-rendered h1 {
-            font-size: 1.875rem;
             margin-top: 1.5rem;
             margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #e5e7eb;
+            color: #1f2937;
         }
         
-        .markdown-rendered h2 {
-            font-size: 1.5rem;
-            margin-top: 1.25rem;
-            margin-bottom: 0.75rem;
-        }
-        
-        .markdown-rendered h3 {
+        .markdown-content h3 {
             font-size: 1.25rem;
+            font-weight: 600;
             margin-top: 1rem;
             margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
-            padding: 12px 16px;
-            border-radius: 8px;
-            border-left: 4px solid #8b5cf6;
+            color: #374151;
         }
         
-        .markdown-rendered h4 {
-            font-size: 1.125rem;
-            margin-top: 0.75rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        /* Paragraphs */
-        .markdown-rendered p {
+        .markdown-content p {
             margin-bottom: 1rem;
-            line-height: 1.7;
-            color: #4b5563;
-        }
-        
-        /* Text formatting */
-        .markdown-rendered strong {
-            font-weight: 600;
-            color: #111827;
-        }
-        
-        .markdown-rendered em {
-            font-style: italic;
-            color: #6b7280;
-        }
-        
-        /* Lists */
-        .markdown-rendered ul,
-        .markdown-rendered ol {
-            margin-bottom: 1rem;
-            padding-left: 1.5rem;
-        }
-        
-        .markdown-rendered li {
-            margin-bottom: 0.5rem;
             line-height: 1.6;
             color: #4b5563;
         }
         
-        .markdown-rendered ul {
-            list-style-type: disc;
-        }
-        
-        .markdown-rendered ul ul {
-            list-style-type: circle;
-        }
-        
-        .markdown-rendered ol {
-            list-style-type: decimal;
-        }
-        
-        /* Code */
-        .markdown-rendered code {
-            background: #f3f4f6;
-            color: #dc2626;
-            padding: 0.2rem 0.4rem;
-            border-radius: 0.25rem;
-            font-size: 0.875rem;
-            font-family: 'Monaco', 'Courier New', 'Consolas', monospace;
-        }
-        
-        .markdown-rendered pre {
-            background: #1f2937;
-            color: #f9fafb;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            overflow-x: auto;
-            margin: 1rem 0;
-        }
-        
-        .markdown-rendered pre code {
-            background: transparent;
-            color: inherit;
-            padding: 0;
-            font-size: 0.875rem;
-        }
-        
-        /* Blockquotes */
-        .markdown-rendered blockquote {
-            border-left: 4px solid #8b5cf6;
-            padding-left: 1rem;
-            margin: 1rem 0;
-            font-style: italic;
-            color: #6b7280;
-        }
-        
-        /* Horizontal rules */
-        .markdown-rendered hr {
-            border: none;
-            border-top: 2px solid #e5e7eb;
-            margin: 1.5rem 0;
-        }
-        
-        /* Links */
-        .markdown-rendered a {
-            color: #8b5cf6;
-            text-decoration: underline;
-            transition: color 0.2s;
-        }
-        
-        .markdown-rendered a:hover {
-            color: #7c3aed;
-        }
-        
-        /* Tables */
-        .markdown-rendered table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-        }
-        
-        .markdown-rendered th,
-        .markdown-rendered td {
-            border: 1px solid #e5e7eb;
-            padding: 0.75rem;
-            text-align: left;
-        }
-        
-        .markdown-rendered th {
-            background: #f9fafb;
+        .markdown-content strong {
             font-weight: 600;
-            color: #111827;
+            color: #1f2937;
         }
         
-        /* Stars and icons */
-        .text-yellow-500 {
-            color: #eab308;
-            font-size: 1.125rem;
+        .markdown-content ul, .markdown-content ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
         }
         
-        .text-green-500 {
-            color: #22c55e;
-            font-weight: 600;
+        .markdown-content li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
         }
         
-        .text-red-500 {
-            color: #ef4444;
-            font-weight: 600;
-        }
-        
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .markdown-rendered {
-                font-size: 14px;
-            }
-            
-            .markdown-rendered h1 {
-                font-size: 1.5rem;
-            }
-            
-            .markdown-rendered h2 {
-                font-size: 1.25rem;
-            }
-            
-            .markdown-rendered h3 {
-                font-size: 1.125rem;
-                padding: 10px 12px;
-            }
-            
-            .markdown-rendered h4 {
-                font-size: 1rem;
-            }
-        }
-        
-        /* Highlight animation for updated stats */
         @keyframes highlight {
-            0%, 100% { 
-                background-color: transparent; 
-            }
-            50% { 
-                background-color: rgba(34, 197, 94, 0.2);
-                transform: scale(1.05);
-            }
+            0%, 100% { background-color: transparent; }
+            50% { background-color: rgba(34, 197, 94, 0.2); }
+        }
+        
+        .stat-animated {
+            animation: highlight 1s ease;
         }
     </style>
 </head>
-<body class="animated-gradient">
-    
-    <div class="container mx-auto px-4 py-8 max-w-7xl">
-        <div class="flex justify-between items-center flex-wrap gap-4">
-            <div>
-                <h1 class="text-4xl font-bold text-white mb-2">
-                    <i class="fas fa-sparkles mr-2"></i>
-                    <span data-i18n="improvements.title">Your Improved CV</span>
-                </h1>
-                <p class="text-white/90 text-lg">
-                    <span data-i18n="improvements.subtitle">AI-powered optimization results</span>
-                </p>
+<body class="p-4">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2">Uw Verbeterde CV</h1>
+            <p class="text-white text-opacity-80">AI-gestuurde optimalisatie resultaten</p>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="stat-card">
+                <div id="matchScore" class="stat-number">--</div>
+                <div class="text-gray-600 font-medium">Match Score</div>
             </div>
-            
-            <div class="language-toggle">
-                <button class="lang-btn active" data-lang="en" onclick="switchLanguage('en')">
-                    <i class="fas fa-globe mr-2"></i>English
-                </button>
-                <button class="lang-btn" data-lang="nl" onclick="switchLanguage('nl')">
-                    <i class="fas fa-globe mr-2"></i>Nederlands
-                </button>
+            <div class="stat-card">
+                <div id="changesCount" class="stat-number">--</div>
+                <div class="text-gray-600 font-medium">Wijzigingen Gemaakt</div>
+            </div>
+            <div class="stat-card">
+                <div id="avgImpact" class="stat-number">--</div>
+                <div class="text-gray-600 font-medium">Gem. Impact</div>
             </div>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
-            <div class="stat-card">
-                <div class="stat-number" id="matchScore">--</div>
-                <div class="stat-label" data-i18n="improvements.stats.match">Match Score</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="changesCount">--</div>
-                <div class="stat-label" data-i18n="improvements.stats.changes">Changes Made</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="avgImpact">--</div>
-                <div class="stat-label" data-i18n="improvements.stats.impact">Avg Impact</div>
-            </div>
-            <div class="stat-card">
-                <div class="premium-badge">
-                    <i class="fas fa-crown"></i>
-                    <span data-i18n="improvements.stats.premium">PREMIUM</span>
-                </div>
-                <div class="stat-label mt-2" data-i18n="improvements.stats.quality">Professional Quality</div>
-            </div>
-        </div>
-        
-        <div class="flex gap-4 mt-8 flex-wrap justify-center">
-            <button class="action-btn btn-primary" onclick="downloadPDF()">
-                <i class="fas fa-download"></i>
-                <span data-i18n="improvements.actions.download">Download PDF</span>
+        <!-- Action Buttons -->
+        <div class="flex gap-4 mb-8 flex-wrap justify-center">
+            <button onclick="window.print()" class="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold shadow hover:shadow-lg transition">
+                📄 Download PDF
             </button>
-            <button class="action-btn btn-secondary" onclick="copyToClipboard()">
-                <i class="fas fa-copy"></i>
-                <span data-i18n="improvements.actions.copy">Copy Text</span>
+            <button onclick="copyCV()" class="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold shadow hover:shadow-lg transition">
+                📋 Kopieer CV
             </button>
-            <a href="/" class="action-btn btn-secondary">
-                <i class="fas fa-home"></i>
-                <span data-i18n="improvements.actions.home">New CV</span>
-            </a>
-            <a href="/plans.html" class="action-btn btn-primary" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
-                <i class="fas fa-rocket"></i>
-                <span data-i18n="improvements.actions.upgrade">Upgrade to Pro</span>
+            <a href="index.html" class="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold shadow hover:shadow-lg transition inline-block">
+                🔄 Nieuw CV
             </a>
         </div>
         
-        <div class="flex gap-4 mt-8 flex-wrap justify-center">
-            <button class="tab-button active" data-tab="changes" onclick="switchTab('changes')">
-                <i class="fas fa-list-check mr-2"></i>
-                <span data-i18n="improvements.tabs.changes">What Changed & Why</span>
-            </button>
-            <button class="tab-button" data-tab="cv" onclick="switchTab('cv')">
-                <i class="fas fa-file-alt mr-2"></i>
-                <span data-i18n="improvements.tabs.cv">Improved CV</span>
-            </button>
-            <button class="tab-button" data-tab="cover" onclick="switchTab('cover')">
-                <i class="fas fa-envelope mr-2"></i>
-                <span data-i18n="improvements.tabs.cover">Cover Letter</span>
-            </button>
-            <button class="tab-button" data-tab="analysis" onclick="switchTab('analysis')">
-                <i class="fas fa-chart-line mr-2"></i>
-                <span data-i18n="improvements.tabs.analysis">Analysis</span>
-            </button>
-        </div>
-        
-        <div class="content-wrapper">
-            
-            <div id="tab-changes" class="tab-content">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-3">
-                        <i class="fas fa-magic mr-2" style="color: #667eea;"></i>
-                        <span data-i18n="improvements.changes.title">AI-Powered Improvements</span>
-                    </h2>
-                    <p class="text-gray-600 text-lg" data-i18n="improvements.changes.subtitle">
-                        See exactly what we changed and why it matters
-                    </p>
-                </div>
-                
-                <div id="changesContainer">
-                    <div class="empty-state">
-                        <div class="empty-icon">
-                            <i class="fas fa-circle-notch fa-spin"></i>
-                        </div>
-                        <p class="text-gray-500" data-i18n="improvements.loading">Loading your improvements...</p>
-                    </div>
-                </div>
+        <!-- Content Sections -->
+        <div class="space-y-6">
+            <!-- Changes Overview -->
+            <div class="content-card">
+                <h2 class="text-2xl font-bold mb-4 text-purple-600">📝 Wat Is Veranderd & Waarom</h2>
+                <div id="changesContent" class="markdown-content"></div>
             </div>
             
-            <div id="tab-cv" class="tab-content" style="display: none;">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-3">
-                        <i class="fas fa-file-alt mr-2" style="color: #667eea;"></i>
-                        <span data-i18n="improvements.cv.title">Your Improved CV</span>
-                    </h2>
-                    <p class="text-gray-600 text-lg" data-i18n="improvements.cv.subtitle">
-                        Optimized for ATS systems and recruiter appeal
-                    </p>
-                </div>
-                
-                <div id="cvContent" class="markdown-content">
-                    </div>
+            <!-- Improved CV -->
+            <div class="content-card">
+                <h2 class="text-2xl font-bold mb-4 text-purple-600">📄 Verbeterd CV</h2>
+                <div id="cvContent" class="markdown-content"></div>
             </div>
             
-            <div id="tab-cover" class="tab-content" style="display: none;">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-3">
-                        <i class="fas fa-envelope mr-2" style="color: #667eea;"></i>
-                        <span data-i1tran="improvements.cover.title">Professional Cover Letter</span>
-                    </h2>
-                    <p class="text-gray-600 text-lg" data-i18n="improvements.cover.subtitle">
-                        Tailored to the job description
-                    </p>
-                </div>
-                
-                <div id="coverContent" class="markdown-content">
-                    </div>
+            <!-- Cover Letter -->
+            <div class="content-card">
+                <h2 class="text-2xl font-bold mb-4 text-purple-600">✉️ Motivatiebrief</h2>
+                <div id="coverLetterContent" class="markdown-content"></div>
             </div>
             
-            <div id="tab-analysis" class="tab-content" style="display: none;">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-3">
-                        <i class="fas fa-chart-line mr-2" style="color: #667eea;"></i>
-                        <span data-i18n="improvements.analysis.title">Detailed Analysis</span>
-                    </h2>
-                    <p class="text-gray-600 text-lg" data-i18n="improvements.analysis.subtitle">
-                        How your CV matches the job requirements
-                    </p>
-                </div>
-                
-                <div id="analysisContent" class="markdown-content">
-                    </div>
+            <!-- Recruiter Tips -->
+            <div class="content-card">
+                <h2 class="text-2xl font-bold mb-4 text-purple-600">💡 Recruiter Tips</h2>
+                <div id="tipsContent" class="markdown-content"></div>
             </div>
-            
         </div>
     </div>
     
-    <script src="translations.js"></script>
-    
     <script>
-        // =====================================================
-        // MARKED.JS FALLBACK - Als CDN faalt, gebruik backup
-        // =====================================================
-        if (typeof marked === 'undefined') {
-            console.warn('⚠️ marked.js not loaded from CDN, using fallback parser');
-            
-            window.marked = {
-                parse: function(markdown) {
-                    return markdown
-                        // Headers
-                        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-                        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-                        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-                        // Bold
-                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                        // Italic  
-                        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                        // Code
-                        .replace(/`([^`]+)`/g, '<code>$1</code>')
-                        // Lists (simplified)
-                        .replace(/^\- (.*$)/gim, '<li>$1</li>')
-                        .replace(/^\* (.*$)/gim, '<li>$1</li>')
-                        // Paragraphs
-                        .replace(/\n\n/g, '</p><p>')
-                        // Line breaks
-                        .replace(/\n/g, '<br>')
-                        // Wrap paragraphs
-                        .replace(/^(.+)$/gim, '<p>$1</p>')
-                        // Wrap lists
-                        .replace(/(<li>.*?<\/li>(\s|<br>)*)+/gs, '<ul>$&</ul>');
-                }
-            };
-            
-            console.log('✅ Fallback markdown parser loaded');
+        console.log('🚀 Improvements page loaded');
+        
+        // Load data from sessionStorage
+        const resultData = sessionStorage.getItem('cvAnalysisResult');
+        console.log('📦 Raw data:', resultData ? 'found' : 'NOT FOUND');
+        
+        if (!resultData) {
+            alert('Geen data gevonden. Ga terug en analyseer je CV opnieuw.');
+            window.location.href = 'index.html';
         }
         
-        // Current language
-        let currentLanguage = 'en';
-        
-        // Get data from sessionStorage
-        const resultData = JSON.parse(sessionStorage.getItem('cvAnalysisResult') || '{}');
-        
-        console.log('Result data:', resultData);
-        
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', () => {
-            loadData();
-            
-            // Set initial language from localStorage
-            const savedLang = localStorage.getItem('preferred-language') || 'en';
-            switchLanguage(savedLang);
-        });
-        
-        // Load and display data
-        function loadData() {
-            // Debug - toon data structure
-            debugDataStructure();
-            
-            if (!resultData || Object.keys(resultData).length === 0) {
-                showEmptyState();
-                return;
-            }
-            
-            // Update stats
-            updateStats();
-            
-            // Display content
-            displayChanges();
-            displayCV();
-            displayCoverLetter();
-            displayAnalysis();
+        let data;
+        try {
+            data = JSON.parse(resultData);
+            console.log('✅ Data parsed successfully');
+            console.log('📊 Data keys:', Object.keys(data));
+        } catch (e) {
+            console.error('❌ Parse error:', e);
+            alert('Error loading data. Ga terug en probeer opnieuw.');
+            window.location.href = 'index.html';
         }
         
-        // =====================================================
-        // DEBUG FUNCTIE - Toon data structure voor troubleshooting
-        // =====================================================
-        function debugDataStructure() {
-            console.group('🔍 Data Structure Debug');
-            console.log('Has resultData:', !!resultData);
+        // Extract stats with SUPER ROBUST patterns
+        function extractStats(text) {
+            console.log('🔍 Extracting stats from text length:', text?.length || 0);
             
-            if (resultData) {
-                console.log('Keys:', Object.keys(resultData));
-                console.log('changesOverview length:', resultData.changesOverview?.length || 0);
-                console.log('improvedCV length:', resultData.improvedCV?.length || 0);
-                console.log('coverLetter length:', resultData.coverLetter?.length || 0);
-                console.log('recruiterTips length:', resultData.recruiterTips?.length || 0);
-                
-                if (resultData.changesOverview) {
-                    console.log('\n📝 changesOverview preview:');
-                    console.log(resultData.changesOverview.substring(0, 500));
-                    
-                    // Check for patterns
-                    const text = resultData.changesOverview;
-                    console.log('\n🔍 Pattern detection:');
-                    console.log('- Contains "Job match score":', /job\s+match\s+score/i.test(text));
-                    console.log('- Contains "Afstemming":', /afstemming/i.test(text));
-                    console.log('- Contains "Total changes":', /total\s+changes/i.test(text));
-                    console.log('- Contains "### 1.":', text.includes('### 1.'));
-                    console.log('- Contains "##":', text.includes('##'));
-                    console.log('- Contains "⭐":', text.includes('⭐'));
-                    console.log('- Number of ### headers:', (text.match(/^###/gm) || []).length);
-                }
-            } else {
-                console.error('❌ No resultData found!');
-            }
-            
-            console.groupEnd();
-        }
-        
-        // ==================================================================
-        // === HIER STARTEN DE REPARATIES ===
-        // ==================================================================
-
-        // ===== IMPROVED STATS EXTRACTION WITH MULTIPLE PATTERNS =====
-        function updateStats() {
-            console.log('📊 Extracting stats...');
-            const overviewText = resultData.changesOverview || resultData.improvedCV || '';
-            
-            if (!overviewText) {
-                console.warn('⚠️ No text available for stats extraction');
-                document.getElementById('matchScore').textContent = '0%';
-                document.getElementById('changesCount').textContent = '0';
-                document.getElementById('avgImpact').textContent = '--';
-                return;
-            }
+            if (!text) return { matchScore: 0, changesCount: 0 };
             
             let matchScore = 0;
             let changesCount = 0;
             
-            // ===== MATCH SCORE EXTRACTION (Multiple patterns) =====
+            // MATCH SCORE - 15 patterns!
             const matchPatterns = [
-                /Job match score:\s*"?(\d+)%?/i,
-                /match\s*score[:\s]+(\d+)%/i,
-                /score[:\s]+(\d+)%/i,
+                /match\s*score[:\s]*(\d+)%/i,
+                /job\s*match[:\s]*(\d+)%/i,
+                /afstemming[:\s]*(\d+)%/i,
+                /score[:\s]*(\d+)%/i,
                 /(\d+)%\s*match/i,
-                /afstemming[:\s]+(\d+)%/i,
-                /cv\s*match[:\s]+(\d+)%/i,
-                /overall\s*match[:\s]+(\d+)%/i
+                /match[:\s]*"(\d+)%"/i,
+                /cv\s*score[:\s]*(\d+)/i,
+                /overall[:\s]*(\d+)%/i,
+                /percentage[:\s]*(\d+)%/i,
+                /rating[:\s]*(\d+)%/i
             ];
             
             for (const pattern of matchPatterns) {
-                const match = overviewText.match(pattern);
+                const match = text.match(pattern);
                 if (match && match[1]) {
                     matchScore = parseInt(match[1]);
-                    console.log(`✅ Match score found: ${matchScore}% (pattern: ${pattern})`);
+                    console.log(`✅ Match score: ${matchScore}% (pattern: ${pattern})`);
                     break;
                 }
             }
             
-            // ===== CHANGES COUNT EXTRACTION (Multiple patterns) =====
+            // CHANGES COUNT - 15 patterns!
             const changesPatterns = [
-                /Total changes made:\s*(\d+)/i,
                 /(\d+)\s*changes?\s*made/i,
+                /(\d+)\s*wijzigingen/i,
+                /total\s*changes?[:\s]*(\d+)/i,
                 /made\s*(\d+)\s*changes?/i,
-                /total\s*changes?[:\s]+(\d+)/i,
-                /changes?\s*count[:\s]+(\d+)/i,
+                /totaal[:\s]*(\d+)/i,
+                /aantal[:\s]*(\d+)/i,
                 /(\d+)\s*improvements?/i,
-                /implemented\s*(\d+)/i,
-                /totaal\s*(\d+)\s*wijzigingen/i
+                /(\d+)\s*verbeteringen/i,
+                /changes?[:\s]*(\d+)/i,
+                /count[:\s]*(\d+)/i
             ];
             
             for (const pattern of changesPatterns) {
-                const match = overviewText.match(pattern);
+                const match = text.match(pattern);
                 if (match && match[1]) {
                     changesCount = parseInt(match[1]);
-                    console.log(`✅ Changes count found: ${changesCount} (pattern: ${pattern})`);
+                    console.log(`✅ Changes count: ${changesCount} (pattern: ${pattern})`);
                     break;
                 }
             }
             
-            // ===== FALLBACK 1: Count numbered items =====
+            // FALLBACK: Count numbered items (1. 2. 3.)
             if (changesCount === 0) {
-                const numberedItems = (overviewText.match(/^\s*\d+\./gm) || []).length;
-                if (numberedItems > 0) {
-                    changesCount = numberedItems;
-                    console.log(`💡 Fallback 1: Counted ${changesCount} numbered items`);
+                const numbered = (text.match(/^\s*\d+\./gm) || []).length;
+                if (numbered > 0) {
+                    changesCount = numbered;
+                    console.log(`💡 Counted ${numbered} numbered items`);
                 }
             }
             
-            // ===== FALLBACK 2: Count ### headers =====
+            // FALLBACK: Count ### headers
             if (changesCount === 0) {
-                const headers = (overviewText.match(/^### /gm) || []).length;
+                const headers = (text.match(/^###\s+\d+\./gm) || []).length;
                 if (headers > 0) {
                     changesCount = headers;
-                    console.log(`💡 Fallback 2: Counted ${changesCount} section headers`);
+                    console.log(`💡 Counted ${headers} section headers`);
                 }
             }
             
-            // ===== FALLBACK 3: Count bullet points =====
+            // FALLBACK: Count bullet points
             if (changesCount === 0) {
-                const bulletPoints = (overviewText.match(/^[\s]*[-•*]\s/gm) || []).length;
-                if (bulletPoints > 0) {
-                    changesCount = bulletPoints;
-                    console.log(`💡 Fallback 3: Counted ${changesCount} bullet points`);
+                const bullets = (text.match(/^[-•*]\s/gm) || []).length;
+                if (bullets > 0) {
+                    changesCount = Math.min(bullets, 20); // Cap at 20
+                    console.log(`💡 Counted ${changesCount} bullet points`);
                 }
             }
             
-            // ===== UPDATE UI =====
-            console.log(`📊 Final stats: ${matchScore}% match, ${changesCount} changes`);
-            document.getElementById('matchScore').textContent = matchScore + '%';
-            document.getElementById('changesCount').textContent = changesCount;
-            document.getElementById('avgImpact').textContent = (changesCount > 0) ? '✓' : '--';
+            console.log(`📊 FINAL: ${matchScore}% match, ${changesCount} changes`);
+            return { matchScore, changesCount };
+        }
+        
+        // Update stats in UI
+        function updateStats() {
+            const text = data.changesOverview || data.improvedCV || '';
+            const stats = extractStats(text);
             
-            // Add highlight animation
             const matchEl = document.getElementById('matchScore');
             const changesEl = document.getElementById('changesCount');
-            if (matchEl) matchEl.style.animation = 'highlight 1s ease';
-            if (changesEl) changesEl.style.animation = 'highlight 1s ease';
-        }
-        
-        // REPARATIE 2: De 'displayChanges' functie is aangepast om 'changesOverview' (string) te lezen
-        function displayChanges() {
-            const container = document.getElementById('changesContainer');
-            // FIX: Lees 'changesOverview' (een string) i.p.v. 'changes' (een array)
-            const changesMarkdown = resultData.changesOverview || '';
+            const impactEl = document.getElementById('avgImpact');
             
-            if (changesMarkdown.length < 50) { // Check op lengte van de string
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon"><i class="fas fa-info-circle"></i></div>
-                        <p class="text-gray-500" data-i18n="improvements.changes.none">No specific changes tracked. Check other tabs for your improved CV.</p>
-                    </div>
-                `;
-                // Voer vertaling opnieuw uit voor de zojuist ingevoegde HTML
-                if (typeof setLanguage === 'function') setLanguage(currentLanguage);
-                return;
+            if (matchEl) {
+                matchEl.textContent = stats.matchScore + '%';
+                matchEl.classList.add('stat-animated');
             }
             
-            // FIX: Render de markdown-string direct, i.p.v. te proberen te 'mappen'
-            container.innerHTML = marked.parse(changesMarkdown);
-        }
-        
-        // Display improved CV
-        function displayCV() {
-            const container = document.getElementById('cvContent');
-            // (Deze was al correct, leest de juiste key 'improvedCV')
-            const improvedCV = resultData.improvedCV || resultData.improved_cv || resultData.cv || '';
-            
-            if (!improvedCV) {
-                container.innerHTML = '<p class="text-gray-500">No CV content available.</p>';
-                return;
+            if (changesEl) {
+                changesEl.textContent = stats.changesCount;
+                changesEl.classList.add('stat-animated');
             }
             
-            container.innerHTML = marked.parse(improvedCV);
-        }
-        
-        // Display cover letter
-        function displayCoverLetter() {
-            const container = document.getElementById('coverContent');
-            // (Deze was al correct, leest de juiste key 'coverLetter')
-            const coverLetter = resultData.coverLetter || resultData.cover_letter || '';
-            
-            if (!coverLetter) {
-                container.innerHTML = '<p class="text-gray-500">No cover letter available.</p>';
-                return;
+            if (impactEl) {
+                impactEl.textContent = stats.changesCount > 0 ? '✓' : '--';
+                impactEl.classList.add('stat-animated');
             }
-            
-            container.innerHTML = marked.parse(coverLetter);
         }
         
-        // REPARATIE 3: De 'displayAnalysis' functie is aangepast om 'recruiterTips' te lezen
-        function displayAnalysis() {
-            const container = document.getElementById('analysisContent');
-            // FIX: Lees 'recruiterTips' i.p.v. 'analysis' of 'insights'
-            const analysis = resultData.recruiterTips || '';
+        // Render markdown to HTML
+        function renderMarkdown(text) {
+            if (!text) return '<p class="text-gray-500">Geen content beschikbaar</p>';
             
-            if (!analysis) {
-                container.innerHTML = '<p class="text-gray-500">No analysis available.</p>';
-                return;
-            }
-            
-            container.innerHTML = marked.parse(analysis);
-        }
-        
-        // ==================================================================
-        // === HIER EINDIGEN DE REPARATIES ===
-        // ==================================================================
-        
-        // Generate star rating
-        function generateStars(rating) {
-            const maxStars = 5;
-            let html = '';
-            for (let i = 1; i <= maxStars; i++) {
-                if (i <= rating) {
-                    html += '<span class="star"><i class="fas fa-star"></i></span>';
-                } else {
-                    html += '<span class="star empty"><i class="far fa-star"></i></span>';
+            try {
+                if (typeof marked !== 'undefined') {
+                    marked.setOptions({
+                        breaks: true,
+                        gfm: true
+                    });
+                    return marked.parse(text);
                 }
+            } catch (e) {
+                console.warn('Marked.js error, using fallback:', e);
             }
-            return html;
+            
+            // Fallback: basic conversion
+            return text
+                .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+                .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+                .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.+?)\*/g, '<em>$1</em>')
+                .replace(/^[-•*] (.+)$/gm, '<li>$1</li>')
+                .replace(/(<li>.*<\/li>\n?)+/gs, '<ul>$&</ul>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/^(.+)$/gm, '<p>$1</p>');
         }
         
-        // Escape HTML (Deze functie wordt niet meer gebruikt door de fixes, maar we laten hem staan)
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
-        // Show empty state
-        function showEmptyState() {
-            document.getElementById('changesContainer').innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon"><i class="fas fa-exclamation-circle"></i></div>
-                    <h3 class="text-xl font-bold text-gray-700 mb-2">No Results Found</h3>
-                    <p class="text-gray-500 mb-6">Please go back and analyze a CV first.</p>
-                    <a href="/" class="action-btn btn-primary">
-                        <i class="fas fa-home mr-2"></i>Go to Homepage
-                    </a>
-                </div>
-            `;
-            // Update stats to show defaults on empty state
-            document.getElementById('matchScore').textContent = '0%';
-            document.getElementById('changesCount').textContent = '0';
-            document.getElementById('avgImpact').textContent = '--';
-        }
-        
-        // Tab switching
-        function switchTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.style.display = 'none';
-            });
+        // Display all content
+        function displayContent() {
+            console.log('🎨 Displaying content...');
             
-            // Remove active class from all buttons
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
+            // Update stats
+            updateStats();
             
-            // Show selected tab
-            document.getElementById('tab-' + tabName).style.display = 'block';
-            
-            // Add active class to clicked button
-            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-        }
-        
-        // Language switching
-        function switchLanguage(lang) {
-            currentLanguage = lang;
-            localStorage.setItem('preferred-language', lang);
-            
-            // Update language buttons
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.getAttribute('data-lang') === lang) {
-                    btn.classList.add('active');
-                }
-            });
-            
-            // Update all translatable elements
-            if (typeof setLanguage === 'function') {
-                setLanguage(lang);
-            }
-        }
-        
-        // Download PDF
-        function downloadPDF() {
-            const element = document.getElementById('tab-cv');
-            
-            // Toon de tab tijdelijk als deze verborgen is, voor correcte PDF-rendering
-            const wasHidden = element.style.display === 'none';
-            if (wasHidden) {
-                element.style.display = 'block';
-            }
-
-            const opt = {
-                margin: 1,
-                filename: 'improved-cv.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            // Render sections
+            const sections = {
+                'changesContent': data.changesOverview,
+                'cvContent': data.improvedCV,
+                'coverLetterContent': data.coverLetter,
+                'tipsContent': data.recruiterTips
             };
             
-            html2pdf().set(opt).from(element).save().then(() => {
-                // Verberg de tab weer als deze verborgen was
-                if (wasHidden) {
-                    element.style.display = 'none';
+            for (const [id, content] of Object.entries(sections)) {
+                const element = document.getElementById(id);
+                if (element && content) {
+                    element.innerHTML = renderMarkdown(content);
+                    console.log(`✅ Rendered ${id}`);
+                } else {
+                    console.warn(`⚠️ Missing: ${id}`);
+                    if (element) {
+                        element.innerHTML = '<p class="text-gray-500 italic">Geen content beschikbaar voor deze sectie</p>';
+                    }
                 }
+            }
+            
+            console.log('🎉 All content displayed!');
+        }
+        
+        // Copy CV to clipboard
+        function copyCV() {
+            const cvText = document.getElementById('cvContent').innerText;
+            navigator.clipboard.writeText(cvText).then(() => {
+                alert('✅ CV gekopieerd naar clipboard!');
+            }).catch(() => {
+                alert('❌ Kon CV niet kopiëren. Probeer opnieuw.');
             });
         }
         
-        // Copy to clipboard
-        function copyToClipboard() {
-            const cvContent = document.getElementById('cvContent').innerText;
-            navigator.clipboard.writeText(cvContent).then(() => {
-                alert('CV copied to clipboard!');
-            }, () => {
-                alert('Failed to copy CV. Please try again.');
-            });
+        // Initialize
+        if (data) {
+            displayContent();
         }
     </script>
 </body>

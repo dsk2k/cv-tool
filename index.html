@@ -105,20 +105,23 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
         
-        /* Loading overlay - Beautiful animated version */
+        /* Loading overlay - Beautiful animated version with high z-index */
         #loadingOverlay {
             position: fixed;
-            inset: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             backdrop-filter: blur(8px);
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 100;
+            z-index: 9999;
         }
         
         #loadingOverlay.flex {
-            display: flex;
+            display: flex !important;
         }
         
         /* Spinning animations for rings */
@@ -627,19 +630,19 @@
         </div>
     </section>
 
-    <!-- Loading Overlay - Beautiful Animated Version -->
+    <!-- Loading Overlay - Fully Working Version with Inline Styles -->
     <div id="loadingOverlay">
-        <div class="text-center">
+        <div style="text-align: center; padding: 2rem;">
             <!-- Animated CV Icon Container -->
-            <div class="relative mb-8 mx-auto" style="width: 160px; height: 160px;">
+            <div style="position: relative; width: 160px; height: 160px; margin: 0 auto 2rem auto;">
                 <!-- Outer spinning ring -->
-                <div class="absolute inset-0 border-4 border-white border-opacity-20 rounded-full animate-spin-slow"></div>
-                <div class="absolute" style="top: 16px; left: 16px; right: 16px; bottom: 16px; border: 4px solid rgba(255,255,255,0.3); border-radius: 50%;" class="animate-spin-reverse"></div>
+                <div class="animate-spin-slow" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 4px solid rgba(255,255,255,0.2); border-radius: 50%;"></div>
+                <div class="animate-spin-reverse" style="position: absolute; top: 16px; left: 16px; right: 16px; bottom: 16px; border: 4px solid rgba(255,255,255,0.3); border-radius: 50%;"></div>
                 
                 <!-- CV Icon in center -->
-                <div class="absolute" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                    <div class="bg-white rounded-full p-8 shadow-2xl transform hover:scale-105 transition-transform">
-                        <svg class="w-20 h-20 text-blue-600 animate-pulse-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                    <div style="background: white; border-radius: 50%; padding: 2rem; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                        <svg class="animate-pulse-slow" style="width: 80px; height: 80px; color: #667eea;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                             </path>
@@ -649,8 +652,8 @@
             </div>
 
             <!-- Loading Text with animated dots -->
-            <div class="bg-white bg-opacity-10 backdrop-blur-md rounded-2xl px-8 py-6 shadow-xl max-w-md mx-auto">
-                <h3 class="text-3xl font-bold text-white mb-2">
+            <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(12px); border-radius: 1rem; padding: 1.5rem 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.2); max-width: 500px; margin: 0 auto;">
+                <h3 style="font-size: 2rem; font-weight: 700; color: white; margin-bottom: 0.5rem;">
                     <span data-i18n="loading-title">Analyzing Your CV</span>
                     <span class="loading-dots">
                         <span class="dot">.</span>
@@ -660,32 +663,26 @@
                 </h3>
                 
                 <!-- Progress Steps -->
-                <div class="mt-6 space-y-3 text-left">
-                    <div class="progress-step active" data-step="1">
-                        <div class="flex items-center text-white text-opacity-90">
-                            <span class="step-icon text-2xl">📄</span>
-                            <span class="step-text ml-3 font-medium" data-i18n="loading-step1">Extracting text from CV</span>
-                            <span class="step-spinner ml-auto">⏳</span>
-                        </div>
+                <div style="margin-top: 1.5rem;">
+                    <div class="progress-step active" data-step="1" style="display: flex; align-items: center; color: rgba(255,255,255,0.9); margin-bottom: 0.75rem;">
+                        <span style="font-size: 1.5rem;">📄</span>
+                        <span class="step-text" style="margin-left: 0.75rem; font-weight: 500;" data-i18n="loading-step1">Extracting text from CV</span>
+                        <span class="step-spinner" style="margin-left: auto;">⏳</span>
                     </div>
-                    <div class="progress-step" data-step="2">
-                        <div class="flex items-center text-white text-opacity-50">
-                            <span class="step-icon text-2xl">🤖</span>
-                            <span class="step-text ml-3" data-i18n="loading-step2">Analyzing with AI</span>
-                            <span class="step-spinner ml-auto">⏳</span>
-                        </div>
+                    <div class="progress-step" data-step="2" style="display: flex; align-items: center; color: rgba(255,255,255,0.5); margin-bottom: 0.75rem;">
+                        <span style="font-size: 1.5rem;">🤖</span>
+                        <span class="step-text" style="margin-left: 0.75rem;" data-i18n="loading-step2">Analyzing with AI</span>
+                        <span class="step-spinner" style="margin-left: auto;">⏳</span>
                     </div>
-                    <div class="progress-step" data-step="3">
-                        <div class="flex items-center text-white text-opacity-50">
-                            <span class="step-icon text-2xl">✨</span>
-                            <span class="step-text ml-3" data-i18n="loading-step3">Generating improvements</span>
-                            <span class="step-spinner ml-auto">⏳</span>
-                        </div>
+                    <div class="progress-step" data-step="3" style="display: flex; align-items: center; color: rgba(255,255,255,0.5); margin-bottom: 0.75rem;">
+                        <span style="font-size: 1.5rem;">✨</span>
+                        <span class="step-text" style="margin-left: 0.75rem;" data-i18n="loading-step3">Generating improvements</span>
+                        <span class="step-spinner" style="margin-left: auto;">⏳</span>
                     </div>
                 </div>
 
                 <!-- Time estimate -->
-                <p class="text-white text-opacity-60 mt-6 text-sm" data-i18n="loading-time">
+                <p style="color: rgba(255,255,255,0.6); margin-top: 1.5rem; font-size: 0.875rem;" data-i18n="loading-time">
                     This usually takes 30-60 seconds
                 </p>
             </div>
