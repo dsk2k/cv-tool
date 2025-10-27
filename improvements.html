@@ -6,68 +6,238 @@
     <title>Uw Verbeterde CV</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        /* Custom animations */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .animate-slide-up {
+            animation: slideUp 0.5s ease-out forwards;
+        }
+        
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Beautiful change cards */
+        .change-card {
+            border-left: 4px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        
+        .change-card:hover {
+            border-left-color: #8b5cf6;
+            box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.1);
+        }
+
+        /* Original/Improved styling */
+        .original-block {
+            background: linear-gradient(to right, #fef2f2, #ffffff);
+            border-left: 4px solid #ef4444;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+
+        .improved-block {
+            background: linear-gradient(to right, #f0fdf4, #ffffff);
+            border-left: 4px solid #22c55e;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+
+        .why-block {
+            background: linear-gradient(to right, #eff6ff, #ffffff);
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+
+        /* Impact rating stars */
+        .star-rating {
+            color: #fbbf24;
+            font-size: 1.5rem;
+        }
+
+        /* Section header styling */
+        .section-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Beautiful prose styling */
+        .prose h3 {
+            color: #1f2937;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .prose p {
+            color: #4b5563;
+            line-height: 1.75;
+            margin-bottom: 1rem;
+        }
+
+        .prose strong {
+            color: #111827;
+            font-weight: 600;
+        }
+
+        .prose ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .prose ul li {
+            padding-left: 1.5rem;
+            position: relative;
+            margin-bottom: 0.5rem;
+        }
+
+        .prose ul li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #8b5cf6;
+            font-weight: bold;
+        }
+
+        /* Label badges */
+        .label-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .label-original {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .label-improved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .label-why {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* Content wrapper for CV */
+        .cv-content {
+            font-family: 'Georgia', serif;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            color: #374151;
+        }
+
+        /* Highlight effect */
+        @keyframes highlight {
+            0% { background-color: #fef3c7; }
+            100% { background-color: transparent; }
+        }
+
+        .highlight-change {
+            animation: highlight 2s ease-out;
+        }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
+<body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 min-h-screen">
     
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-4xl font-bold text-center mb-2 text-gray-800">Uw Verbeterde CV</h1>
-        <p class="text-center text-gray-600 mb-8">AI-gestuurde optimalisatie resultaten</p>
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Header -->
+        <div class="text-center mb-12 animate-slide-up">
+            <h1 class="text-5xl font-bold mb-3 section-header">Uw Verbeterde CV</h1>
+            <p class="text-gray-600 text-lg">AI-gestuurde optimalisatie resultaten</p>
+        </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-lg p-8 text-center hover:shadow-xl transition-shadow">
-                <div id="matchScore" class="text-6xl font-bold text-blue-600 mb-2">0%</div>
-                <div class="text-gray-600 font-medium">Match Score</div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="stat-card bg-white rounded-2xl shadow-xl p-8 text-center">
+                <div id="matchScore" class="text-7xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">0%</div>
+                <div class="text-gray-600 font-semibold text-lg">Match Score</div>
+                <div class="text-gray-400 text-sm mt-2">Job compatibility</div>
             </div>
-            <div class="bg-white rounded-xl shadow-lg p-8 text-center hover:shadow-xl transition-shadow">
-                <div id="changesCount" class="text-6xl font-bold text-purple-600 mb-2">0</div>
-                <div class="text-gray-600 font-medium">Wijzigingen Gemaakt</div>
+            <div class="stat-card bg-white rounded-2xl shadow-xl p-8 text-center">
+                <div id="changesCount" class="text-7xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">0</div>
+                <div class="text-gray-600 font-semibold text-lg">Wijzigingen Gemaakt</div>
+                <div class="text-gray-400 text-sm mt-2">Optimalisaties toegepast</div>
             </div>
-            <div class="bg-white rounded-xl shadow-lg p-8 text-center hover:shadow-xl transition-shadow">
-                <div class="text-6xl mb-2">✓</div>
-                <div class="text-gray-600 font-medium">Gem. Impact</div>
+            <div class="stat-card bg-white rounded-2xl shadow-xl p-8 text-center">
+                <div class="text-7xl mb-3">✨</div>
+                <div class="text-gray-600 font-semibold text-lg">Gem. Impact</div>
+                <div class="text-gray-400 text-sm mt-2">Hoge kwaliteit</div>
             </div>
         </div>
 
         <!-- Download Buttons -->
-        <div class="flex flex-wrap justify-center gap-4 mb-8">
-            <button onclick="downloadPDF()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-all hover:scale-105 flex items-center gap-2">
-                📄 Download PDF
+        <div class="flex flex-wrap justify-center gap-4 mb-12">
+            <button onclick="downloadPDF()" class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 rounded-xl font-semibold shadow-lg transition-all hover:scale-105 hover:shadow-xl flex items-center gap-3">
+                <span class="text-2xl">📄</span> Download PDF
             </button>
-            <button onclick="copyCV()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-all hover:scale-105 flex items-center gap-2">
-                📋 Kopieer CV
+            <button onclick="copyCV()" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 rounded-xl font-semibold shadow-lg transition-all hover:scale-105 hover:shadow-xl flex items-center gap-3">
+                <span class="text-2xl">📋</span> Kopieer CV
             </button>
-            <button onclick="window.location.href='index.html'" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-all hover:scale-105 flex items-center gap-2">
-                🔄 Nieuw CV
+            <button onclick="window.location.href='index.html'" class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-4 rounded-xl font-semibold shadow-lg transition-all hover:scale-105 hover:shadow-xl flex items-center gap-3">
+                <span class="text-2xl">🔄</span> Nieuw CV
             </button>
         </div>
 
         <!-- Content Sections -->
-        <div class="space-y-6">
+        <div class="space-y-8">
             <!-- Changes Overview -->
-            <div class="bg-white rounded-xl shadow-lg p-8">
-                <h2 class="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-2">
-                    📝 Wat Is Veranderd & Waarom
+            <div class="bg-white rounded-2xl shadow-xl p-8 animate-slide-up">
+                <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                    <span class="text-4xl">📝</span>
+                    <span class="section-header">Wat Is Veranderd & Waarom</span>
                 </h2>
-                <div id="changesContent" class="prose max-w-none">
-                    <p class="text-gray-600">Content wordt geladen...</p>
+                <div id="changesContent" class="space-y-6">
+                    <div class="flex items-center justify-center py-8">
+                        <div class="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
+                        <p class="ml-4 text-gray-600">Content wordt geladen...</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Improved CV -->
-            <div class="bg-white rounded-xl shadow-lg p-8">
-                <h2 class="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-2">
-                    ✨ Uw Geoptimaliseerde CV
+            <div class="bg-white rounded-2xl shadow-xl p-8 animate-slide-up">
+                <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                    <span class="text-4xl">✨</span>
+                    <span class="section-header">Uw Geoptimaliseerde CV</span>
                 </h2>
-                <div id="improvedCV" class="prose max-w-none whitespace-pre-wrap font-mono text-sm bg-gray-50 p-6 rounded-lg">
-                    <p class="text-gray-600">Content wordt geladen...</p>
+                <div class="bg-gradient-to-br from-gray-50 to-white p-8 rounded-xl border-2 border-gray-100">
+                    <div id="improvedCV" class="cv-content">
+                        <p class="text-gray-600">Content wordt geladen...</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Cover Letter -->
-            <div class="bg-white rounded-xl shadow-lg p-8">
-                <h2 class="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-2">
-                    💼 Aanbevelingsbrief
+            <div class="bg-white rounded-2xl shadow-xl p-8 animate-slide-up">
+                <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                    <span class="text-4xl">💼</span>
+                    <span class="section-header">Aanbevelingsbrief</span>
                 </h2>
                 <div id="coverLetter" class="prose max-w-none">
                     <p class="text-gray-600">Content wordt geladen...</p>
@@ -75,9 +245,10 @@
             </div>
 
             <!-- Recruiter Tips -->
-            <div class="bg-white rounded-xl shadow-lg p-8">
-                <h2 class="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-2">
-                    💡 Recruiter Tips
+            <div class="bg-white rounded-2xl shadow-xl p-8 animate-slide-up">
+                <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                    <span class="text-4xl">💡</span>
+                    <span class="section-header">Recruiter Tips</span>
                 </h2>
                 <div id="recruiterTips" class="prose max-w-none">
                     <p class="text-gray-600">Content wordt geladen...</p>
@@ -87,7 +258,7 @@
     </div>
 
     <script>
-        console.log('🚀 TEST improvements page loaded');
+        console.log('🚀 Improvements page loaded');
         
         // Get data from sessionStorage
         const data = sessionStorage.getItem('cvAnalysisResult');
@@ -95,28 +266,30 @@
         
         if (!data) {
             console.error('❌ ERROR: No data in sessionStorage!');
-            document.body.innerHTML = `
-                <div class="container mx-auto px-4 py-8 text-center">
-                    <h1 class="text-4xl font-bold text-red-600 mb-4">⚠️ Geen Data Gevonden</h1>
-                    <p class="text-gray-600 mb-8">Er is geen CV analyse data beschikbaar.</p>
-                    <button onclick="window.location.href='index.html'" 
-                            class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium">
-                        🏠 Terug naar Home
-                    </button>
-                </div>
-            `;
+            showError();
         } else {
             try {
                 const result = JSON.parse(data);
                 console.log('✅ Data parsed successfully');
-                console.log('📊 Keys:', Object.keys(result));
-                
-                // Display all content
                 displayContent(result);
-                
             } catch (error) {
                 console.error('❌ Error parsing data:', error);
+                showError();
             }
+        }
+
+        function showError() {
+            document.body.innerHTML = `
+                <div class="container mx-auto px-4 py-16 text-center">
+                    <div class="text-8xl mb-6">⚠️</div>
+                    <h1 class="text-4xl font-bold text-red-600 mb-4">Geen Data Gevonden</h1>
+                    <p class="text-gray-600 mb-8 text-lg">Er is geen CV analyse data beschikbaar.</p>
+                    <button onclick="window.location.href='index.html'" 
+                            class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-4 rounded-xl font-semibold shadow-lg transition-all hover:scale-105">
+                        🏠 Terug naar Home
+                    </button>
+                </div>
+            `;
         }
 
         function displayContent(result) {
@@ -139,11 +312,11 @@
             // Update UI
             updateStats(stats.matchScore, stats.changesCount);
             
-            // Render all content
-            renderContent('changesContent', result.changesOverview);
-            renderContent('improvedCV', result.improvedCV, true);
-            renderContent('coverLetter', result.coverLetter);
-            renderContent('recruiterTips', result.recruiterTips);
+            // Render all content with beautiful formatting
+            renderChangesContent(result.changesOverview);
+            renderCVContent(result.improvedCV);
+            renderMarkdownContent('coverLetter', result.coverLetter);
+            renderMarkdownContent('recruiterTips', result.recruiterTips);
             
             console.log('🎉 ALL DONE!');
         }
@@ -155,14 +328,12 @@
             let changesCount = 0;
             
             // === CHANGES COUNT EXTRACTION ===
-            // Method 1: Try numbered list patterns
             const numberedMatches = text.match(/###?\s*\d+\./g);
             if (numberedMatches) {
                 changesCount = numberedMatches.length;
                 console.log(`✅ Found ${changesCount} numbered changes`);
             }
             
-            // Method 2: Try "### headers
             if (changesCount === 0) {
                 const headerMatches = text.match(/###\s+\d+\./g);
                 if (headerMatches) {
@@ -171,7 +342,6 @@
                 }
             }
             
-            // Method 3: Count "Original:" / "Verbeterd:" pairs
             if (changesCount === 0) {
                 const originalCount = (text.match(/\*\*Original(:|eel)?\*\*/gi) || []).length;
                 const improvedCount = (text.match(/\*\*Verbeterd(:|e)?\*\*/gi) || []).length;
@@ -179,69 +349,44 @@
                 console.log(`✅ Found ${changesCount} Original/Verbeterd pairs`);
             }
             
-            // Fallback: Use a minimum of 5 if we found content
             if (changesCount === 0 && text.length > 500) {
                 changesCount = 5;
                 console.log('⚠️ Using fallback: 5 changes');
             }
             
             // === MATCH SCORE EXTRACTION ===
-            // Try multiple patterns (both Dutch and English)
             const scorePatterns = [
                 /match score[:\s]*(\d+)%/i,
                 /score[:\s]*(\d+)%/i,
                 /(\d+)%\s*match/i,
-                /match[:\s]*(\d+)%/i,
-                /compatibility[:\s]*(\d+)%/i,
-                /geschiktheid[:\s]*(\d+)%/i,
-                /afstemming[:\s]*(\d+)%/i
+                /compatibility[:\s]*(\d+)%/i
             ];
             
             for (const pattern of scorePatterns) {
                 const match = text.match(pattern);
                 if (match) {
                     matchScore = parseInt(match[1]);
-                    console.log(`✅ Found match score: ${matchScore}% (pattern: ${pattern})`);
+                    console.log(`✅ Found match score: ${matchScore}%`);
                     break;
                 }
             }
             
             // SMART CALCULATION if no explicit score found
             if (matchScore === 0) {
-                console.log('⚠️ No match score pattern found, calculating smart score...');
+                console.log('⚠️ No match score pattern found, calculating...');
                 
-                // Base score calculation factors:
-                const hasMultipleChanges = changesCount >= 5;
-                const hasDetailedExplanations = text.includes('waarom') || text.includes('because');
-                const hasKeywords = /skills|experience|achievement|resultaat|vaardigheid/i.test(text);
-                const hasFormatting = text.includes('**') || text.includes('###');
-                const contentLength = text.length;
+                let calculatedScore = 50;
+                if (changesCount > 0) calculatedScore += Math.min(changesCount * 3, 25);
+                if (text.includes('waarom') || text.includes('because')) calculatedScore += 10;
+                if (/skills|experience|achievement/i.test(text)) calculatedScore += 5;
+                if (text.includes('**')) calculatedScore += 5;
+                if (text.length > 2000) calculatedScore += 5;
                 
-                // Calculate base score
-                let calculatedScore = 50; // Start at 50%
-                
-                // Add points for various factors
-                if (changesCount > 0) calculatedScore += Math.min(changesCount * 3, 25); // +3 per change, max +25
-                if (hasDetailedExplanations) calculatedScore += 10;
-                if (hasKeywords) calculatedScore += 5;
-                if (hasFormatting) calculatedScore += 5;
-                if (contentLength > 2000) calculatedScore += 5;
-                
-                // Cap at 95% (never claim 100% without explicit score)
                 matchScore = Math.min(calculatedScore, 95);
-                
-                console.log(`💡 Calculated smart score: ${matchScore}%`);
-                console.log(`   - Changes: ${changesCount} → +${Math.min(changesCount * 3, 25)}`);
-                console.log(`   - Detailed: ${hasDetailedExplanations} → +10`);
-                console.log(`   - Keywords: ${hasKeywords} → +5`);
-                console.log(`   - Formatting: ${hasFormatting} → +5`);
-                console.log(`   - Length: ${contentLength} → +5`);
+                console.log(`💡 Calculated score: ${matchScore}%`);
             }
             
-            return {
-                matchScore: matchScore,
-                changesCount: changesCount
-            };
+            return { matchScore, changesCount };
         }
 
         function updateStats(matchScore, changesCount) {
@@ -250,13 +395,10 @@
             const matchScoreEl = document.getElementById('matchScore');
             const changesCountEl = document.getElementById('changesCount');
             
-            // Animate match score
             animateNumber(matchScoreEl, 0, matchScore, 1500, '%');
-            
-            // Animate changes count
             animateNumber(changesCountEl, 0, changesCount, 1000, '');
             
-            console.log('✅ Stats updated in DOM');
+            console.log('✅ Stats updated');
         }
 
         function animateNumber(element, start, end, duration, suffix = '') {
@@ -271,45 +413,136 @@
                     clearInterval(timer);
                 }
                 element.textContent = Math.round(current) + suffix;
-                element.classList.add('scale-110');
-                setTimeout(() => element.classList.remove('scale-110'), 100);
             }, 16);
         }
 
-        function renderContent(elementId, content, preserveFormatting = false) {
-            const element = document.getElementById(elementId);
-            if (!element) return;
+        function renderChangesContent(content) {
+            if (!content) return;
             
-            if (!content) {
-                element.innerHTML = '<p class="text-gray-400 italic">Geen content beschikbaar</p>';
-                return;
+            console.log('🎨 Rendering changes content...');
+            
+            const container = document.getElementById('changesContent');
+            
+            // Parse the markdown-like content
+            const lines = content.split('\n');
+            let html = '';
+            let currentChange = null;
+            
+            for (let line of lines) {
+                line = line.trim();
+                
+                // Change number header
+                if (line.match(/^###?\s*\d+\./)) {
+                    if (currentChange) {
+                        html += '</div>'; // Close previous card
+                    }
+                    const changeTitle = line.replace(/^###?\s*/, '');
+                    html += `
+                        <div class="change-card bg-gradient-to-r from-white to-purple-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <span class="text-purple-600">${changeTitle}</span>
+                            </h3>
+                    `;
+                    currentChange = true;
+                }
+                // Original section
+                else if (line.match(/^\*\*Original(:|eel)?\*\*/i)) {
+                    html += `
+                        <div class="original-block">
+                            <span class="label-badge label-original">❌ Original</span>
+                    `;
+                }
+                // Improved section
+                else if (line.match(/^\*\*Verbeterd(:|e)?\*\*/i) || line.match(/^\*\*Improved(:|e)?\*\*/i)) {
+                    html += `</div>
+                        <div class="improved-block">
+                            <span class="label-badge label-improved">✅ Verbeterd</span>
+                    `;
+                }
+                // Why section
+                else if (line.match(/^\*\*Why this change matters(:|e)?\*\*/i) || line.match(/^\*\*Waarom(:|e)?\*\*/i)) {
+                    html += `</div>
+                        <div class="why-block">
+                            <span class="label-badge label-why">💡 Waarom dit belangrijk is</span>
+                    `;
+                }
+                // Impact rating
+                else if (line.match(/^\*\*Impact Rating(:|e)?\*\*/i)) {
+                    const stars = (line.match(/⭐/g) || []).length;
+                    html += `</div>
+                        <div class="mt-4 flex items-center gap-2">
+                            <span class="text-gray-700 font-semibold">Impact:</span>
+                            <span class="star-rating">${'⭐'.repeat(stars)}</span>
+                        </div>
+                    `;
+                }
+                // Regular content
+                else if (line && !line.match(/^---+$/)) {
+                    // Remove markdown bold syntax
+                    line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    html += `<p class="text-gray-700 leading-relaxed">${line}</p>`;
+                }
+                // Separator
+                else if (line.match(/^---+$/)) {
+                    if (currentChange) {
+                        html += '</div></div>'; // Close both blocks and card
+                        currentChange = null;
+                    }
+                }
             }
             
-            console.log(`🎨 Rendering ${elementId} (${content.length} chars)`);
+            // Close any remaining open tags
+            if (currentChange) {
+                html += '</div></div>';
+            }
             
-            if (preserveFormatting) {
-                // For CV content, preserve formatting
+            container.innerHTML = html || '<p class="text-gray-400 italic">Geen wijzigingen gevonden</p>';
+            console.log('✅ Changes content rendered');
+        }
+
+        function renderCVContent(content) {
+            if (!content) return;
+            
+            console.log('🎨 Rendering CV content...');
+            const element = document.getElementById('improvedCV');
+            element.textContent = content;
+            console.log('✅ CV content rendered');
+        }
+
+        function renderMarkdownContent(elementId, content) {
+            if (!content) return;
+            
+            console.log(`🎨 Rendering ${elementId}...`);
+            const element = document.getElementById(elementId);
+            
+            try {
+                element.innerHTML = marked.parse(content);
+                console.log(`✅ Rendered ${elementId}`);
+            } catch (error) {
+                console.error(`❌ Error rendering ${elementId}:`, error);
                 element.textContent = content;
-            } else {
-                // For markdown content, render it
-                try {
-                    element.innerHTML = marked.parse(content);
-                    console.log(`✅ Rendered ${elementId} with marked.js`);
-                } catch (error) {
-                    console.error(`❌ Error rendering ${elementId}:`, error);
-                    element.textContent = content;
-                }
             }
         }
 
         function downloadPDF() {
-            alert('PDF download functionaliteit komt binnenkort! 🎉');
+            alert('📄 PDF download functionaliteit komt binnenkort!\n\nTip: Gebruik voor nu Ctrl+P (Print) en kies "Save as PDF" 🎉');
         }
 
         function copyCV() {
             const cvContent = document.getElementById('improvedCV').textContent;
             navigator.clipboard.writeText(cvContent).then(() => {
-                alert('✅ CV gekopieerd naar klembord!');
+                // Show success message
+                const button = event.target.closest('button');
+                const originalHTML = button.innerHTML;
+                button.innerHTML = '<span class="text-2xl">✅</span> Gekopieerd!';
+                button.classList.add('bg-green-600', 'hover:bg-green-700');
+                button.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                    button.classList.remove('bg-green-600', 'hover:bg-green-700');
+                    button.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                }, 2000);
             }).catch(err => {
                 console.error('❌ Error copying:', err);
                 alert('❌ Kon CV niet kopiëren');
