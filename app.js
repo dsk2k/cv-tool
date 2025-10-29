@@ -75,11 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     step1.classList.add('completed');
                     step1.classList.remove('active');
                     const spinner = step1.querySelector('.step-spinner');
-                    console.log('✅ Step 1: Found spinner?', !!spinner, 'Current content:', spinner?.textContent);
-                    if (spinner) {
-                        spinner.textContent = '✅';
-                        console.log('✅ Step 1: Set to checkmark. New content:', spinner.textContent);
-                    }
+                    if (spinner) spinner.textContent = '✅';
                     step1.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(5,150,105,0.08) 100%)';
                     step1.style.border = '1.5px solid rgba(16,185,129,0.2)';
                     step1.style.boxShadow = '0 4px 12px rgba(16,185,129,0.08)';
