@@ -763,7 +763,7 @@
                 </div>
             </div>
 
-            <!-- Cover Letter (Collapsible) - Premium Design -->
+            <!-- Cover Letter (Collapsible) - Professional Letter Format -->
             <div class="glass-card rounded-2xl shadow-2xl animate-slide-up overflow-hidden" style="border: 2px solid rgba(102,126,234,0.1);">
                 <div class="collapsible-header" onclick="toggleSection('cover')" style="
                     background: linear-gradient(135deg, rgba(102,126,234,0.05) 0%, rgba(118,75,162,0.05) 100%);
@@ -782,25 +782,69 @@
                             font-size: 2rem;
                             box-shadow: 0 8px 16px rgba(102,126,234,0.3);
                         " class="float-animation">💼</div>
-                        <div>
+                        <div style="flex: 1;">
                             <span class="text-2xl font-bold" style="color: #1f2937;">Aanbevelingsbrief</span>
                             <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem;">Professionele cover letter gegenereerd door AI</p>
+                        </div>
+                        <!-- Action Buttons -->
+                        <div style="display: flex; gap: 0.75rem; margin-right: 1rem;">
+                            <button onclick="event.stopPropagation(); copyCoverLetter();"
+                                    class="hover-scale"
+                                    style="
+                                        padding: 0.625rem 1.25rem;
+                                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                        color: white;
+                                        border: none;
+                                        border-radius: 10px;
+                                        font-weight: 600;
+                                        font-size: 0.875rem;
+                                        cursor: pointer;
+                                        box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+                                        transition: all 0.3s ease;
+                                    ">
+                                📋 Kopieer
+                            </button>
+                            <button onclick="event.stopPropagation(); downloadCoverLetterPDF();"
+                                    class="hover-scale"
+                                    style="
+                                        padding: 0.625rem 1.25rem;
+                                        background: white;
+                                        color: #667eea;
+                                        border: 2px solid #667eea;
+                                        border-radius: 10px;
+                                        font-weight: 600;
+                                        font-size: 0.875rem;
+                                        cursor: pointer;
+                                        transition: all 0.3s ease;
+                                    ">
+                                📥 PDF
+                            </button>
                         </div>
                     </div>
                     <span id="cover-icon" class="collapse-icon rotated" style="color: #667eea; font-size: 1.5rem;">▼</span>
                 </div>
-                <div id="cover-content" class="collapsible-content expanded" style="padding: 2.5rem;">
-                    <div id="coverLetter" class="prose max-w-none" style="
-                        font-size: 1.0625rem;
-                        line-height: 1.8;
-                        color: #374151;
+                <div id="cover-content" class="collapsible-content expanded" style="padding: 0;">
+                    <!-- Professional Letter Paper -->
+                    <div style="
+                        background: white;
+                        margin: 2rem;
+                        padding: 3rem 2.5rem;
+                        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+                        border-radius: 8px;
+                        font-family: 'Times New Roman', Georgia, serif;
                     ">
-                        <p class="text-gray-600">Content wordt geladen...</p>
+                        <div id="coverLetter" style="
+                            font-size: 1rem;
+                            line-height: 1.8;
+                            color: #1f2937;
+                        ">
+                            <p class="text-gray-600">Content wordt geladen...</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Recruiter Tips (Collapsible) - Premium Design -->
+            <!-- Recruiter Tips (Collapsible) - Interactive Checklist -->
             <div class="glass-card rounded-2xl shadow-2xl animate-slide-up overflow-hidden" style="border: 2px solid rgba(251,191,36,0.2);">
                 <div class="collapsible-header" onclick="toggleSection('tips')" style="
                     background: linear-gradient(135deg, rgba(251,191,36,0.05) 0%, rgba(245,158,11,0.05) 100%);
@@ -819,20 +863,31 @@
                             font-size: 2rem;
                             box-shadow: 0 8px 16px rgba(251,191,36,0.3);
                         " class="float-animation">💡</div>
-                        <div>
-                            <span class="text-2xl font-bold" style="color: #1f2937;">Recruiter Tips</span>
-                            <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem;">Insider tips van recruitment professionals</p>
+                        <div style="flex: 1;">
+                            <span class="text-2xl font-bold" style="color: #1f2937;">Recruiter Tips & Interview Vragen</span>
+                            <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem;">Insider tips en mogelijke interviewvragen voor deze functie</p>
+                        </div>
+                        <div id="tips-progress" style="
+                            background: white;
+                            padding: 0.5rem 1rem;
+                            border-radius: 10px;
+                            font-weight: 600;
+                            color: #f59e0b;
+                            font-size: 0.875rem;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                            margin-right: 1rem;
+                        ">
+                            <span id="completed-count">0</span>/<span id="total-count">0</span> ✓
                         </div>
                     </div>
                     <span id="tips-icon" class="collapse-icon rotated" style="color: #f59e0b; font-size: 1.5rem;">▼</span>
                 </div>
                 <div id="tips-content" class="collapsible-content expanded" style="padding: 2.5rem;">
-                    <div id="recruiterTips" class="prose max-w-none" style="
-                        font-size: 1.0625rem;
-                        line-height: 1.8;
-                        color: #374151;
-                    ">
+                    <div id="recruiterTips" style="display: none;">
                         <p class="text-gray-600">Content wordt geladen...</p>
+                    </div>
+                    <div id="recruiterTipsChecklist" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <!-- Checklist items will be dynamically inserted here -->
                     </div>
                 </div>
             </div>
@@ -898,7 +953,7 @@
             renderChangesContent(result.changesOverview);
             renderCVContent(result.improvedCV);
             renderMarkdownContent('coverLetter', result.coverLetter);
-            renderMarkdownContent('recruiterTips', result.recruiterTips);
+            renderRecruiterTipsChecklist(result.recruiterTips);
             
             console.log('🎉 ALL DONE!');
         }
@@ -1634,16 +1689,175 @@
 
         function renderMarkdownContent(elementId, content) {
             if (!content) return;
-            
+
             console.log(`🎨 Rendering ${elementId}...`);
             const element = document.getElementById(elementId);
-            
+
             try {
                 element.innerHTML = marked.parse(content);
                 console.log(`✅ Rendered ${elementId}`);
             } catch (error) {
                 console.error(`❌ Error rendering ${elementId}:`, error);
                 element.textContent = content;
+            }
+        }
+
+        function renderRecruiterTipsChecklist(content) {
+            if (!content) return;
+
+            console.log('🎨 Rendering Recruiter Tips as checklist...');
+
+            // Store original content in hidden div
+            const originalDiv = document.getElementById('recruiterTips');
+            originalDiv.innerHTML = marked.parse(content);
+
+            // Parse content into checklist items
+            const checklistContainer = document.getElementById('recruiterTipsChecklist');
+            checklistContainer.innerHTML = '';
+
+            // Split by headers (## or ###)
+            const sections = content.split(/(?=#{2,3}\s)/);
+            let totalItems = 0;
+
+            sections.forEach((section, index) => {
+                if (!section.trim()) return;
+
+                // Extract header
+                const headerMatch = section.match(/^#{2,3}\s+(.+?)$/m);
+                const header = headerMatch ? headerMatch[1].trim() : `Categorie ${index + 1}`;
+
+                // Extract list items (- or *)
+                const items = section.match(/^[\*\-]\s+(.+)$/gm) || [];
+
+                if (items.length === 0) return;
+
+                // Create section
+                const sectionDiv = document.createElement('div');
+                sectionDiv.style.cssText = `
+                    background: linear-gradient(135deg, rgba(251,191,36,0.03) 0%, rgba(245,158,11,0.03) 100%);
+                    border: 1.5px solid rgba(251,191,36,0.15);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                `;
+
+                // Section header
+                const sectionHeader = document.createElement('h3');
+                sectionHeader.style.cssText = `
+                    font-size: 1.125rem;
+                    font-weight: 700;
+                    color: #1f2937;
+                    margin-bottom: 1rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                `;
+                sectionHeader.innerHTML = `<span style="color: #f59e0b;">▸</span> ${header}`;
+                sectionDiv.appendChild(sectionHeader);
+
+                // Checklist items
+                const itemsList = document.createElement('div');
+                itemsList.style.cssText = 'display: flex; flex-direction: column; gap: 0.75rem;';
+
+                items.forEach((item, itemIndex) => {
+                    const text = item.replace(/^[\*\-]\s+/, '').trim();
+                    const itemId = `tip-${index}-${itemIndex}`;
+                    totalItems++;
+
+                    const itemDiv = document.createElement('div');
+                    itemDiv.style.cssText = `
+                        display: flex;
+                        align-items: flex-start;
+                        gap: 0.75rem;
+                        padding: 0.75rem;
+                        background: white;
+                        border-radius: 8px;
+                        transition: all 0.2s ease;
+                        cursor: pointer;
+                    `;
+
+                    // Checkbox
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = itemId;
+                    checkbox.style.cssText = `
+                        width: 20px;
+                        height: 20px;
+                        margin-top: 0.125rem;
+                        cursor: pointer;
+                        accent-color: #f59e0b;
+                        flex-shrink: 0;
+                    `;
+                    checkbox.addEventListener('change', updateTipsProgress);
+
+                    // Label
+                    const label = document.createElement('label');
+                    label.htmlFor = itemId;
+                    label.style.cssText = `
+                        font-size: 0.9375rem;
+                        line-height: 1.6;
+                        color: #374151;
+                        cursor: pointer;
+                        flex: 1;
+                    `;
+                    label.textContent = text;
+
+                    // Hover effect
+                    itemDiv.addEventListener('mouseenter', () => {
+                        itemDiv.style.background = 'rgba(251,191,36,0.08)';
+                        itemDiv.style.transform = 'translateX(4px)';
+                    });
+                    itemDiv.addEventListener('mouseleave', () => {
+                        itemDiv.style.background = 'white';
+                        itemDiv.style.transform = 'translateX(0)';
+                    });
+
+                    // Click on div checks checkbox
+                    itemDiv.addEventListener('click', (e) => {
+                        if (e.target !== checkbox) {
+                            checkbox.checked = !checkbox.checked;
+                            checkbox.dispatchEvent(new Event('change'));
+                        }
+                    });
+
+                    itemDiv.appendChild(checkbox);
+                    itemDiv.appendChild(label);
+                    itemsList.appendChild(itemDiv);
+                });
+
+                sectionDiv.appendChild(itemsList);
+                checklistContainer.appendChild(sectionDiv);
+            });
+
+            // Update total count
+            document.getElementById('total-count').textContent = totalItems;
+            updateTipsProgress();
+
+            console.log(`✅ Rendered ${totalItems} checklist items`);
+        }
+
+        function updateTipsProgress() {
+            const checkboxes = document.querySelectorAll('#recruiterTipsChecklist input[type="checkbox"]');
+            const completed = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const total = checkboxes.length;
+
+            document.getElementById('completed-count').textContent = completed;
+            document.getElementById('total-count').textContent = total;
+
+            // Change color when all completed
+            const progressDiv = document.getElementById('tips-progress');
+            if (completed === total && total > 0) {
+                progressDiv.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                progressDiv.style.color = 'white';
+
+                // Track completion in GA4
+                if (window.trackEvent) {
+                    window.trackEvent('all_tips_checked', {
+                        total_tips: total
+                    });
+                }
+            } else {
+                progressDiv.style.background = 'white';
+                progressDiv.style.color = '#f59e0b';
             }
         }
 
@@ -1834,6 +2048,62 @@
 
         // ============================================
         // COLLAPSIBLE SECTION FUNCTIONALITY
+        // ============================================
+
+        // ============================================
+        // COVER LETTER ACTIONS
+        // ============================================
+
+        function copyCoverLetter() {
+            const coverLetterDiv = document.getElementById('coverLetter');
+            const text = coverLetterDiv.innerText;
+
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('✅ Aanbevelingsbrief gekopieerd!', 'success');
+
+                // Track in GA4
+                if (window.trackEvent) {
+                    window.trackEvent('cover_letter_copied', {});
+                }
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                showNotification('❌ Kopiëren mislukt. Probeer opnieuw.', 'error');
+            });
+        }
+
+        function downloadCoverLetterPDF() {
+            // For now, we'll create a simple text download
+            // In the future, this could use jsPDF for proper PDF generation
+            const coverLetterDiv = document.getElementById('coverLetter');
+            const text = coverLetterDiv.innerText;
+
+            // Create blob
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+
+            // Create download link
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'aanbevelingsbrief.txt';
+            document.body.appendChild(a);
+            a.click();
+
+            // Cleanup
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+            showNotification('✅ Aanbevelingsbrief gedownload!', 'success');
+
+            // Track in GA4
+            if (window.trackEvent) {
+                window.trackEvent('cover_letter_downloaded', {
+                    format: 'txt'
+                });
+            }
+        }
+
+        // ============================================
+        // SECTION TOGGLE
         // ============================================
 
         function toggleSection(sectionName) {

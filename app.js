@@ -58,22 +58,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     step.style.background = 'linear-gradient(135deg, rgba(102,126,234,0.08) 0%, rgba(118,75,162,0.08) 100%)';
                     step.style.border = '1.5px solid rgba(102,126,234,0.2)';
                     step.style.boxShadow = '0 4px 12px rgba(102,126,234,0.08)';
-                    const iconBox = step.querySelector('div:first-child');
-                    if (iconBox) {
-                        iconBox.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                        iconBox.style.boxShadow = '0 4px 12px rgba(102,126,234,0.3)';
-                    }
                 } else {
                     // Other steps start inactive
                     step.style.opacity = '0.5';
                     step.style.background = 'rgba(243,244,246,0.6)';
                     step.style.border = '1.5px solid rgba(229,231,235,0.8)';
                     step.style.boxShadow = 'none';
-                    const iconBox = step.querySelector('div:first-child');
-                    if (iconBox) {
-                        iconBox.style.background = 'linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%)';
-                        iconBox.style.boxShadow = 'none';
-                    }
                 }
             });
 
@@ -89,11 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     step1.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(5,150,105,0.08) 100%)';
                     step1.style.border = '1.5px solid rgba(16,185,129,0.2)';
                     step1.style.boxShadow = '0 4px 12px rgba(16,185,129,0.08)';
-                    const iconBox = step1.querySelector('div:first-child');
-                    if (iconBox) {
-                        iconBox.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-                        iconBox.style.boxShadow = '0 4px 12px rgba(16,185,129,0.3)';
-                    }
                 }
             }, 2000);
 
@@ -107,11 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     step2.style.background = 'linear-gradient(135deg, rgba(102,126,234,0.08) 0%, rgba(118,75,162,0.08) 100%)';
                     step2.style.border = '1.5px solid rgba(102,126,234,0.2)';
                     step2.style.boxShadow = '0 4px 12px rgba(102,126,234,0.08)';
-                    const iconBox = step2.querySelector('div:first-child');
-                    if (iconBox) {
-                        iconBox.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                        iconBox.style.boxShadow = '0 4px 12px rgba(102,126,234,0.3)';
-                    }
                 }
             }, 3000);
 
@@ -129,11 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     step2.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(5,150,105,0.08) 100%)';
                     step2.style.border = '1.5px solid rgba(16,185,129,0.2)';
                     step2.style.boxShadow = '0 4px 12px rgba(16,185,129,0.08)';
-                    const iconBox2 = step2.querySelector('div:first-child');
-                    if (iconBox2) {
-                        iconBox2.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-                        iconBox2.style.boxShadow = '0 4px 12px rgba(16,185,129,0.3)';
-                    }
                 }
 
                 // Activate step 3
@@ -144,11 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     step3.style.background = 'linear-gradient(135deg, rgba(102,126,234,0.08) 0%, rgba(118,75,162,0.08) 100%)';
                     step3.style.border = '1.5px solid rgba(102,126,234,0.2)';
                     step3.style.boxShadow = '0 4px 12px rgba(102,126,234,0.08)';
-                    const iconBox3 = step3.querySelector('div:first-child');
-                    if (iconBox3) {
-                        iconBox3.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                        iconBox3.style.boxShadow = '0 4px 12px rgba(102,126,234,0.3)';
-                    }
                 }
             }, 6000);
             
