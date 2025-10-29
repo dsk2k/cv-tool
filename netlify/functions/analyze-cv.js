@@ -342,7 +342,7 @@ You must wrap each section with the exact markers shown below. Do not skip any s
 - Use action verbs and industry keywords from the job description
 - Improve clarity and impact
 - Keep it professional and honest
-- Output language: ${isNL ? 'Dutch' : 'English'}
+- Output language: ${language === 'nl' ? 'Dutch' : 'English'}
 
 ## Instructions for Cover Letter:
 - Professional and personalized
@@ -350,7 +350,7 @@ You must wrap each section with the exact markers shown below. Do not skip any s
 - Highlight relevant experience
 - Show enthusiasm and cultural fit
 - Keep it concise (300-400 words)
-- Output language: ${isNL ? 'Dutch' : 'English'}
+- Output language: ${language === 'nl' ? 'Dutch' : 'English'}
 
 ## Instructions for Recruiter Tips:
 Create a section with these topics (use markdown headers and formatting):

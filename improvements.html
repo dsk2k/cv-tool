@@ -359,6 +359,9 @@
 
         <!-- Download Buttons -->
         <div class="flex flex-wrap justify-center gap-4 mb-12">
+            <button onclick="openEmailModal()" class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-8 py-4 rounded-xl font-semibold shadow-lg transition-all hover:scale-105 hover:shadow-xl flex items-center gap-3">
+                <span class="text-2xl">📧</span> Email Me Results
+            </button>
             <button onclick="downloadPDF()" class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 rounded-xl font-semibold shadow-lg transition-all hover:scale-105 hover:shadow-xl flex items-center gap-3">
                 <span class="text-2xl">📄</span> Download PDF
             </button>
@@ -368,6 +371,93 @@
             <button onclick="window.location.href='index.html'" class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-4 rounded-xl font-semibold shadow-lg transition-all hover:scale-105 hover:shadow-xl flex items-center gap-3">
                 <span class="text-2xl">🔄</span> Nieuw CV
             </button>
+        </div>
+
+        <!-- Email Capture Modal -->
+        <div id="emailModal" class="hidden fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 transform transition-all" style="animation: slideUp 0.3s ease-out;">
+                <!-- Close Button -->
+                <button onclick="closeEmailModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+
+                <!-- Icon -->
+                <div class="text-center mb-6">
+                    <div class="inline-block p-4 bg-gradient-to-br from-green-100 to-green-200 rounded-full mb-4">
+                        <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Email Your Results</h3>
+                    <p class="text-gray-600">We'll send your optimized CV, cover letter, and tips to your inbox</p>
+                </div>
+
+                <!-- Email Form -->
+                <form id="emailCaptureForm" onsubmit="submitEmail(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Email Address *</label>
+                        <input
+                            type="email"
+                            id="userEmail"
+                            required
+                            placeholder="your@email.com"
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition-colors"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Name (Optional)</label>
+                        <input
+                            type="text"
+                            id="userName"
+                            placeholder="Your Name"
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition-colors"
+                        />
+                    </div>
+
+                    <!-- Newsletter Opt-in -->
+                    <div class="flex items-start gap-3">
+                        <input
+                            type="checkbox"
+                            id="newsletter"
+                            checked
+                            class="mt-1 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                        />
+                        <label for="newsletter" class="text-sm text-gray-600">
+                            Send me career tips and job search advice (you can unsubscribe anytime)
+                        </label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button
+                        type="submit"
+                        class="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-4 rounded-lg font-bold text-lg shadow-lg transition-all hover:scale-105"
+                    >
+                        📧 Send to My Inbox
+                    </button>
+
+                    <!-- Privacy Note -->
+                    <p class="text-xs text-gray-500 text-center">
+                        We respect your privacy. See our <a href="privacy.html" class="text-green-600 underline">privacy policy</a>.
+                    </p>
+                </form>
+
+                <!-- Success Message (Hidden by default) -->
+                <div id="emailSuccess" class="hidden text-center">
+                    <div class="inline-block p-4 bg-green-100 rounded-full mb-4">
+                        <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Sent Successfully!</h3>
+                    <p class="text-gray-600 mb-6">Check your inbox for your optimized CV results.</p>
+                    <button onclick="closeEmailModal()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
+                        Close
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Content Sections -->
@@ -901,6 +991,96 @@
                 setTimeout(() => notification.remove(), 300);
             }, 3000);
         }
+
+        // ============================================
+        // EMAIL CAPTURE MODAL FUNCTIONALITY
+        // ============================================
+
+        function openEmailModal() {
+            const modal = document.getElementById('emailModal');
+            modal.classList.remove('hidden');
+            // Reset form if previously submitted
+            document.getElementById('emailCaptureForm').classList.remove('hidden');
+            document.getElementById('emailSuccess').classList.add('hidden');
+        }
+
+        function closeEmailModal() {
+            const modal = document.getElementById('emailModal');
+            modal.classList.add('hidden');
+            // Reset form
+            document.getElementById('emailCaptureForm').reset();
+        }
+
+        async function submitEmail(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('userEmail').value;
+            const name = document.getElementById('userName').value;
+            const newsletter = document.getElementById('newsletter').checked;
+
+            // Get CV results from sessionStorage
+            const data = sessionStorage.getItem('cvAnalysisResult');
+            if (!data) {
+                showNotification('❌ No results found. Please analyze your CV first.', 'error');
+                return;
+            }
+
+            const result = JSON.parse(data);
+
+            // Show loading state
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '⏳ Sending...';
+            submitBtn.disabled = true;
+
+            try {
+                // Call Netlify function to send email
+                const response = await fetch('/.netlify/functions/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        name,
+                        newsletter,
+                        cvResults: {
+                            improvedCV: result.improvedCV,
+                            coverLetter: result.coverLetter,
+                            recruiterTips: result.recruiterTips,
+                            changesOverview: result.changesOverview
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to send email');
+                }
+
+                // Show success message
+                document.getElementById('emailCaptureForm').classList.add('hidden');
+                document.getElementById('emailSuccess').classList.remove('hidden');
+
+                // Save email to localStorage for future use
+                localStorage.setItem('userEmail', email);
+                if (name) localStorage.setItem('userName', name);
+
+                showNotification('✅ Results sent to your inbox!', 'success');
+
+            } catch (error) {
+                console.error('❌ Email send error:', error);
+                showNotification('❌ Failed to send email. Please try again.', 'error');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('emailModal')?.addEventListener('click', function(e) {
+            if (e.target.id === 'emailModal') {
+                closeEmailModal();
+            }
+        });
 
         // ============================================
         // COLLAPSIBLE SECTION FUNCTIONALITY
