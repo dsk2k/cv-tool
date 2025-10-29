@@ -693,11 +693,29 @@
         }
 
         function renderChangesContent(content) {
-            if (!content) return;
+            if (!content) {
+                console.warn('⚠️ No changes content provided');
+                document.getElementById('changesContent').innerHTML = '<p class="text-gray-400 italic">Geen wijzigingen gevonden</p>';
+                return;
+            }
 
-            console.log('🎨 Rendering changes content with nested structure...');
+            console.log('🎨 Rendering changes content...');
+            console.log('📏 Content length:', content.length);
+            console.log('📝 First 300 chars:', content.substring(0, 300));
 
             const container = document.getElementById('changesContent');
+
+            // Detect format: Check if content has ## section headers (but not 📊 Summary)
+            const hasNewFormat = /^##\s+(?!.*📊)/.test(content);
+            console.log(`📋 Format detected: ${hasNewFormat ? 'NEW (hierarchical)' : 'OLD (flat)'}`);
+
+            if (!hasNewFormat) {
+                console.log('🔄 Using OLD format renderer');
+                renderChangesContentOldFormat(content);
+                return;
+            }
+
+            console.log('✨ Using NEW hierarchical format renderer');
             const lines = content.split('\n');
 
             let html = '';
@@ -917,6 +935,120 @@
                 content.classList.add('expanded');
                 icon.classList.add('rotate-180');
             }
+        }
+
+        // OLD FORMAT RENDERER (Fallback for backward compatibility)
+        function renderChangesContentOldFormat(content) {
+            console.log('📜 Rendering OLD flat format...');
+
+            const container = document.getElementById('changesContent');
+            const lines = content.split('\n');
+
+            let html = '';
+            let changeIndex = 0;
+            let currentChange = null;
+            let changeContentBuffer = '';
+
+            for (let line of lines) {
+                line = line.trim();
+
+                // ### Change header (flat format: ### 1. Title)
+                if (line.match(/^###?\s*\d+\./)) {
+                    // Close previous change
+                    if (currentChange !== null) {
+                        html += `
+                                    ${changeContentBuffer}
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                        changeContentBuffer = '';
+                    }
+
+                    changeIndex++;
+                    const changeTitle = line.replace(/^###?\s*/, '').trim();
+
+                    // Create change card
+                    html += `
+                        <div class="change-card-collapsible bg-white rounded-xl shadow-lg overflow-hidden mb-4 border-2 border-gray-100">
+                            <button onclick="toggleChange(${changeIndex})" class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-purple-50 transition-colors">
+                                <div class="flex items-center gap-3 flex-1">
+                                    <span class="text-2xl">📝</span>
+                                    <h3 class="text-xl font-bold text-gray-900">${changeTitle}</h3>
+                                </div>
+                                <svg id="change-icon-${changeIndex}" class="w-6 h-6 text-purple-600 transition-transform duration-300 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <div id="change-content-${changeIndex}" class="change-content-collapsible expanded">
+                                <div class="px-6 pb-6 space-y-4">
+                    `;
+                    currentChange = changeIndex;
+                }
+                // Original section
+                else if (line.match(/^\*\*Original(:|eel)?\*\*/i)) {
+                    changeContentBuffer += `
+                        <div class="original-block">
+                            <span class="label-badge label-original">❌ Origineel</span>
+                    `;
+                }
+                // Improved section
+                else if (line.match(/^\*\*Verbeterd(:|e)?\*\*/i) || line.match(/^\*\*Improved(:|e)?\*\*/i) || line.match(/^\*\*Nieuw(:|e)?\*\*/i)) {
+                    changeContentBuffer += `</div>
+                        <div class="improved-block">
+                            <span class="label-badge label-improved">✅ Verbeterd</span>
+                    `;
+                }
+                // Why section
+                else if (line.match(/^\*\*Why|^\*\*Waarom/i)) {
+                    changeContentBuffer += `</div>
+                        <div class="why-block">
+                            <span class="label-badge label-why">💡 Waarom dit belangrijk is</span>
+                    `;
+                }
+                // Impact rating
+                else if (line.match(/^\*\*Impact/i)) {
+                    const stars = (line.match(/⭐/g) || []).length;
+                    changeContentBuffer += `</div>
+                        <div class="mt-4 flex items-center gap-2">
+                            <span class="text-gray-700 font-semibold">Impact:</span>
+                            <span class="star-rating">${'⭐'.repeat(stars)}</span>
+                        </div>
+                    `;
+                }
+                // Regular content
+                else if (line && !line.match(/^---+$/) && !line.match(/^#{1,3}\s*📊/)) {
+                    // Remove markdown bold syntax
+                    line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    changeContentBuffer += `<p class="text-gray-700 leading-relaxed">${line}</p>`;
+                }
+                // Separator
+                else if (line.match(/^---+$/)) {
+                    if (currentChange !== null) {
+                        html += `
+                                    ${changeContentBuffer}
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                        changeContentBuffer = '';
+                        currentChange = null;
+                    }
+                }
+            }
+
+            // Close last change
+            if (currentChange !== null) {
+                html += `
+                            ${changeContentBuffer}
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
+
+            container.innerHTML = html || '<p class="text-gray-400 italic">Geen wijzigingen gevonden</p>';
+            console.log(`✅ OLD format rendered: ${changeIndex} changes`);
         }
 
         function renderCVContent(content) {
