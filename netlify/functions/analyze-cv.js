@@ -370,66 +370,173 @@ Output language: ${language === 'nl' ? 'Dutch' : 'English'}
 
 ## **NEW: Instructions for Changes Overview**
 
-Create a comprehensive list of ALL changes made to the CV with explanations. Use this exact format:
+Create a comprehensive, STRUCTURED list of ALL changes made to the CV, GROUPED BY CV SECTION.
+
+**CRITICAL FORMAT REQUIREMENTS:**
+- Group changes by CV section (## Summary Section, ## Experience Section, etc.)
+- Under each section, list individual changes as numbered items (### 1., ### 2., etc.)
+- This creates a hierarchical, collapsible structure
+
+Use this EXACT format:
 
 ${language === 'nl' ? `
 **📝 Overzicht van Wijzigingen**
 
-Hieronder zie je alle wijzigingen die zijn aangebracht in je CV, met uitleg waarom elke wijziging belangrijk is voor deze functie.
+Hieronder zie je alle wijzigingen die zijn aangebracht in je CV, gegroepeerd per sectie.
 
-### 1. [Sectienaam of Element]
+## Summary Sectie
+
+### 1. [Naam van de wijziging]
 **Origineel:**
 [Wat er stond]
 
-**Nieuw:**
+**Verbeterd:**
 [Wat het nu is]
 
-**Waarom deze wijziging:**
+**Waarom dit belangrijk is:**
 [Duidelijke uitleg hoe dit je kandidatuur versterkt, refererend aan de functiebeschrijving]
 
-**Impact:** ⭐⭐⭐⭐⭐ (1-5 sterren voor belang)
+**Impact:** ⭐⭐⭐⭐⭐ (1-5 sterren)
 
 ---
 
-[Herhaal voor elke wijziging...]
+### 2. [Volgende wijziging in Summary]
+**Origineel:**
+...
 
-### Samenvatting
+**Verbeterd:**
+...
+
+**Waarom dit belangrijk is:**
+...
+
+**Impact:** ⭐⭐⭐⭐
+
+---
+
+## Werkervaring Sectie
+
+### 1. [Wijziging in werkervaring]
+**Origineel:**
+...
+
+**Verbeterd:**
+...
+
+**Waarom dit belangrijk is:**
+...
+
+**Impact:** ⭐⭐⭐⭐⭐
+
+---
+
+## Vaardigheden Sectie
+
+### 1. [Wijziging in vaardigheden]
+...
+
+---
+
+## Opleidingen Sectie
+
+### 1. [Wijziging in opleidingen]
+...
+
+---
+
+### 📊 Samenvatting
 **Totaal aantal wijzigingen:** [nummer]
+**Wijzigingen per sectie:**
+- Summary: [aantal] wijzigingen
+- Werkervaring: [aantal] wijzigingen
+- Vaardigheden: [aantal] wijzigingen
+- Opleidingen: [aantal] wijzigingen
+
 **Belangrijkste verbeteringen:**
 - [Key improvement 1]
 - [Key improvement 2]
 - [Key improvement 3]
 
-**Afstemming op functie:** [Percentage, bijv. "85% match"]
+**Afstemming op functie:** [Percentage, bijv. "87% match"]
 ` : `
 **📝 Changes Overview**
 
-Below you'll see all the changes made to your CV, with explanations of why each change matters for this specific role.
+Below you'll see all changes made to your CV, grouped by section for better overview.
 
-### 1. [Section Name or Element]
+## Summary Section
+
+### 1. [Name of the change]
 **Original:**
 [What it said before]
 
 **Improved:**
 [What it says now]
 
-**Why this change matters:**
+**Why this matters:**
 [Clear explanation of how this strengthens your candidacy, referencing the job description]
 
-**Impact Rating:** ⭐⭐⭐⭐⭐ (1-5 stars for importance)
+**Impact:** ⭐⭐⭐⭐⭐ (1-5 stars)
 
 ---
 
-[Repeat for each change...]
+### 2. [Next change in Summary]
+**Original:**
+...
 
-### Samenvatting
+**Improved:**
+...
+
+**Why this matters:**
+...
+
+**Impact:** ⭐⭐⭐⭐
+
+---
+
+## Experience Section
+
+### 1. [Change in experience]
+**Original:**
+...
+
+**Improved:**
+...
+
+**Why this matters:**
+...
+
+**Impact:** ⭐⭐⭐⭐⭐
+
+---
+
+## Skills Section
+
+### 1. [Change in skills]
+...
+
+---
+
+## Education Section
+
+### 1. [Change in education]
+...
+
+---
+
+### 📊 Summary
 **Total changes made:** [number]
+**Changes per section:**
+- Summary: [number] changes
+- Experience: [number] changes
+- Skills: [number] changes
+- Education: [number] changes
+
 **Key improvements:**
 - [Key improvement 1]
 - [Key improvement 2]
 - [Key improvement 3]
 
-**Job match score:** [Percentage, e.g., "85% match"]
+**Job match score:** [Percentage, e.g., "87% match"]
 `}
 
 **CRITICAL RULES FOR CHANGES OVERVIEW:**

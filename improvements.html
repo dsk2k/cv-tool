@@ -695,58 +695,131 @@
         function renderChangesContent(content) {
             if (!content) return;
 
-            console.log('🎨 Rendering changes content...');
+            console.log('🎨 Rendering changes content with nested structure...');
 
             const container = document.getElementById('changesContent');
-
-            // Parse the markdown-like content
             const lines = content.split('\n');
+
             let html = '';
-            let currentChange = null;
+            let sectionIndex = 0;
             let changeIndex = 0;
+            let globalChangeIndex = 0;
+
+            let currentSection = null;
+            let currentChange = null;
+            let sectionChangesBuffer = '';
             let changeContentBuffer = '';
+            let sectionChangeCount = 0;
 
             for (let line of lines) {
                 line = line.trim();
 
-                // Change number header
-                if (line.match(/^###?\s*\d+\./)) {
+                // ## CV Section Header (e.g., ## Summary Section)
+                if (line.match(/^##\s+(?!.*📊)/)) {
                     // Close previous change if exists
                     if (currentChange !== null) {
+                        sectionChangesBuffer += `
+                                        ${changeContentBuffer}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        changeContentBuffer = '';
+                        currentChange = null;
+                    }
+
+                    // Close previous section if exists
+                    if (currentSection !== null) {
                         html += `
-                                    ${changeContentBuffer}
+                                    ${sectionChangesBuffer}
                                 </div>
                             </div>
                         </div>
+                        `;
+                        sectionChangesBuffer = '';
+                        sectionChangeCount = 0;
+                    }
+
+                    sectionIndex++;
+                    changeIndex = 0; // Reset change index for new section
+                    const sectionTitle = line.replace(/^##\s+/, '').trim();
+
+                    // Determine icon based on section name
+                    let sectionIcon = '📋';
+                    if (sectionTitle.match(/summary|samenvatting/i)) sectionIcon = '📝';
+                    else if (sectionTitle.match(/experience|werkervaring/i)) sectionIcon = '💼';
+                    else if (sectionTitle.match(/skills|vaardigheden/i)) sectionIcon = '🎯';
+                    else if (sectionTitle.match(/education|opleidingen/i)) sectionIcon = '🎓';
+                    else if (sectionTitle.match(/projects|projecten/i)) sectionIcon = '🚀';
+
+                    // Create collapsible section
+                    html += `
+                        <div class="mb-6 bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-purple-100">
+                            <button onclick="toggleSection(${sectionIndex})" class="w-full px-6 py-5 text-left flex items-center justify-between hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 transition-all duration-300">
+                                <div class="flex items-center gap-4 flex-1">
+                                    <span class="text-3xl">${sectionIcon}</span>
+                                    <div>
+                                        <h2 class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">${sectionTitle}</h2>
+                                        <p class="text-sm text-gray-500 mt-1" id="section-count-${sectionIndex}">Laden...</p>
+                                    </div>
+                                </div>
+                                <svg id="section-icon-${sectionIndex}" class="w-7 h-7 text-purple-600 transition-transform duration-300 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <div id="section-content-${sectionIndex}" class="change-content-collapsible expanded">
+                                <div class="p-4 bg-gradient-to-br from-gray-50 to-white">
+                    `;
+                    currentSection = sectionIndex;
+                }
+                // ### Individual Change Header (e.g., ### 1. Addition of Keywords)
+                else if (line.match(/^###\s*\d+\./)) {
+                    // Close previous change if exists
+                    if (currentChange !== null) {
+                        sectionChangesBuffer += `
+                                        ${changeContentBuffer}
+                                    </div>
+                                </div>
+                            </div>
                         `;
                         changeContentBuffer = '';
                     }
 
                     changeIndex++;
-                    const changeTitle = line.replace(/^###?\s*/, '');
+                    globalChangeIndex++;
+                    sectionChangeCount++;
+                    const changeTitle = line.replace(/^###\s*/, '').trim();
 
-                    // Create collapsible change card
-                    html += `
-                        <div class="change-card-collapsible bg-white rounded-xl shadow-lg overflow-hidden mb-4">
-                            <button onclick="toggleChange(${changeIndex})" class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-purple-50 transition-colors">
+                    // Create nested collapsible change card
+                    sectionChangesBuffer += `
+                        <div class="change-card-collapsible bg-white rounded-xl shadow-md overflow-hidden mb-3 border border-gray-200">
+                            <button onclick="toggleChange(${globalChangeIndex})" class="w-full px-5 py-3 text-left flex items-center justify-between hover:bg-purple-50 transition-colors">
                                 <div class="flex items-center gap-3 flex-1">
-                                    <span class="text-2xl">📝</span>
-                                    <h3 class="text-xl font-bold text-gray-900">${changeTitle}</h3>
+                                    <span class="text-lg">📌</span>
+                                    <h4 class="text-lg font-semibold text-gray-800">${changeTitle}</h4>
                                 </div>
-                                <svg id="change-icon-${changeIndex}" class="w-6 h-6 text-purple-600 transition-transform duration-300 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg id="change-icon-${globalChangeIndex}" class="w-5 h-5 text-purple-600 transition-transform duration-300 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                 </svg>
                             </button>
-                            <div id="change-content-${changeIndex}" class="change-content-collapsible expanded">
-                                <div class="px-6 pb-6 space-y-4">
+                            <div id="change-content-${globalChangeIndex}" class="change-content-collapsible expanded">
+                                <div class="px-5 pb-4 space-y-3">
                     `;
-                    currentChange = changeIndex;
+                    currentChange = globalChangeIndex;
+
+                    // Update section count
+                    setTimeout(() => {
+                        const countEl = document.getElementById(`section-count-${currentSection}`);
+                        if (countEl) {
+                            countEl.textContent = `${sectionChangeCount} wijziging${sectionChangeCount !== 1 ? 'en' : ''}`;
+                        }
+                    }, 100);
                 }
                 // Original section
                 else if (line.match(/^\*\*Original(:|eel)?\*\*/i)) {
                     changeContentBuffer += `
                         <div class="original-block">
-                            <span class="label-badge label-original">❌ Original</span>
+                            <span class="label-badge label-original">❌ Origineel</span>
                     `;
                 }
                 // Improved section
@@ -757,19 +830,19 @@
                     `;
                 }
                 // Why section
-                else if (line.match(/^\*\*Why this change matters(:|e)?\*\*/i) || line.match(/^\*\*Waarom(:|e)?\*\*/i)) {
+                else if (line.match(/^\*\*Why this (change )?matters(:|e)?\*\*/i) || line.match(/^\*\*Waarom(:|e)?\*\*/i)) {
                     changeContentBuffer += `</div>
                         <div class="why-block">
                             <span class="label-badge label-why">💡 Waarom dit belangrijk is</span>
                     `;
                 }
                 // Impact rating
-                else if (line.match(/^\*\*Impact Rating(:|e)?\*\*/i)) {
+                else if (line.match(/^\*\*Impact/i)) {
                     const stars = (line.match(/⭐/g) || []).length;
                     changeContentBuffer += `</div>
-                        <div class="mt-4 flex items-center gap-2">
-                            <span class="text-gray-700 font-semibold">Impact:</span>
-                            <span class="star-rating">${'⭐'.repeat(stars)}</span>
+                        <div class="mt-3 flex items-center gap-2">
+                            <span class="text-gray-700 font-semibold text-sm">Impact:</span>
+                            <span class="star-rating text-xl">${'⭐'.repeat(stars)}</span>
                         </div>
                     `;
                 }
@@ -777,16 +850,16 @@
                 else if (line && !line.match(/^---+$/)) {
                     // Remove markdown bold syntax
                     line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                    changeContentBuffer += `<p class="text-gray-700 leading-relaxed">${line}</p>`;
+                    changeContentBuffer += `<p class="text-gray-700 leading-relaxed text-sm">${line}</p>`;
                 }
                 // Separator - end of change
                 else if (line.match(/^---+$/)) {
                     if (currentChange !== null) {
-                        html += `
-                                    ${changeContentBuffer}
+                        sectionChangesBuffer += `
+                                        ${changeContentBuffer}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         `;
                         changeContentBuffer = '';
                         currentChange = null;
@@ -794,18 +867,42 @@
                 }
             }
 
-            // Close any remaining open tags
+            // Close remaining change
             if (currentChange !== null) {
+                sectionChangesBuffer += `
+                                    ${changeContentBuffer}
+                                </div>
+                            </div>
+                        </div>
+                `;
+            }
+
+            // Close remaining section
+            if (currentSection !== null) {
                 html += `
-                            ${changeContentBuffer}
+                                ${sectionChangesBuffer}
+                            </div>
                         </div>
                     </div>
-                </div>
                 `;
             }
 
             container.innerHTML = html || '<p class="text-gray-400 italic">Geen wijzigingen gevonden</p>';
-            console.log('✅ Changes content rendered with collapsible improvements');
+            console.log(`✅ Changes rendered: ${sectionIndex} sections, ${globalChangeIndex} changes`);
+        }
+
+        // Toggle CV section
+        function toggleSection(sectionNum) {
+            const content = document.getElementById(`section-content-${sectionNum}`);
+            const icon = document.getElementById(`section-icon-${sectionNum}`);
+
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.classList.remove('rotate-180');
+            } else {
+                content.classList.add('expanded');
+                icon.classList.add('rotate-180');
+            }
         }
 
         // Toggle individual change card
@@ -814,11 +911,9 @@
             const icon = document.getElementById(`change-icon-${changeNum}`);
 
             if (content.classList.contains('expanded')) {
-                // Collapse
                 content.classList.remove('expanded');
                 icon.classList.remove('rotate-180');
             } else {
-                // Expand
                 content.classList.add('expanded');
                 icon.classList.add('rotate-180');
             }
