@@ -170,11 +170,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
                 
-                // Send to backend
+                // Send to backend with extended timeout (60 seconds for Pro plan)
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+
                 const response = await fetch('/.netlify/functions/analyze-cv', {
                     method: 'POST',
-                    body: formData
+                    body: formData,
+                    signal: controller.signal
                 });
+
+                clearTimeout(timeoutId);
                 
                 if (!response.ok) {
                     throw new Error(`Server error: ${response.status}`);
@@ -199,20 +205,30 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Error:', error);
 
-                // Track error in GA4
-                if (window.trackEvent) {
-                    window.trackEvent('cv_analysis_error', {
-                        error_message: error.message,
-                        language: language
-                    });
-                }
-
                 // Hide loading overlay
                 loadingOverlay.classList.add('hidden');
                 loadingOverlay.classList.remove('flex');
 
+                // Better error messages based on error type
+                let errorMessage = 'Sorry, there was an error processing your CV. Please try again or contact support if the problem persists.';
+
+                if (error.name === 'AbortError') {
+                    errorMessage = 'De analyse duurt langer dan verwacht. Dit kan gebeuren bij complexe CV\'s. Probeer het opnieuw of neem contact op met support.';
+                } else if (error.message.includes('timeout')) {
+                    errorMessage = 'De analyse duurt langer dan verwacht (>60 sec). Probeer het opnieuw met een kortere CV of job description.';
+                }
+
+                // Track error in GA4
+                if (window.trackEvent) {
+                    window.trackEvent('cv_analysis_error', {
+                        error_message: error.message,
+                        error_type: error.name,
+                        language: language
+                    });
+                }
+
                 // Show user-friendly error message
-                alert('Sorry, there was an error processing your CV. Please try again or contact support if the problem persists.');
+                alert(errorMessage);
             }
         });
     }
