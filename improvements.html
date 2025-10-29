@@ -313,23 +313,7 @@
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 min-h-screen">
 
-    <!-- Language Switcher (Fixed position) -->
-    <div class="fixed top-4 right-4 z-50">
-        <div class="bg-white rounded-lg shadow-lg p-2 flex items-center gap-2">
-            <button id="translateBtn" onclick="toggleTranslation()"
-                    class="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all duration-300 hover:scale-105"
-                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                <svg id="translateIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
-                </svg>
-                <span id="translateText">Translate to English</span>
-            </button>
-            <div id="translationLoading" class="hidden">
-                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
-            </div>
-        </div>
-    </div>
+   
 
     <div class="container mx-auto px-4 py-8 max-w-7xl">
         <!-- Header -->
@@ -1180,77 +1164,6 @@
                 changes: document.getElementById('changesOverview')?.innerHTML
             };
             console.log('💾 Original content saved');
-        }
-
-        async function toggleTranslation() {
-            const targetLang = currentLanguage === 'nl' ? 'en' : 'nl';
-            const btn = document.getElementById('translateBtn');
-            const text = document.getElementById('translateText');
-            const loading = document.getElementById('translationLoading');
-
-            console.log(`🌐 Switching language from ${currentLanguage} to ${targetLang}`);
-
-            // Show loading state
-            btn.disabled = true;
-            btn.style.opacity = '0.6';
-            loading.classList.remove('hidden');
-
-            try {
-                // Get pre-generated dual-language data from sessionStorage
-                const data = sessionStorage.getItem('cvAnalysisResult');
-                if (!data) {
-                    throw new Error('No analysis data found. Please analyze your CV again.');
-                }
-
-                const result = JSON.parse(data);
-
-                // Switch to target language using pre-generated content
-                if (targetLang === 'en') {
-                    // Switch to English versions
-                    if (result.improvedCV_EN) {
-                        document.getElementById('improvedCV').innerHTML = marked.parse(result.improvedCV_EN);
-                    }
-                    if (result.coverLetter_EN) {
-                        document.getElementById('coverLetter').innerHTML = marked.parse(result.coverLetter_EN);
-                    }
-                    if (result.recruiterTips_EN) {
-                        document.getElementById('recruiterTips').innerHTML = marked.parse(result.recruiterTips_EN);
-                    }
-                    if (result.changesOverview_EN) {
-                        renderChangesContent(result.changesOverview_EN);
-                    }
-                    document.getElementById('mainTitle').textContent = 'Your Improved CV';
-                    text.textContent = 'Vertalen naar Nederlands';
-                    currentLanguage = 'en';
-                    showNotification('✅ Switched to English', 'success');
-                } else {
-                    // Switch back to Dutch versions
-                    if (result.improvedCV) {
-                        document.getElementById('improvedCV').innerHTML = marked.parse(result.improvedCV);
-                    }
-                    if (result.coverLetter) {
-                        document.getElementById('coverLetter').innerHTML = marked.parse(result.coverLetter);
-                    }
-                    if (result.recruiterTips) {
-                        document.getElementById('recruiterTips').innerHTML = marked.parse(result.recruiterTips);
-                    }
-                    if (result.changesOverview) {
-                        renderChangesContent(result.changesOverview);
-                    }
-                    document.getElementById('mainTitle').textContent = 'Jouw Verbeterde CV';
-                    text.textContent = 'Translate to English';
-                    currentLanguage = 'nl';
-                    showNotification('✅ Terug naar Nederlands', 'success');
-                }
-
-            } catch (error) {
-                console.error('❌ Translation error:', error);
-                showNotification('❌ Translation failed. Please try again.', 'error');
-            } finally {
-                btn.disabled = false;
-                btn.style.opacity = '1';
-                loading.classList.add('hidden');
-            }
         }
 
         function showNotification(message, type = 'info') {

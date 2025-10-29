@@ -9,14 +9,10 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Prompt Text Markers
 const ALL_START_MARKERS = [
-  '---IMPROVED_CV_NL_START---',
-  '---IMPROVED_CV_EN_START---',
-  '---COVER_LETTER_NL_START---',
-  '---COVER_LETTER_EN_START---',
-  '---RECRUITER_TIPS_NL_START---',
-  '---RECRUITER_TIPS_EN_START---',
-  '---CHANGES_OVERVIEW_NL_START---',
-  '---CHANGES_OVERVIEW_EN_START---'
+  '---IMPROVED_CV_START---',
+  '---COVER_LETTER_START---',
+  '---RECRUITER_TIPS_START---',
+  '---CHANGES_OVERVIEW_START---'
 ];
 
 exports.handler = async (event) => {
@@ -159,45 +155,27 @@ exports.handler = async (event) => {
     
     console.log(`✅ Response received from Gemini: ${fullText.length} chars`);
 
-    // Extract BOTH Dutch and English sections
-    console.log('\n--- EXTRACTION PHASE (Both Languages) ---');
+    // Extract sections
+    console.log('\n--- EXTRACTION PHASE ---');
 
-    // Dutch versions
-    const improvedCV_NL = extractSection(fullText, '---IMPROVED_CV_NL_START---', '---IMPROVED_CV_NL_END---', 'Could not generate Dutch CV');
-    const coverLetter_NL = extractSection(fullText, '---COVER_LETTER_NL_START---', '---COVER_LETTER_NL_END---', 'Could not generate Dutch cover letter');
-    const recruiterTips_NL = extractSection(fullText, '---RECRUITER_TIPS_NL_START---', '---RECRUITER_TIPS_NL_END---', 'Could not generate Dutch tips');
-    const changesOverview_NL = extractSection(fullText, '---CHANGES_OVERVIEW_NL_START---', '---CHANGES_OVERVIEW_NL_END---', 'Could not generate Dutch changes');
+    const improvedCV = extractSection(fullText, '---IMPROVED_CV_START---', '---IMPROVED_CV_END---', 'Could not generate CV');
+    const coverLetter = extractSection(fullText, '---COVER_LETTER_START---', '---COVER_LETTER_END---', 'Could not generate cover letter');
+    const recruiterTips = extractSection(fullText, '---RECRUITER_TIPS_START---', '---RECRUITER_TIPS_END---', 'Could not generate tips');
+    const changesOverview = extractSection(fullText, '---CHANGES_OVERVIEW_START---', '---CHANGES_OVERVIEW_END---', 'Could not generate changes');
 
-    console.log(`${improvedCV_NL.success ? '✅' : '❌'} CV (NL): ${improvedCV_NL.content.length} chars`);
-    console.log(`${coverLetter_NL.success ? '✅' : '❌'} Cover Letter (NL): ${coverLetter_NL.content.length} chars`);
-    console.log(`${recruiterTips_NL.success ? '✅' : '❌'} Tips (NL): ${recruiterTips_NL.content.length} chars`);
-    console.log(`${changesOverview_NL.success ? '✅' : '❌'} Changes (NL): ${changesOverview_NL.content.length} chars`);
-
-    // English versions
-    const improvedCV_EN = extractSection(fullText, '---IMPROVED_CV_EN_START---', '---IMPROVED_CV_EN_END---', 'Could not generate English CV');
-    const coverLetter_EN = extractSection(fullText, '---COVER_LETTER_EN_START---', '---COVER_LETTER_EN_END---', 'Could not generate English cover letter');
-    const recruiterTips_EN = extractSection(fullText, '---RECRUITER_TIPS_EN_START---', '---RECRUITER_TIPS_EN_END---', 'Could not generate English tips');
-    const changesOverview_EN = extractSection(fullText, '---CHANGES_OVERVIEW_EN_START---', '---CHANGES_OVERVIEW_EN_END---', 'Could not generate English changes');
-
-    console.log(`${improvedCV_EN.success ? '✅' : '❌'} CV (EN): ${improvedCV_EN.content.length} chars`);
-    console.log(`${coverLetter_EN.success ? '✅' : '❌'} Cover Letter (EN): ${coverLetter_EN.content.length} chars`);
-    console.log(`${recruiterTips_EN.success ? '✅' : '❌'} Tips (EN): ${recruiterTips_EN.content.length} chars`);
-    console.log(`${changesOverview_EN.success ? '✅' : '❌'} Changes (EN): ${changesOverview_EN.content.length} chars`);
+    console.log(`${improvedCV.success ? '✅' : '❌'} CV: ${improvedCV.content.length} chars`);
+    console.log(`${coverLetter.success ? '✅' : '❌'} Cover Letter: ${coverLetter.content.length} chars`);
+    console.log(`${recruiterTips.success ? '✅' : '❌'} Tips: ${recruiterTips.content.length} chars`);
+    console.log(`${changesOverview.success ? '✅' : '❌'} Changes: ${changesOverview.content.length} chars`);
 
     console.log('--- END EXTRACTION PHASE ---\n');
 
-    // Prepare response with BOTH languages
+    // Prepare response
     const responseData = {
-      // Dutch versions (default)
-      improvedCV: improvedCV_NL.content,
-      coverLetter: coverLetter_NL.content,
-      recruiterTips: recruiterTips_NL.content,
-      changesOverview: changesOverview_NL.content,
-      // English versions
-      improvedCV_EN: improvedCV_EN.content,
-      coverLetter_EN: coverLetter_EN.content,
-      recruiterTips_EN: recruiterTips_EN.content,
-      changesOverview_EN: changesOverview_EN.content,
+      improvedCV: improvedCV.content,
+      coverLetter: coverLetter.content,
+      recruiterTips: recruiterTips.content,
+      changesOverview: changesOverview.content,
       metadata: {
         originalCVLength: currentCV.length,
         jobDescriptionLength: jobDescription.length,
@@ -222,14 +200,10 @@ exports.handler = async (event) => {
     // === EINDE SAVE TO CACHE ===
 
     console.log('\n--- FINAL DATA SUMMARY ---');
-    console.log(`NL CV: ${improvedCV_NL.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${improvedCV_NL.content.length} chars)`);
-    console.log(`EN CV: ${improvedCV_EN.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${improvedCV_EN.content.length} chars)`);
-    console.log(`NL Cover Letter: ${coverLetter_NL.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${coverLetter_NL.content.length} chars)`);
-    console.log(`EN Cover Letter: ${coverLetter_EN.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${coverLetter_EN.content.length} chars)`);
-    console.log(`NL Tips: ${recruiterTips_NL.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${recruiterTips_NL.content.length} chars)`);
-    console.log(`EN Tips: ${recruiterTips_EN.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${recruiterTips_EN.content.length} chars)`);
-    console.log(`NL Changes: ${changesOverview_NL.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${changesOverview_NL.content.length} chars)`);
-    console.log(`EN Changes: ${changesOverview_EN.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${changesOverview_EN.content.length} chars)`);
+    console.log(`CV: ${improvedCV.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${improvedCV.content.length} chars)`);
+    console.log(`Cover Letter: ${coverLetter.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${coverLetter.content.length} chars)`);
+    console.log(`Tips: ${recruiterTips.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${recruiterTips.content.length} chars)`);
+    console.log(`Changes: ${changesOverview.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${changesOverview.content.length} chars)`);
     console.log('--- END SUMMARY ---\n');
 
     return {
@@ -325,169 +299,26 @@ function extractSection(fullText, startMarker, endMarker, fallbackMessage) {
   }
 }
 
+
 /**
  * Create the prompt for Gemini AI
+ * VEREENVOUDIGDE VERSIE: Vraagt alleen de geselecteerde taal
  */
 function createPrompt(currentCV, jobDescription, language) {
-  return `You are an expert CV consultant and career coach. Your task is to analyze the CV and generate BOTH Dutch AND English versions of all content.
-
-**CRITICAL: Generate BOTH languages in a single response!**
-
-**IMPORTANT OUTPUT FORMAT:**
-You must wrap each section with the exact markers shown below. Do not skip any section.
-
----IMPROVED_CV_NL_START---
-[Your improved CV in DUTCH - Use markdown formatting, keep structure but optimize content]
----IMPROVED_CV_NL_END---
-
----IMPROVED_CV_EN_START---
-[Your improved CV in ENGLISH - Same improvements, translated]
----IMPROVED_CV_EN_END---
-
----COVER_LETTER_NL_START---
-[Your professional cover letter in DUTCH]
----COVER_LETTER_NL_END---
-
----COVER_LETTER_EN_START---
-[Your professional cover letter in ENGLISH]
----COVER_LETTER_EN_END---
-
----RECRUITER_TIPS_NL_START---
-[Your recruiter conversation tips in DUTCH - Use markdown with headers and bullet points]
----RECRUITER_TIPS_NL_END---
-
----RECRUITER_TIPS_EN_START---
-[Your recruiter conversation tips in ENGLISH - Use markdown with headers and bullet points]
----RECRUITER_TIPS_EN_END---
-
----CHANGES_OVERVIEW_NL_START---
-[Your detailed changes overview in DUTCH]
----CHANGES_OVERVIEW_NL_END---
-
----CHANGES_OVERVIEW_EN_START---
-[Your detailed changes overview in ENGLISH]
----CHANGES_OVERVIEW_EN_END---
-
-## Instructions for CV Improvement:
-- Keep the original structure and formatting
-- Enhance bullet points to match job requirements
-- Quantify achievements where possible
-- Use action verbs and industry keywords from the job description
-- Improve clarity and impact
-- Keep it professional and honest
-- Output language: ${language === 'nl' ? 'Dutch' : 'English'}
-
-## Instructions for Cover Letter:
-- Professional and personalized
-- Reference specific job requirements
-- Highlight relevant experience
-- Show enthusiasm and cultural fit
-- Keep it concise (300-400 words)
-- Output language: ${language === 'nl' ? 'Dutch' : 'English'}
-
-## Instructions for Recruiter Tips:
-Create a section with these topics (use markdown headers and formatting):
-1. **Key Points to Emphasize** - What to highlight in interviews
-2. **Questions They'll Ask** - Common questions for this role
-3. **Questions You Should Ask** - Smart questions to ask the recruiter
-4. **Red Flags to Watch** - What to be careful about
-5. **Salary Negotiation Tips** - How to approach compensation
-6. **Cultural Fit Signals** - What the company values
-7. **Next Steps** - What to do after the interview
-
-Output language: ${language === 'nl' ? 'Dutch' : 'English'}
-
-## **NEW: Instructions for Changes Overview**
-
-Create a comprehensive, STRUCTURED list of ALL changes made to the CV, GROUPED BY CV SECTION.
-
-**CRITICAL FORMAT REQUIREMENTS:**
-- Group changes by CV section (## Summary Section, ## Experience Section, etc.)
-- Under each section, list individual changes as numbered items (### 1., ### 2., etc.)
-- This creates a hierarchical, collapsible structure
-
-**LANGUAGE REQUIREMENTS:**
-${language === 'nl' ? `
-- ⚠️ WRITE EVERYTHING IN DUTCH (NEDERLANDS)
-- All section names must be in Dutch
-- All change titles must be in Dutch
-- All explanations must be in Dutch
-- The ONLY acceptable language is DUTCH
-- NO English text allowed anywhere
-` : `
-- Write everything in English
-- All section names must be in English
-- All change titles must be in English
-- All explanations must be in English
-`}
-
-Use this EXACT format:
-
-${language === 'nl' ? `
-**📝 Overzicht van Wijzigingen**
-
-Hieronder zie je alle wijzigingen die zijn aangebracht in je CV, gegroepeerd per sectie.
-
-## Summary Sectie
-
-### 1. [Naam van de wijziging]
-**Origineel:**
-[Wat er stond]
-
-**Verbeterd:**
-[Wat het nu is]
-
-**Waarom dit belangrijk is:**
-[Duidelijke uitleg hoe dit je kandidatuur versterkt, refererend aan de functiebeschrijving]
-
-**Impact:** ⭐⭐⭐⭐⭐ (1-5 sterren)
-
----
-
-### 2. [Volgende wijziging in Summary]
-**Origineel:**
-...
-
-**Verbeterd:**
-...
-
-**Waarom dit belangrijk is:**
-...
-
-**Impact:** ⭐⭐⭐⭐
-
----
-
-## Werkervaring Sectie
-
-### 1. [Wijziging in werkervaring]
-**Origineel:**
-...
-
-**Verbeterd:**
-...
-
-**Waarom dit belangrijk is:**
-...
-
-**Impact:** ⭐⭐⭐⭐⭐
-
----
-
-## Vaardigheden Sectie
-
-### 1. [Wijziging in vaardigheden]
-...
-
----
-
-## Opleidingen Sectie
-
-### 1. [Wijziging in opleidingen]
-...
-
----
-
+  // Bepaal de taal voor de instructies
+  const isDutch = language === 'nl';
+  const instructionLanguage = isDutch ? 'Dutch (Nederlands)' : 'English';
+  const changesOverviewTitle = isDutch ? '📝 Overzicht van Wijzigingen' : '📝 Changes Overview';
+  const changesSectionNames = isDutch ? 
+    ['Summary Sectie', 'Werkervaring Sectie', 'Vaardigheden Sectie', 'Opleidingen Sectie'] :
+    ['Summary Section', 'Experience Section', 'Skills Section', 'Education Section'];
+  
+  const originalLabel = isDutch ? 'Origineel' : 'Original';
+  const improvedLabel = isDutch ? 'Verbeterd' : 'Improved';
+  const whyLabel = isDutch ? 'Waarom dit belangrijk is' : 'Why this matters';
+  const impactLabel = isDutch ? 'Impact' : 'Impact';
+  
+  const summaryBlock = isDutch ? `
 ### 📊 Samenvatting
 **Totaal aantal wijzigingen:** [nummer]
 **Wijzigingen per sectie:**
@@ -503,70 +334,6 @@ Hieronder zie je alle wijzigingen die zijn aangebracht in je CV, gegroepeerd per
 
 **Afstemming op functie:** [Percentage, bijv. "87% match"]
 ` : `
-**📝 Changes Overview**
-
-Below you'll see all changes made to your CV, grouped by section for better overview.
-
-## Summary Section
-
-### 1. [Name of the change]
-**Original:**
-[What it said before]
-
-**Improved:**
-[What it says now]
-
-**Why this matters:**
-[Clear explanation of how this strengthens your candidacy, referencing the job description]
-
-**Impact:** ⭐⭐⭐⭐⭐ (1-5 stars)
-
----
-
-### 2. [Next change in Summary]
-**Original:**
-...
-
-**Improved:**
-...
-
-**Why this matters:**
-...
-
-**Impact:** ⭐⭐⭐⭐
-
----
-
-## Experience Section
-
-### 1. [Change in experience]
-**Original:**
-...
-
-**Improved:**
-...
-
-**Why this matters:**
-...
-
-**Impact:** ⭐⭐⭐⭐⭐
-
----
-
-## Skills Section
-
-### 1. [Change in skills]
-...
-
----
-
-## Education Section
-
-### 1. [Change in education]
-...
-
----
-
 ### 📊 Summary
 **Total changes made:** [number]
 **Changes per section:**
@@ -581,17 +348,120 @@ Below you'll see all changes made to your CV, grouped by section for better over
 - [Key improvement 3]
 
 **Job match score:** [Percentage, e.g., "87% match"]
-`}
+`;
+
+  return `You are an expert CV consultant and career coach. Your task is to analyze the CV and generate all content in ${instructionLanguage}.
+
+**CRITICAL: Generate content ONLY in ${instructionLanguage}.**
+
+**IMPORTANT OUTPUT FORMAT:**
+You must wrap each section with the exact markers shown below. Do not skip any section.
+
+---IMPROVED_CV_START---
+[Your improved CV in ${instructionLanguage} - Use markdown formatting, keep structure but optimize content]
+---IMPROVED_CV_END---
+
+---COVER_LETTER_START---
+[Your professional cover letter in ${instructionLanguage}]
+---COVER_LETTER_END---
+
+---RECRUITER_TIPS_START---
+[Your recruiter conversation tips in ${instructionLanguage} - Use markdown with headers and bullet points]
+---RECRUITER_TIPS_END---
+
+---CHANGES_OVERVIEW_START---
+[Your detailed changes overview in ${instructionLanguage}]
+---CHANGES_OVERVIEW_END---
+
+## Instructions for CV Improvement:
+- Keep the original structure and formatting
+- Enhance bullet points to match job requirements
+- Quantify achievements where possible
+- Use action verbs and industry keywords from the job description
+- Improve clarity and impact
+- Keep it professional and honest
+- Output language: ${instructionLanguage}
+
+## Instructions for Cover Letter:
+- Professional and personalized
+- Reference specific job requirements
+- Highlight relevant experience
+- Show enthusiasm and cultural fit
+- Keep it concise (300-400 words)
+- Output language: ${instructionLanguage}
+
+## Instructions for Recruiter Tips:
+Create a section with these topics (use markdown headers and formatting) in ${instructionLanguage}:
+1. **Key Points to Emphasize** - What to highlight in interviews
+2. **Questions They'll Ask** - Common questions for this role
+3. **Questions You Should Ask** - Smart questions to ask the recruiter
+4. **Red Flags to Watch** - What to be careful about
+5. **Salary Negotiation Tips** - How to approach compensation
+6. **Cultural Fit Signals** - What the company values
+7. **Next Steps** - What to do after the interview
+
+Output language: ${instructionLanguage}
+
+## Instructions for Changes Overview
+Create a comprehensive, STRUCTURED list of ALL changes made to the CV, GROUPED BY CV SECTION.
+WRITE EVERYTHING IN ${instructionLanguage}.
+
+Use this EXACT format:
+
+**${changesOverviewTitle}**
+
+Hieronder zie je alle wijzigingen die zijn aangebracht in je CV, gegroepeerd per sectie.
+
+## ${changesSectionNames[0]}
+
+### 1. [Naam van de wijziging]
+**${originalLabel}:**
+[Wat er stond]
+
+**${improvedLabel}:**
+[Wat het nu is]
+
+**${whyLabel}:**
+[Duidelijke uitleg hoe dit je kandidatuur versterkt, refererend aan de functiebeschrijving]
+
+**${impactLabel}:** ⭐⭐⭐⭐⭐ (1-5 sterren)
+
+---
+
+### 2. [Volgende wijziging]
+...
+
+---
+
+## ${changesSectionNames[1]}
+
+### 1. [Wijziging in werkervaring]
+...
+
+---
+
+## ${changesSectionNames[2]}
+
+### 1. [Wijziging in vaardigheden]
+...
+
+---
+
+## ${changesSectionNames[3]}
+
+### 1. [Wijziging in opleidingen]
+...
+
+---
+
+${summaryBlock}
 
 **CRITICAL RULES FOR CHANGES OVERVIEW:**
 - List EVERY meaningful change (aim for 8-15 changes)
 - Be specific about what changed
 - Explain WHY using the job description
 - Rate impact (1-5 stars)
-- Include changes to: keywords, action verbs, quantifications, structure, emphasis, formatting
-- If no change in a section, still explain why it's good as-is
-- Focus on what makes the candidate more competitive
-- Use markdown formatting for readability
+- Output language: ${instructionLanguage}
 
 ---
 
