@@ -986,85 +986,251 @@
             </h3>
             
             <form id="cvForm" class="space-y-6">
-                <!-- CV Upload with Drag & Drop -->
+                <!-- CV Upload with Premium Drag & Drop -->
                 <div>
-                    <label class="block text-gray-700 font-semibold mb-3" data-i18n="form-cv-label">
-                        Your Current CV *
+                    <label class="block text-gray-900 font-bold mb-4 text-lg" data-i18n="form-cv-label">
+                        Uw Huidige CV *
                     </label>
 
-                    <!-- Drag & Drop Zone -->
-                    <div id="dropZone" class="relative border-3 border-dashed border-indigo-300 rounded-xl p-8 text-center transition-all duration-300 hover:border-indigo-500 hover:bg-indigo-50 cursor-pointer">
-                        <input
-                            type="file"
-                            id="cvFile"
-                            name="cvFile"
-                            accept=".pdf,.doc,.docx"
-                            required
-                            class="hidden"
-                            onchange="handleFileSelect(event)"
-                        />
+                    <input
+                        type="file"
+                        id="cvFile"
+                        name="cvFile"
+                        accept=".pdf,.doc,.docx"
+                        required
+                        class="hidden"
+                        onchange="handleFileSelect(event)"
+                    />
 
+                    <!-- Premium Drag & Drop Zone -->
+                    <div id="dropZone" style="
+                        position: relative;
+                        border: 2px dashed #c7d2fe;
+                        border-radius: 20px;
+                        padding: 3rem 2rem;
+                        text-align: center;
+                        background: linear-gradient(135deg, rgba(249,250,251,1) 0%, rgba(255,255,255,1) 100%);
+                        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                        cursor: pointer;
+                    " class="upload-zone">
                         <!-- Upload Icon & Text -->
-                        <div id="uploadPrompt" class="space-y-3">
-                            <svg class="mx-auto h-16 w-16 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                            </svg>
-                            <div>
-                                <p class="text-lg font-semibold text-gray-700">
-                                    <label for="cvFile" class="text-indigo-600 hover:text-indigo-700 cursor-pointer">Click to upload</label> or drag and drop
-                                </p>
-                                <p class="text-sm text-gray-500 mt-1">PDF, DOC, DOCX up to 10MB</p>
+                        <div id="uploadPrompt">
+                            <!-- Cloud Upload Icon -->
+                            <div style="
+                                position: relative;
+                                width: 100px;
+                                height: 100px;
+                                margin: 0 auto 1.5rem;
+                            ">
+                                <div style="
+                                    position: absolute;
+                                    top: 50%;
+                                    left: 50%;
+                                    transform: translate(-50%, -50%);
+                                    width: 80px;
+                                    height: 80px;
+                                    background: linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 100%);
+                                    border-radius: 50%;
+                                    opacity: 0.5;
+                                "></div>
+
+                                <svg style="
+                                    position: relative;
+                                    width: 100%;
+                                    height: 100%;
+                                    color: #667eea;
+                                    filter: drop-shadow(0 4px 12px rgba(102,126,234,0.2));
+                                " fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                </svg>
                             </div>
+
+                            <h4 style="
+                                font-size: 1.25rem;
+                                font-weight: 700;
+                                color: #1f2937;
+                                margin-bottom: 0.5rem;
+                            ">
+                                Klik om te uploaden
+                            </h4>
+                            <p style="
+                                color: #6b7280;
+                                font-size: 0.9375rem;
+                                margin-bottom: 1.5rem;
+                            ">
+                                of sleep uw bestand hierheen
+                            </p>
+
+                            <div style="
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                gap: 0.75rem;
+                                flex-wrap: wrap;
+                            ">
+                                <div style="
+                                    display: inline-flex;
+                                    align-items: center;
+                                    gap: 0.5rem;
+                                    padding: 0.5rem 1rem;
+                                    background: white;
+                                    border: 1.5px solid #e5e7eb;
+                                    border-radius: 12px;
+                                    font-size: 0.875rem;
+                                    font-weight: 600;
+                                    color: #374151;
+                                ">
+                                    <span style="font-size: 1.25rem;">📄</span>
+                                    PDF
+                                </div>
+                                <div style="
+                                    display: inline-flex;
+                                    align-items: center;
+                                    gap: 0.5rem;
+                                    padding: 0.5rem 1rem;
+                                    background: white;
+                                    border: 1.5px solid #e5e7eb;
+                                    border-radius: 12px;
+                                    font-size: 0.875rem;
+                                    font-weight: 600;
+                                    color: #374151;
+                                ">
+                                    <span style="font-size: 1.25rem;">📝</span>
+                                    DOC
+                                </div>
+                                <div style="
+                                    display: inline-flex;
+                                    align-items: center;
+                                    gap: 0.5rem;
+                                    padding: 0.5rem 1rem;
+                                    background: white;
+                                    border: 1.5px solid #e5e7eb;
+                                    border-radius: 12px;
+                                    font-size: 0.875rem;
+                                    font-weight: 600;
+                                    color: #374151;
+                                ">
+                                    <span style="font-size: 1.25rem;">📃</span>
+                                    DOCX
+                                </div>
+                            </div>
+
+                            <p style="
+                                color: #9ca3af;
+                                font-size: 0.8125rem;
+                                margin-top: 1rem;
+                                font-weight: 500;
+                            ">
+                                Maximaal 10MB
+                            </p>
                         </div>
 
                         <!-- File Preview (hidden by default) -->
                         <div id="filePreview" class="hidden">
-                            <div class="flex items-center justify-center gap-3 bg-green-50 p-4 rounded-lg">
-                                <div class="flex-shrink-0">
-                                    <svg class="h-10 w-10 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <div style="
+                                display: flex;
+                                align-items: center;
+                                gap: 1rem;
+                                padding: 1.5rem;
+                                background: linear-gradient(135deg, rgba(16,185,129,0.05) 0%, rgba(5,150,105,0.05) 100%);
+                                border: 2px solid rgba(16,185,129,0.3);
+                                border-radius: 16px;
+                                max-width: 400px;
+                                margin: 0 auto;
+                            ">
+                                <div style="
+                                    flex-shrink: 0;
+                                    width: 56px;
+                                    height: 56px;
+                                    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                                    border-radius: 14px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+                                ">
+                                    <svg style="width: 32px; height: 32px; color: white;" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
                                     </svg>
                                 </div>
-                                <div class="flex-1 text-left">
-                                    <p id="fileName" class="font-semibold text-gray-900"></p>
-                                    <p id="fileSize" class="text-sm text-gray-600"></p>
+
+                                <div style="flex: 1; text-align: left; min-width: 0;">
+                                    <p id="fileName" style="
+                                        font-weight: 700;
+                                        color: #1f2937;
+                                        font-size: 0.9375rem;
+                                        margin-bottom: 0.25rem;
+                                        overflow: hidden;
+                                        text-overflow: ellipsis;
+                                        white-space: nowrap;
+                                    "></p>
+                                    <p id="fileSize" style="
+                                        font-size: 0.8125rem;
+                                        color: #059669;
+                                        font-weight: 600;
+                                    "></p>
                                 </div>
-                                <button type="button" onclick="clearFile()" class="flex-shrink-0 text-red-500 hover:text-red-700">
-                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                                <button type="button" onclick="clearFile()" style="
+                                    flex-shrink: 0;
+                                    width: 36px;
+                                    height: 36px;
+                                    background: rgba(239,68,68,0.1);
+                                    border: none;
+                                    border-radius: 10px;
+                                    color: #ef4444;
+                                    cursor: pointer;
+                                    transition: all 0.2s;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                " onmouseover="this.style.background='rgba(239,68,68,0.2)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'">
+                                    <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                     </svg>
                                 </button>
                             </div>
+
+                            <div style="
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                gap: 0.5rem;
+                                margin-top: 1rem;
+                                color: #059669;
+                                font-size: 0.875rem;
+                                font-weight: 600;
+                            ">
+                                <svg style="width: 18px; height: 18px;" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                Bestand succesvol geüpload
+                            </div>
                         </div>
 
-                        <!-- Error Message -->
-                        <div id="fileError" class="hidden mt-3">
-                            <p class="text-sm text-red-600 font-semibold"></p>
+                        <!-- Error Display -->
+                        <div id="fileError" class="hidden" style="margin-top: 1rem;">
+                            <div style="
+                                padding: 1rem;
+                                background: rgba(239,68,68,0.05);
+                                border: 1.5px solid rgba(239,68,68,0.2);
+                                border-radius: 12px;
+                                display: flex;
+                                align-items: center;
+                                gap: 0.75rem;
+                            ">
+                                <svg style="width: 20px; height: 20px; color: #ef4444; flex-shrink: 0;" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                                <p style="
+                                    font-size: 0.875rem;
+                                    font-weight: 600;
+                                    color: #ef4444;
+                                    margin: 0;
+                                "></p>
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- Supported Formats Info -->
-                    <div class="mt-3 flex flex-wrap gap-2 items-center text-sm text-gray-600">
-                        <span class="font-semibold">Supported formats:</span>
-                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-red-50 text-red-700 rounded-md">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
-                            </svg>
-                            PDF
-                        </span>
-                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-md">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
-                            </svg>
-                            DOC
-                        </span>
-                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-md">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
-                            </svg>
-                            DOCX
-                        </span>
-                        <span class="text-gray-400">• Max 10MB</span>
                     </div>
                 </div>
 
@@ -1514,13 +1680,19 @@
 
             ['dragenter', 'dragover'].forEach(eventName => {
                 dropZone.addEventListener(eventName, () => {
-                    dropZone.classList.add('border-indigo-600', 'bg-indigo-100');
+                    dropZone.style.borderColor = '#667eea';
+                    dropZone.style.background = 'linear-gradient(135deg, rgba(102,126,234,0.08) 0%, rgba(118,75,162,0.08) 100%)';
+                    dropZone.style.transform = 'scale(1.02)';
+                    dropZone.style.boxShadow = '0 12px 32px rgba(102,126,234,0.15)';
                 }, false);
             });
 
             ['dragleave', 'drop'].forEach(eventName => {
                 dropZone.addEventListener(eventName, () => {
-                    dropZone.classList.remove('border-indigo-600', 'bg-indigo-100');
+                    dropZone.style.borderColor = '#c7d2fe';
+                    dropZone.style.background = 'linear-gradient(135deg, rgba(249,250,251,1) 0%, rgba(255,255,255,1) 100%)';
+                    dropZone.style.transform = 'scale(1)';
+                    dropZone.style.boxShadow = 'none';
                 }, false);
             });
 
@@ -1599,8 +1771,8 @@
             fileSize.textContent = `${sizeMB} MB`;
 
             // Change drop zone appearance
-            dropZone.classList.remove('border-indigo-300');
-            dropZone.classList.add('border-green-400', 'bg-green-50');
+            dropZone.style.borderColor = 'rgba(16,185,129,0.4)';
+            dropZone.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.03) 0%, rgba(5,150,105,0.03) 100%)';
         }
 
         function showFileError(message) {
@@ -1627,8 +1799,8 @@
             filePreview.classList.add('hidden');
 
             // Reset drop zone appearance
-            dropZone.classList.remove('border-green-400', 'bg-green-50');
-            dropZone.classList.add('border-indigo-300');
+            dropZone.style.borderColor = '#c7d2fe';
+            dropZone.style.background = 'linear-gradient(135deg, rgba(249,250,251,1) 0%, rgba(255,255,255,1) 100%)';
 
             // Track file removal
             if (window.trackEvent) {
