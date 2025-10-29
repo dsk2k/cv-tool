@@ -47,43 +47,105 @@ document.addEventListener('DOMContentLoaded', () => {
             const progressBar = document.getElementById('progressBar');
             if (progressBar) progressBar.style.width = '0%';
 
-            // Reset all steps
+            // Reset all steps to initial state
             document.querySelectorAll('.progress-step').forEach((step, index) => {
                 step.classList.remove('active', 'completed');
-                step.style.opacity = index === 0 ? '1' : '0.5';
-                step.style.background = index === 0 ? '#f3f4f6' : 'transparent';
+                if (index === 0) {
+                    // First step starts as active
+                    step.classList.add('active');
+                    step.style.opacity = '1';
+                    step.style.background = 'linear-gradient(135deg, rgba(102,126,234,0.08) 0%, rgba(118,75,162,0.08) 100%)';
+                    step.style.border = '1.5px solid rgba(102,126,234,0.2)';
+                    step.style.boxShadow = '0 4px 12px rgba(102,126,234,0.08)';
+                    const iconBox = step.querySelector('div:first-child');
+                    if (iconBox) {
+                        iconBox.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                        iconBox.style.boxShadow = '0 4px 12px rgba(102,126,234,0.3)';
+                    }
+                } else {
+                    // Other steps start inactive
+                    step.style.opacity = '0.5';
+                    step.style.background = 'rgba(243,244,246,0.6)';
+                    step.style.border = '1.5px solid rgba(229,231,235,0.8)';
+                    step.style.boxShadow = 'none';
+                    const iconBox = step.querySelector('div:first-child');
+                    if (iconBox) {
+                        iconBox.style.background = 'linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%)';
+                        iconBox.style.boxShadow = 'none';
+                    }
+                }
             });
 
-            // Animate progress bar and steps
+            // Step 1 complete (CV extracted)
             setTimeout(() => {
                 if (progressBar) progressBar.style.width = '33%';
                 const step1 = document.querySelector('[data-step="1"]');
                 if (step1) {
-                    step1.querySelector('.step-spinner').textContent = '✓';
-                    step1.style.background = '#d1fae5';
+                    step1.classList.add('completed');
+                    step1.classList.remove('active');
+                    step1.querySelector('.step-spinner').textContent = '✅';
+                    step1.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(5,150,105,0.08) 100%)';
+                    step1.style.border = '1.5px solid rgba(16,185,129,0.2)';
+                    step1.style.boxShadow = '0 4px 12px rgba(16,185,129,0.08)';
+                    const iconBox = step1.querySelector('div:first-child');
+                    if (iconBox) {
+                        iconBox.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                        iconBox.style.boxShadow = '0 4px 12px rgba(16,185,129,0.3)';
+                    }
                 }
             }, 2000);
 
+            // Step 2 active (AI analyzing)
             setTimeout(() => {
                 if (progressBar) progressBar.style.width = '66%';
                 const step2 = document.querySelector('[data-step="2"]');
                 if (step2) {
+                    step2.classList.add('active');
                     step2.style.opacity = '1';
-                    step2.style.background = '#f3f4f6';
+                    step2.style.background = 'linear-gradient(135deg, rgba(102,126,234,0.08) 0%, rgba(118,75,162,0.08) 100%)';
+                    step2.style.border = '1.5px solid rgba(102,126,234,0.2)';
+                    step2.style.boxShadow = '0 4px 12px rgba(102,126,234,0.08)';
+                    const iconBox = step2.querySelector('div:first-child');
+                    if (iconBox) {
+                        iconBox.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                        iconBox.style.boxShadow = '0 4px 12px rgba(102,126,234,0.3)';
+                    }
                 }
             }, 3000);
 
+            // Step 2 complete, Step 3 active (Generating improvements)
             setTimeout(() => {
                 if (progressBar) progressBar.style.width = '100%';
+
+                // Complete step 2
                 const step2 = document.querySelector('[data-step="2"]');
                 if (step2) {
-                    step2.querySelector('.step-spinner').textContent = '✓';
-                    step2.style.background = '#d1fae5';
+                    step2.classList.add('completed');
+                    step2.classList.remove('active');
+                    step2.querySelector('.step-spinner').textContent = '✅';
+                    step2.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(5,150,105,0.08) 100%)';
+                    step2.style.border = '1.5px solid rgba(16,185,129,0.2)';
+                    step2.style.boxShadow = '0 4px 12px rgba(16,185,129,0.08)';
+                    const iconBox2 = step2.querySelector('div:first-child');
+                    if (iconBox2) {
+                        iconBox2.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                        iconBox2.style.boxShadow = '0 4px 12px rgba(16,185,129,0.3)';
+                    }
                 }
+
+                // Activate step 3
                 const step3 = document.querySelector('[data-step="3"]');
                 if (step3) {
+                    step3.classList.add('active');
                     step3.style.opacity = '1';
-                    step3.style.background = '#f3f4f6';
+                    step3.style.background = 'linear-gradient(135deg, rgba(102,126,234,0.08) 0%, rgba(118,75,162,0.08) 100%)';
+                    step3.style.border = '1.5px solid rgba(102,126,234,0.2)';
+                    step3.style.boxShadow = '0 4px 12px rgba(102,126,234,0.08)';
+                    const iconBox3 = step3.querySelector('div:first-child');
+                    if (iconBox3) {
+                        iconBox3.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                        iconBox3.style.boxShadow = '0 4px 12px rgba(102,126,234,0.3)';
+                    }
                 }
             }, 6000);
             

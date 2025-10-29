@@ -244,26 +244,76 @@
         .progress-step {
             transition: all 0.3s ease;
         }
-        
+
         .progress-step.active .step-text {
             color: rgba(255, 255, 255, 0.9) !important;
             font-weight: 600;
         }
-        
+
         .progress-step.active .step-icon {
             transform: scale(1.2);
             transition: transform 0.3s ease;
         }
-        
+
         .progress-step.completed .step-spinner {
             font-size: 0;
         }
-        
+
         .progress-step.completed .step-spinner::before {
             content: '✅';
             font-size: 1rem;
         }
-        
+
+        /* Premium Loading Modal Animations */
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                opacity: 0.15;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.25;
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes floatIcon {
+            0%, 100% {
+                transform: translate(-50%, -50%) translateY(0px);
+            }
+            50% {
+                transform: translate(-50%, -50%) translateY(-4px);
+            }
+        }
+
+        @keyframes spinHourglass {
+            0%, 100% {
+                transform: rotate(0deg);
+            }
+            50% {
+                transform: rotate(180deg);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 200%;
+            }
+        }
+
         /* Smooth backdrop blur */
         .backdrop-blur-md {
             backdrop-filter: blur(12px);
@@ -1066,28 +1116,94 @@
         </div>
     </section>
 
-    <!-- Loading Modal - Beautiful Centered Popup -->
+    <!-- Loading Modal - Premium Redesign -->
     <div id="loadingOverlay">
-        <div class="loading-modal" style="background: white; border-radius: 24px; padding: 3rem 2.5rem; max-width: 480px; width: 90%; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); text-align: center;">
+        <div class="loading-modal" style="
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(249,250,251,0.95) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 32px;
+            padding: 3.5rem 3rem;
+            max-width: 520px;
+            width: 90%;
+            box-shadow:
+                0 0 0 1px rgba(102,126,234,0.1),
+                0 20px 40px -8px rgba(102,126,234,0.15),
+                0 40px 80px -16px rgba(118,75,162,0.2),
+                inset 0 1px 0 0 rgba(255,255,255,0.8);
+            text-align: center;
+            animation: modalSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        ">
+            <!-- Animated CV Icon with Glow -->
+            <div style="position: relative; width: 140px; height: 140px; margin: 0 auto 2rem;">
+                <!-- Outer glow ring -->
+                <div style="
+                    position: absolute;
+                    top: -10px;
+                    left: -10px;
+                    right: -10px;
+                    bottom: -10px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border-radius: 50%;
+                    opacity: 0.15;
+                    filter: blur(15px);
+                    animation: pulseGlow 2s ease-in-out infinite;
+                "></div>
 
-            <!-- Animated CV Icon -->
-            <div style="position: relative; width: 120px; height: 120px; margin: 0 auto 1.5rem;">
-                <!-- Spinning ring -->
-                <div class="animate-spin-slow" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 4px solid #e5e7eb; border-top-color: #667eea; border-radius: 50%;"></div>
+                <!-- Spinning gradient ring -->
+                <div class="animate-spin-slow" style="
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    border: 5px solid transparent;
+                    border-top: 5px solid #667eea;
+                    border-right: 5px solid #764ba2;
+                    border-radius: 50%;
+                    opacity: 0.8;
+                "></div>
+
+                <!-- Inner circle background -->
+                <div style="
+                    position: absolute;
+                    top: 15px;
+                    left: 15px;
+                    right: 15px;
+                    bottom: 15px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border-radius: 50%;
+                    box-shadow: 0 10px 30px rgba(102,126,234,0.3);
+                "></div>
 
                 <!-- CV Icon in center -->
-                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                    <svg style="width: 64px; height: 64px; color: #667eea;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                <div style="
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    animation: floatIcon 3s ease-in-out infinite;
+                ">
+                    <svg style="width: 68px; height: 68px; color: white; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.1));" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                         </path>
                     </svg>
                 </div>
             </div>
 
-            <!-- Loading Title -->
-            <h3 style="font-size: 1.5rem; font-weight: 700; color: #1f2937; margin-bottom: 0.5rem;">
-                <span data-i18n="loading-title">Jouw CV Wordt Geanalyseerd</span>
+            <!-- Loading Title with Gradient -->
+            <h3 style="
+                font-size: 1.75rem;
+                font-weight: 800;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                margin-bottom: 0.75rem;
+                letter-spacing: -0.02em;
+            ">
+                <span data-i18n="loading-title">Uw CV Wordt Geanalyseerd</span>
                 <span class="loading-dots">
                     <span class="dot">.</span>
                     <span class="dot">.</span>
@@ -1095,32 +1211,162 @@
                 </span>
             </h3>
 
-            <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 2rem;" data-i18n="loading-subtitle">
+            <p style="
+                color: #6b7280;
+                font-size: 0.9375rem;
+                margin-bottom: 2.5rem;
+                font-weight: 500;
+            " data-i18n="loading-subtitle">
                 Even geduld, dit duurt ongeveer 30-60 seconden
             </p>
 
-            <!-- Progress Steps -->
-            <div style="text-align: left;">
-                <div class="progress-step active" data-step="1" style="display: flex; align-items: center; padding: 0.75rem; background: #f3f4f6; border-radius: 12px; margin-bottom: 0.5rem;">
-                    <span style="font-size: 1.25rem;">📄</span>
-                    <span class="step-text" style="margin-left: 0.75rem; color: #1f2937; font-weight: 500; flex: 1;" data-i18n="loading-step1">Tekst extraheren</span>
-                    <span class="step-spinner" style="color: #667eea;">⏳</span>
+            <!-- Progress Steps - Redesigned -->
+            <div style="text-align: left; margin-bottom: 2rem;">
+                <div class="progress-step active" data-step="1" style="
+                    display: flex;
+                    align-items: center;
+                    padding: 1rem 1.25rem;
+                    background: linear-gradient(135deg, rgba(102,126,234,0.08) 0%, rgba(118,75,162,0.08) 100%);
+                    border: 1.5px solid rgba(102,126,234,0.2);
+                    border-radius: 16px;
+                    margin-bottom: 0.75rem;
+                    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+                    box-shadow: 0 4px 12px rgba(102,126,234,0.08);
+                ">
+                    <div style="
+                        width: 40px;
+                        height: 40px;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        border-radius: 12px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 1.25rem;
+                        box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+                    ">📄</div>
+                    <span class="step-text" style="
+                        margin-left: 1rem;
+                        color: #1f2937;
+                        font-weight: 600;
+                        flex: 1;
+                        font-size: 0.9375rem;
+                    " data-i18n="loading-step1">CV analyseren</span>
+                    <span class="step-spinner" style="
+                        font-size: 1.5rem;
+                        animation: spinHourglass 1.5s ease-in-out infinite;
+                    ">⏳</span>
                 </div>
-                <div class="progress-step" data-step="2" style="display: flex; align-items: center; padding: 0.75rem; border-radius: 12px; margin-bottom: 0.5rem; opacity: 0.5;">
-                    <span style="font-size: 1.25rem;">🤖</span>
-                    <span class="step-text" style="margin-left: 0.75rem; color: #6b7280; flex: 1;" data-i18n="loading-step2">AI analyse</span>
-                    <span class="step-spinner">⏳</span>
+
+                <div class="progress-step" data-step="2" style="
+                    display: flex;
+                    align-items: center;
+                    padding: 1rem 1.25rem;
+                    background: rgba(243,244,246,0.6);
+                    border: 1.5px solid rgba(229,231,235,0.8);
+                    border-radius: 16px;
+                    margin-bottom: 0.75rem;
+                    opacity: 0.5;
+                    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+                ">
+                    <div style="
+                        width: 40px;
+                        height: 40px;
+                        background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+                        border-radius: 12px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 1.25rem;
+                    ">🤖</div>
+                    <span class="step-text" style="
+                        margin-left: 1rem;
+                        color: #6b7280;
+                        font-weight: 600;
+                        flex: 1;
+                        font-size: 0.9375rem;
+                    " data-i18n="loading-step2">AI analyse</span>
+                    <span class="step-spinner" style="font-size: 1.5rem;">⏳</span>
                 </div>
-                <div class="progress-step" data-step="3" style="display: flex; align-items: center; padding: 0.75rem; border-radius: 12px; opacity: 0.5;">
-                    <span style="font-size: 1.25rem;">✨</span>
-                    <span class="step-text" style="margin-left: 0.75rem; color: #6b7280; flex: 1;" data-i18n="loading-step3">Verbeteringen genereren</span>
-                    <span class="step-spinner">⏳</span>
+
+                <div class="progress-step" data-step="3" style="
+                    display: flex;
+                    align-items: center;
+                    padding: 1rem 1.25rem;
+                    background: rgba(243,244,246,0.6);
+                    border: 1.5px solid rgba(229,231,235,0.8);
+                    border-radius: 16px;
+                    opacity: 0.5;
+                    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+                ">
+                    <div style="
+                        width: 40px;
+                        height: 40px;
+                        background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+                        border-radius: 12px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 1.25rem;
+                    ">✨</div>
+                    <span class="step-text" style="
+                        margin-left: 1rem;
+                        color: #6b7280;
+                        font-weight: 600;
+                        flex: 1;
+                        font-size: 0.9375rem;
+                    " data-i18n="loading-step3">Verbeteringen genereren</span>
+                    <span class="step-spinner" style="font-size: 1.5rem;">⏳</span>
                 </div>
             </div>
 
-            <!-- Progress Bar -->
-            <div style="margin-top: 2rem; height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden;">
-                <div id="progressBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); transition: width 0.5s ease-out;"></div>
+            <!-- Progress Bar - Redesigned -->
+            <div style="
+                position: relative;
+                height: 8px;
+                background: rgba(229,231,235,0.6);
+                border-radius: 999px;
+                overflow: hidden;
+                box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+            ">
+                <div id="progressBar" style="
+                    height: 100%;
+                    width: 0%;
+                    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+                    border-radius: 999px;
+                    transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+                    box-shadow: 0 0 16px rgba(102,126,234,0.4);
+                    position: relative;
+                ">
+                    <!-- Shimmer effect -->
+                    <div style="
+                        position: absolute;
+                        top: 0;
+                        left: -100%;
+                        width: 100%;
+                        height: 100%;
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+                        animation: shimmer 2s infinite;
+                    "></div>
+                </div>
+            </div>
+
+            <!-- Small trust indicator -->
+            <div style="
+                margin-top: 2rem;
+                padding-top: 1.5rem;
+                border-top: 1px solid rgba(229,231,235,0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                color: #9ca3af;
+                font-size: 0.8125rem;
+                font-weight: 500;
+            ">
+                <svg style="width: 16px; height: 16px; color: #10b981;" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <span>Uw gegevens zijn veilig en versleuteld</span>
             </div>
         </div>
     </div>
