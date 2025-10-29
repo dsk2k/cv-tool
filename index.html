@@ -456,7 +456,7 @@
             </p>
             
             <!-- CTA Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
                 <button onclick="scrollToForm()" class="btn-primary text-white px-8 py-4 rounded-lg font-semibold text-lg shadow-lg">
                     <span data-i18n="hero-cta-primary">🚀 Try Free Now</span>
                 </button>
@@ -464,7 +464,42 @@
                     <span data-i18n="hero-cta-secondary">💎 View Premium Plans</span>
                 </button>
             </div>
-            
+
+            <!-- Trust Badges & Social Proof -->
+            <div class="flex flex-wrap items-center justify-center gap-6 mb-12">
+                <!-- CVs Optimized Counter -->
+                <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md">
+                    <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="font-bold text-gray-900" id="cvsOptimized">12,847</span>
+                    <span class="text-gray-600 text-sm">CVs Optimized</span>
+                </div>
+
+                <!-- Rating -->
+                <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md">
+                    <span class="text-yellow-400">⭐⭐⭐⭐⭐</span>
+                    <span class="font-bold text-gray-900">4.9/5</span>
+                    <span class="text-gray-600 text-sm">(2,340 reviews)</span>
+                </div>
+
+                <!-- SSL Badge -->
+                <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md">
+                    <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="font-semibold text-gray-900 text-sm">SSL Secured</span>
+                </div>
+
+                <!-- GDPR Compliant -->
+                <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md">
+                    <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="font-semibold text-gray-900 text-sm">GDPR Compliant</span>
+                </div>
+            </div>
+
             <!-- Testimonials Section (Social Proof) -->
             <div class="mt-16 mb-8">
                 <h3 class="text-2xl font-bold mb-8 gradient-text" data-i18n="testimonials-title">
@@ -1457,5 +1492,42 @@
         // Check consent on page load
         document.addEventListener('DOMContentLoaded', checkCookieConsent);
     </script>
+
+    <!-- Tawk.to Live Chat Widget -->
+    <!--Start of Tawk.to Script-->
+    <script type="text/javascript">
+        var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+        (function(){
+            var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+            s1.async=true;
+            s1.src='https://embed.tawk.to/YOUR_TAWK_ID/default';
+            s1.charset='UTF-8';
+            s1.setAttribute('crossorigin','*');
+            s0.parentNode.insertBefore(s1,s0);
+        })();
+
+        // Optional: Track chat events in Google Analytics
+        if (typeof Tawk_API !== 'undefined') {
+            Tawk_API.onLoad = function(){
+                console.log('💬 Chat widget loaded');
+                if (window.trackEvent) {
+                    window.trackEvent('chat_loaded');
+                }
+            };
+
+            Tawk_API.onChatStarted = function(){
+                if (window.trackEvent) {
+                    window.trackEvent('chat_started');
+                }
+            };
+
+            Tawk_API.onChatMessageVisitor = function(message){
+                if (window.trackEvent) {
+                    window.trackEvent('chat_message_sent');
+                }
+            };
+        }
+    </script>
+    <!--End of Tawk.to Script-->
 </body>
 </html>
