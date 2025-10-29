@@ -377,6 +377,21 @@ Create a comprehensive, STRUCTURED list of ALL changes made to the CV, GROUPED B
 - Under each section, list individual changes as numbered items (### 1., ### 2., etc.)
 - This creates a hierarchical, collapsible structure
 
+**LANGUAGE REQUIREMENTS:**
+${language === 'nl' ? `
+- ⚠️ WRITE EVERYTHING IN DUTCH (NEDERLANDS)
+- All section names must be in Dutch
+- All change titles must be in Dutch
+- All explanations must be in Dutch
+- The ONLY acceptable language is DUTCH
+- NO English text allowed anywhere
+` : `
+- Write everything in English
+- All section names must be in English
+- All change titles must be in English
+- All explanations must be in English
+`}
+
 Use this EXACT format:
 
 ${language === 'nl' ? `
