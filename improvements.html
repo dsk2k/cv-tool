@@ -281,6 +281,34 @@
             font-style: italic;
             color: #6b7280;
         }
+
+        /* Individual change card collapsible styles */
+        .change-card-collapsible {
+            transition: all 0.3s ease;
+        }
+
+        .change-card-collapsible:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.15);
+        }
+
+        .change-content-collapsible {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+
+        .change-content-collapsible.expanded {
+            max-height: 5000px;
+        }
+
+        .change-card-collapsible button {
+            user-select: none;
+        }
+
+        .change-card-collapsible button:active {
+            transform: scale(0.98);
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 min-h-screen">
@@ -576,50 +604,71 @@
 
         function renderChangesContent(content) {
             if (!content) return;
-            
+
             console.log('🎨 Rendering changes content...');
-            
+
             const container = document.getElementById('changesContent');
-            
+
             // Parse the markdown-like content
             const lines = content.split('\n');
             let html = '';
             let currentChange = null;
-            
+            let changeIndex = 0;
+            let changeContentBuffer = '';
+
             for (let line of lines) {
                 line = line.trim();
-                
+
                 // Change number header
                 if (line.match(/^###?\s*\d+\./)) {
-                    if (currentChange) {
-                        html += '</div>'; // Close previous card
+                    // Close previous change if exists
+                    if (currentChange !== null) {
+                        html += `
+                                    ${changeContentBuffer}
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                        changeContentBuffer = '';
                     }
+
+                    changeIndex++;
                     const changeTitle = line.replace(/^###?\s*/, '');
+
+                    // Create collapsible change card
                     html += `
-                        <div class="change-card bg-gradient-to-r from-white to-purple-50 p-6 rounded-xl">
-                            <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                <span class="text-purple-600">${changeTitle}</span>
-                            </h3>
+                        <div class="change-card-collapsible bg-white rounded-xl shadow-lg overflow-hidden mb-4">
+                            <button onclick="toggleChange(${changeIndex})" class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-purple-50 transition-colors">
+                                <div class="flex items-center gap-3 flex-1">
+                                    <span class="text-2xl">📝</span>
+                                    <h3 class="text-xl font-bold text-gray-900">${changeTitle}</h3>
+                                </div>
+                                <svg id="change-icon-${changeIndex}" class="w-6 h-6 text-purple-600 transition-transform duration-300 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <div id="change-content-${changeIndex}" class="change-content-collapsible expanded">
+                                <div class="px-6 pb-6 space-y-4">
                     `;
-                    currentChange = true;
+                    currentChange = changeIndex;
                 }
                 // Original section
                 else if (line.match(/^\*\*Original(:|eel)?\*\*/i)) {
-                    html += `
+                    changeContentBuffer += `
                         <div class="original-block">
                             <span class="label-badge label-original">❌ Original</span>
                     `;
                 }
                 // Improved section
                 else if (line.match(/^\*\*Verbeterd(:|e)?\*\*/i) || line.match(/^\*\*Improved(:|e)?\*\*/i)) {
-                    html += `</div>
+                    changeContentBuffer += `</div>
                         <div class="improved-block">
                             <span class="label-badge label-improved">✅ Verbeterd</span>
                     `;
                 }
                 // Why section
                 else if (line.match(/^\*\*Why this change matters(:|e)?\*\*/i) || line.match(/^\*\*Waarom(:|e)?\*\*/i)) {
-                    html += `</div>
+                    changeContentBuffer += `</div>
                         <div class="why-block">
                             <span class="label-badge label-why">💡 Waarom dit belangrijk is</span>
                     `;
@@ -627,7 +676,7 @@
                 // Impact rating
                 else if (line.match(/^\*\*Impact Rating(:|e)?\*\*/i)) {
                     const stars = (line.match(/⭐/g) || []).length;
-                    html += `</div>
+                    changeContentBuffer += `</div>
                         <div class="mt-4 flex items-center gap-2">
                             <span class="text-gray-700 font-semibold">Impact:</span>
                             <span class="star-rating">${'⭐'.repeat(stars)}</span>
@@ -638,24 +687,51 @@
                 else if (line && !line.match(/^---+$/)) {
                     // Remove markdown bold syntax
                     line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                    html += `<p class="text-gray-700 leading-relaxed">${line}</p>`;
+                    changeContentBuffer += `<p class="text-gray-700 leading-relaxed">${line}</p>`;
                 }
-                // Separator
+                // Separator - end of change
                 else if (line.match(/^---+$/)) {
-                    if (currentChange) {
-                        html += '</div></div>'; // Close both blocks and card
+                    if (currentChange !== null) {
+                        html += `
+                                    ${changeContentBuffer}
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                        changeContentBuffer = '';
                         currentChange = null;
                     }
                 }
             }
-            
+
             // Close any remaining open tags
-            if (currentChange) {
-                html += '</div></div>';
+            if (currentChange !== null) {
+                html += `
+                            ${changeContentBuffer}
+                        </div>
+                    </div>
+                </div>
+                `;
             }
-            
+
             container.innerHTML = html || '<p class="text-gray-400 italic">Geen wijzigingen gevonden</p>';
-            console.log('✅ Changes content rendered');
+            console.log('✅ Changes content rendered with collapsible improvements');
+        }
+
+        // Toggle individual change card
+        function toggleChange(changeNum) {
+            const content = document.getElementById(`change-content-${changeNum}`);
+            const icon = document.getElementById(`change-icon-${changeNum}`);
+
+            if (content.classList.contains('expanded')) {
+                // Collapse
+                content.classList.remove('expanded');
+                icon.classList.remove('rotate-180');
+            } else {
+                // Expand
+                content.classList.add('expanded');
+                icon.classList.add('rotate-180');
+            }
         }
 
         function renderCVContent(content) {
