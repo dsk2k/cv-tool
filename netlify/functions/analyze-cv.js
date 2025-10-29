@@ -147,53 +147,45 @@ exports.handler = async (event) => {
     
     console.log(`✅ Response received from Gemini: ${fullText.length} chars`);
 
-    // Extract sections using improved extraction
-    console.log('\n--- EXTRACTION PHASE ---');
-    
-    const improvedCV = extractSection(
-      fullText, 
-      '---IMPROVED_CV_START---', 
-      '---IMPROVED_CV_END---',
-      'Could not generate improved CV. Please check input and try again.'
-    );
-    console.log(`${improvedCV.success ? '✅' : '❌'} CV extraction: ${improvedCV.content.length} chars`);
-    if (improvedCV.success) console.log(`📝 CV Preview: ${improvedCV.content.substring(0, 100)}...`);
+    // Extract BOTH Dutch and English sections
+    console.log('\n--- EXTRACTION PHASE (Both Languages) ---');
 
-    const coverLetter = extractSection(
-      fullText, 
-      '---COVER_LETTER_START---', 
-      '---COVER_LETTER_END---',
-      'Could not generate cover letter. Please check input and try again.'
-    );
-    console.log(`${coverLetter.success ? '✅' : '❌'} Cover Letter extraction: ${coverLetter.content.length} chars`);
-    if (coverLetter.success) console.log(`📝 CL Preview: ${coverLetter.content.substring(0, 100)}...`);
+    // Dutch versions
+    const improvedCV_NL = extractSection(fullText, '---IMPROVED_CV_NL_START---', '---IMPROVED_CV_NL_END---', 'Could not generate Dutch CV');
+    const coverLetter_NL = extractSection(fullText, '---COVER_LETTER_NL_START---', '---COVER_LETTER_NL_END---', 'Could not generate Dutch cover letter');
+    const recruiterTips_NL = extractSection(fullText, '---RECRUITER_TIPS_NL_START---', '---RECRUITER_TIPS_NL_END---', 'Could not generate Dutch tips');
+    const changesOverview_NL = extractSection(fullText, '---CHANGES_OVERVIEW_NL_START---', '---CHANGES_OVERVIEW_NL_END---', 'Could not generate Dutch changes');
 
-    const recruiterTips = extractSection(
-      fullText, 
-      '---RECRUITER_TIPS_START---', 
-      '---RECRUITER_TIPS_END---',
-      'Could not generate recruiter tips.'
-    );
-    console.log(`${recruiterTips.success ? '✅' : '❌'} Recruiter Tips extraction: ${recruiterTips.content.length} chars`);
+    console.log(`${improvedCV_NL.success ? '✅' : '❌'} CV (NL): ${improvedCV_NL.content.length} chars`);
+    console.log(`${coverLetter_NL.success ? '✅' : '❌'} Cover Letter (NL): ${coverLetter_NL.content.length} chars`);
+    console.log(`${recruiterTips_NL.success ? '✅' : '❌'} Tips (NL): ${recruiterTips_NL.content.length} chars`);
+    console.log(`${changesOverview_NL.success ? '✅' : '❌'} Changes (NL): ${changesOverview_NL.content.length} chars`);
 
-    // Extract changes overview
-    const changesOverview = extractSection(
-      fullText, 
-      '---CHANGES_OVERVIEW_START---', 
-      '---CHANGES_OVERVIEW_END---',
-      'Could not generate changes overview.'
-    );
-    console.log(`${changesOverview.success ? '✅' : '❌'} Changes Overview extraction: ${changesOverview.content.length} chars`);
-    if (changesOverview.success) console.log(`📝 Changes Preview: ${changesOverview.content.substring(0, 100)}...`);
+    // English versions
+    const improvedCV_EN = extractSection(fullText, '---IMPROVED_CV_EN_START---', '---IMPROVED_CV_EN_END---', 'Could not generate English CV');
+    const coverLetter_EN = extractSection(fullText, '---COVER_LETTER_EN_START---', '---COVER_LETTER_EN_END---', 'Could not generate English cover letter');
+    const recruiterTips_EN = extractSection(fullText, '---RECRUITER_TIPS_EN_START---', '---RECRUITER_TIPS_EN_END---', 'Could not generate English tips');
+    const changesOverview_EN = extractSection(fullText, '---CHANGES_OVERVIEW_EN_START---', '---CHANGES_OVERVIEW_EN_END---', 'Could not generate English changes');
+
+    console.log(`${improvedCV_EN.success ? '✅' : '❌'} CV (EN): ${improvedCV_EN.content.length} chars`);
+    console.log(`${coverLetter_EN.success ? '✅' : '❌'} Cover Letter (EN): ${coverLetter_EN.content.length} chars`);
+    console.log(`${recruiterTips_EN.success ? '✅' : '❌'} Tips (EN): ${recruiterTips_EN.content.length} chars`);
+    console.log(`${changesOverview_EN.success ? '✅' : '❌'} Changes (EN): ${changesOverview_EN.content.length} chars`);
 
     console.log('--- END EXTRACTION PHASE ---\n');
 
-    // Prepare response
+    // Prepare response with BOTH languages
     const responseData = {
-      improvedCV: improvedCV.content,
-      coverLetter: coverLetter.content,
-      recruiterTips: recruiterTips.content,
-      changesOverview: changesOverview.content,
+      // Dutch versions (default)
+      improvedCV: improvedCV_NL.content,
+      coverLetter: coverLetter_NL.content,
+      recruiterTips: recruiterTips_NL.content,
+      changesOverview: changesOverview_NL.content,
+      // English versions
+      improvedCV_EN: improvedCV_EN.content,
+      coverLetter_EN: coverLetter_EN.content,
+      recruiterTips_EN: recruiterTips_EN.content,
+      changesOverview_EN: changesOverview_EN.content,
       metadata: {
         originalCVLength: currentCV.length,
         jobDescriptionLength: jobDescription.length,
@@ -304,34 +296,44 @@ function extractSection(fullText, startMarker, endMarker, fallbackMessage) {
  * Create the prompt for Gemini AI
  */
 function createPrompt(currentCV, jobDescription, language) {
-  const isNL = language === 'nl';
-  
-  return `You are an expert CV consultant and career coach. Your task is to:
+  return `You are an expert CV consultant and career coach. Your task is to analyze the CV and generate BOTH Dutch AND English versions of all content.
 
-1. Analyze the provided CV and job description
-2. Improve the CV to better match the job requirements
-3. Generate a professional cover letter
-4. Provide recruiter conversation tips
-5. **NEW: Create a detailed overview of all changes made and why**
+**CRITICAL: Generate BOTH languages in a single response!**
 
 **IMPORTANT OUTPUT FORMAT:**
 You must wrap each section with the exact markers shown below. Do not skip any section.
 
----IMPROVED_CV_START---
-[Your improved CV in ${isNL ? 'Dutch' : 'English'} - Use markdown formatting, keep the same structure but optimize content]
----IMPROVED_CV_END---
+---IMPROVED_CV_NL_START---
+[Your improved CV in DUTCH - Use markdown formatting, keep structure but optimize content]
+---IMPROVED_CV_NL_END---
 
----COVER_LETTER_START---
-[Your professional cover letter in ${isNL ? 'Dutch' : 'English'}]
----COVER_LETTER_END---
+---IMPROVED_CV_EN_START---
+[Your improved CV in ENGLISH - Same improvements, translated]
+---IMPROVED_CV_EN_END---
 
----RECRUITER_TIPS_START---
-[Your recruiter conversation tips in ${isNL ? 'Dutch' : 'English'} - Use markdown with headers and bullet points]
----RECRUITER_TIPS_END---
+---COVER_LETTER_NL_START---
+[Your professional cover letter in DUTCH]
+---COVER_LETTER_NL_END---
 
----CHANGES_OVERVIEW_START---
-[Your detailed changes overview - see instructions below]
----CHANGES_OVERVIEW_END---
+---COVER_LETTER_EN_START---
+[Your professional cover letter in ENGLISH]
+---COVER_LETTER_EN_END---
+
+---RECRUITER_TIPS_NL_START---
+[Your recruiter conversation tips in DUTCH - Use markdown with headers and bullet points]
+---RECRUITER_TIPS_NL_END---
+
+---RECRUITER_TIPS_EN_START---
+[Your recruiter conversation tips in ENGLISH - Use markdown with headers and bullet points]
+---RECRUITER_TIPS_EN_END---
+
+---CHANGES_OVERVIEW_NL_START---
+[Your detailed changes overview in DUTCH]
+---CHANGES_OVERVIEW_NL_END---
+
+---CHANGES_OVERVIEW_EN_START---
+[Your detailed changes overview in ENGLISH]
+---CHANGES_OVERVIEW_EN_END---
 
 ## Instructions for CV Improvement:
 - Keep the original structure and formatting

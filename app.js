@@ -39,40 +39,53 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            // Show loading overlay with animated progress steps
+            // Show loading modal with animated progress
             loadingOverlay.classList.remove('hidden');
             loadingOverlay.classList.add('flex');
-            
+
+            // Reset progress
+            const progressBar = document.getElementById('progressBar');
+            if (progressBar) progressBar.style.width = '0%';
+
             // Reset all steps
             document.querySelectorAll('.progress-step').forEach((step, index) => {
                 step.classList.remove('active', 'completed');
-                if (index === 0) step.classList.add('active');
+                step.style.opacity = index === 0 ? '1' : '0.5';
+                step.style.background = index === 0 ? '#f3f4f6' : 'transparent';
             });
-            
-            // Animate progress steps
+
+            // Animate progress bar and steps
             setTimeout(() => {
+                if (progressBar) progressBar.style.width = '33%';
                 const step1 = document.querySelector('[data-step="1"]');
                 if (step1) {
-                    step1.classList.add('completed');
-                }
-                const step2 = document.querySelector('[data-step="2"]');
-                if (step2) {
-                    step2.classList.add('active');
-                    step2.style.opacity = '1';
+                    step1.querySelector('.step-spinner').textContent = '✓';
+                    step1.style.background = '#d1fae5';
                 }
             }, 2000);
-            
+
             setTimeout(() => {
+                if (progressBar) progressBar.style.width = '66%';
                 const step2 = document.querySelector('[data-step="2"]');
                 if (step2) {
-                    step2.classList.add('completed');
+                    step2.style.opacity = '1';
+                    step2.style.background = '#f3f4f6';
+                }
+            }, 3000);
+
+            setTimeout(() => {
+                if (progressBar) progressBar.style.width = '100%';
+                const step2 = document.querySelector('[data-step="2"]');
+                if (step2) {
+                    step2.querySelector('.step-spinner').textContent = '✓';
+                    step2.style.background = '#d1fae5';
                 }
                 const step3 = document.querySelector('[data-step="3"]');
                 if (step3) {
-                    step3.classList.add('active');
                     step3.style.opacity = '1';
+                    step3.style.background = '#f3f4f6';
                 }
-            }, 5000);
+            }, 6000);
             
             try {
                 // Create FormData for file upload
