@@ -1,6 +1,6 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const multipart = require('parse-multipart-data');
-const pdf = require('pdf-parse');
+const pdf = require('pdf-parse'); // Keep the initial require, dynamic import is used later
 const { checkCache, saveToCache } = require('./cache-helper');
 const { rateLimitMiddleware, rateLimitResponse } = require('./rate-limiter');
 
@@ -56,19 +56,13 @@ exports.handler = async (event) => {
   }
   console.log(`✅ Rate limit OK - ${rateLimit.remaining} requests remaining`);
 
-  try {
+  try { // Buitenste try (voor algemene fouten zoals form data parsing)
     // === FIX VOOR FORMDATA PARSING ===
-    // 1. Haal de 'boundary' uit de headers
     const contentType = event.headers['content-type'] || event.headers['Content-Type'];
     const boundary = multipart.getBoundary(contentType);
-    
-    // 2. Converteer de body van base64 naar een Buffer
     const bodyBuffer = Buffer.from(event.body, 'base64');
-
-    // 3. Parse de multipart data
     const parts = multipart.parse(bodyBuffer, boundary);
 
-    // 4. Haal de velden en het bestand eruit
     const cvFilePart = parts.find(part => part.name === 'cvFile');
     const jobDescriptionPart = parts.find(part => part.name === 'jobDescription');
     const languagePart = parts.find(part => part.name === 'language');
@@ -84,12 +78,13 @@ exports.handler = async (event) => {
     const jobDescription = jobDescriptionPart.data.toString('utf-8');
     const language = languagePart ? languagePart.data.toString('utf-8') : 'en';
     
-    // 5. Lees de tekst uit de PDF buffer (met dynamische import)
-    const pdf = await import('pdf-parse');
-    const pdfData = await pdf.default(cvFilePart.data);
+    // Lees de tekst uit de PDF buffer (met dynamische import)
+    // Note: pdf variable is declared globally via require, but we use dynamic import here
+    const pdfParser = await import('pdf-parse'); 
+    const pdfData = await pdfParser.default(cvFilePart.data);
     const currentCV = pdfData.text;
 
-    // === ✨ CACHING CHECK - NIEUW! ✨ ===
+    // === ✨ CACHING CHECK ✨ ===
     console.log('🔍 Checking cache...');
     const cachedResult = await checkCache(currentCV, jobDescription, language);
     
@@ -103,10 +98,10 @@ exports.handler = async (event) => {
       };
     }
     
-    console.log('❌ Cache miss - calling AI...');
+    console.log('❌ Cache miss - proceeding...');
     // === EINDE CACHING CHECK ===
 
-    // Validate inputs
+    // === Input Validations ===
     if (!currentCV || !jobDescription) {
       return {
         statusCode: 400,
@@ -116,7 +111,6 @@ exports.handler = async (event) => {
         }),
       };
     }
-
     if (currentCV.length < 50) {
       return {
         statusCode: 400,
@@ -126,7 +120,6 @@ exports.handler = async (event) => {
         }),
       };
     }
-
     if (jobDescription.length < 30) {
       return {
         statusCode: 400,
@@ -136,95 +129,128 @@ exports.handler = async (event) => {
         }),
       };
     }
+    // === Einde Input Validations ===
 
-    console.log('🚀 Starting CV analysis...');
-    console.log(`📄 CV length: ${currentCV.length} chars`);
-    console.log(`💼 Job description length: ${jobDescription.length} chars`);
-    console.log(`🌍 Language: ${language}`);
+    // === START NIEUWE TRY...CATCH BLOK (voor Prompt & API Call) ===
+    try { 
+        console.log('🚀 Starting CV analysis...');
+        console.log(`📄 CV length: ${currentCV.length} chars`);
+        console.log(`💼 Job description length: ${jobDescription.length} chars`);
+        console.log(`🌍 Language: ${language}`);
 
-    // Create the prompt
-    const prompt = createPrompt(currentCV, jobDescription, language);
+        console.log('🔧 Attempting to create prompt...');
+        const prompt = createPrompt(currentCV, jobDescription, language);
+        console.log(`✅ Prompt created successfully. Length: ${prompt.length} chars.`);
 
-    // Call Gemini API
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-    
-    console.log('🤖 Calling Gemini API...');
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const fullText = response.text();
-    
-    console.log(`✅ Response received from Gemini: ${fullText.length} chars`);
+        // Call Gemini API
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' }); // Gebruik het model dat je wilt
 
-    // Extract sections
-    console.log('\n--- EXTRACTION PHASE ---');
+        console.log('🤖 Attempting to call Gemini API...');
+        const result = await model.generateContent(prompt);
+        console.log('🎉 Gemini API call successful!'); 
 
-    const improvedCV = extractSection(fullText, '---IMPROVED_CV_START---', '---IMPROVED_CV_END---', 'Could not generate CV');
-    const coverLetter = extractSection(fullText, '---COVER_LETTER_START---', '---COVER_LETTER_END---', 'Could not generate cover letter');
-    const recruiterTips = extractSection(fullText, '---RECRUITER_TIPS_START---', '---RECRUITER_TIPS_END---', 'Could not generate tips');
-    const changesOverview = extractSection(fullText, '---CHANGES_OVERVIEW_START---', '---CHANGES_OVERVIEW_END---', 'Could not generate changes');
+        const response = result.response;
+        const fullText = response.text();
+        
+        console.log(`✅ Response received from Gemini: ${fullText.length} chars`);
 
-    console.log(`${improvedCV.success ? '✅' : '❌'} CV: ${improvedCV.content.length} chars`);
-    console.log(`${coverLetter.success ? '✅' : '❌'} Cover Letter: ${coverLetter.content.length} chars`);
-    console.log(`${recruiterTips.success ? '✅' : '❌'} Tips: ${recruiterTips.content.length} chars`);
-    console.log(`${changesOverview.success ? '✅' : '❌'} Changes: ${changesOverview.content.length} chars`);
+        // =========================================================
+        // === HIER BEGINT DE VERPLAATSTE CODE ===
+        // =========================================================
+        console.log('\n--- EXTRACTION PHASE ---');
+        const improvedCV = extractSection(fullText, '---IMPROVED_CV_START---', '---IMPROVED_CV_END---', 'Could not generate CV');
+        const coverLetter = extractSection(fullText, '---COVER_LETTER_START---', '---COVER_LETTER_END---', 'Could not generate cover letter');
+        const recruiterTips = extractSection(fullText, '---RECRUITER_TIPS_START---', '---RECRUITER_TIPS_END---', 'Could not generate tips');
+        const changesOverview = extractSection(fullText, '---CHANGES_OVERVIEW_START---', '---CHANGES_OVERVIEW_END---', 'Could not generate changes');
 
-    console.log('--- END EXTRACTION PHASE ---\n');
+        console.log(`${improvedCV.success ? '✅' : '❌'} CV: ${improvedCV.content.length} chars`);
+        console.log(`${coverLetter.success ? '✅' : '❌'} Cover Letter: ${coverLetter.content.length} chars`);
+        console.log(`${recruiterTips.success ? '✅' : '❌'} Tips: ${recruiterTips.content.length} chars`);
+        console.log(`${changesOverview.success ? '✅' : '❌'} Changes: ${changesOverview.content.length} chars`);
+        console.log('--- END EXTRACTION PHASE ---\n');
 
-    // Prepare response
-    const responseData = {
-      improvedCV: improvedCV.content,
-      coverLetter: coverLetter.content,
-      recruiterTips: recruiterTips.content,
-      changesOverview: changesOverview.content,
-      metadata: {
-        originalCVLength: currentCV.length,
-        jobDescriptionLength: jobDescription.length,
-        language: language,
-        timestamp: new Date().toISOString(),
-      }
-    };
+        // Prepare response
+        const responseData = {
+          improvedCV: improvedCV.content,
+          coverLetter: coverLetter.content,
+          recruiterTips: recruiterTips.content,
+          changesOverview: changesOverview.content,
+          metadata: {
+            originalCVLength: currentCV.length,
+            jobDescriptionLength: jobDescription.length,
+            language: language,
+            timestamp: new Date().toISOString(),
+          }
+        };
 
-    // === ✨ SAVE TO CACHE - NIEUW! ✨ ===
-    console.log('💾 Saving result to cache...');
-    const cacheSaved = await saveToCache(currentCV, jobDescription, language, responseData);
-    
-    if (cacheSaved) {
-      console.log('✅ Successfully saved to cache');
-    } else {
-      console.log('⚠️ Cache save failed (non-critical)');
+        // Save to cache
+        console.log('💾 Saving result to cache...');
+        const cacheSaved = await saveToCache(currentCV, jobDescription, language, responseData);
+        if (cacheSaved) {
+          console.log('✅ Successfully saved to cache');
+        } else {
+          console.log('⚠️ Cache save failed (non-critical)');
+        }
+        
+        // Add cache metadata
+        responseData.metadata.cached = false; 
+        responseData.metadata.hitCount = 1;
+
+        console.log('\n--- FINAL DATA SUMMARY ---');
+        console.log(`CV: ${improvedCV.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${improvedCV.content.length} chars)`);
+        console.log(`Cover Letter: ${coverLetter.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${coverLetter.content.length} chars)`);
+        console.log(`Tips: ${recruiterTips.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${recruiterTips.content.length} chars)`);
+        console.log(`Changes: ${changesOverview.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${changesOverview.content.length} chars)`);
+        console.log('--- END SUMMARY ---\n');
+
+        // === BELANGRIJK: Return BINNEN deze try! ===
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify(responseData),
+        };
+        // =========================================================
+        // === HIER EINDIGT DE VERPLAATSTE CODE ===
+        // =========================================================
+
+    } catch (apiError) { // Binnenste catch (voor API/Prompt fouten)
+        console.error('❌❌ CRITICAL ERROR during prompt creation or API call: ❌❌');
+        console.error('Error name:', apiError.name);
+        console.error('Error message:', apiError.message);
+        console.error('Error stack:', apiError.stack); // Houd deze voor debuggen
+        
+        // Stuur een duidelijke fout terug
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ 
+            error: 'Failed during AI prompt generation or API call',
+            message: apiError.message,
+            name: apiError.name, 
+            // stack: apiError.stack // Kan nuttig zijn, maar ook veel data
+          }),
+        };
     }
-    
-    // Add cache metadata
-    responseData.metadata.cached = false;
-    responseData.metadata.hitCount = 1;
-    // === EINDE SAVE TO CACHE ===
+    // === EINDE NIEUWE TRY...CATCH BLOK ===
 
-    console.log('\n--- FINAL DATA SUMMARY ---');
-    console.log(`CV: ${improvedCV.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${improvedCV.content.length} chars)`);
-    console.log(`Cover Letter: ${coverLetter.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${coverLetter.content.length} chars)`);
-    console.log(`Tips: ${recruiterTips.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${recruiterTips.content.length} chars)`);
-    console.log(`Changes: ${changesOverview.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${changesOverview.content.length} chars)`);
-    console.log('--- END SUMMARY ---\n');
+    // De code die hier stond is nu verplaatst naar het binnenste try blok
 
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify(responseData),
-    };
-
-  } catch (error) {
-    console.error('❌ Error processing CV:', error);
-    
+  } catch (error) { // Buitenste catch (voor algemene fouten)
+    console.error('❌ General Error processing CV:', error); 
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({ 
-        error: 'Internal server error while processing CV',
+        error: 'Internal server error while processing CV (General)',
         message: error.message 
       }),
     };
   }
-};
+}; // Einde van exports.handler
+
+// ==============================================================
+// Helper Functies (extractSection en createPrompt)
+// ==============================================================
 
 /**
  * Extract a section from the full text using start and end markers
@@ -252,12 +278,10 @@ function extractSection(fullText, startMarker, endMarker, fallbackMessage) {
 
       // 3. Zoek de EERSTVOLGENDE *andere* START-tag
       for (const marker of ALL_START_MARKERS) {
-        // Zoek niet naar zichzelf
         if (marker === startMarker) continue; 
         
         const nextMarkerIndex = fullText.indexOf(marker, contentStart);
         
-        // Als we een tag vinden, en deze is dichterbij dan de vorige...
         if (nextMarkerIndex !== -1 && nextMarkerIndex < nearestNextStartIndex) {
           nearestNextStartIndex = nextMarkerIndex;
         }
@@ -270,21 +294,17 @@ function extractSection(fullText, startMarker, endMarker, fallbackMessage) {
     // 4. Extraheer de content
     let content = fullText.substring(contentStart, endIndex).trim();
 
-    // 5. VALIDATIE & OPSCHONING (De 'extra' veiligheidsgordel)
-    
-    // Controleer op minimale lengte
+    // 5. VALIDATIE & OPSCHONING
     if (!content || content.length < 10) {
       console.log(`⚠️  Extracted content too short: ${content.length} chars`);
       return { success: false, content: fallbackMessage };
     }
 
-    // Controleer op "vervuiling" (of de content per ongeluk een *andere* start-tag bevat)
     for (const marker of ALL_START_MARKERS) {
       if (marker === startMarker) continue;
       
       if (content.includes(marker)) {
         console.log(`❌ VALIDATION FAILED: Content for ${startMarker} is contaminated with ${marker}!`);
-        // Probeer de content op te schonen door deze af te knippen
         const contaminationIndex = content.indexOf(marker);
         content = content.substring(0, contaminationIndex).trim();
         console.log(`✨ Content cleaned. New length: ${content.length}`);
@@ -299,13 +319,11 @@ function extractSection(fullText, startMarker, endMarker, fallbackMessage) {
   }
 }
 
-
 /**
  * Create the prompt for Gemini AI
  * VEREENVOUDIGDE VERSIE: Vraagt alleen de geselecteerde taal
  */
 function createPrompt(currentCV, jobDescription, language) {
-  // Bepaal de taal voor de instructies
   const isDutch = language === 'nl';
   const instructionLanguage = isDutch ? 'Dutch (Nederlands)' : 'English';
   const changesOverviewTitle = isDutch ? '📝 Overzicht van Wijzigingen' : '📝 Changes Overview';
@@ -472,4 +490,4 @@ ${currentCV}
 ${jobDescription}
 
 Remember: Use the exact markers shown above for each section. The system relies on these markers to parse your response correctly.`;
-}
+} // Einde van createPrompt functie
