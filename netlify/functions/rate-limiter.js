@@ -30,16 +30,30 @@ const RATE_LIMITS = {
  * returned, or exposed in any way. Only the result (boolean) is used.
  *
  * Set DEV_WHITELIST_IPS environment variable with comma-separated IPs
- * Example: "127.0.0.1,192.168.1.100,84.85.54.18"
+ * Example: "127.0.0.1,192.168.1.100,[REDACTED]"
  */
 function isWhitelistedIP(ip) {
   try {
-    // Safely access environment variable (never log or expose this value)
-    const whitelist = process.env.DEV_WHITELIST_IPS;
+    // TEMPORARY HARDCODED WHITELIST (for development/testing)
+    // Remove this once environment variable is confirmed working
+    const TEMP_HARDCODED_WHITELIST = ['[REDACTED]'];
 
-    // If not set, return false (no whitelist = no developer mode)
+    console.log(`🔍 Checking whitelist for IP: ${ip}`);
+
+    // Check temporary hardcoded whitelist first
+    if (TEMP_HARDCODED_WHITELIST.includes(ip)) {
+      console.log(`🔓 DEVELOPER MODE ACTIVATED (hardcoded): IP ${ip} is whitelisted`);
+      return true;
+    }
+
+    // Debug: Check if environment variable is available
+    const whitelist = process.env.DEV_WHITELIST_IPS;
+    console.log(`🔍 Whitelist env var configured: ${whitelist ? 'YES' : 'NO'}`);
+
+    // If not set, use hardcoded fallback above
     if (!whitelist || whitelist.trim() === '') {
-      return false;
+      console.log(`⚠️ No env whitelist configured - using hardcoded fallback`);
+      return false; // Already checked hardcoded above
     }
 
     // Parse whitelist (value never leaves this function scope)
@@ -48,19 +62,22 @@ function isWhitelistedIP(ip) {
       .map(item => item.trim())
       .filter(item => item.length > 0);
 
+    console.log(`🔍 Checking against ${whitelistedIPs.length} env whitelisted IP(s)`);
+
     // Check if current IP is in whitelist
     const isWhitelisted = whitelistedIPs.includes(ip);
 
-    // Only log if whitelisted (never log the whitelist itself)
+    // Log result
     if (isWhitelisted) {
-      // Safe to log: only confirms this specific IP is whitelisted
-      console.log(`🔓 DEVELOPER MODE: IP ${ip} is whitelisted`);
+      console.log(`🔓 DEVELOPER MODE ACTIVATED (env var): IP ${ip} is whitelisted`);
+    } else {
+      console.log(`⛔ IP ${ip} is NOT whitelisted - normal rate limiting applies`);
     }
 
     return isWhitelisted;
   } catch (error) {
     // If anything goes wrong, fail closed (no developer mode)
-    console.error('Error checking whitelist (failing closed):', error.message);
+    console.error('❌ Error checking whitelist (failing closed):', error.message);
     return false;
   }
 }
