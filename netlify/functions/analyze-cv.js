@@ -1,13 +1,13 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const multipart = require('parse-multipart-data');
-const pdf = require('pdf-parse'); // Keep the initial require, dynamic import is used later
+// pdf-parse is imported dynamically later where needed
 const { checkCache, saveToCache } = require('./cache-helper');
 const { rateLimitMiddleware, rateLimitResponse } = require('./rate-limiter');
 
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Prompt Text Markers
+// Define all possible START markers for robust parsing
 const ALL_START_MARKERS = [
   '---IMPROVED_CV_START---',
   '---COVER_LETTER_START---',
@@ -16,17 +16,15 @@ const ALL_START_MARKERS = [
 ];
 
 exports.handler = async (event) => {
-  // CORS headers - secure configuration
+  // CORS headers setup
   const allowedOrigins = [
-    process.env.URL, // Netlify deploy URL
-    process.env.DEPLOY_PRIME_URL, // Netlify preview URL
-    'http://localhost:8888', // Local development
+    process.env.URL,
+    process.env.DEPLOY_PRIME_URL,
+    'http://localhost:8888',
     'http://localhost:3000'
   ].filter(Boolean);
-
   const origin = event.headers.origin || event.headers.Origin;
   const allowOrigin = allowedOrigins.some(allowed => origin?.startsWith(allowed)) ? origin : allowedOrigins[0];
-
   const headers = {
     'Access-Control-Allow-Origin': allowOrigin || '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -34,12 +32,12 @@ exports.handler = async (event) => {
     'Content-Type': 'application/json',
   };
 
-  // Handle preflight
+  // Handle CORS preflight request
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };
   }
 
-  // Only allow POST
+  // Ensure it's a POST request
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -48,7 +46,7 @@ exports.handler = async (event) => {
     };
   }
 
-  // Check rate limits
+  // Apply rate limiting
   const rateLimit = await rateLimitMiddleware(event);
   if (!rateLimit.allowed) {
     console.log(`⛔ Rate limit exceeded for IP: ${rateLimit.ip}`);
@@ -56,38 +54,49 @@ exports.handler = async (event) => {
   }
   console.log(`✅ Rate limit OK - ${rateLimit.remaining} requests remaining`);
 
-  try { // Buitenste try (voor algemene fouten zoals form data parsing)
-    // === FIX VOOR FORMDATA PARSING ===
+  // --- Outer Try-Catch for general errors (like parsing) ---
+  try {
+    // === Form Data Parsing ===
+    console.log('📄 Parsing form data...');
     const contentType = event.headers['content-type'] || event.headers['Content-Type'];
+    if (!contentType) {
+       throw new Error("Missing Content-Type header");
+    }
     const boundary = multipart.getBoundary(contentType);
+    if (!boundary) {
+        throw new Error("Could not find boundary in Content-Type header");
+    }
     const bodyBuffer = Buffer.from(event.body, 'base64');
     const parts = multipart.parse(bodyBuffer, boundary);
+    console.log(`✅ Form data parsed into ${parts.length} parts.`);
 
     const cvFilePart = parts.find(part => part.name === 'cvFile');
     const jobDescriptionPart = parts.find(part => part.name === 'jobDescription');
     const languagePart = parts.find(part => part.name === 'language');
 
     if (!cvFilePart || !jobDescriptionPart) {
+      console.log('❌ Missing cvFile or jobDescription in form data.');
       return {
         statusCode: 400,
         headers,
         body: JSON.stringify({ error: 'Missing cvFile or jobDescription' }),
       };
     }
+    console.log('✅ Found CV file and job description parts.');
 
     const jobDescription = jobDescriptionPart.data.toString('utf-8');
     const language = languagePart ? languagePart.data.toString('utf-8') : 'en';
     
-    // Lees de tekst uit de PDF buffer (met dynamische import)
-    // Note: pdf variable is declared globally via require, but we use dynamic import here
-    const pdfParser = await import('pdf-parse'); 
+    // Dynamically import and parse PDF
+    console.log('📄 Parsing PDF content...');
+    const pdfParser = await import('pdf-parse');
     const pdfData = await pdfParser.default(cvFilePart.data);
     const currentCV = pdfData.text;
+    console.log(`✅ PDF parsed. CV length: ${currentCV ? currentCV.length : 0} chars.`);
 
-    // === ✨ CACHING CHECK ✨ ===
+    // === Caching Logic ===
     console.log('🔍 Checking cache...');
     const cachedResult = await checkCache(currentCV, jobDescription, language);
-    
     if (cachedResult) {
       console.log('✅ Cache HIT - returning cached result!');
       console.log(`💰 Saved API cost! Hit count: ${cachedResult.metadata.hitCount}`);
@@ -97,66 +106,78 @@ exports.handler = async (event) => {
         body: JSON.stringify(cachedResult),
       };
     }
-    
     console.log('❌ Cache miss - proceeding...');
-    // === EINDE CACHING CHECK ===
+    // === End Caching Logic ===
 
-    // === Input Validations ===
+    // === Granular Input Validations ===
+    console.log('🚦 BEFORE VALIDATIONS');
+    console.log('🚦 Validating presence...');
     if (!currentCV || !jobDescription) {
+      console.log('❌ Validation FAILED: Missing CV or Job Description content after parsing.');
       return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ 
-          error: 'Missing required fields: currentCV and jobDescription' 
-        }),
+        statusCode: 400, headers,
+        body: JSON.stringify({ error: 'Missing CV or Job Description content after parsing' }),
       };
     }
-    if (currentCV.length < 50) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ 
-          error: 'CV is too short. Please provide a complete CV.' 
-        }),
-      };
-    }
-    if (jobDescription.length < 30) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ 
-          error: 'Job description is too short. Please provide more details.' 
-        }),
-      };
-    }
-    // === Einde Input Validations ===
+    console.log('✅ Presence OK');
 
-    // === START NIEUWE TRY...CATCH BLOK (voor Prompt & API Call) ===
-    try { 
+    console.log('🚦 Validating CV length...');
+    if (currentCV.length < 50) {
+      console.log('❌ Validation FAILED: CV too short');
+      return {
+        statusCode: 400, headers,
+        body: JSON.stringify({ error: 'CV is too short. Please provide a complete CV.' }),
+      };
+    }
+    console.log('✅ CV length OK');
+
+    console.log('🚦 Validating Job Description length...');
+    if (jobDescription.length < 30) {
+      console.log('❌ Validation FAILED: Job Description too short');
+      return {
+        statusCode: 400, headers,
+        body: JSON.stringify({ error: 'Job description is too short. Please provide more details.' }),
+      };
+    }
+    console.log('✅ Job Description length OK');
+    console.log('🚦 AFTER VALIDATIONS');
+    // === End Input Validations ===
+
+    // === Inner Try-Catch for AI Prompt Generation, API Call, and Extraction ===
+    console.log('🚦 BEFORE INNER TRY BLOCK');
+    try {
         console.log('🚀 Starting CV analysis...');
-        console.log(`📄 CV length: ${currentCV.length} chars`);
-        console.log(`💼 Job description length: ${jobDescription.length} chars`);
-        console.log(`🌍 Language: ${language}`);
+        console.log(`📄 (Inner Try) CV length: ${currentCV.length} chars`);
+        console.log(`💼 (Inner Try) Job description length: ${jobDescription.length} chars`);
+        console.log(`🌍 (Inner Try) Language: ${language}`);
 
         console.log('🔧 Attempting to create prompt...');
         const prompt = createPrompt(currentCV, jobDescription, language);
         console.log(`✅ Prompt created successfully. Length: ${prompt.length} chars.`);
 
         // Call Gemini API
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' }); // Gebruik het model dat je wilt
+        const modelName = 'gemini-1.5-flash'; // Use the model you have access to
+        console.log(`🤖 Attempting to get model: ${modelName}`);
+        const model = genAI.getGenerativeModel({ model: modelName });
+        console.log('✅ Model obtained successfully.');
 
         console.log('🤖 Attempting to call Gemini API...');
         const result = await model.generateContent(prompt);
-        console.log('🎉 Gemini API call successful!'); 
+        console.log('🎉 Gemini API call successful!');
 
         const response = result.response;
+        // Basic check if response or text() exists
+        if (!response || typeof response.text !== 'function') {
+            console.error('❌ Invalid response structure from Gemini API:', response);
+            throw new Error('Invalid response structure received from AI.');
+        }
         const fullText = response.text();
-        
-        console.log(`✅ Response received from Gemini: ${fullText.length} chars`);
+        console.log(`✅ Response received from Gemini: ${fullText ? fullText.length : 0} chars`);
+        if (!fullText) {
+             throw new Error('Empty text content received from AI.');
+        }
 
-        // =========================================================
-        // === HIER BEGINT DE VERPLAATSTE CODE ===
-        // =========================================================
+        // --- Extraction Phase ---
         console.log('\n--- EXTRACTION PHASE ---');
         const improvedCV = extractSection(fullText, '---IMPROVED_CV_START---', '---IMPROVED_CV_END---', 'Could not generate CV');
         const coverLetter = extractSection(fullText, '---COVER_LETTER_START---', '---COVER_LETTER_END---', 'Could not generate cover letter');
@@ -167,9 +188,17 @@ exports.handler = async (event) => {
         console.log(`${coverLetter.success ? '✅' : '❌'} Cover Letter: ${coverLetter.content.length} chars`);
         console.log(`${recruiterTips.success ? '✅' : '❌'} Tips: ${recruiterTips.content.length} chars`);
         console.log(`${changesOverview.success ? '✅' : '❌'} Changes: ${changesOverview.content.length} chars`);
+
+        // Check if ANY extraction failed - indicates AI didn't follow format
+        if (!improvedCV.success || !coverLetter.success || !recruiterTips.success || !changesOverview.success) {
+            console.error('❌ Extraction failed for one or more sections. AI response format might be incorrect.');
+            console.error('Full AI Response (first 500 chars):', fullText.substring(0, 500));
+            // Decide how to handle this - maybe return an error or use fallback messages?
+            // For now, we'll proceed but the data might be incomplete/fallback text
+        }
         console.log('--- END EXTRACTION PHASE ---\n');
 
-        // Prepare response
+        // Prepare response data
         const responseData = {
           improvedCV: improvedCV.content,
           coverLetter: coverLetter.content,
@@ -183,7 +212,7 @@ exports.handler = async (event) => {
           }
         };
 
-        // Save to cache
+        // --- Save to Cache ---
         console.log('💾 Saving result to cache...');
         const cacheSaved = await saveToCache(currentCV, jobDescription, language, responseData);
         if (cacheSaved) {
@@ -191,11 +220,11 @@ exports.handler = async (event) => {
         } else {
           console.log('⚠️ Cache save failed (non-critical)');
         }
-        
-        // Add cache metadata
-        responseData.metadata.cached = false; 
-        responseData.metadata.hitCount = 1;
+        responseData.metadata.cached = false; // Mark this response as not coming from cache
+        responseData.metadata.hitCount = 1; // Initial hit count
+        // --- End Save to Cache ---
 
+        // --- Final Summary Logging ---
         console.log('\n--- FINAL DATA SUMMARY ---');
         console.log(`CV: ${improvedCV.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${improvedCV.content.length} chars)`);
         console.log(`Cover Letter: ${coverLetter.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${coverLetter.content.length} chars)`);
@@ -203,111 +232,102 @@ exports.handler = async (event) => {
         console.log(`Changes: ${changesOverview.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${changesOverview.content.length} chars)`);
         console.log('--- END SUMMARY ---\n');
 
-        // === BELANGRIJK: Return BINNEN deze try! ===
+        // --- Success Return ---
+        console.log('✅ Processing complete. Returning successful response.');
         return {
           statusCode: 200,
           headers,
           body: JSON.stringify(responseData),
         };
-        // =========================================================
-        // === HIER EINDIGT DE VERPLAATSTE CODE ===
-        // =========================================================
 
-    } catch (apiError) { // Binnenste catch (voor API/Prompt fouten)
-        console.error('❌❌ CRITICAL ERROR during prompt creation or API call: ❌❌');
+    } catch (apiError) { // Catch errors specifically from the inner try block (Prompt/API/Extraction)
+        console.error('❌❌ CRITICAL ERROR during AI processing phase: ❌❌');
         console.error('Error name:', apiError.name);
         console.error('Error message:', apiError.message);
-        console.error('Error stack:', apiError.stack); // Houd deze voor debuggen
-        
-        // Stuur een duidelijke fout terug
+        console.error('Error stack:', apiError.stack); // Essential for debugging
+
+        // Return a detailed error response
         return {
           statusCode: 500,
           headers,
-          body: JSON.stringify({ 
-            error: 'Failed during AI prompt generation or API call',
+          body: JSON.stringify({
+            error: 'Failed during AI prompt generation, API call, or response extraction',
             message: apiError.message,
-            name: apiError.name, 
-            // stack: apiError.stack // Kan nuttig zijn, maar ook veel data
+            name: apiError.name,
           }),
         };
     }
-    // === EINDE NIEUWE TRY...CATCH BLOK ===
+    // === END Inner Try-Catch ===
 
-    // De code die hier stond is nu verplaatst naar het binnenste try blok
-
-  } catch (error) { // Buitenste catch (voor algemene fouten)
-    console.error('❌ General Error processing CV:', error); 
+  } catch (error) { // Catch errors from the outer try block (e.g., form parsing, general setup)
+    console.error('❌ General Error processing CV:', error);
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ 
-        error: 'Internal server error while processing CV (General)',
-        message: error.message 
+      body: JSON.stringify({
+        error: 'Internal server error while processing CV (General Setup)',
+        message: error.message
       }),
     };
   }
-}; // Einde van exports.handler
+}; // End of exports.handler
 
 // ==============================================================
-// Helper Functies (extractSection en createPrompt)
+// Helper Functions (extractSection and createPrompt)
 // ==============================================================
 
 /**
- * Extract a section from the full text using start and end markers
- * NIEUWE ROBUUSTE VERSIE
+ * Extracts a section robustly, looking for the next start marker as a fallback.
  */
 function extractSection(fullText, startMarker, endMarker, fallbackMessage) {
   try {
     const startIndex = fullText.indexOf(startMarker);
-    
     if (startIndex === -1) {
       console.log(`⚠️  Could not find ${startMarker}`);
       return { success: false, content: fallbackMessage };
     }
 
     const contentStart = startIndex + startMarker.length;
-    
-    // 1. Probeer eerst de correcte, verwachte eind-tag te vinden
     let endIndex = fullText.indexOf(endMarker, contentStart);
-    
-    // 2. ROBUUSTE FALLBACK: Als de eind-tag mist...
+
+    // Robust Fallback: If end marker is missing, find the next *different* start marker
     if (endIndex === -1) {
       console.log(`⚠️  Could not find ${endMarker}. Using ROBUST FALLBACK (searching for next START marker).`);
-      
-      let nearestNextStartIndex = fullText.length; // Standaard tot het einde van de tekst
-
-      // 3. Zoek de EERSTVOLGENDE *andere* START-tag
+      let nearestNextStartIndex = fullText.length; // Default to end of text
       for (const marker of ALL_START_MARKERS) {
-        if (marker === startMarker) continue; 
-        
+        if (marker === startMarker) continue; // Skip self
         const nextMarkerIndex = fullText.indexOf(marker, contentStart);
-        
         if (nextMarkerIndex !== -1 && nextMarkerIndex < nearestNextStartIndex) {
           nearestNextStartIndex = nextMarkerIndex;
         }
       }
-      
       endIndex = nearestNextStartIndex;
       console.log(`✅ Robust fallback found end at index ${endIndex}.`);
     }
 
-    // 4. Extraheer de content
+    // Extract content
     let content = fullText.substring(contentStart, endIndex).trim();
 
-    // 5. VALIDATIE & OPSCHONING
-    if (!content || content.length < 10) {
-      console.log(`⚠️  Extracted content too short: ${content.length} chars`);
-      return { success: false, content: fallbackMessage };
+    // Validation & Cleanup
+    if (!content || content.length < 5) { // Adjusted min length slightly
+      console.log(`⚠️  Extracted content too short or empty: ${content ? content.length : 0} chars for ${startMarker}`);
+      // Returning fallback message but marking as potentially failed/short
+      return { success: false, content: fallbackMessage + ` (Short content: ${content ? content.length : 0} chars)` };
     }
 
+    // Check for contamination (includes another start tag)
     for (const marker of ALL_START_MARKERS) {
       if (marker === startMarker) continue;
-      
       if (content.includes(marker)) {
-        console.log(`❌ VALIDATION FAILED: Content for ${startMarker} is contaminated with ${marker}!`);
+        console.log(`❌ VALIDATION FAILED: Content for ${startMarker} is contaminated with ${marker}! Attempting cleanup.`);
         const contaminationIndex = content.indexOf(marker);
         content = content.substring(0, contaminationIndex).trim();
         console.log(`✨ Content cleaned. New length: ${content.length}`);
+        // Re-validate length after cleanup
+        if (!content || content.length < 5) {
+             console.log(`⚠️ Content too short after cleanup for ${startMarker}`);
+             return { success: false, content: fallbackMessage + ` (Short after cleanup)` };
+        }
       }
     }
 
@@ -320,36 +340,35 @@ function extractSection(fullText, startMarker, endMarker, fallbackMessage) {
 }
 
 /**
- * Create the prompt for Gemini AI
- * VEREENVOUDIGDE VERSIE: Vraagt alleen de geselecteerde taal
+ * Creates the simplified prompt asking only for the selected language.
  */
 function createPrompt(currentCV, jobDescription, language) {
   const isDutch = language === 'nl';
   const instructionLanguage = isDutch ? 'Dutch (Nederlands)' : 'English';
   const changesOverviewTitle = isDutch ? '📝 Overzicht van Wijzigingen' : '📝 Changes Overview';
-  const changesSectionNames = isDutch ? 
-    ['Summary Sectie', 'Werkervaring Sectie', 'Vaardigheden Sectie', 'Opleidingen Sectie'] :
+  const changesIntro = isDutch ? 'Hieronder zie je alle wijzigingen die zijn aangebracht in je CV, gegroepeerd per sectie.' : 'Below you\'ll see all changes made to your CV, grouped by section.';
+  const changesSectionNames = isDutch ?
+    ['Samenvatting Sectie', 'Werkervaring Sectie', 'Vaardigheden Sectie', 'Opleidingen Sectie'] :
     ['Summary Section', 'Experience Section', 'Skills Section', 'Education Section'];
-  
   const originalLabel = isDutch ? 'Origineel' : 'Original';
   const improvedLabel = isDutch ? 'Verbeterd' : 'Improved';
   const whyLabel = isDutch ? 'Waarom dit belangrijk is' : 'Why this matters';
   const impactLabel = isDutch ? 'Impact' : 'Impact';
-  
+  const nextChangeLabel = isDutch ? 'Volgende wijziging' : 'Next change';
+  const changeInSectionLabel = isDutch ? 'Wijziging in' : 'Change in';
+
   const summaryBlock = isDutch ? `
 ### 📊 Samenvatting
 **Totaal aantal wijzigingen:** [nummer]
 **Wijzigingen per sectie:**
-- Summary: [aantal] wijzigingen
+- Samenvatting: [aantal] wijzigingen
 - Werkervaring: [aantal] wijzigingen
 - Vaardigheden: [aantal] wijzigingen
 - Opleidingen: [aantal] wijzigingen
-
 **Belangrijkste verbeteringen:**
 - [Key improvement 1]
 - [Key improvement 2]
 - [Key improvement 3]
-
 **Afstemming op functie:** [Percentage, bijv. "87% match"]
 ` : `
 ### 📊 Summary
@@ -359,135 +378,138 @@ function createPrompt(currentCV, jobDescription, language) {
 - Experience: [number] changes
 - Skills: [number] changes
 - Education: [number] changes
-
 **Key improvements:**
 - [Key improvement 1]
 - [Key improvement 2]
 - [Key improvement 3]
-
 **Job match score:** [Percentage, e.g., "87% match"]
 `;
 
   return `You are an expert CV consultant and career coach. Your task is to analyze the CV and generate all content in ${instructionLanguage}.
 
-**CRITICAL: Generate content ONLY in ${instructionLanguage}.**
+**CRITICAL: Generate content ONLY in ${instructionLanguage}. Do NOT include explanations or text in other languages.**
 
 **IMPORTANT OUTPUT FORMAT:**
-You must wrap each section with the exact markers shown below. Do not skip any section.
+You MUST wrap each section with the exact markers shown below. Do not skip any section. Ensure proper line breaks before and after each marker.
 
 ---IMPROVED_CV_START---
-[Your improved CV in ${instructionLanguage} - Use markdown formatting, keep structure but optimize content]
+[Your improved CV in ${instructionLanguage} - Use standard markdown formatting. Focus on optimizing content based on the job description while trying to maintain the original structure.]
 ---IMPROVED_CV_END---
 
 ---COVER_LETTER_START---
-[Your professional cover letter in ${instructionLanguage}]
+[Your professional cover letter in ${instructionLanguage}. Keep it concise (around 300-400 words) and directly address the job requirements.]
 ---COVER_LETTER_END---
 
 ---RECRUITER_TIPS_START---
-[Your recruiter conversation tips in ${instructionLanguage} - Use markdown with headers and bullet points]
+[Your recruiter conversation tips in ${instructionLanguage} - Use markdown with headers (##) for each topic and bullet points (*).]
 ---RECRUITER_TIPS_END---
 
 ---CHANGES_OVERVIEW_START---
-[Your detailed changes overview in ${instructionLanguage}]
+[Your detailed changes overview in ${instructionLanguage}. Follow the specific structured format below.]
 ---CHANGES_OVERVIEW_END---
 
-## Instructions for CV Improvement:
-- Keep the original structure and formatting
-- Enhance bullet points to match job requirements
-- Quantify achievements where possible
-- Use action verbs and industry keywords from the job description
-- Improve clarity and impact
-- Keep it professional and honest
-- Output language: ${instructionLanguage}
+## Instructions for CV Improvement (Output language: ${instructionLanguage}):
+- Enhance bullet points to showcase achievements relevant to the job requirements.
+- Quantify accomplishments with numbers whenever possible.
+- Integrate keywords from the job description naturally.
+- Use strong action verbs.
+- Ensure clarity, conciseness, and impact.
+- Maintain a professional tone and honesty.
 
-## Instructions for Cover Letter:
-- Professional and personalized
-- Reference specific job requirements
-- Highlight relevant experience
-- Show enthusiasm and cultural fit
-- Keep it concise (300-400 words)
-- Output language: ${instructionLanguage}
+## Instructions for Cover Letter (Output language: ${instructionLanguage}):
+- Personalize the letter to the company and role.
+- Directly reference 2-3 specific requirements from the job description and link them to your experience.
+- Briefly highlight your most relevant achievements.
+- Convey enthusiasm for the role and alignment with company culture (if known).
 
-## Instructions for Recruiter Tips:
-Create a section with these topics (use markdown headers and formatting) in ${instructionLanguage}:
-1. **Key Points to Emphasize** - What to highlight in interviews
-2. **Questions They'll Ask** - Common questions for this role
-3. **Questions You Should Ask** - Smart questions to ask the recruiter
-4. **Red Flags to Watch** - What to be careful about
-5. **Salary Negotiation Tips** - How to approach compensation
-6. **Cultural Fit Signals** - What the company values
-7. **Next Steps** - What to do after the interview
+## Instructions for Recruiter Tips (Output language: ${instructionLanguage}):
+Create a section with these exact topics using markdown headers (##) and bullet points (*):
+## Key Points to Emphasize
+## Questions They Might Ask
+## Questions You Should Ask
+## Potential Red Flags
+## Salary Negotiation Approach
+## Cultural Fit Clues
+## Next Steps After Interview
 
-Output language: ${instructionLanguage}
-
-## Instructions for Changes Overview
-Create a comprehensive, STRUCTURED list of ALL changes made to the CV, GROUPED BY CV SECTION.
-WRITE EVERYTHING IN ${instructionLanguage}.
-
-Use this EXACT format:
+## Instructions for Changes Overview (Output language: ${instructionLanguage}):
+Create a comprehensive, STRUCTURED list of ALL meaningful changes made to the CV, GROUPED BY CV SECTION. Use the exact format below.
 
 **${changesOverviewTitle}**
 
-Hieronder zie je alle wijzigingen die zijn aangebracht in je CV, gegroepeerd per sectie.
+${changesIntro}
 
 ## ${changesSectionNames[0]}
 
-### 1. [Naam van de wijziging]
+### 1. [Name of the change in ${instructionLanguage}]
 **${originalLabel}:**
-[Wat er stond]
+[Quote the original text snippet here]
 
 **${improvedLabel}:**
-[Wat het nu is]
+[Quote the new, improved text snippet here]
 
 **${whyLabel}:**
-[Duidelijke uitleg hoe dit je kandidatuur versterkt, refererend aan de functiebeschrijving]
+[Explain clearly in ${instructionLanguage} how this change strengthens the CV for THIS SPECIFIC JOB, referencing keywords or requirements from the job description.]
 
-**${impactLabel}:** ⭐⭐⭐⭐⭐ (1-5 sterren)
-
----
-
-### 2. [Volgende wijziging]
-...
+**${impactLabel}:** ⭐⭐⭐⭐⭐ (Rate 1-5 stars based on relevance to the job description)
 
 ---
+
+### 2. [${nextChangeLabel} in ${changesSectionNames[0]}...]
+**${originalLabel}:**
+[...]
+**${improvedLabel}:**
+[...]
+**${whyLabel}:**
+[...]
+**${impactLabel}:** ⭐⭐⭐⭐
+
+--- (Use --- only BETWEEN changes, not after the last one in a section)
 
 ## ${changesSectionNames[1]}
 
-### 1. [Wijziging in werkervaring]
-...
+### 1. [${changeInSectionLabel} ${changesSectionNames[1]}...]
+**${originalLabel}:**
+[...]
+**${improvedLabel}:**
+[...]
+**${whyLabel}:**
+[...]
+**${impactLabel}:** ⭐⭐⭐⭐⭐
 
 ---
 
 ## ${changesSectionNames[2]}
 
-### 1. [Wijziging in vaardigheden]
+### 1. [${changeInSectionLabel} ${changesSectionNames[2]}...]
 ...
 
 ---
 
 ## ${changesSectionNames[3]}
 
-### 1. [Wijziging in opleidingen]
+### 1. [${changeInSectionLabel} ${changesSectionNames[3]}...]
 ...
 
----
+--- (End of changes list, followed by summary)
 
 ${summaryBlock}
 
 **CRITICAL RULES FOR CHANGES OVERVIEW:**
-- List EVERY meaningful change (aim for 8-15 changes)
-- Be specific about what changed
-- Explain WHY using the job description
-- Rate impact (1-5 stars)
-- Output language: ${instructionLanguage}
+- Provide 8-15 specific, meaningful changes.
+- Group changes accurately under the correct CV section headers (##).
+- Use the exact 'Original:', 'Improved:', 'Why this matters:', 'Impact:' labels (or Dutch equivalent).
+- Explain the 'Why' by connecting the change directly to the job description.
+- Use the --- separator strictly between changes.
+- Ensure the final output is ONLY in ${instructionLanguage}.
 
 ---
 
-## Original CV:
+## Input CV:
 ${currentCV}
 
-## Job Description:
+## Input Job Description:
 ${jobDescription}
 
-Remember: Use the exact markers shown above for each section. The system relies on these markers to parse your response correctly.`;
-} // Einde van createPrompt functie
+Remember to use the exact START and END markers around each of the four sections. Double-check your output for correctness and adherence to the format.`;
+} // End of createPrompt function
