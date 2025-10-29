@@ -4,6 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacybeleid - AI CV Tailor</title>
+
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-D74Q72JFQ7"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-D74Q72JFQ7', {
+            'send_page_view': true,
+            'cookie_flags': 'SameSite=None;Secure'
+        });
+
+        // Custom event tracking helper
+        window.trackEvent = function(eventName, eventParams = {}) {
+            gtag('event', eventName, eventParams);
+            console.log('📊 Event tracked:', eventName, eventParams);
+        };
+
+        // Track privacy page view
+        if (window.trackEvent) {
+            window.trackEvent('privacy_page_view', {
+                page_title: 'Privacy Policy'
+            });
+        }
+    </script>
+
     <link rel="stylesheet" href="/dist/output.css">
     <style>
         body {

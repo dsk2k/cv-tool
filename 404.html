@@ -8,6 +8,33 @@
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-D74Q72JFQ7"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-D74Q72JFQ7', {
+            'send_page_view': true,
+            'cookie_flags': 'SameSite=None;Secure'
+        });
+
+        // Custom event tracking helper
+        window.trackEvent = function(eventName, eventParams = {}) {
+            gtag('event', eventName, eventParams);
+            console.log('📊 Event tracked:', eventName, eventParams);
+        };
+
+        // Track 404 error
+        if (window.trackEvent) {
+            window.trackEvent('404_error', {
+                page_title: '404 Not Found',
+                page_location: window.location.href,
+                page_referrer: document.referrer
+            });
+        }
+    </script>
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
