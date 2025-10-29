@@ -210,10 +210,14 @@ exports.handler = async (event) => {
     // === EINDE SAVE TO CACHE ===
 
     console.log('\n--- FINAL DATA SUMMARY ---');
-    console.log(`Using CV: ${improvedCV.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${improvedCV.content.length} chars)`);
-    console.log(`Using CL: ${coverLetter.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${coverLetter.content.length} chars)`);
-    console.log(`Using Tips: ${recruiterTips.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${recruiterTips.content.length} chars)`);
-    console.log(`Using Changes: ${changesOverview.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${changesOverview.content.length} chars)`);
+    console.log(`NL CV: ${improvedCV_NL.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${improvedCV_NL.content.length} chars)`);
+    console.log(`EN CV: ${improvedCV_EN.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${improvedCV_EN.content.length} chars)`);
+    console.log(`NL Cover Letter: ${coverLetter_NL.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${coverLetter_NL.content.length} chars)`);
+    console.log(`EN Cover Letter: ${coverLetter_EN.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${coverLetter_EN.content.length} chars)`);
+    console.log(`NL Tips: ${recruiterTips_NL.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${recruiterTips_NL.content.length} chars)`);
+    console.log(`EN Tips: ${recruiterTips_EN.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${recruiterTips_EN.content.length} chars)`);
+    console.log(`NL Changes: ${changesOverview_NL.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${changesOverview_NL.content.length} chars)`);
+    console.log(`EN Changes: ${changesOverview_EN.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${changesOverview_EN.content.length} chars)`);
     console.log('--- END SUMMARY ---\n');
 
     return {
