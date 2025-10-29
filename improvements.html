@@ -766,7 +766,7 @@
                         document.getElementById('recruiterTips').innerHTML = marked.parse(result.recruiterTips_EN);
                     }
                     if (result.changesOverview_EN) {
-                        document.getElementById('changesOverview').innerHTML = marked.parse(result.changesOverview_EN);
+                        renderChangesContent(result.changesOverview_EN);
                     }
                     document.getElementById('mainTitle').textContent = 'Your Improved CV';
                     text.textContent = 'Vertalen naar Nederlands';
@@ -784,7 +784,7 @@
                         document.getElementById('recruiterTips').innerHTML = marked.parse(result.recruiterTips);
                     }
                     if (result.changesOverview) {
-                        document.getElementById('changesOverview').innerHTML = marked.parse(result.changesOverview);
+                        renderChangesContent(result.changesOverview);
                     }
                     document.getElementById('mainTitle').textContent = 'Jouw Verbeterde CV';
                     text.textContent = 'Translate to English';
