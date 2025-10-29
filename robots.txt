@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://your-domain.com/sitemap.xml
+
+# Block sensitive directories
+Disallow: /netlify/
+Disallow: /.netlify/
+Disallow: /node_modules/
+Disallow: /dist/
+
+# SEO optimization
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
