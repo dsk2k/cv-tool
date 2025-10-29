@@ -164,11 +164,29 @@
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 min-h-screen">
-    
+
+    <!-- Language Switcher (Fixed position) -->
+    <div class="fixed top-4 right-4 z-50">
+        <div class="bg-white rounded-lg shadow-lg p-2 flex items-center gap-2">
+            <button id="translateBtn" onclick="toggleTranslation()"
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all duration-300 hover:scale-105"
+                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <svg id="translateIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                </svg>
+                <span id="translateText">Translate to English</span>
+            </button>
+            <div id="translationLoading" class="hidden">
+                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="container mx-auto px-4 py-8 max-w-7xl">
         <!-- Header -->
         <div class="text-center mb-12 animate-slide-up">
-            <h1 class="text-5xl font-bold mb-3 section-header">Uw Verbeterde CV</h1>
+            <h1 id="mainTitle" class="text-5xl font-bold mb-3 section-header">Uw Verbeterde CV</h1>
             <p class="text-gray-600 text-lg">AI-gestuurde optimalisatie resultaten</p>
         </div>
 
@@ -547,6 +565,186 @@
                 console.error('❌ Error copying:', err);
                 alert('❌ Kon CV niet kopiëren');
             });
+        }
+
+        // ============================================
+        // LANGUAGE TRANSLATION FUNCTIONALITY
+        // ============================================
+
+        let currentLanguage = 'nl'; // Default: Dutch
+        let originalContent = {}; // Store original content
+        let translatedContent = {}; // Store translated content
+
+        // Save original content on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            saveOriginalContent();
+        });
+
+        function saveOriginalContent() {
+            originalContent = {
+                title: document.getElementById('mainTitle')?.textContent,
+                cv: document.getElementById('improvedCV')?.innerHTML,
+                cover: document.getElementById('coverLetter')?.innerHTML,
+                tips: document.getElementById('recruiterTips')?.innerHTML,
+                changes: document.getElementById('changesOverview')?.innerHTML
+            };
+            console.log('💾 Original content saved');
+        }
+
+        async function toggleTranslation() {
+            const targetLang = currentLanguage === 'nl' ? 'en' : 'nl';
+            const btn = document.getElementById('translateBtn');
+            const text = document.getElementById('translateText');
+            const loading = document.getElementById('translationLoading');
+
+            console.log(`🌐 Translating from ${currentLanguage} to ${targetLang}`);
+
+            // Show loading state
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            loading.classList.remove('hidden');
+
+            try {
+                // If switching back to original language
+                if (targetLang === 'nl' && originalContent.cv) {
+                    restoreOriginalContent();
+                    currentLanguage = 'nl';
+                    text.textContent = 'Translate to English';
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    loading.classList.add('hidden');
+                    showNotification('✅ Restored to Dutch', 'success');
+                    return;
+                }
+
+                // Check if we already have this translation cached
+                if (targetLang === 'en' && translatedContent.cv) {
+                    applyTranslatedContent(translatedContent);
+                    currentLanguage = 'en';
+                    text.textContent = 'Translate to Dutch';
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    loading.classList.add('hidden');
+                    showNotification('✅ Translation loaded from cache', 'success');
+                    return;
+                }
+
+                // Perform translation via Gemini API
+                const contentToTranslate = {
+                    cv: document.getElementById('improvedCV')?.textContent,
+                    cover: document.getElementById('coverLetter')?.textContent,
+                    tips: document.getElementById('recruiterTips')?.textContent,
+                    changes: document.getElementById('changesOverview')?.textContent
+                };
+
+                const translated = await translateContent(contentToTranslate, targetLang);
+
+                // Cache the translation
+                translatedContent = translated;
+
+                // Apply translation
+                applyTranslatedContent(translated);
+
+                currentLanguage = targetLang;
+                text.textContent = targetLang === 'en' ? 'Translate to Dutch' : 'Translate to English';
+
+                showNotification('✅ Translation complete!', 'success');
+
+            } catch (error) {
+                console.error('❌ Translation error:', error);
+                showNotification('❌ Translation failed. Please try again.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                loading.classList.add('hidden');
+            }
+        }
+
+        async function translateContent(content, targetLang) {
+            // Call Netlify function to translate
+            const response = await fetch('/.netlify/functions/translate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    content,
+                    targetLanguage: targetLang,
+                    sourceLanguage: currentLanguage
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Translation failed: ${response.status}`);
+            }
+
+            const result = await response.json();
+            return result.translated;
+        }
+
+        function restoreOriginalContent() {
+            if (originalContent.cv) {
+                document.getElementById('improvedCV').innerHTML = originalContent.cv;
+            }
+            if (originalContent.cover) {
+                document.getElementById('coverLetter').innerHTML = originalContent.cover;
+            }
+            if (originalContent.tips) {
+                document.getElementById('recruiterTips').innerHTML = originalContent.tips;
+            }
+            if (originalContent.changes) {
+                document.getElementById('changesOverview').innerHTML = originalContent.changes;
+            }
+            if (originalContent.title) {
+                document.getElementById('mainTitle').textContent = originalContent.title;
+            }
+        }
+
+        function applyTranslatedContent(translated) {
+            if (translated.cv) {
+                const cvEl = document.getElementById('improvedCV');
+                cvEl.innerHTML = marked.parse(translated.cv);
+            }
+            if (translated.cover) {
+                const coverEl = document.getElementById('coverLetter');
+                coverEl.innerHTML = marked.parse(translated.cover);
+            }
+            if (translated.tips) {
+                const tipsEl = document.getElementById('recruiterTips');
+                tipsEl.innerHTML = marked.parse(translated.tips);
+            }
+            if (translated.changes) {
+                const changesEl = document.getElementById('changesOverview');
+                changesEl.innerHTML = marked.parse(translated.changes);
+            }
+
+            // Translate title
+            document.getElementById('mainTitle').textContent =
+                currentLanguage === 'nl' ? 'Your Improved CV' : 'Uw Verbeterde CV';
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white font-semibold z-50 transition-all duration-300 ${
+                type === 'success' ? 'bg-green-500' :
+                type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+            }`;
+            notification.textContent = message;
+            notification.style.transform = 'translateY(100px)';
+            notification.style.opacity = '0';
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.transform = 'translateY(0)';
+                notification.style.opacity = '1';
+            }, 10);
+
+            setTimeout(() => {
+                notification.style.transform = 'translateY(100px)';
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
         }
     </script>
 </body>

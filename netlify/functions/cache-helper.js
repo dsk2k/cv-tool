@@ -29,15 +29,15 @@ function generateHash(text) {
 async function checkCache(cvText, jobDescription, language = 'en') {
   try {
     const cacheKey = generateCacheKey(cvText, jobDescription, language);
-    
+
     console.log('🔍 Checking cache for key:', cacheKey.substring(0, 16) + '...');
-    
+
     const { data, error } = await supabase
       .from('ai_cache')
       .select('*')
       .eq('cache_key', cacheKey)
       .single();
-    
+
     if (error) {
       if (error.code === 'PGRST116') {
         // No rows found - cache miss
@@ -47,19 +47,34 @@ async function checkCache(cvText, jobDescription, language = 'en') {
       console.error('❌ Cache check error:', error);
       return null;
     }
-    
+
     if (data) {
-      // Update hit count and last accessed
+      // Check if cache entry has expired
+      if (data.expires_at && new Date(data.expires_at) < new Date()) {
+        console.log('⏰ Cache entry expired, treating as cache miss');
+        // Optionally delete expired entry
+        await supabase
+          .from('ai_cache')
+          .delete()
+          .eq('id', data.id);
+        return null;
+      }
+
+      // Update hit count, last accessed, and extend expiration
+      const newExpiresAt = new Date();
+      newExpiresAt.setDate(newExpiresAt.getDate() + 30); // Extend by 30 days
+
       await supabase
         .from('ai_cache')
         .update({
           hit_count: data.hit_count + 1,
-          last_accessed_at: new Date().toISOString()
+          last_accessed_at: new Date().toISOString(),
+          expires_at: newExpiresAt.toISOString()
         })
         .eq('id', data.id);
-      
+
       console.log('✅ Cache HIT! (hits:', data.hit_count + 1, ')');
-      
+
       return {
         improvedCV: data.improved_cv,
         coverLetter: data.cover_letter,
@@ -69,14 +84,15 @@ async function checkCache(cvText, jobDescription, language = 'en') {
           cached: true,
           hitCount: data.hit_count + 1,
           cachedAt: data.created_at,
+          expiresAt: newExpiresAt.toISOString(),
           language: data.language
         }
       };
     }
-    
+
     console.log('❌ Cache miss');
     return null;
-    
+
   } catch (error) {
     console.error('❌ Cache check failed:', error);
     return null; // Fail gracefully - continue without cache
@@ -91,9 +107,13 @@ async function saveToCache(cvText, jobDescription, language, result) {
     const cacheKey = generateCacheKey(cvText, jobDescription, language);
     const cvHash = generateHash(cvText);
     const jobHash = generateHash(jobDescription);
-    
+
+    // Calculate expiration date (30 days from now)
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 30);
+
     console.log('💾 Saving to cache:', cacheKey.substring(0, 16) + '...');
-    
+
     const { data, error } = await supabase
       .from('ai_cache')
       .insert({
@@ -107,7 +127,8 @@ async function saveToCache(cvText, jobDescription, language, result) {
         changes_overview: result.changesOverview,
         hit_count: 1,
         created_at: new Date().toISOString(),
-        last_accessed_at: new Date().toISOString()
+        last_accessed_at: new Date().toISOString(),
+        expires_at: expiresAt.toISOString()
       });
     
     if (error) {

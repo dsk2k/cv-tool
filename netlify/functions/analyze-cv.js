@@ -1,15 +1,26 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const multipart = require('parse-multipart-data');
 const pdf = require('pdf-parse');
-const { checkCache, saveToCache } = require('./cache-helper'); // ← CACHING TOEGEVOEGD
+const { checkCache, saveToCache } = require('./cache-helper');
+const { rateLimitMiddleware, rateLimitResponse } = require('./rate-limiter');
 
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 exports.handler = async (event) => {
-  // CORS headers
+  // CORS headers - secure configuration
+  const allowedOrigins = [
+    process.env.URL, // Netlify deploy URL
+    process.env.DEPLOY_PRIME_URL, // Netlify preview URL
+    'http://localhost:8888', // Local development
+    'http://localhost:3000'
+  ].filter(Boolean);
+
+  const origin = event.headers.origin || event.headers.Origin;
+  const allowOrigin = allowedOrigins.some(allowed => origin?.startsWith(allowed)) ? origin : allowedOrigins[0];
+
   const headers = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': allowOrigin || '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Content-Type': 'application/json',
@@ -28,6 +39,14 @@ exports.handler = async (event) => {
       body: JSON.stringify({ error: 'Method not allowed' }),
     };
   }
+
+  // Check rate limits
+  const rateLimit = await rateLimitMiddleware(event);
+  if (!rateLimit.allowed) {
+    console.log(`⛔ Rate limit exceeded for IP: ${rateLimit.ip}`);
+    return rateLimitResponse(rateLimit, headers);
+  }
+  console.log(`✅ Rate limit OK - ${rateLimit.remaining} requests remaining`);
 
   try {
     // === FIX VOOR FORMDATA PARSING ===
