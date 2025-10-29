@@ -362,13 +362,13 @@ Create a section with these topics (use markdown headers and formatting):
 6. **Cultural Fit Signals** - What the company values
 7. **Next Steps** - What to do after the interview
 
-Output language: ${isNL ? 'Dutch' : 'English'}
+Output language: ${language === 'nl' ? 'Dutch' : 'English'}
 
 ## **NEW: Instructions for Changes Overview**
 
 Create a comprehensive list of ALL changes made to the CV with explanations. Use this exact format:
 
-${isNL ? `
+${language === 'nl' ? `
 **📝 Overzicht van Wijzigingen**
 
 Hieronder zie je alle wijzigingen die zijn aangebracht in je CV, met uitleg waarom elke wijziging belangrijk is voor deze functie.
