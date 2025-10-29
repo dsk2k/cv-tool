@@ -473,9 +473,9 @@
                 <div class="text-gray-400 text-sm mt-2">Optimalisaties toegepast</div>
             </div>
             <div class="stat-card bg-white rounded-2xl shadow-xl p-8 text-center">
-                <div class="text-7xl mb-3">✨</div>
-                <div class="text-gray-600 font-semibold text-lg">Gem. Impact</div>
-                <div class="text-gray-400 text-sm mt-2">Hoge kwaliteit</div>
+                <div id="rateLimitUsage" class="text-7xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent mb-3">0/10</div>
+                <div class="text-gray-600 font-semibold text-lg">Pogingen Gebruikt</div>
+                <div id="rateLimitSubtext" class="text-gray-400 text-sm mt-2">10 per uur</div>
             </div>
         </div>
 
@@ -931,7 +931,7 @@
 
         function displayContent(result) {
             console.log('📝 Displaying content...');
-            
+
             // Get the full text for analysis
             const fullText = [
                 result.changesOverview || '',
@@ -939,22 +939,25 @@
                 result.coverLetter || '',
                 result.recruiterTips || ''
             ].join('\n\n');
-            
+
             console.log('📏 Text length:', fullText.length);
-            
+
             // Extract stats with SMART calculation
             const stats = extractStats(fullText, result);
             console.log('📊 Extracted stats:', stats);
-            
+
             // Update UI
             updateStats(stats.matchScore, stats.changesCount);
-            
+
+            // Update rate limit display
+            updateRateLimitDisplay(result.rateLimit);
+
             // Render all content with beautiful formatting
             renderChangesContent(result.changesOverview);
             renderCVContent(result.improvedCV);
             renderMarkdownContent('coverLetter', result.coverLetter);
             renderRecruiterTipsChecklist(result.recruiterTips);
-            
+
             console.log('🎉 ALL DONE!');
         }
 
@@ -1028,14 +1031,53 @@
 
         function updateStats(matchScore, changesCount) {
             console.log('📊 Updating stats in UI...');
-            
+
             const matchScoreEl = document.getElementById('matchScore');
             const changesCountEl = document.getElementById('changesCount');
-            
+
             animateNumber(matchScoreEl, 0, matchScore, 1500, '%');
             animateNumber(changesCountEl, 0, changesCount, 1000, '');
-            
+
             console.log('✅ Stats updated');
+        }
+
+        function updateRateLimitDisplay(rateLimit) {
+            if (!rateLimit) {
+                console.log('⚠️ No rate limit data available');
+                return;
+            }
+
+            console.log('📊 Updating rate limit display:', rateLimit);
+
+            const usageEl = document.getElementById('rateLimitUsage');
+            const subtextEl = document.getElementById('rateLimitSubtext');
+
+            if (rateLimit.isDeveloperMode) {
+                // Developer mode: show unlimited
+                usageEl.textContent = `${rateLimit.used}/∞`;
+                usageEl.style.backgroundImage = 'linear-gradient(to right, #f59e0b, #eab308)'; // Gold gradient
+                subtextEl.innerHTML = '🔓 <strong>Developer Mode</strong>';
+                subtextEl.style.color = '#f59e0b';
+                console.log('🔓 Developer mode active');
+            } else {
+                // Normal mode: show usage
+                usageEl.textContent = `${rateLimit.used}/${rateLimit.total}`;
+
+                // Change color based on usage
+                const percentageUsed = (rateLimit.used / rateLimit.total) * 100;
+                if (percentageUsed >= 90) {
+                    usageEl.style.backgroundImage = 'linear-gradient(to right, #ef4444, #dc2626)'; // Red
+                } else if (percentageUsed >= 70) {
+                    usageEl.style.backgroundImage = 'linear-gradient(to right, #f59e0b, #d97706)'; // Orange
+                } else {
+                    usageEl.style.backgroundImage = 'linear-gradient(to right, #10b981, #14b8a6)'; // Green
+                }
+
+                subtextEl.textContent = `${rateLimit.remaining} remaining`;
+                subtextEl.style.color = '#9ca3af';
+            }
+
+            console.log('✅ Rate limit display updated');
         }
 
         function animateNumber(element, start, end, duration, suffix = '') {

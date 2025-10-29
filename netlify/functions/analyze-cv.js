@@ -102,8 +102,19 @@ exports.handler = async (event) => {
       console.log(`💰 Saved API cost! Hit count: ${cachedResult.metadata.hitCount}`);
       return {
         statusCode: 200,
-        headers,
-        body: JSON.stringify(cachedResult),
+        headers: {
+          ...headers,
+          ...rateLimit.headers
+        },
+        body: JSON.stringify({
+          ...cachedResult,
+          rateLimit: {
+            used: rateLimit.used,
+            total: rateLimit.total,
+            remaining: rateLimit.remaining,
+            isDeveloperMode: rateLimit.isDeveloperMode
+          }
+        }),
       };
     }
     console.log('❌ Cache miss - proceeding...');
@@ -234,9 +245,21 @@ exports.handler = async (event) => {
 
         // --- Success Return ---
         console.log('✅ Processing complete. Returning successful response.');
+
+        // Add rate limit info to response
+        responseData.rateLimit = {
+          used: rateLimit.used,
+          total: rateLimit.total,
+          remaining: rateLimit.remaining,
+          isDeveloperMode: rateLimit.isDeveloperMode
+        };
+
         return {
           statusCode: 200,
-          headers,
+          headers: {
+            ...headers,
+            ...rateLimit.headers
+          },
           body: JSON.stringify(responseData),
         };
 

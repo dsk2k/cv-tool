@@ -3,7 +3,9 @@
     "allow": [
       "Bash(git config:*)",
       "Bash(git remote:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm outdated:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

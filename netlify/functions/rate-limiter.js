@@ -22,10 +22,30 @@ const RATE_LIMITS = {
 };
 
 /**
+ * Check if IP is whitelisted for developer mode
+ * Whitelisted IPs bypass rate limiting
+ * Set DEV_WHITELIST_IPS environment variable with comma-separated IPs
+ * Example: "127.0.0.1,192.168.1.100,84.85.54.18"
+ */
+function isWhitelistedIP(ip) {
+  const whitelist = process.env.DEV_WHITELIST_IPS || '';
+  if (!whitelist) return false;
+
+  const whitelistedIPs = whitelist.split(',').map(ip => ip.trim());
+  const isWhitelisted = whitelistedIPs.includes(ip);
+
+  if (isWhitelisted) {
+    console.log(`🔓 DEVELOPER MODE: IP ${ip} is whitelisted - unlimited tries`);
+  }
+
+  return isWhitelisted;
+}
+
+/**
  * Check if request should be rate limited
  * @param {string} identifier - IP address or user identifier
  * @param {string} limitType - Type of limit ('ip' or 'global')
- * @returns {Promise<{allowed: boolean, remaining: number, resetAt: Date}>}
+ * @returns {Promise<{allowed: boolean, remaining: number, resetAt: Date, used: number, total: number, isDeveloperMode: boolean}>}
  */
 async function checkRateLimit(identifier, limitType = 'ip') {
   try {
@@ -33,6 +53,9 @@ async function checkRateLimit(identifier, limitType = 'ip') {
     if (!config) {
       throw new Error(`Invalid limit type: ${limitType}`);
     }
+
+    // Check if IP is whitelisted for developer mode
+    const isDeveloperMode = isWhitelistedIP(identifier);
 
     const now = new Date();
     const windowStart = new Date(now.getTime() - config.window);
@@ -43,7 +66,7 @@ async function checkRateLimit(identifier, limitType = 'ip') {
       .delete()
       .lt('timestamp', windowStart.toISOString());
 
-    // Count requests in current window
+    // Count requests in current window (even for whitelisted IPs, for display purposes)
     const { data, error } = await supabase
       .from('rate_limits')
       .select('*')
@@ -54,20 +77,54 @@ async function checkRateLimit(identifier, limitType = 'ip') {
     if (error) {
       console.error('Rate limit check error:', error);
       // Fail open - allow request if rate limit check fails
-      return { allowed: true, remaining: config.max, resetAt: new Date(now.getTime() + config.window) };
+      return {
+        allowed: true,
+        remaining: config.max,
+        resetAt: new Date(now.getTime() + config.window),
+        used: 0,
+        total: config.max,
+        isDeveloperMode
+      };
     }
 
     const requestCount = data?.length || 0;
     const remaining = Math.max(0, config.max - requestCount);
     const resetAt = new Date(now.getTime() + config.window);
 
+    // Developer mode: always allow, but still track usage
+    if (isDeveloperMode) {
+      // Still record the request for statistics
+      await supabase
+        .from('rate_limits')
+        .insert({
+          identifier,
+          limit_type: limitType,
+          timestamp: now.toISOString()
+        });
+
+      console.log(`🔓 Developer mode: ${requestCount + 1} requests (unlimited)`);
+
+      return {
+        allowed: true,
+        remaining: 999999, // Unlimited
+        resetAt,
+        used: requestCount + 1,
+        total: 999999,
+        isDeveloperMode: true
+      };
+    }
+
+    // Normal mode: check rate limit
     if (requestCount >= config.max) {
       console.log(`⛔ Rate limit exceeded for ${identifier} (${limitType}): ${requestCount}/${config.max}`);
       return {
         allowed: false,
         remaining: 0,
         resetAt,
-        message: config.message
+        message: config.message,
+        used: requestCount,
+        total: config.max,
+        isDeveloperMode: false
       };
     }
 
@@ -85,13 +142,23 @@ async function checkRateLimit(identifier, limitType = 'ip') {
     return {
       allowed: true,
       remaining: remaining - 1,
-      resetAt
+      resetAt,
+      used: requestCount + 1,
+      total: config.max,
+      isDeveloperMode: false
     };
 
   } catch (error) {
     console.error('Rate limiter error:', error);
     // Fail open - allow request if something goes wrong
-    return { allowed: true, remaining: 99, resetAt: new Date() };
+    return {
+      allowed: true,
+      remaining: 99,
+      resetAt: new Date(),
+      used: 0,
+      total: 100,
+      isDeveloperMode: false
+    };
   }
 }
 
@@ -121,9 +188,11 @@ async function rateLimitMiddleware(event, options = {}) {
     ...result,
     ip,
     headers: {
-      'X-RateLimit-Limit': RATE_LIMITS[limitType].max.toString(),
+      'X-RateLimit-Limit': result.total.toString(),
       'X-RateLimit-Remaining': result.remaining.toString(),
       'X-RateLimit-Reset': result.resetAt.toISOString(),
+      'X-RateLimit-Used': result.used.toString(),
+      'X-Developer-Mode': result.isDeveloperMode ? 'true' : 'false'
     }
   };
 }
@@ -154,5 +223,6 @@ module.exports = {
   rateLimitResponse,
   checkRateLimit,
   getClientIP,
+  isWhitelistedIP,
   RATE_LIMITS
 };
