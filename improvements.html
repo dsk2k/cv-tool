@@ -763,33 +763,75 @@
                 </div>
             </div>
 
-            <!-- Cover Letter (Collapsible) -->
-            <div class="glass-card rounded-2xl shadow-2xl animate-slide-up overflow-hidden">
-                <div class="collapsible-header" onclick="toggleSection('cover')">
-                    <div class="flex items-center gap-3">
-                        <span class="text-4xl float-animation">💼</span>
-                        <span class="text-2xl font-bold">Aanbevelingsbrief</span>
+            <!-- Cover Letter (Collapsible) - Premium Design -->
+            <div class="glass-card rounded-2xl shadow-2xl animate-slide-up overflow-hidden" style="border: 2px solid rgba(102,126,234,0.1);">
+                <div class="collapsible-header" onclick="toggleSection('cover')" style="
+                    background: linear-gradient(135deg, rgba(102,126,234,0.05) 0%, rgba(118,75,162,0.05) 100%);
+                    border-bottom: 2px solid rgba(102,126,234,0.1);
+                    padding: 2rem;
+                ">
+                    <div class="flex items-center gap-4">
+                        <div style="
+                            width: 64px;
+                            height: 64px;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            border-radius: 16px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 2rem;
+                            box-shadow: 0 8px 16px rgba(102,126,234,0.3);
+                        " class="float-animation">💼</div>
+                        <div>
+                            <span class="text-2xl font-bold" style="color: #1f2937;">Aanbevelingsbrief</span>
+                            <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem;">Professionele cover letter gegenereerd door AI</p>
+                        </div>
                     </div>
-                    <span id="cover-icon" class="collapse-icon rotated">▼</span>
+                    <span id="cover-icon" class="collapse-icon rotated" style="color: #667eea; font-size: 1.5rem;">▼</span>
                 </div>
-                <div id="cover-content" class="collapsible-content expanded">
-                    <div id="coverLetter" class="prose max-w-none">
+                <div id="cover-content" class="collapsible-content expanded" style="padding: 2.5rem;">
+                    <div id="coverLetter" class="prose max-w-none" style="
+                        font-size: 1.0625rem;
+                        line-height: 1.8;
+                        color: #374151;
+                    ">
                         <p class="text-gray-600">Content wordt geladen...</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Recruiter Tips (Collapsible) -->
-            <div class="glass-card rounded-2xl shadow-2xl animate-slide-up overflow-hidden">
-                <div class="collapsible-header" onclick="toggleSection('tips')">
-                    <div class="flex items-center gap-3">
-                        <span class="text-4xl float-animation">💡</span>
-                        <span class="text-2xl font-bold">Recruiter Tips</span>
+            <!-- Recruiter Tips (Collapsible) - Premium Design -->
+            <div class="glass-card rounded-2xl shadow-2xl animate-slide-up overflow-hidden" style="border: 2px solid rgba(251,191,36,0.2);">
+                <div class="collapsible-header" onclick="toggleSection('tips')" style="
+                    background: linear-gradient(135deg, rgba(251,191,36,0.05) 0%, rgba(245,158,11,0.05) 100%);
+                    border-bottom: 2px solid rgba(251,191,36,0.15);
+                    padding: 2rem;
+                ">
+                    <div class="flex items-center gap-4">
+                        <div style="
+                            width: 64px;
+                            height: 64px;
+                            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+                            border-radius: 16px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 2rem;
+                            box-shadow: 0 8px 16px rgba(251,191,36,0.3);
+                        " class="float-animation">💡</div>
+                        <div>
+                            <span class="text-2xl font-bold" style="color: #1f2937;">Recruiter Tips</span>
+                            <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem;">Insider tips van recruitment professionals</p>
+                        </div>
                     </div>
-                    <span id="tips-icon" class="collapse-icon rotated">▼</span>
+                    <span id="tips-icon" class="collapse-icon rotated" style="color: #f59e0b; font-size: 1.5rem;">▼</span>
                 </div>
-                <div id="tips-content" class="collapsible-content expanded">
-                    <div id="recruiterTips" class="prose max-w-none">
+                <div id="tips-content" class="collapsible-content expanded" style="padding: 2.5rem;">
+                    <div id="recruiterTips" class="prose max-w-none" style="
+                        font-size: 1.0625rem;
+                        line-height: 1.8;
+                        color: #374151;
+                    ">
                         <p class="text-gray-600">Content wordt geladen...</p>
                     </div>
                 </div>
