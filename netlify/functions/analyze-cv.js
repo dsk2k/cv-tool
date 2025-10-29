@@ -156,7 +156,7 @@ exports.handler = async (event) => {
         console.log(`✅ Prompt created successfully. Length: ${prompt.length} chars.`);
 
         // Call Gemini API
-        const modelName = 'gemini-1.5-flash'; // Use the model you have access to
+        const modelName = 'gemini-2.0-flash'; // Use the model you have access to
         console.log(`🤖 Attempting to get model: ${modelName}`);
         const model = genAI.getGenerativeModel({ model: modelName });
         console.log('✅ Model obtained successfully.');
