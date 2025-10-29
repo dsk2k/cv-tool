@@ -84,7 +84,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (step1) {
                     step1.classList.add('completed');
                     step1.classList.remove('active');
-                    step1.querySelector('.step-spinner').textContent = '✅';
+                    const spinner = step1.querySelector('.step-spinner');
+                    if (spinner) spinner.textContent = '✅';
                     step1.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(5,150,105,0.08) 100%)';
                     step1.style.border = '1.5px solid rgba(16,185,129,0.2)';
                     step1.style.boxShadow = '0 4px 12px rgba(16,185,129,0.08)';
@@ -123,7 +124,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (step2) {
                     step2.classList.add('completed');
                     step2.classList.remove('active');
-                    step2.querySelector('.step-spinner').textContent = '✅';
+                    const spinner2 = step2.querySelector('.step-spinner');
+                    if (spinner2) spinner2.textContent = '✅';
                     step2.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(5,150,105,0.08) 100%)';
                     step2.style.border = '1.5px solid rgba(16,185,129,0.2)';
                     step2.style.boxShadow = '0 4px 12px rgba(16,185,129,0.08)';
