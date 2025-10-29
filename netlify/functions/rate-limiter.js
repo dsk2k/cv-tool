@@ -24,21 +24,45 @@ const RATE_LIMITS = {
 /**
  * Check if IP is whitelisted for developer mode
  * Whitelisted IPs bypass rate limiting
+ *
+ * SECURITY NOTE: This function safely checks if an IP is whitelisted without
+ * exposing the whitelist itself. The DEV_WHITELIST_IPS variable is never logged,
+ * returned, or exposed in any way. Only the result (boolean) is used.
+ *
  * Set DEV_WHITELIST_IPS environment variable with comma-separated IPs
  * Example: "127.0.0.1,192.168.1.100,84.85.54.18"
  */
 function isWhitelistedIP(ip) {
-  const whitelist = process.env.DEV_WHITELIST_IPS || '';
-  if (!whitelist) return false;
+  try {
+    // Safely access environment variable (never log or expose this value)
+    const whitelist = process.env.DEV_WHITELIST_IPS;
 
-  const whitelistedIPs = whitelist.split(',').map(ip => ip.trim());
-  const isWhitelisted = whitelistedIPs.includes(ip);
+    // If not set, return false (no whitelist = no developer mode)
+    if (!whitelist || whitelist.trim() === '') {
+      return false;
+    }
 
-  if (isWhitelisted) {
-    console.log(`🔓 DEVELOPER MODE: IP ${ip} is whitelisted - unlimited tries`);
+    // Parse whitelist (value never leaves this function scope)
+    const whitelistedIPs = whitelist
+      .split(',')
+      .map(item => item.trim())
+      .filter(item => item.length > 0);
+
+    // Check if current IP is in whitelist
+    const isWhitelisted = whitelistedIPs.includes(ip);
+
+    // Only log if whitelisted (never log the whitelist itself)
+    if (isWhitelisted) {
+      // Safe to log: only confirms this specific IP is whitelisted
+      console.log(`🔓 DEVELOPER MODE: IP ${ip} is whitelisted`);
+    }
+
+    return isWhitelisted;
+  } catch (error) {
+    // If anything goes wrong, fail closed (no developer mode)
+    console.error('Error checking whitelist (failing closed):', error.message);
+    return false;
   }
-
-  return isWhitelisted;
 }
 
 /**
