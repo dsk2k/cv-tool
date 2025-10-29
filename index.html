@@ -901,24 +901,86 @@
             </h3>
             
             <form id="cvForm" class="space-y-6">
-                <!-- CV Upload -->
+                <!-- CV Upload with Drag & Drop -->
                 <div>
-                    <label class="block text-gray-700 font-semibold mb-2" data-i18n="form-cv-label">
+                    <label class="block text-gray-700 font-semibold mb-3" data-i18n="form-cv-label">
                         Your Current CV *
                     </label>
-                    <div class="relative">
-                        <input 
-                            type="file" 
-                            id="cvFile" 
+
+                    <!-- Drag & Drop Zone -->
+                    <div id="dropZone" class="relative border-3 border-dashed border-indigo-300 rounded-xl p-8 text-center transition-all duration-300 hover:border-indigo-500 hover:bg-indigo-50 cursor-pointer">
+                        <input
+                            type="file"
+                            id="cvFile"
                             name="cvFile"
                             accept=".pdf,.doc,.docx"
-                            required 
-                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-700 file:font-semibold hover:file:bg-indigo-100"
+                            required
+                            class="hidden"
+                            onchange="handleFileSelect(event)"
                         />
+
+                        <!-- Upload Icon & Text -->
+                        <div id="uploadPrompt" class="space-y-3">
+                            <svg class="mx-auto h-16 w-16 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            <div>
+                                <p class="text-lg font-semibold text-gray-700">
+                                    <label for="cvFile" class="text-indigo-600 hover:text-indigo-700 cursor-pointer">Click to upload</label> or drag and drop
+                                </p>
+                                <p class="text-sm text-gray-500 mt-1">PDF, DOC, DOCX up to 10MB</p>
+                            </div>
+                        </div>
+
+                        <!-- File Preview (hidden by default) -->
+                        <div id="filePreview" class="hidden">
+                            <div class="flex items-center justify-center gap-3 bg-green-50 p-4 rounded-lg">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-10 w-10 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div class="flex-1 text-left">
+                                    <p id="fileName" class="font-semibold text-gray-900"></p>
+                                    <p id="fileSize" class="text-sm text-gray-600"></p>
+                                </div>
+                                <button type="button" onclick="clearFile()" class="flex-shrink-0 text-red-500 hover:text-red-700">
+                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Error Message -->
+                        <div id="fileError" class="hidden mt-3">
+                            <p class="text-sm text-red-600 font-semibold"></p>
+                        </div>
                     </div>
-                    <p class="text-sm text-gray-500 mt-2" data-i18n="form-cv-help">
-                        Upload your CV in PDF, DOC, or DOCX format
-                    </p>
+
+                    <!-- Supported Formats Info -->
+                    <div class="mt-3 flex flex-wrap gap-2 items-center text-sm text-gray-600">
+                        <span class="font-semibold">Supported formats:</span>
+                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-red-50 text-red-700 rounded-md">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                            </svg>
+                            PDF
+                        </span>
+                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-md">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                            </svg>
+                            DOC
+                        </span>
+                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-md">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                            </svg>
+                            DOCX
+                        </span>
+                        <span class="text-gray-400">• Max 10MB</span>
+                    </div>
                 </div>
 
                 <!-- Job Description -->
@@ -1145,6 +1207,151 @@
             } else {
                 content.classList.add('hidden');
                 icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // ============================================
+        // FILE UPLOAD & VALIDATION
+        // ============================================
+
+        const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+        const ALLOWED_TYPES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        const ALLOWED_EXTENSIONS = ['.pdf', '.doc', '.docx'];
+
+        // Drag and drop handlers
+        const dropZone = document.getElementById('dropZone');
+
+        if (dropZone) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.add('border-indigo-600', 'bg-indigo-100');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.remove('border-indigo-600', 'bg-indigo-100');
+                }, false);
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            }, false);
+
+            // Click to upload
+            dropZone.addEventListener('click', (e) => {
+                if (e.target.id !== 'cvFile' && !e.target.closest('button')) {
+                    document.getElementById('cvFile').click();
+                }
+            });
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        function handleFile(file) {
+            // Hide any previous errors
+            const errorDiv = document.getElementById('fileError');
+            errorDiv.classList.add('hidden');
+
+            // Validate file type
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            if (!ALLOWED_EXTENSIONS.includes(fileExtension) && !ALLOWED_TYPES.includes(file.type)) {
+                showFileError(`Invalid file type. Please upload PDF, DOC, or DOCX files only.`);
+                if (window.trackEvent) {
+                    window.trackEvent('file_upload_error', {error_type: 'invalid_type', file_type: fileExtension});
+                }
+                return;
+            }
+
+            // Validate file size
+            if (file.size > MAX_FILE_SIZE) {
+                const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                showFileError(`File is too large (${sizeMB}MB). Maximum size is 10MB.`);
+                if (window.trackEvent) {
+                    window.trackEvent('file_upload_error', {error_type: 'too_large', file_size_mb: sizeMB});
+                }
+                return;
+            }
+
+            // File is valid - show preview
+            showFilePreview(file);
+
+            // Track successful upload
+            if (window.trackEvent) {
+                window.trackEvent('file_uploaded', {
+                    file_type: fileExtension,
+                    file_size_mb: (file.size / (1024 * 1024)).toFixed(2)
+                });
+            }
+        }
+
+        function showFilePreview(file) {
+            const uploadPrompt = document.getElementById('uploadPrompt');
+            const filePreview = document.getElementById('filePreview');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+
+            // Hide upload prompt, show preview
+            uploadPrompt.classList.add('hidden');
+            filePreview.classList.remove('hidden');
+
+            // Update preview info
+            fileName.textContent = file.name;
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            fileSize.textContent = `${sizeMB} MB`;
+
+            // Change drop zone appearance
+            dropZone.classList.remove('border-indigo-300');
+            dropZone.classList.add('border-green-400', 'bg-green-50');
+        }
+
+        function showFileError(message) {
+            const errorDiv = document.getElementById('fileError');
+            const errorText = errorDiv.querySelector('p');
+
+            errorText.textContent = '⚠️ ' + message;
+            errorDiv.classList.remove('hidden');
+
+            // Reset file input
+            document.getElementById('cvFile').value = '';
+        }
+
+        function clearFile() {
+            const uploadPrompt = document.getElementById('uploadPrompt');
+            const filePreview = document.getElementById('filePreview');
+            const cvFileInput = document.getElementById('cvFile');
+
+            // Reset input
+            cvFileInput.value = '';
+
+            // Show upload prompt, hide preview
+            uploadPrompt.classList.remove('hidden');
+            filePreview.classList.add('hidden');
+
+            // Reset drop zone appearance
+            dropZone.classList.remove('border-green-400', 'bg-green-50');
+            dropZone.classList.add('border-indigo-300');
+
+            // Track file removal
+            if (window.trackEvent) {
+                window.trackEvent('file_removed');
             }
         }
 
