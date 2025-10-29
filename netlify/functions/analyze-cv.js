@@ -7,6 +7,18 @@ const { rateLimitMiddleware, rateLimitResponse } = require('./rate-limiter');
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+// Prompt Text Markers
+const ALL_START_MARKERS = [
+  '---IMPROVED_CV_NL_START---',
+  '---IMPROVED_CV_EN_START---',
+  '---COVER_LETTER_NL_START---',
+  '---COVER_LETTER_EN_START---',
+  '---RECRUITER_TIPS_NL_START---',
+  '---RECRUITER_TIPS_EN_START---',
+  '---CHANGES_OVERVIEW_NL_START---',
+  '---CHANGES_OVERVIEW_EN_START---'
+];
+
 exports.handler = async (event) => {
   // CORS headers - secure configuration
   const allowedOrigins = [
@@ -242,7 +254,7 @@ exports.handler = async (event) => {
 
 /**
  * Extract a section from the full text using start and end markers
- * Now with robust fallback strategies
+ * NIEUWE ROBUUSTE VERSIE
  */
 function extractSection(fullText, startMarker, endMarker, fallbackMessage) {
   try {
@@ -254,38 +266,55 @@ function extractSection(fullText, startMarker, endMarker, fallbackMessage) {
     }
 
     const contentStart = startIndex + startMarker.length;
+    
+    // 1. Probeer eerst de correcte, verwachte eind-tag te vinden
     let endIndex = fullText.indexOf(endMarker, contentStart);
     
-    // If end marker not found, try to find the next section marker
+    // 2. ROBUUSTE FALLBACK: Als de eind-tag mist...
     if (endIndex === -1) {
-      console.log(`⚠️  Could not find ${endMarker}, using next section or end of text`);
-      const nextMarkers = [
-        '---IMPROVED_CV_START---',
-        '---IMPROVED_CV_END---',
-        '---COVER_LETTER_START---',
-        '---COVER_LETTER_END---',
-        '---RECRUITER_TIPS_START---',
-        '---RECRUITER_TIPS_END---',
-        '---CHANGES_OVERVIEW_START---',
-        '---CHANGES_OVERVIEW_END---'
-      ].filter(m => m !== startMarker && m !== endMarker);
+      console.log(`⚠️  Could not find ${endMarker}. Using ROBUST FALLBACK (searching for next START marker).`);
+      
+      let nearestNextStartIndex = fullText.length; // Standaard tot het einde van de tekst
 
-      // Find the nearest next marker
-      let nearestIndex = fullText.length;
-      for (const marker of nextMarkers) {
-        const idx = fullText.indexOf(marker, contentStart);
-        if (idx !== -1 && idx < nearestIndex) {
-          nearestIndex = idx;
+      // 3. Zoek de EERSTVOLGENDE *andere* START-tag
+      for (const marker of ALL_START_MARKERS) {
+        // Zoek niet naar zichzelf
+        if (marker === startMarker) continue; 
+        
+        const nextMarkerIndex = fullText.indexOf(marker, contentStart);
+        
+        // Als we een tag vinden, en deze is dichterbij dan de vorige...
+        if (nextMarkerIndex !== -1 && nextMarkerIndex < nearestNextStartIndex) {
+          nearestNextStartIndex = nextMarkerIndex;
         }
       }
-      endIndex = nearestIndex;
+      
+      endIndex = nearestNextStartIndex;
+      console.log(`✅ Robust fallback found end at index ${endIndex}.`);
     }
 
-    const content = fullText.substring(contentStart, endIndex).trim();
+    // 4. Extraheer de content
+    let content = fullText.substring(contentStart, endIndex).trim();
 
+    // 5. VALIDATIE & OPSCHONING (De 'extra' veiligheidsgordel)
+    
+    // Controleer op minimale lengte
     if (!content || content.length < 10) {
       console.log(`⚠️  Extracted content too short: ${content.length} chars`);
       return { success: false, content: fallbackMessage };
+    }
+
+    // Controleer op "vervuiling" (of de content per ongeluk een *andere* start-tag bevat)
+    for (const marker of ALL_START_MARKERS) {
+      if (marker === startMarker) continue;
+      
+      if (content.includes(marker)) {
+        console.log(`❌ VALIDATION FAILED: Content for ${startMarker} is contaminated with ${marker}!`);
+        // Probeer de content op te schonen door deze af te knippen
+        const contaminationIndex = content.indexOf(marker);
+        content = content.substring(0, contaminationIndex).trim();
+        console.log(`✨ Content cleaned. New length: ${content.length}`);
+      }
     }
 
     return { success: true, content };
