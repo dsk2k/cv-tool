@@ -242,38 +242,48 @@ exports.handler = async (event) => {
         // --- End Save to Cache ---
 
         // --- Final Summary Logging ---
-        console.log('\n--- FINAL DATA SUMMARY ---');
-        console.log(`CV: ${improvedCV.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${improvedCV.content.length} chars)`);
-        console.log(`Cover Letter: ${coverLetter.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${coverLetter.content.length} chars)`);
-        console.log(`Tips: ${recruiterTips.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${recruiterTips.content.length} chars)`);
-        console.log(`Changes: ${changesOverview.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${changesOverview.content.length} chars)`);
-        console.log('--- END SUMMARY ---\n');
+        try {
+          console.log('\n--- FINAL DATA SUMMARY ---');
+          console.log(`CV: ${improvedCV?.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${improvedCV?.content?.length || 0} chars)`);
+          console.log(`Cover Letter: ${coverLetter?.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${coverLetter?.content?.length || 0} chars)`);
+          console.log(`Tips: ${recruiterTips?.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${recruiterTips?.content?.length || 0} chars)`);
+          console.log(`Changes: ${changesOverview?.success ? '✅ EXTRACTED' : '❌ FALLBACK'} (${changesOverview?.content?.length || 0} chars)`);
+          console.log('--- END SUMMARY ---\n');
+        } catch (logError) {
+          console.error('❌ Error in summary logging (non-critical):', logError.message);
+        }
 
         // --- Success Return ---
         console.log('✅ Processing complete. Returning successful response.');
 
         // Add rate limit info to response (with safe defaults)
-        responseData.rateLimit = {
-          used: rateLimit?.used || 0,
-          total: rateLimit?.total || 10,
-          remaining: rateLimit?.remaining || 10,
-          isDeveloperMode: rateLimit?.isDeveloperMode || false
-        };
+        try {
+          responseData.rateLimit = {
+            used: rateLimit?.used || 0,
+            total: rateLimit?.total || 10,
+            remaining: rateLimit?.remaining || 10,
+            isDeveloperMode: rateLimit?.isDeveloperMode || false
+          };
 
-        console.log('📊 Rate limit info:', responseData.rateLimit);
-        console.log('📦 Response data keys:', Object.keys(responseData));
+          console.log('📊 Rate limit info added');
+          console.log('📦 Response keys:', Object.keys(responseData).join(', '));
 
-        const responseBody = JSON.stringify(responseData);
-        console.log('📏 Response body size:', responseBody.length, 'chars');
+          const responseBody = JSON.stringify(responseData);
+          console.log('📏 Response size:', responseBody.length, 'chars');
 
-        return {
-          statusCode: 200,
-          headers: {
-            ...headers,
-            ...(rateLimit?.headers || {})
-          },
-          body: responseBody,
-        };
+          return {
+            statusCode: 200,
+            headers: {
+              ...headers,
+              ...(rateLimit?.headers || {})
+            },
+            body: responseBody,
+          };
+        } catch (responseError) {
+          console.error('❌ CRITICAL: Error building response:', responseError);
+          console.error('Stack:', responseError.stack);
+          throw responseError; // Re-throw to outer catch
+        }
 
     } catch (apiError) { // Catch errors specifically from the inner try block (Prompt/API/Extraction)
         console.error('❌❌ CRITICAL ERROR during AI processing phase: ❌❌');

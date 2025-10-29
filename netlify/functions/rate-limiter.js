@@ -30,30 +30,16 @@ const RATE_LIMITS = {
  * returned, or exposed in any way. Only the result (boolean) is used.
  *
  * Set DEV_WHITELIST_IPS environment variable with comma-separated IPs
- * Example: "127.0.0.1,192.168.1.100,[REDACTED]"
+ * Example: "192.168.1.100,10.0.0.5" (use your actual IP addresses)
  */
 function isWhitelistedIP(ip) {
   try {
-    // TEMPORARY HARDCODED WHITELIST (for development/testing)
-    // Remove this once environment variable is confirmed working
-    const TEMP_HARDCODED_WHITELIST = ['[REDACTED]'];
-
-    console.log(`🔍 Checking whitelist for IP: ${ip}`);
-
-    // Check temporary hardcoded whitelist first
-    if (TEMP_HARDCODED_WHITELIST.includes(ip)) {
-      console.log(`🔓 DEVELOPER MODE ACTIVATED (hardcoded): IP ${ip} is whitelisted`);
-      return true;
-    }
-
-    // Debug: Check if environment variable is available
+    // Check environment variable for whitelisted IPs (NO hardcoded IPs for security)
     const whitelist = process.env.DEV_WHITELIST_IPS;
-    console.log(`🔍 Whitelist env var configured: ${whitelist ? 'YES' : 'NO'}`);
 
-    // If not set, use hardcoded fallback above
+    // If not configured, no developer mode
     if (!whitelist || whitelist.trim() === '') {
-      console.log(`⚠️ No env whitelist configured - using hardcoded fallback`);
-      return false; // Already checked hardcoded above
+      return false;
     }
 
     // Parse whitelist (value never leaves this function scope)
@@ -62,22 +48,18 @@ function isWhitelistedIP(ip) {
       .map(item => item.trim())
       .filter(item => item.length > 0);
 
-    console.log(`🔍 Checking against ${whitelistedIPs.length} env whitelisted IP(s)`);
-
     // Check if current IP is in whitelist
     const isWhitelisted = whitelistedIPs.includes(ip);
 
-    // Log result
+    // Log result (without exposing IP for privacy)
     if (isWhitelisted) {
-      console.log(`🔓 DEVELOPER MODE ACTIVATED (env var): IP ${ip} is whitelisted`);
-    } else {
-      console.log(`⛔ IP ${ip} is NOT whitelisted - normal rate limiting applies`);
+      console.log(`🔓 DEVELOPER MODE ACTIVATED`);
     }
 
     return isWhitelisted;
   } catch (error) {
     // If anything goes wrong, fail closed (no developer mode)
-    console.error('❌ Error checking whitelist (failing closed):', error.message);
+    console.error('❌ Error checking whitelist:', error.message);
     return false;
   }
 }
