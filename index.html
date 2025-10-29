@@ -1253,6 +1253,90 @@
                     </p>
                 </div>
 
+                <!-- 🌍 Language Selector -->
+                <div>
+                    <label class="block text-gray-900 font-bold mb-4 text-lg">
+                        🌍 Taal Voorkeur / Language Preference
+                    </label>
+
+                    <div class="bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl border-2 border-gray-200">
+                        <p class="text-sm text-gray-600 mb-4 font-medium">
+                            Kies de taal voor jouw geoptimaliseerde CV en feedback
+                        </p>
+
+                        <!-- Toggle Switch -->
+                        <div class="flex items-center justify-center gap-4">
+                            <!-- Dutch Option -->
+                            <div id="lang-nl-option" class="language-option active" onclick="selectLanguage('nl')" style="
+                                flex: 1;
+                                padding: 1.25rem 1.5rem;
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                border: 3px solid #667eea;
+                                border-radius: 16px;
+                                cursor: pointer;
+                                transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+                                transform: scale(1.02);
+                            ">
+                                <div class="flex flex-col items-center gap-2">
+                                    <span style="font-size: 2rem;">🇳🇱</span>
+                                    <span style="font-weight: 700; color: white; font-size: 1.125rem;">Nederlands</span>
+                                    <span style="font-size: 0.875rem; color: rgba(255,255,255,0.9);">Dutch output</span>
+                                    <div class="checkmark" style="
+                                        width: 24px;
+                                        height: 24px;
+                                        background: white;
+                                        border-radius: 50%;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        font-weight: bold;
+                                        color: #667eea;
+                                        margin-top: 0.5rem;
+                                    ">✓</div>
+                                </div>
+                            </div>
+
+                            <!-- English Option -->
+                            <div id="lang-en-option" class="language-option" onclick="selectLanguage('en')" style="
+                                flex: 1;
+                                padding: 1.25rem 1.5rem;
+                                background: white;
+                                border: 3px solid #e5e7eb;
+                                border-radius: 16px;
+                                cursor: pointer;
+                                transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                                transform: scale(1);
+                            ">
+                                <div class="flex flex-col items-center gap-2">
+                                    <span style="font-size: 2rem;">🇬🇧</span>
+                                    <span style="font-weight: 700; color: #1f2937; font-size: 1.125rem;">English</span>
+                                    <span style="font-size: 0.875rem; color: #6b7280;">English output</span>
+                                    <div class="checkmark" style="
+                                        width: 24px;
+                                        height: 24px;
+                                        background: transparent;
+                                        border: 2px solid #d1d5db;
+                                        border-radius: 50%;
+                                        margin-top: 0.5rem;
+                                    "></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hidden input for form submission -->
+                        <input type="hidden" id="language" name="language" value="nl">
+
+                        <!-- Info text -->
+                        <div class="mt-4 flex items-center gap-2 text-xs text-gray-500">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Je geoptimaliseerde CV, motivatiebrief en tips worden in deze taal gegenereerd</span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Email (Optional) -->
                 <div>
                     <label class="block text-gray-700 font-semibold mb-2" data-i18n="form-email-label">
@@ -1634,6 +1718,88 @@
         function scrollToForm() {
             document.getElementById('upload-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+
+        // ============================================
+        // 🌍 LANGUAGE SELECTOR FUNCTIONALITY
+        // ============================================
+
+        function selectLanguage(lang) {
+            // Update hidden input
+            document.getElementById('language').value = lang;
+
+            // Save to localStorage for next visit
+            localStorage.setItem('preferredLanguage', lang);
+
+            // Get both options
+            const nlOption = document.getElementById('lang-nl-option');
+            const enOption = document.getElementById('lang-en-option');
+
+            if (lang === 'nl') {
+                // Activate Dutch
+                nlOption.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                nlOption.style.borderColor = '#667eea';
+                nlOption.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
+                nlOption.style.transform = 'scale(1.02)';
+                nlOption.querySelector('span:nth-of-type(2)').style.color = 'white';
+                nlOption.querySelector('span:nth-of-type(3)').style.color = 'rgba(255,255,255,0.9)';
+                nlOption.querySelector('.checkmark').style.background = 'white';
+                nlOption.querySelector('.checkmark').style.color = '#667eea';
+                nlOption.querySelector('.checkmark').style.border = 'none';
+                nlOption.querySelector('.checkmark').textContent = '✓';
+
+                // Deactivate English
+                enOption.style.background = 'white';
+                enOption.style.borderColor = '#e5e7eb';
+                enOption.style.boxShadow = 'none';
+                enOption.style.transform = 'scale(1)';
+                enOption.querySelector('span:nth-of-type(2)').style.color = '#1f2937';
+                enOption.querySelector('span:nth-of-type(3)').style.color = '#6b7280';
+                enOption.querySelector('.checkmark').style.background = 'transparent';
+                enOption.querySelector('.checkmark').style.border = '2px solid #d1d5db';
+                enOption.querySelector('.checkmark').textContent = '';
+            } else {
+                // Activate English
+                enOption.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                enOption.style.borderColor = '#667eea';
+                enOption.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
+                enOption.style.transform = 'scale(1.02)';
+                enOption.querySelector('span:nth-of-type(2)').style.color = 'white';
+                enOption.querySelector('span:nth-of-type(3)').style.color = 'rgba(255,255,255,0.9)';
+                enOption.querySelector('.checkmark').style.background = 'white';
+                enOption.querySelector('.checkmark').style.color = '#667eea';
+                enOption.querySelector('.checkmark').style.border = 'none';
+                enOption.querySelector('.checkmark').textContent = '✓';
+
+                // Deactivate Dutch
+                nlOption.style.background = 'white';
+                nlOption.style.borderColor = '#e5e7eb';
+                nlOption.style.boxShadow = 'none';
+                nlOption.style.transform = 'scale(1)';
+                nlOption.querySelector('span:nth-of-type(2)').style.color = '#1f2937';
+                nlOption.querySelector('span:nth-of-type(3)').style.color = '#6b7280';
+                nlOption.querySelector('.checkmark').style.background = 'transparent';
+                nlOption.querySelector('.checkmark').style.border = '2px solid #d1d5db';
+                nlOption.querySelector('.checkmark').textContent = '';
+            }
+
+            // Track in GA4
+            if (window.trackEvent) {
+                window.trackEvent('language_selected', {
+                    language: lang,
+                    language_name: lang === 'nl' ? 'Dutch' : 'English'
+                });
+            }
+
+            console.log('🌍 Language selected:', lang);
+        }
+
+        // Load saved language preference on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('preferredLanguage');
+            if (savedLang && (savedLang === 'en' || savedLang === 'nl')) {
+                selectLanguage(savedLang);
+            }
+        });
 
         // ============================================
         // FAQ FUNCTIONALITY

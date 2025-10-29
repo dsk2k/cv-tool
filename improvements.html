@@ -4,6 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Uw Verbeterde CV</title>
+
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX', {
+            'send_page_view': true,
+            'cookie_flags': 'SameSite=None;Secure'
+        });
+
+        // Custom event tracking helper
+        window.trackEvent = function(eventName, eventParams = {}) {
+            gtag('event', eventName, eventParams);
+            console.log('📊 Event tracked:', eventName, eventParams);
+        };
+
+        // Track page view for improvements page
+        if (window.trackEvent) {
+            window.trackEvent('improvements_page_view', {
+                page_title: 'CV Improvements'
+            });
+        }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
@@ -1004,6 +1030,19 @@
                 circle.style.strokeDashoffset = offset;
             }, 500);
 
+            // Track gamification scores in GA4
+            if (window.trackEvent) {
+                window.trackEvent('cv_score_calculated', {
+                    overall_score: overallScore,
+                    total_changes: totalChanges,
+                    ats_score: categorizedChanges.ats?.length * 20 || 0,
+                    impact_score: categorizedChanges.impact?.length * 20 || 0,
+                    polish_score: categorizedChanges.polish?.length * 20 || 0,
+                    structure_score: categorizedChanges.structure?.length * 20 || 0,
+                    targeting_score: categorizedChanges.targeting?.length * 20 || 0
+                });
+            }
+
             // Show achievements
             showAchievements(overallScore, totalChanges);
         }
@@ -1028,9 +1067,28 @@
                 }, index * 200);
             });
 
+            // Track achievements in GA4
+            if (achievements.length > 0 && window.trackEvent) {
+                window.trackEvent('achievements_unlocked', {
+                    achievement_count: achievements.length,
+                    achievements: achievements.map(a => a.text).join(', '),
+                    score: score,
+                    total_changes: totalChanges
+                });
+            }
+
             // Confetti on high score
             if (score >= 85) {
-                setTimeout(() => createConfetti(), 1000);
+                setTimeout(() => {
+                    createConfetti();
+
+                    // Track confetti celebration in GA4
+                    if (window.trackEvent) {
+                        window.trackEvent('confetti_celebration', {
+                            score: score
+                        });
+                    }
+                }, 1000);
             }
         }
 
@@ -1060,6 +1118,13 @@
                 activeCategory = null;
                 // Show all changes
                 document.querySelectorAll('.category-group').forEach(g => g.style.display = 'block');
+
+                // Track category collapse in GA4
+                if (window.trackEvent) {
+                    window.trackEvent('category_collapsed', {
+                        category: catKey
+                    });
+                }
             } else {
                 // Collapse previous
                 document.querySelectorAll('.category-card').forEach(c => c.classList.remove('active'));
@@ -1070,6 +1135,13 @@
                 document.querySelectorAll('.category-group').forEach(g => {
                     g.style.display = g.dataset.category === catKey ? 'block' : 'none';
                 });
+
+                // Track category expansion in GA4
+                if (window.trackEvent) {
+                    window.trackEvent('category_expanded', {
+                        category: catKey
+                    });
+                }
             }
         }
 
@@ -1334,6 +1406,13 @@
             });
 
             console.log(`✅ Collapsed ${allContents.length} items`);
+
+            // Track in GA4
+            if (window.trackEvent) {
+                window.trackEvent('collapse_all_clicked', {
+                    items_count: allContents.length
+                });
+            }
         }
 
         // Expand all changes
@@ -1350,6 +1429,13 @@
             });
 
             console.log(`✅ Expanded ${allContents.length} items`);
+
+            // Track in GA4
+            if (window.trackEvent) {
+                window.trackEvent('expand_all_clicked', {
+                    items_count: allContents.length
+                });
+            }
         }
 
         // OLD FORMAT RENDERER (Fallback for backward compatibility)
@@ -1515,19 +1601,33 @@
         }
 
         function downloadPDF() {
+            // Track PDF download attempt in GA4
+            if (window.trackEvent) {
+                window.trackEvent('pdf_download_attempted', {
+                    status: 'coming_soon'
+                });
+            }
+
             alert('📄 PDF download functionaliteit komt binnenkort!\n\nTip: Gebruik voor nu Ctrl+P (Print) en kies "Save as PDF" 🎉');
         }
 
         function copyCV() {
             const cvContent = document.getElementById('improvedCV').textContent;
             navigator.clipboard.writeText(cvContent).then(() => {
+                // Track successful copy in GA4
+                if (window.trackEvent) {
+                    window.trackEvent('cv_copied', {
+                        content_length: cvContent.length
+                    });
+                }
+
                 // Show success message
                 const button = event.target.closest('button');
                 const originalHTML = button.innerHTML;
                 button.innerHTML = '<span class="text-2xl">✅</span> Gekopieerd!';
                 button.classList.add('bg-green-600', 'hover:bg-green-700');
                 button.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                
+
                 setTimeout(() => {
                     button.innerHTML = originalHTML;
                     button.classList.remove('bg-green-600', 'hover:bg-green-700');
@@ -1535,6 +1635,14 @@
                 }, 2000);
             }).catch(err => {
                 console.error('❌ Error copying:', err);
+
+                // Track copy error in GA4
+                if (window.trackEvent) {
+                    window.trackEvent('cv_copy_error', {
+                        error_message: err.message
+                    });
+                }
+
                 alert('❌ Kon CV niet kopiëren');
             });
         }

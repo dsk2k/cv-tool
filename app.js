@@ -13,13 +13,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const cvFile = document.getElementById('cvFile').files[0];
             const jobDescription = document.getElementById('jobDescription').value.trim();
             const email = document.getElementById('email').value.trim();
-            
+            const language = document.getElementById('language')?.value || 'nl'; // Get language preference
+
             // Validate inputs
             if (!cvFile) {
                 alert('Please upload your CV');
                 return;
             }
-            
+
             if (!jobDescription) {
                 alert('Please paste the job description');
                 return;
@@ -154,8 +155,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const formData = new FormData();
                 formData.append('cvFile', cvFile);
                 formData.append('jobDescription', jobDescription);
+                formData.append('language', language); // Include language preference
                 if (email) {
                     formData.append('email', email);
+                }
+
+                // Track form submission in GA4
+                if (window.trackEvent) {
+                    window.trackEvent('form_submit', {
+                        language: language,
+                        has_email: !!email,
+                        file_type: cvFile.name.split('.').pop(),
+                        file_size_kb: Math.round(cvFile.size / 1024)
+                    });
                 }
                 
                 // Send to backend
@@ -169,20 +181,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 
                 const result = await response.json();
-                
+
                 // Store result in sessionStorage
                 sessionStorage.setItem('cvAnalysisResult', JSON.stringify(result));
-                
+
+                // Track successful analysis in GA4
+                if (window.trackEvent) {
+                    window.trackEvent('cv_analysis_success', {
+                        language: language,
+                        has_email: !!email
+                    });
+                }
+
                 // Redirect to results page
                 window.location.href = 'improvements.html';
                 
             } catch (error) {
                 console.error('Error:', error);
-                
+
+                // Track error in GA4
+                if (window.trackEvent) {
+                    window.trackEvent('cv_analysis_error', {
+                        error_message: error.message,
+                        language: language
+                    });
+                }
+
                 // Hide loading overlay
                 loadingOverlay.classList.add('hidden');
                 loadingOverlay.classList.remove('flex');
-                
+
                 // Show user-friendly error message
                 alert('Sorry, there was an error processing your CV. Please try again or contact support if the problem persists.');
             }
