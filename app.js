@@ -153,15 +153,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 clearTimeout(timeoutId);
-                
+
+                console.log('✅ Response received, status:', response.status);
+
                 if (!response.ok) {
                     throw new Error(`Server error: ${response.status}`);
                 }
-                
+
                 const result = await response.json();
+                console.log('✅ Response parsed successfully');
+                console.log('📦 Response keys:', Object.keys(result));
 
                 // Store result in sessionStorage
-                sessionStorage.setItem('cvAnalysisResult', JSON.stringify(result));
+                try {
+                    const dataToStore = JSON.stringify(result);
+                    console.log('💾 Storing data in sessionStorage, size:', dataToStore.length, 'chars');
+                    sessionStorage.setItem('cvAnalysisResult', dataToStore);
+                    console.log('✅ Data stored successfully in sessionStorage');
+                } catch (storageError) {
+                    console.error('❌ Failed to store in sessionStorage:', storageError);
+                    throw storageError;
+                }
 
                 // Track successful analysis in GA4
                 if (window.trackEvent) {
@@ -171,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
 
+                console.log('🚀 Redirecting to improvements.html');
                 // Redirect to results page
                 window.location.href = 'improvements.html';
                 

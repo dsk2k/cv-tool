@@ -100,21 +100,27 @@ exports.handler = async (event) => {
     if (cachedResult) {
       console.log('✅ Cache HIT - returning cached result!');
       console.log(`💰 Saved API cost! Hit count: ${cachedResult.metadata.hitCount}`);
+
+      const cachedResponse = {
+        ...cachedResult,
+        rateLimit: {
+          used: rateLimit?.used || 0,
+          total: rateLimit?.total || 10,
+          remaining: rateLimit?.remaining || 10,
+          isDeveloperMode: rateLimit?.isDeveloperMode || false
+        }
+      };
+
+      console.log('📊 Rate limit info (cached):', cachedResponse.rateLimit);
+      console.log('📦 Cached response keys:', Object.keys(cachedResponse));
+
       return {
         statusCode: 200,
         headers: {
           ...headers,
-          ...rateLimit.headers
+          ...(rateLimit?.headers || {})
         },
-        body: JSON.stringify({
-          ...cachedResult,
-          rateLimit: {
-            used: rateLimit.used,
-            total: rateLimit.total,
-            remaining: rateLimit.remaining,
-            isDeveloperMode: rateLimit.isDeveloperMode
-          }
-        }),
+        body: JSON.stringify(cachedResponse),
       };
     }
     console.log('❌ Cache miss - proceeding...');
@@ -246,21 +252,27 @@ exports.handler = async (event) => {
         // --- Success Return ---
         console.log('✅ Processing complete. Returning successful response.');
 
-        // Add rate limit info to response
+        // Add rate limit info to response (with safe defaults)
         responseData.rateLimit = {
-          used: rateLimit.used,
-          total: rateLimit.total,
-          remaining: rateLimit.remaining,
-          isDeveloperMode: rateLimit.isDeveloperMode
+          used: rateLimit?.used || 0,
+          total: rateLimit?.total || 10,
+          remaining: rateLimit?.remaining || 10,
+          isDeveloperMode: rateLimit?.isDeveloperMode || false
         };
+
+        console.log('📊 Rate limit info:', responseData.rateLimit);
+        console.log('📦 Response data keys:', Object.keys(responseData));
+
+        const responseBody = JSON.stringify(responseData);
+        console.log('📏 Response body size:', responseBody.length, 'chars');
 
         return {
           statusCode: 200,
           headers: {
             ...headers,
-            ...rateLimit.headers
+            ...(rateLimit?.headers || {})
           },
-          body: JSON.stringify(responseData),
+          body: responseBody,
         };
 
     } catch (apiError) { // Catch errors specifically from the inner try block (Prompt/API/Extraction)
