@@ -309,6 +309,113 @@
         .change-card-collapsible button:active {
             transform: scale(0.98);
         }
+
+        /* 🎮 GAMIFICATION STYLES */
+        .category-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .category-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .category-card.active {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        @keyframes scoreCountUp {
+            from {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .score-animate {
+            animation: scoreCountUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes badgePop {
+            0% {
+                transform: scale(0) rotate(-180deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2) rotate(10deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .badge-animate {
+            animation: badgePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .achievement-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes confetti {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            z-index: 9999;
+            animation: confetti 3s ease-out forwards;
+        }
+
+        .level-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .level-bronze { background: linear-gradient(135deg, #cd7f32 0%, #b87333 100%); color: white; }
+        .level-silver { background: linear-gradient(135deg, #c0c0c0 0%, #a8a8a8 100%); color: white; }
+        .level-gold { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #000; }
+        .level-platinum { background: linear-gradient(135deg, #e5e4e2 0%, #b9f2ff 100%); color: #000; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 min-h-screen">
@@ -446,44 +553,162 @@
 
         <!-- Content Sections -->
         <div class="space-y-6">
-            <!-- Changes Overview (Always Expanded) -->
-            <div class="glass-card rounded-2xl shadow-2xl animate-slide-up overflow-hidden">
-                <div class="collapsible-header" onclick="toggleSection('changes')">
-                    <div class="flex items-center gap-3">
-                        <span class="text-4xl float-animation">📝</span>
-                        <span class="text-2xl font-bold">Wat Is Veranderd & Waarom</span>
-                    </div>
-                    <span id="changes-icon" class="collapse-icon rotated">▼</span>
-                </div>
-                <div id="changes-content" class="collapsible-content expanded">
-                    <!-- Collapse All / Expand All Controls -->
-                    <div class="px-6 pt-6 pb-3 flex items-center justify-between bg-gradient-to-r from-purple-50 to-indigo-50 border-b-2 border-purple-100">
-                        <div class="flex items-center gap-2 text-sm text-gray-600">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="font-medium">Klik op een wijziging om details te zien/verbergen</span>
+            <!-- 🎮 GAMIFIED CV IMPROVEMENT DASHBOARD -->
+            <div class="glass-card rounded-3xl shadow-2xl animate-slide-up overflow-hidden border-2 border-purple-100">
+                <!-- Overall Score Header -->
+                <div class="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 px-8 py-6 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-3xl font-bold mb-2">🎯 Jouw CV Optimalisatie Score</h2>
+                            <p class="text-purple-100 text-lg">Van goed naar uitstekend in 5 categorieën</p>
                         </div>
-                        <div class="flex gap-2">
-                            <button onclick="collapseAllChanges()" class="px-4 py-2 bg-white border-2 border-purple-200 text-purple-700 rounded-lg font-semibold text-sm hover:bg-purple-100 hover:border-purple-300 transition-all hover:scale-105 flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                        <div class="text-center">
+                            <div class="relative inline-block">
+                                <!-- Circular Progress -->
+                                <svg class="w-32 h-32 transform -rotate-90">
+                                    <circle cx="64" cy="64" r="56" stroke="rgba(255,255,255,0.2)" stroke-width="8" fill="none"/>
+                                    <circle id="overall-progress-ring" cx="64" cy="64" r="56" stroke="white" stroke-width="8" fill="none"
+                                            stroke-dasharray="352" stroke-dashoffset="352" stroke-linecap="round"
+                                            style="transition: stroke-dashoffset 1s ease-in-out"/>
                                 </svg>
-                                Alles Inklappen
-                            </button>
-                            <button onclick="expandAllChanges()" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg font-semibold text-sm hover:from-purple-700 hover:to-indigo-700 transition-all hover:scale-105 flex items-center gap-2 shadow-md">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                </svg>
-                                Alles Uitklappen
-                            </button>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                    <span id="overall-score" class="text-4xl font-bold">0</span>
+                                    <span class="text-sm opacity-90">/ 100</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div id="changesContent" class="space-y-6">
+                    <!-- Achievement Badges -->
+                    <div id="achievement-badges" class="mt-6 flex gap-3 flex-wrap">
+                        <!-- Dynamically added badges -->
+                    </div>
+                </div>
+
+                <!-- Category Cards Grid -->
+                <div class="p-6 bg-gradient-to-br from-gray-50 to-white">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                        <!-- Category 1: ATS & Keywords -->
+                        <div class="category-card bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all cursor-pointer hover:scale-105"
+                             data-category="ats" onclick="toggleCategory('ats')">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="p-3 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl">
+                                    <span class="text-3xl">🎯</span>
+                                </div>
+                                <div class="category-score text-right">
+                                    <div class="text-3xl font-bold" id="score-ats" data-color="text-gray-400">--</div>
+                                    <div class="text-xs text-gray-500 font-semibold">/ 100</div>
+                                </div>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-2">ATS & Keywords</h3>
+                            <p class="text-sm text-gray-600 mb-4">Optimalisatie voor recruitment systemen</p>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                <div id="progress-ats" class="h-2 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-1000" style="width: 0%"></div>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-gray-500"><span id="count-ats">0</span> verbeteringen</span>
+                                <span class="font-semibold text-blue-600" id="level-ats">Level 1</span>
+                            </div>
+                        </div>
+
+                        <!-- Category 2: Impact & Achievements -->
+                        <div class="category-card bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all cursor-pointer hover:scale-105"
+                             data-category="impact" onclick="toggleCategory('impact')">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="p-3 bg-gradient-to-br from-green-100 to-green-200 rounded-xl">
+                                    <span class="text-3xl">💪</span>
+                                </div>
+                                <div class="category-score text-right">
+                                    <div class="text-3xl font-bold" id="score-impact" data-color="text-gray-400">--</div>
+                                    <div class="text-xs text-gray-500 font-semibold">/ 100</div>
+                                </div>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-2">Impact & Resultaten</h3>
+                            <p class="text-sm text-gray-600 mb-4">Kwantificeerbare prestaties en cijfers</p>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                <div id="progress-impact" class="h-2 rounded-full bg-gradient-to-r from-green-500 to-green-600 transition-all duration-1000" style="width: 0%"></div>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-gray-500"><span id="count-impact">0</span> verbeteringen</span>
+                                <span class="font-semibold text-green-600" id="level-impact">Level 1</span>
+                            </div>
+                        </div>
+
+                        <!-- Category 3: Professional Polish -->
+                        <div class="category-card bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all cursor-pointer hover:scale-105"
+                             data-category="polish" onclick="toggleCategory('polish')">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="p-3 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl">
+                                    <span class="text-3xl">✨</span>
+                                </div>
+                                <div class="category-score text-right">
+                                    <div class="text-3xl font-bold" id="score-polish" data-color="text-gray-400">--</div>
+                                    <div class="text-xs text-gray-500 font-semibold">/ 100</div>
+                                </div>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-2">Professionele Polish</h3>
+                            <p class="text-sm text-gray-600 mb-4">Toon, grammatica en consistentie</p>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                <div id="progress-polish" class="h-2 rounded-full bg-gradient-to-r from-purple-500 to-purple-600 transition-all duration-1000" style="width: 0%"></div>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-gray-500"><span id="count-polish">0</span> verbeteringen</span>
+                                <span class="font-semibold text-purple-600" id="level-polish">Level 1</span>
+                            </div>
+                        </div>
+
+                        <!-- Category 4: Structure & Readability -->
+                        <div class="category-card bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all cursor-pointer hover:scale-105"
+                             data-category="structure" onclick="toggleCategory('structure')">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="p-3 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl">
+                                    <span class="text-3xl">🎨</span>
+                                </div>
+                                <div class="category-score text-right">
+                                    <div class="text-3xl font-bold" id="score-structure" data-color="text-gray-400">--</div>
+                                    <div class="text-xs text-gray-500 font-semibold">/ 100</div>
+                                </div>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-2">Structuur & Leesbaarheid</h3>
+                            <p class="text-sm text-gray-600 mb-4">Layout en visuele hiërarchie</p>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                <div id="progress-structure" class="h-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all duration-1000" style="width: 0%"></div>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-gray-500"><span id="count-structure">0</span> verbeteringen</span>
+                                <span class="font-semibold text-orange-600" id="level-structure">Level 1</span>
+                            </div>
+                        </div>
+
+                        <!-- Category 5: Job Match & Targeting -->
+                        <div class="category-card bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all cursor-pointer hover:scale-105"
+                             data-category="targeting" onclick="toggleCategory('targeting')">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="p-3 bg-gradient-to-br from-red-100 to-red-200 rounded-xl">
+                                    <span class="text-3xl">🔥</span>
+                                </div>
+                                <div class="category-score text-right">
+                                    <div class="text-3xl font-bold" id="score-targeting" data-color="text-gray-400">--</div>
+                                    <div class="text-xs text-gray-500 font-semibold">/ 100</div>
+                                </div>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-2">Job Match & Targeting</h3>
+                            <p class="text-sm text-gray-600 mb-4">Afstemming op de specifieke rol</p>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                <div id="progress-targeting" class="h-2 rounded-full bg-gradient-to-r from-red-500 to-red-600 transition-all duration-1000" style="width: 0%"></div>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-gray-500"><span id="count-targeting">0</span> verbeteringen</span>
+                                <span class="font-semibold text-red-600" id="level-targeting">Level 1</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Expandable Category Details -->
+                    <div id="changesContent" class="space-y-4">
                         <div class="flex items-center justify-center py-8">
                             <div class="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
-                            <p class="ml-4 text-gray-600">Content wordt geladen...</p>
+                            <p class="ml-4 text-gray-600">Verbeteringen worden geladen...</p>
                         </div>
                     </div>
                 </div>
@@ -698,6 +923,154 @@
                 }
                 element.textContent = Math.round(current) + suffix;
             }, 16);
+        }
+
+        // 🎮 GAMIFICATION FUNCTIONS
+
+        const categories = {
+            ats: { name: 'ATS & Keywords', icon: '🎯', color: 'blue', changes: [] },
+            impact: { name: 'Impact & Resultaten', icon: '💪', color: 'green', changes: [] },
+            polish: { name: 'Professionele Polish', icon: '✨', color: 'purple', changes: [] },
+            structure: { name: 'Structuur & Leesbaarheid', icon: '🎨', color: 'orange', changes: [] },
+            targeting: { name: 'Job Match & Targeting', icon: '🔥', color: 'red', changes: [] }
+        };
+
+        function categorizeChange(changeTitle, changeContent) {
+            const text = (changeTitle + ' ' + changeContent).toLowerCase();
+
+            // ATS & Keywords
+            if (text.match(/keyword|ats|applicant tracking|seo|search|optimalisatie|zoekwoord/i)) {
+                return 'ats';
+            }
+            // Impact & Achievements
+            if (text.match(/kwantif|cijfer|resultaat|impact|achievement|metric|percentage|increase|ROI|revenue|growth/i)) {
+                return 'impact';
+            }
+            // Structure & Readability
+            if (text.match(/structuur|layout|format|leesbaarheid|readability|bullet|section|visual|hierarchy/i)) {
+                return 'structure';
+            }
+            // Job Match & Targeting
+            if (text.match(/job.*match|targeting|relevance|specifiek|tailored|customized|afstemming/i)) {
+                return 'targeting';
+            }
+            // Professional Polish (default)
+            return 'polish';
+        }
+
+        function updateCategoryScores(categorizedChanges) {
+            let totalScore = 0;
+            let totalChanges = 0;
+
+            Object.keys(categories).forEach(catKey => {
+                const changes = categorizedChanges[catKey] || [];
+                const count = changes.length;
+                totalChanges += count;
+
+                // Calculate score (max 100 per category)
+                const score = Math.min(100, count * 20); // 5 changes = 100 points
+
+                // Update UI
+                document.getElementById(`score-${catKey}`).textContent = score;
+                document.getElementById(`score-${catKey}`).classList.add('score-animate');
+                document.getElementById(`count-${catKey}`).textContent = count;
+                document.getElementById(`progress-${catKey}`).style.width = score + '%';
+
+                // Color coding
+                const scoreEl = document.getElementById(`score-${catKey}`);
+                if (score >= 80) scoreEl.className = 'text-3xl font-bold text-green-600';
+                else if (score >= 50) scoreEl.className = 'text-3xl font-bold text-yellow-600';
+                else scoreEl.className = 'text-3xl font-bold text-red-600';
+
+                // Level badges
+                const levelEl = document.getElementById(`level-${catKey}`);
+                if (score >= 90) levelEl.textContent = '💎 Platinum';
+                else if (score >= 70) levelEl.textContent = '🥇 Gold';
+                else if (score >= 50) levelEl.textContent = '🥈 Silver';
+                else levelEl.textContent = '🥉 Bronze';
+
+                totalScore += score;
+            });
+
+            // Overall score
+            const overallScore = Math.round(totalScore / 5);
+            animateNumber(document.getElementById('overall-score'), 0, overallScore, 1500, '');
+
+            // Circular progress
+            const circle = document.getElementById('overall-progress-ring');
+            const circumference = 2 * Math.PI * 56;
+            const offset = circumference - (overallScore / 100) * circumference;
+            setTimeout(() => {
+                circle.style.strokeDashoffset = offset;
+            }, 500);
+
+            // Show achievements
+            showAchievements(overallScore, totalChanges);
+        }
+
+        function showAchievements(score, totalChanges) {
+            const badgesContainer = document.getElementById('achievement-badges');
+            badgesContainer.innerHTML = '';
+
+            const achievements = [];
+
+            if (totalChanges >= 10) achievements.push({ icon: '🏆', text: 'Perfectionist' });
+            if (score >= 80) achievements.push({ icon: '⭐', text: 'High Achiever' });
+            if (score >= 90) achievements.push({ icon: '🎯', text: 'Expert Level' });
+            if (totalChanges >= 15) achievements.push({ icon: '🚀', text: 'Overachiever' });
+
+            achievements.forEach((ach, index) => {
+                setTimeout(() => {
+                    const badge = document.createElement('div');
+                    badge.className = 'achievement-badge badge-animate';
+                    badge.innerHTML = `<span>${ach.icon}</span><span>${ach.text}</span>`;
+                    badgesContainer.appendChild(badge);
+                }, index * 200);
+            });
+
+            // Confetti on high score
+            if (score >= 85) {
+                setTimeout(() => createConfetti(), 1000);
+            }
+        }
+
+        function createConfetti() {
+            const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe'];
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * window.innerWidth + 'px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 30);
+            }
+        }
+
+        let activeCategory = null;
+
+        function toggleCategory(catKey) {
+            const card = document.querySelector(`[data-category="${catKey}"]`);
+
+            if (activeCategory === catKey) {
+                // Collapse
+                card.classList.remove('active');
+                activeCategory = null;
+                // Show all changes
+                document.querySelectorAll('.category-group').forEach(g => g.style.display = 'block');
+            } else {
+                // Collapse previous
+                document.querySelectorAll('.category-card').forEach(c => c.classList.remove('active'));
+                // Expand new
+                card.classList.add('active');
+                activeCategory = catKey;
+                // Show only this category
+                document.querySelectorAll('.category-group').forEach(g => {
+                    g.style.display = g.dataset.category === catKey ? 'block' : 'none';
+                });
+            }
         }
 
         function renderChangesContent(content) {
@@ -1091,6 +1464,30 @@
 
             container.innerHTML = html || '<p class="text-gray-400 italic">Geen wijzigingen gevonden</p>';
             console.log(`✅ OLD format rendered: ${changeIndex} changes`);
+
+            // 🎮 Update gamification scores based on rendered changes
+            setTimeout(() => {
+                const allChanges = document.querySelectorAll('.change-card-collapsible');
+                const categorizedChanges = { ats: [], impact: [], polish: [], structure: [], targeting: [] };
+
+                allChanges.forEach((card, idx) => {
+                    const title = card.querySelector('h3')?.textContent || '';
+                    const content = card.querySelector('.change-content-collapsible')?.textContent || '';
+                    const category = categorizeChange(title, content);
+                    categorizedChanges[category].push({ title, content, index: idx + 1 });
+
+                    // Add category indicator to card
+                    const icon = categories[category].icon;
+                    const iconSpan = card.querySelector('.text-2xl');
+                    if (iconSpan) iconSpan.textContent = icon;
+
+                    // Add category class
+                    card.classList.add('category-group');
+                    card.dataset.category = category;
+                });
+
+                updateCategoryScores(categorizedChanges);
+            }, 500);
         }
 
         function renderCVContent(content) {
