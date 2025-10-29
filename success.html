@@ -33,9 +33,10 @@
     <!-- Tailwind CSS - Compiled (15KB vs 3.5MB CDN!) -->
     <link rel="stylesheet" href="/dist/output.css">
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <!-- Font Awesome - Load asynchronously (800KB non-blocking) -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+
     <style>
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }

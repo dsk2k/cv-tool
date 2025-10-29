@@ -34,11 +34,12 @@
     <!-- Production Tailwind CSS -->
     <link rel="stylesheet" href="/dist/output.css">
     
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Stripe -->
-    <script src="https://js.stripe.com/v3/"></script>
+    <!-- Font Awesome - Load asynchronously (800KB non-blocking) -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+
+    <!-- Stripe - Defer loading (only needed for payment) -->
+    <script defer src="https://js.stripe.com/v3/"></script>
     
     <style>
         @keyframes float {
