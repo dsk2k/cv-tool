@@ -36,7 +36,8 @@
 
     <!-- Tailwind CSS - Compiled (15KB vs 3.5MB CDN!) -->
     <link rel="stylesheet" href="/dist/output.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Load marked synchronously so it's available when page renders -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         /* Custom animations */
         @keyframes slideUp {

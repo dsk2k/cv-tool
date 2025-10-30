@@ -20,20 +20,33 @@ exports.handler = async (event) => {
     console.log(`📝 Generating changes overview`);
 
     const lang = language === 'nl' ? 'Nederlands' : 'English';
-    const prompt = `Compare these two CV versions and summarize the key improvements in ${lang}.
+    const labels = language === 'nl'
+      ? { original: 'Origineel', improved: 'Verbeterd', why: 'Waarom beter' }
+      : { original: 'Original', improved: 'Improved', why: 'Why better' };
 
-Original CV (first 500 chars):
-${originalCV.substring(0, 500)}
+    const prompt = `Compare these two CV versions and list the key improvements in ${lang}.
 
-Improved CV (first 500 chars):
-${improvedCV.substring(0, 500)}
+Original CV:
+${originalCV.substring(0, 1000)}
 
-Provide a concise summary of:
-1. Main changes made
-2. Why these changes improve the CV
-3. Impact on applicant's presentation
+Improved CV:
+${improvedCV.substring(0, 1000)}
 
-Summary:`;
+Format your response EXACTLY like this (using ${lang}):
+
+### 1. [Change title]
+
+**${labels.original}:** [Brief description of original version]
+**${labels.improved}:** [Brief description of improved version]
+**${labels.why}:** [Why this improvement matters]
+
+### 2. [Second change title]
+
+**${labels.original}:** [Brief description]
+**${labels.improved}:** [Brief description]
+**${labels.why}:** [Why this matters]
+
+List 3-5 of the MOST IMPORTANT changes only.`;
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.0-flash',
