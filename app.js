@@ -125,9 +125,9 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 // Create FormData for file upload
                 const formData = new FormData();
-                formData.append('cvFile', cvFile);
+                formData.append('cv', cvFile);
                 formData.append('jobDescription', jobDescription);
-                formData.append('language', language); // Include language preference
+                formData.append('language', language);
                 if (email) {
                     formData.append('email', email);
                 }
@@ -141,51 +141,98 @@ document.addEventListener('DOMContentLoaded', () => {
                         file_size_kb: Math.round(cvFile.size / 1024)
                     });
                 }
-                
-                // Send to backend with extended timeout (60 seconds for Pro plan)
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
 
-                const response = await fetch('/.netlify/functions/analyze-cv', {
+                // Submit job to background queue
+                console.log('📤 Submitting CV analysis job...');
+                const submitResponse = await fetch('/.netlify/functions/submit-cv-job', {
                     method: 'POST',
-                    body: formData,
-                    signal: controller.signal
+                    body: formData
                 });
 
-                clearTimeout(timeoutId);
-
-                console.log('✅ Response received, status:', response.status);
-
-                if (!response.ok) {
-                    throw new Error(`Server error: ${response.status}`);
+                if (!submitResponse.ok) {
+                    throw new Error(`Submit failed: ${submitResponse.status}`);
                 }
 
-                const result = await response.json();
-                console.log('✅ Response parsed successfully');
-                console.log('📦 Response keys:', Object.keys(result));
+                const submitResult = await submitResponse.json();
+                console.log('✅ Job submitted:', submitResult.jobId);
+                console.log('📊 Rate limit:', submitResult.rateLimit);
 
-                // Store result in sessionStorage
-                try {
-                    const dataToStore = JSON.stringify(result);
-                    console.log('💾 Storing data in sessionStorage, size:', dataToStore.length, 'chars');
-                    sessionStorage.setItem('cvAnalysisResult', dataToStore);
-                    console.log('✅ Data stored successfully in sessionStorage');
-                } catch (storageError) {
-                    console.error('❌ Failed to store in sessionStorage:', storageError);
-                    throw storageError;
-                }
-
-                // Track successful analysis in GA4
-                if (window.trackEvent) {
-                    window.trackEvent('cv_analysis_success', {
-                        language: language,
-                        has_email: !!email
+                // If result is already available (cached), use it immediately
+                if (submitResult.status === 'completed' && submitResult.result) {
+                    console.log('🎯 Result was cached, using immediately');
+                    const dataToStore = JSON.stringify({
+                        ...submitResult.result,
+                        rateLimit: submitResult.rateLimit
                     });
+                    sessionStorage.setItem('cvAnalysisResult', dataToStore);
+                    window.location.href = 'improvements.html';
+                    return;
                 }
 
-                console.log('🚀 Redirecting to improvements.html');
-                // Redirect to results page
-                window.location.href = 'improvements.html';
+                // Poll for job completion
+                const jobId = submitResult.jobId;
+                let pollCount = 0;
+                const maxPolls = 60; // 60 polls x 2 seconds = 2 minutes max
+
+                const pollInterval = setInterval(async () => {
+                    pollCount++;
+                    console.log(`🔄 Polling job status (attempt ${pollCount})...`);
+
+                    try {
+                        const statusResponse = await fetch(`/.netlify/functions/check-job-status?jobId=${jobId}`);
+
+                        if (!statusResponse.ok) {
+                            console.error('❌ Status check failed');
+                            return;
+                        }
+
+                        const statusData = await statusResponse.json();
+                        console.log(`📋 Job status: ${statusData.status}`);
+
+                        if (statusData.status === 'completed') {
+                            clearInterval(pollInterval);
+                            console.log('✅ Job completed!');
+
+                            // Store result
+                            const dataToStore = JSON.stringify({
+                                ...statusData.result,
+                                rateLimit: statusData.rateLimit || submitResult.rateLimit
+                            });
+                            sessionStorage.setItem('cvAnalysisResult', dataToStore);
+
+                            // Track success
+                            if (window.trackEvent) {
+                                window.trackEvent('cv_analysis_success', {
+                                    language: language,
+                                    has_email: !!email,
+                                    processing_time: statusData.processingTime
+                                });
+                            }
+
+                            // Redirect
+                            console.log('🚀 Redirecting to improvements.html');
+                            window.location.href = 'improvements.html';
+
+                        } else if (statusData.status === 'failed') {
+                            clearInterval(pollInterval);
+                            throw new Error(statusData.error || 'Job processing failed');
+
+                        } else if (pollCount >= maxPolls) {
+                            clearInterval(pollInterval);
+                            throw new Error('Job processing timeout - please try again');
+                        }
+
+                    } catch (pollError) {
+                        clearInterval(pollInterval);
+                        console.error('❌ Polling error:', pollError);
+
+                        // Hide loading overlay
+                        loadingOverlay.classList.add('hidden');
+                        loadingOverlay.classList.remove('flex');
+
+                        alert('Error checking job status. Please try again.');
+                    }
+                }, 2000); // Poll every 2 seconds
                 
             } catch (error) {
                 console.error('Error:', error);
