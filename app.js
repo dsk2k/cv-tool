@@ -182,8 +182,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('✅ Step 1 complete');
                 console.log(`📋 Received cvText length: ${cvText?.length || 0}`);
 
-                // Delay before next request to avoid rate limits
-                await delay(2000);
+                // Longer delay to avoid rate limits (we make 7 API calls total)
+                await delay(4000);
 
                 // Step 2: Generate cover letter (~10s)
                 console.log('✉️ Step 2: Generating cover letter...');
@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('✅ Step 2 complete');
 
                 // Delay before next request
-                await delay(2000);
+                await delay(4000);
 
                 // Step 3: Generate recruiter tips (~10s)
                 console.log('💡 Step 3: Generating recruiter tips...');
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('📝 Step 4: Generating detailed changes analysis (4 categories for comprehensive feedback)...');
 
                 // Delay before Step 4a
-                await delay(2000);
+                await delay(4000);
 
                 // Step 4a: ATS & Keywords analysis
                 console.log('🎯 Step 4a: ATS & Keywords...');
@@ -234,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const atsData = await atsResponse.json();
                 console.log('✅ Step 4a complete');
 
-                await delay(2000);
+                await delay(3000);
 
                 // Step 4b: Impact & Results analysis
                 console.log('💥 Step 4b: Impact & Results...');
@@ -247,7 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const impactData = await impactResponse.json();
                 console.log('✅ Step 4b complete');
 
-                await delay(2000);
+                await delay(3000);
 
                 // Step 4c: Professional Polish analysis
                 console.log('✨ Step 4c: Professional Polish...');
@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const polishData = await polishResponse.json();
                 console.log('✅ Step 4c complete');
 
-                await delay(2000);
+                await delay(3000);
 
                 // Step 4d: Job Match & Targeting analysis
                 console.log('🎯 Step 4d: Job Match & Targeting...');
