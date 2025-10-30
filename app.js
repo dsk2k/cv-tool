@@ -142,12 +142,36 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
 
-                // Sequential generation (4 requests, each <20s = reliable)
+                // Helper function to add delay between requests
+                const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+                // Helper function to fetch with retry logic for rate limits
+                async function fetchWithRetry(url, options, maxRetries = 3) {
+                    for (let i = 0; i < maxRetries; i++) {
+                        const response = await fetch(url, options);
+
+                        if (response.ok) {
+                            return response;
+                        }
+
+                        // If rate limited (429), wait and retry
+                        if (response.status === 429 && i < maxRetries - 1) {
+                            const waitTime = (i + 1) * 3000; // 3s, 6s, 9s
+                            console.log(`⏳ Rate limited, waiting ${waitTime/1000}s before retry ${i + 1}/${maxRetries}...`);
+                            await delay(waitTime);
+                            continue;
+                        }
+
+                        return response;
+                    }
+                }
+
+                // Sequential generation (4 requests with delays to avoid rate limits)
                 const results = {};
 
                 // Step 1: Generate improved CV (~15s)
                 console.log('📄 Step 1: Generating improved CV...');
-                const cvResponse = await fetch('/.netlify/functions/generate-cv', {
+                const cvResponse = await fetchWithRetry('/.netlify/functions/generate-cv', {
                     method: 'POST',
                     body: formData
                 });
@@ -157,9 +181,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cvText = cvData.originalCVText; // Use backend-parsed text
                 console.log('✅ Step 1 complete');
 
+                // Delay before next request to avoid rate limits
+                await delay(2000);
+
                 // Step 2: Generate cover letter (~10s)
                 console.log('✉️ Step 2: Generating cover letter...');
-                const letterResponse = await fetch('/.netlify/functions/generate-letter', {
+                const letterResponse = await fetchWithRetry('/.netlify/functions/generate-letter', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ cvText, jobDescription, language })
@@ -169,9 +196,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 results.coverLetter = letterData.coverLetter;
                 console.log('✅ Step 2 complete');
 
+                // Delay before next request
+                await delay(2000);
+
                 // Step 3: Generate recruiter tips (~10s)
                 console.log('💡 Step 3: Generating recruiter tips...');
-                const tipsResponse = await fetch('/.netlify/functions/generate-tips', {
+                const tipsResponse = await fetchWithRetry('/.netlify/functions/generate-tips', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ jobDescription, language })
@@ -181,9 +211,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 results.recruiterTips = tipsData.recruiterTips;
                 console.log('✅ Step 3 complete');
 
+                // Delay before final request
+                await delay(2000);
+
                 // Step 4: Generate changes overview (~5s)
                 console.log('📝 Step 4: Generating changes overview...');
-                const changesResponse = await fetch('/.netlify/functions/generate-changes', {
+                const changesResponse = await fetchWithRetry('/.netlify/functions/generate-changes', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ originalCV: cvText, improvedCV: results.improvedCV, language })
