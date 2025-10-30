@@ -154,14 +154,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!cvResponse.ok) throw new Error('CV generation failed');
                 const cvData = await cvResponse.json();
                 results.improvedCV = cvData.improvedCV;
+                const cvText = cvData.originalCVText; // Use backend-parsed text
                 console.log('✅ Step 1 complete');
-
-                // Read CV text for subsequent requests
-                const reader = new FileReader();
-                const cvText = await new Promise((resolve) => {
-                    reader.onload = (e) => resolve(e.target.result);
-                    reader.readAsText(cvFile);
-                });
 
                 // Step 2: Generate cover letter (~10s)
                 console.log('✉️ Step 2: Generating cover letter...');
