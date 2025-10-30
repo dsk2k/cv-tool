@@ -172,30 +172,22 @@ exports.handler = async (event) => {
         const prompt = createPrompt(currentCV, jobDescription, language);
         console.log(`✅ Prompt created successfully. Length: ${prompt.length} chars.`);
 
-        // Call Gemini API with optimized config for speed
-        const modelName = 'gemini-2.0-flash'; // Use the model you have access to
-        console.log(`🤖 Attempting to get model: ${modelName}`);
+        // Call Gemini API with EXTREME speed optimizations (target: <18 seconds)
+        const modelName = 'gemini-2.0-flash';
+        console.log(`🤖 Calling Gemini with speed-optimized config...`);
         const model = genAI.getGenerativeModel({
           model: modelName,
           generationConfig: {
-            maxOutputTokens: 4096, // Limit output for faster generation
-            temperature: 0.7,       // Balanced creativity/speed
-            topP: 0.95,
-            topK: 40
+            maxOutputTokens: 1536, // Drastically reduced (was 4096)
+            temperature: 0.9,       // Higher = faster (was 0.7)
+            topP: 0.9,              // Reduced (was 0.95)
+            topK: 20                // Reduced (was 40)
           }
         });
-        console.log('✅ Model obtained successfully.');
 
-        console.log('🤖 Attempting to call Gemini API with 20s timeout...');
-
-        // Add timeout to Gemini call to ensure it completes within Netlify's 26s limit
-        const geminiPromise = model.generateContent(prompt);
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Gemini API timeout after 20 seconds')), 20000)
-        );
-
-        const result = await Promise.race([geminiPromise, timeoutPromise]);
-        console.log('🎉 Gemini API call successful!');
+        console.log('🤖 Sending request to Gemini API...');
+        const result = await model.generateContent(prompt);
+        console.log('🎉 Gemini API completed!');
 
         const response = result.response;
         // Basic check if response or text() exists
