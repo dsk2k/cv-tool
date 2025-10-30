@@ -14,8 +14,6 @@
   # Increase timeout to 60 seconds (AI analysis takes 25-35s)
   # Pro plan allows up to 100 seconds
   node_bundler = "esbuild"
-
-[functions."analyze-cv"]
   timeout = 60
 
 # Redirect rules (optional)
