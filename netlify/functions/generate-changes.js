@@ -29,40 +29,32 @@ exports.handler = async (event) => {
       ? { original: 'Origineel', improved: 'Verbeterd', why: 'Waarom beter' }
       : { original: 'Original', improved: 'Improved', why: 'Why better' };
 
-    const prompt = `Vergelijk deze twee CV-versies in detail en lijst ALLE belangrijke verbeteringen op in ${lang}.
+    // Limit input to most important parts
+    const origSummary = originalCV.substring(0, 2000);
+    const improvedSummary = improvedCV.substring(0, 2000);
 
-ORIGINELE CV:
-${originalCV}
+    const prompt = `Vergelijk CV's en lijst belangrijkste verbeteringen in ${lang}.
 
-VERBETERDE CV:
-${improvedCV}
+ORIGINEEL:
+${origSummary}
 
-Geef een UITGEBREIDE analyse van alle veranderingen. Gebruik dit EXACTE formaat (in ${lang}):
+VERBETERD:
+${improvedSummary}
 
-### 1. [Titel van verandering]
+Formaat:
 
-**${labels.original}:** [Gedetailleerde beschrijving van hoe het was]
-**${labels.improved}:** [Gedetailleerde beschrijving van hoe het nu is]
-**${labels.why}:** [Uitgebreide uitleg waarom dit belangrijk is voor recruiters en waarom dit de kans op een interview vergroot]
+### 1. [Titel]
 
-### 2. [Tweede verandering]
+**${labels.original}:** [Hoe was het]
+**${labels.improved}:** [Hoe is het nu]
+**${labels.why}:** [Waarom belangrijk voor recruiters]
 
-**${labels.original}:** [Gedetailleerde beschrijving]
-**${labels.improved}:** [Gedetailleerde beschrijving]
-**${labels.why}:** [Uitgebreide uitleg met concrete voordelen]
-
-BELANGRIJK:
-- Analyseer ALLE secties: persoonlijke info, samenvatting, werkervaring, opleidingen, vaardigheden
-- Lijst 8-12 verbeteringen (niet slechts 3-5)
-- Wees specifiek over wat er veranderd is
-- Leg uit HOE elke verandering de kans op een interview vergroot
-- Vermeld concrete voorbeelden uit de CV's
-- Focus op: professionaliteit, ATS-optimalisatie, impact statements, kwantificeerbare resultaten`;
+Geef 6-8 verbeteringen over: ATS, keywords, professionaliteit, structuur, impact.`;
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.0-flash',
       generationConfig: {
-        maxOutputTokens: 2048,
+        maxOutputTokens: 1500, // Reduced from 2048 but still detailed
         temperature: 0.7,
         topP: 0.95
       }

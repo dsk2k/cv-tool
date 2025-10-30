@@ -25,24 +25,20 @@ exports.handler = async (event) => {
     }
 
     const lang = language === 'nl' ? 'Nederlands' : 'English';
-    const prompt = `You are a professional recruiter. Provide insider tips for applying to this role in ${lang}.
+    const jobSummary = jobDescription.substring(0, 1500);
 
-Job Description:
-${jobDescription}
+    const prompt = `Recruiter tips in ${lang}.
 
-Provide 8-10 specific, actionable tips in bullet point format about:
-1. What recruiters look for
-2. How to stand out
-3. Interview preparation
-4. Common mistakes to avoid
-5. Skills to emphasize
+Job: ${jobSummary}
 
-Tips (as bullet points):`;
+Give 6-8 bullet points: what recruiters want, stand out, interview prep, mistakes, key skills.
+
+Tips:`;
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.0-flash',
       generationConfig: {
-        maxOutputTokens: 1024,
+        maxOutputTokens: 700, // Reduced from 1024
         temperature: 0.7,
         topP: 0.95
       }

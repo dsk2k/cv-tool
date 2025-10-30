@@ -45,27 +45,27 @@ exports.handler = async (event) => {
 
     console.log(`📄 Generating improved CV (${cvText.length} chars)`);
 
+    // Limit input size to avoid timeouts
+    const maxCVLength = 8000; // ~2000 tokens
+    const maxJobDescLength = 2000; // ~500 tokens
+    const cvInput = cvText.length > maxCVLength ? cvText.substring(0, maxCVLength) + '...' : cvText;
+    const jobInput = jobDescription.length > maxJobDescLength ? jobDescription.substring(0, maxJobDescLength) + '...' : jobDescription;
+
     const lang = language === 'nl' ? 'Nederlands' : 'English';
-    const prompt = `You are an expert CV optimizer. Improve this CV for the job description provided. Respond in ${lang}.
+    const prompt = `Optimize this CV for the job. Respond in ${lang}.
 
-Job Description:
-${jobDescription}
+Job: ${jobInput}
 
-Current CV:
-${cvText}
+CV: ${cvInput}
 
-Provide ONLY the improved CV text, optimized for:
-1. Keywords from the job description
-2. ATS-friendly formatting
-3. Clear structure
-4. Relevant skills highlighted
+Provide improved CV with: ATS keywords, clear structure, relevant skills.
 
 Improved CV:`;
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.0-flash',
       generationConfig: {
-        maxOutputTokens: 2048,
+        maxOutputTokens: 1536, // Reduced from 2048 for faster generation
         temperature: 0.7,
         topP: 0.95,
         topK: 40

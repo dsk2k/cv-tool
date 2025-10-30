@@ -25,26 +25,24 @@ exports.handler = async (event) => {
     }
 
     const lang = language === 'nl' ? 'Nederlands' : 'English';
-    const prompt = `You are a professional cover letter writer. Write a compelling cover letter in ${lang}.
 
-Job Description:
-${jobDescription}
+    // Limit input to avoid timeouts
+    const cvSummary = cvText.substring(0, 1000);
+    const jobSummary = jobDescription.substring(0, 1500);
 
-Applicant's CV Summary:
-${cvText.substring(0, 1000)}
+    const prompt = `Write cover letter in ${lang}.
 
-Write a professional, engaging cover letter that:
-1. Shows enthusiasm for the role
-2. Highlights relevant experience from CV
-3. Explains why they're a great fit
-4. Is concise (3-4 paragraphs)
+Job: ${jobSummary}
+CV: ${cvSummary}
 
-Cover Letter:`;
+Write professional letter (3-4 paragraphs): enthusiasm, relevant experience, good fit.
+
+Letter:`;
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.0-flash',
       generationConfig: {
-        maxOutputTokens: 1024,
+        maxOutputTokens: 800, // Reduced from 1024
         temperature: 0.8,
         topP: 0.95
       }
