@@ -28,31 +28,31 @@ exports.handler = async (event) => {
       ? { original: 'Origineel', improved: 'Verbeterd', why: 'Waarom beter' }
       : { original: 'Original', improved: 'Improved', why: 'Why better' };
 
-    const prompt = `Job Match verbeteringen in ${lang}.
+    const prompt = `Vergelijk deze CV's en geef Job Match verbeteringen in ${lang}.
 
-JOB:
+JOB DESCRIPTION:
 ${jobDescription.substring(0, 800)}
 
-VOOR:
+ORIGINEEL CV:
 ${originalCV.substring(0, 2000)}
 
-NA:
+VERBETERD CV:
 ${improvedCV.substring(0, 2000)}
 
-Formaat:
+BELANGRIJK: Gebruik EXACT dit formaat, vul ALLE velden in:
 
-### 1. [Match verbetering]
+### 1. [Titel van verbetering]
 
-**${labels.original}:** [Was]
-**${labels.improved}:** [Nu]
-**${labels.why}:** [Impact]
+**${labels.original}:** [Concrete beschrijving van originele CV]
+**${labels.improved}:** [Concrete beschrijving van verbeterde CV]
+**${labels.why}:** [Waarom dit belangrijk is]
 
-Geef 2 verbeteringen: relevante ervaring, skills match.`;
+Geef 2 Match verbeteringen (relevante ervaring, skills match). ALLE 3 velden zijn VERPLICHT!`;
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.0-flash',
       generationConfig: {
-        maxOutputTokens: 400, // Reduced: 600 → 400 for speed
+        maxOutputTokens: 500, // Increased from 400 for complete responses
         temperature: 0.7,
         topP: 0.95
       }

@@ -28,28 +28,28 @@ exports.handler = async (event) => {
       ? { original: 'Origineel', improved: 'Verbeterd', why: 'Waarom beter' }
       : { original: 'Original', improved: 'Improved', why: 'Why better' };
 
-    const prompt = `Polish & Structuur verbeteringen in ${lang}.
+    const prompt = `Vergelijk deze CV's en geef Polish verbeteringen in ${lang}.
 
-VOOR:
+ORIGINEEL:
 ${originalCV.substring(0, 2000)}
 
-NA:
+VERBETERD:
 ${improvedCV.substring(0, 2000)}
 
-Formaat:
+BELANGRIJK: Gebruik EXACT dit formaat, vul ALLE velden in:
 
-### 1. [Polish verbetering]
+### 1. [Titel van verbetering]
 
-**${labels.original}:** [Was]
-**${labels.improved}:** [Nu]
-**${labels.why}:** [Impact]
+**${labels.original}:** [Concrete beschrijving van originele CV]
+**${labels.improved}:** [Concrete beschrijving van verbeterde CV]
+**${labels.why}:** [Waarom dit belangrijk is]
 
-Geef 2 verbeteringen: tone, formatting, structuur.`;
+Geef 2 Polish verbeteringen (tone, formatting, structuur). ALLE 3 velden zijn VERPLICHT!`;
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.0-flash',
       generationConfig: {
-        maxOutputTokens: 400, // Reduced: 600 → 400 for speed
+        maxOutputTokens: 500, // Increased from 400 for complete responses
         temperature: 0.7,
         topP: 0.95
       }
