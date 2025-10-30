@@ -217,11 +217,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 results.recruiterTips = tipsData.recruiterTips;
                 console.log('✅ Step 3 complete');
 
-                // Delay before final request
-                await delay(2000);
+                // Longer delay before Step 4 (most intensive request)
+                await delay(3000);
 
-                // Step 4: Generate changes overview (~5s)
-                console.log('📝 Step 4: Generating changes overview...');
+                // Step 4: Generate changes overview (DETAILED - ~20-25s, this is the core value!)
+                console.log('📝 Step 4: Generating detailed changes analysis (this takes longer for comprehensive feedback)...');
                 const changesResponse = await fetchWithRetry('/.netlify/functions/generate-changes', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },

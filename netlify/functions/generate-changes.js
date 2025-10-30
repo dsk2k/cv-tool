@@ -29,32 +29,43 @@ exports.handler = async (event) => {
       ? { original: 'Origineel', improved: 'Verbeterd', why: 'Waarom beter' }
       : { original: 'Original', improved: 'Improved', why: 'Why better' };
 
-    // Limit input to most important parts
-    const origSummary = originalCV.substring(0, 2000);
-    const improvedSummary = improvedCV.substring(0, 2000);
+    // Use FULL CVs for comprehensive comparison (this is the core value!)
+    // Limit only if extremely long to avoid hitting API limits
+    const maxLength = 12000; // ~3000 tokens - enough for most CVs
+    const origCV = originalCV.length > maxLength ? originalCV.substring(0, maxLength) : originalCV;
+    const improvedCV = improvedCV.length > maxLength ? improvedCV.substring(0, maxLength) : improvedCV;
 
-    const prompt = `Vergelijk CV's en lijst belangrijkste verbeteringen in ${lang}.
+    console.log(`📊 Comparing: original ${origCV.length} chars vs improved ${improvedCV.length} chars`);
+
+    const prompt = `Analyseer ALLE wijzigingen tussen deze CV's in ${lang}. Dit is de kernwaarde van de tool!
 
 ORIGINEEL:
-${origSummary}
+${origCV}
 
 VERBETERD:
-${improvedSummary}
+${improvedCV}
 
-Formaat:
+Geef UITGEBREIDE analyse. Formaat:
 
-### 1. [Titel]
+### 1. [Categorie: bijv. "ATS Optimalisatie"]
 
-**${labels.original}:** [Hoe was het]
-**${labels.improved}:** [Hoe is het nu]
-**${labels.why}:** [Waarom belangrijk voor recruiters]
+**${labels.original}:** [Specifieke beschrijving van origineel]
+**${labels.improved}:** [Specifieke beschrijving van verbetering]
+**${labels.why}:** [Concrete impact op interview kans]
 
-Geef 6-8 verbeteringen over: ATS, keywords, professionaliteit, structuur, impact.`;
+Analyseer 8-12 belangrijke wijzigingen in categorieën:
+- ATS & Keywords
+- Impact & Kwantificeerbare Resultaten
+- Professionele Tone & Polish
+- Structuur & Leesbaarheid
+- Job Match & Targeting
+
+Wees specifiek met voorbeelden uit de CV's!`;
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.0-flash',
       generationConfig: {
-        maxOutputTokens: 1500, // Reduced from 2048 but still detailed
+        maxOutputTokens: 2500, // INCREASED for detailed feedback (this is the core value!)
         temperature: 0.7,
         topP: 0.95
       }
