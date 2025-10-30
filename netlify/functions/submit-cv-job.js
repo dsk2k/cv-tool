@@ -191,27 +191,23 @@ exports.handler = async (event) => {
 
     console.log(`✅ Job created: ${jobId}`);
 
-    // Start background processing (fire-and-forget using dynamic import)
-    // This doesn't block the response
+    // Trigger Netlify Background Function (Pro plan: runs up to 15 minutes)
+    // Fire-and-forget - doesn't block response
     (async () => {
       try {
-        console.log(`🔄 Starting background processor for ${jobId}`);
-        const processor = require('./process-cv-job');
+        console.log(`🚀 Triggering background function for ${jobId}`);
+        const processor = require('./process-cv-background');
 
-        // Call processor with mock event
-        await processor.handler({
-          httpMethod: 'POST',
-          body: JSON.stringify({
-            jobId,
-            cvText,
-            jobDescription,
-            language
-          })
-        });
+        // Invoke background function (doesn't await completion)
+        processor.handler({
+          body: JSON.stringify({ jobId, cvText, jobDescription, language })
+        }, {
+          callbackWaitsForEmptyEventLoop: false
+        }).catch(err => console.error(`Background error for ${jobId}:`, err));
 
-        console.log(`✅ Background processor completed for ${jobId}`);
+        console.log(`✅ Background function triggered for ${jobId}`);
       } catch (err) {
-        console.error(`❌ Background processor failed for ${jobId}:`, err);
+        console.error(`❌ Failed to trigger background for ${jobId}:`, err);
       }
     })();
 
