@@ -9,13 +9,12 @@
   # Functions directory (if you have Netlify functions)
   functions = "netlify/functions"
 
-# Functions configuration - Pro plan allows up to 100 seconds
+# Functions configuration
 [functions]
   node_bundler = "esbuild"
 
-# Set timeout for all functions (Pro plan allows up to 100 seconds)
-[functions."*"]
-  timeout = 60
+# Note: Netlify Pro plan has a hard 26-second limit for synchronous functions
+# The analyze-cv function is optimized to complete Gemini API calls within 20s
 
 # Redirect rules (optional)
 [[redirects]]

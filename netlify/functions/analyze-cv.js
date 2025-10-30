@@ -172,14 +172,29 @@ exports.handler = async (event) => {
         const prompt = createPrompt(currentCV, jobDescription, language);
         console.log(`✅ Prompt created successfully. Length: ${prompt.length} chars.`);
 
-        // Call Gemini API
+        // Call Gemini API with optimized config for speed
         const modelName = 'gemini-2.0-flash'; // Use the model you have access to
         console.log(`🤖 Attempting to get model: ${modelName}`);
-        const model = genAI.getGenerativeModel({ model: modelName });
+        const model = genAI.getGenerativeModel({
+          model: modelName,
+          generationConfig: {
+            maxOutputTokens: 4096, // Limit output for faster generation
+            temperature: 0.7,       // Balanced creativity/speed
+            topP: 0.95,
+            topK: 40
+          }
+        });
         console.log('✅ Model obtained successfully.');
 
-        console.log('🤖 Attempting to call Gemini API...');
-        const result = await model.generateContent(prompt);
+        console.log('🤖 Attempting to call Gemini API with 20s timeout...');
+
+        // Add timeout to Gemini call to ensure it completes within Netlify's 26s limit
+        const geminiPromise = model.generateContent(prompt);
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Gemini API timeout after 20 seconds')), 20000)
+        );
+
+        const result = await Promise.race([geminiPromise, timeoutPromise]);
         console.log('🎉 Gemini API call successful!');
 
         const response = result.response;
