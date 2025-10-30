@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 // Create FormData for file upload
                 const formData = new FormData();
-                formData.append('cv', cvFile);
+                formData.append('cvFile', cvFile);
                 formData.append('jobDescription', jobDescription);
                 formData.append('language', language);
                 if (email) {
@@ -142,90 +142,76 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
 
-                // Submit job to Netlify Background Function (Pro: 15 min limit)
-                console.log('📤 Submitting job to background processor...');
-                const submitResponse = await fetch('/.netlify/functions/submit-cv-job', {
+                // Sequential generation (4 requests, each <20s = reliable)
+                const results = {};
+
+                // Step 1: Generate improved CV (~15s)
+                console.log('📄 Step 1: Generating improved CV...');
+                const cvResponse = await fetch('/.netlify/functions/generate-cv', {
                     method: 'POST',
                     body: formData
                 });
+                if (!cvResponse.ok) throw new Error('CV generation failed');
+                const cvData = await cvResponse.json();
+                results.improvedCV = cvData.improvedCV;
+                console.log('✅ Step 1 complete');
 
-                if (!submitResponse.ok) {
-                    throw new Error(`Submit failed: ${submitResponse.status}`);
+                // Read CV text for subsequent requests
+                const reader = new FileReader();
+                const cvText = await new Promise((resolve) => {
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.readAsText(cvFile);
+                });
+
+                // Step 2: Generate cover letter (~10s)
+                console.log('✉️ Step 2: Generating cover letter...');
+                const letterResponse = await fetch('/.netlify/functions/generate-letter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cvText, jobDescription, language })
+                });
+                if (!letterResponse.ok) throw new Error('Letter generation failed');
+                const letterData = await letterResponse.json();
+                results.coverLetter = letterData.coverLetter;
+                console.log('✅ Step 2 complete');
+
+                // Step 3: Generate recruiter tips (~10s)
+                console.log('💡 Step 3: Generating recruiter tips...');
+                const tipsResponse = await fetch('/.netlify/functions/generate-tips', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ jobDescription, language })
+                });
+                if (!tipsResponse.ok) throw new Error('Tips generation failed');
+                const tipsData = await tipsResponse.json();
+                results.recruiterTips = tipsData.recruiterTips;
+                console.log('✅ Step 3 complete');
+
+                // Step 4: Generate changes overview (~5s)
+                console.log('📝 Step 4: Generating changes overview...');
+                const changesResponse = await fetch('/.netlify/functions/generate-changes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ originalCV: cvText, improvedCV: results.improvedCV, language })
+                });
+                if (!changesResponse.ok) throw new Error('Changes generation failed');
+                const changesData = await changesResponse.json();
+                results.changesOverview = changesData.changesOverview;
+                console.log('✅ Step 4 complete');
+
+                // Store combined results
+                results.metadata = { language, timestamp: new Date().toISOString() };
+                sessionStorage.setItem('cvAnalysisResult', JSON.stringify(results));
+
+                if (window.trackEvent) {
+                    window.trackEvent('cv_analysis_success', {
+                        language: language,
+                        has_email: !!email
+                    });
                 }
 
-                const submitResult = await submitResponse.json();
-                console.log('✅ Job submitted:', submitResult.jobId);
-                console.log('📊 Rate limit:', submitResult.rateLimit);
-
-                // If cached, use immediately
-                if (submitResult.status === 'completed' && submitResult.result) {
-                    console.log('🎯 Using cached result');
-                    sessionStorage.setItem('cvAnalysisResult', JSON.stringify({
-                        ...submitResult.result,
-                        rateLimit: submitResult.rateLimit
-                    }));
-                    window.location.href = 'improvements.html';
-                    return;
-                }
-
-                // Poll for completion (background function processing)
-                const jobId = submitResult.jobId;
-                let pollCount = 0;
-                const maxPolls = 90; // 90 polls x 2s = 3 min max
-
-                const pollInterval = setInterval(async () => {
-                    pollCount++;
-                    console.log(`🔄 Polling (${pollCount})...`);
-
-                    try {
-                        const statusResponse = await fetch(`/.netlify/functions/check-job-status?jobId=${jobId}`);
-                        if (!statusResponse.ok) {
-                            console.error('❌ Status check failed');
-                            return;
-                        }
-
-                        const statusData = await statusResponse.json();
-                        console.log(`📋 Status: ${statusData.status}`);
-
-                        if (statusData.status === 'completed') {
-                            clearInterval(pollInterval);
-                            console.log('✅ Job completed!');
-
-                            sessionStorage.setItem('cvAnalysisResult', JSON.stringify({
-                                ...statusData.result,
-                                rateLimit: statusData.rateLimit || submitResult.rateLimit
-                            }));
-
-                            if (window.trackEvent) {
-                                window.trackEvent('cv_analysis_success', {
-                                    language: language,
-                                    has_email: !!email,
-                                    processing_time: statusData.processingTime
-                                });
-                            }
-
-                            console.log('🚀 Redirecting to improvements.html');
-                            window.location.href = 'improvements.html';
-
-                        } else if (statusData.status === 'failed') {
-                            clearInterval(pollInterval);
-                            throw new Error(statusData.error || 'Processing failed');
-
-                        } else if (pollCount >= maxPolls) {
-                            clearInterval(pollInterval);
-                            throw new Error('Timeout - please try again');
-                        }
-
-                    } catch (pollError) {
-                        clearInterval(pollInterval);
-                        console.error('❌ Polling error:', pollError);
-
-                        loadingOverlay.classList.add('hidden');
-                        loadingOverlay.classList.remove('flex');
-
-                        alert('Error: ' + pollError.message);
-                    }
-                }, 2000);
+                console.log('🚀 All steps complete! Redirecting...');
+                window.location.href = 'improvements.html';
                 
             } catch (error) {
                 console.error('Error:', error);
