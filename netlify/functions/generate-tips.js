@@ -18,6 +18,11 @@ exports.handler = async (event) => {
     const { jobDescription, language } = JSON.parse(event.body);
 
     console.log(`💡 Generating recruiter tips`);
+    console.log(`📋 jobDesc length: ${jobDescription?.length || 0}, language: ${language}`);
+
+    if (!jobDescription || !language) {
+      throw new Error(`Missing required fields: jobDescription=${!!jobDescription}, language=${!!language}`);
+    }
 
     const lang = language === 'nl' ? 'Nederlands' : 'English';
     const prompt = `You are a professional recruiter. Provide insider tips for applying to this role in ${lang}.

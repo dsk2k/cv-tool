@@ -76,6 +76,7 @@ Improved CV:`;
     const improvedCV = result.response.text();
 
     console.log(`✅ Improved CV generated (${improvedCV.length} chars)`);
+    console.log(`📤 Returning originalCVText (${cvText.length} chars)`);
 
     return {
       statusCode: 200,

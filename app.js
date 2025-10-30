@@ -180,18 +180,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 results.improvedCV = cvData.improvedCV;
                 const cvText = cvData.originalCVText; // Use backend-parsed text
                 console.log('✅ Step 1 complete');
+                console.log(`📋 Received cvText length: ${cvText?.length || 0}`);
 
                 // Delay before next request to avoid rate limits
                 await delay(2000);
 
                 // Step 2: Generate cover letter (~10s)
                 console.log('✉️ Step 2: Generating cover letter...');
+                console.log(`📤 Sending: cvText length=${cvText?.length || 0}, jobDesc length=${jobDescription?.length || 0}`);
                 const letterResponse = await fetchWithRetry('/.netlify/functions/generate-letter', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ cvText, jobDescription, language })
                 });
-                if (!letterResponse.ok) throw new Error('Letter generation failed');
+                if (!letterResponse.ok) {
+                    const errorData = await letterResponse.json().catch(() => ({}));
+                    console.error('❌ Letter generation failed:', errorData);
+                    throw new Error(`Letter generation failed: ${errorData.error || letterResponse.statusText}`);
+                }
                 const letterData = await letterResponse.json();
                 results.coverLetter = letterData.coverLetter;
                 console.log('✅ Step 2 complete');

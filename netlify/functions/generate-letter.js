@@ -18,6 +18,11 @@ exports.handler = async (event) => {
     const { cvText, jobDescription, language } = JSON.parse(event.body);
 
     console.log(`✉️ Generating cover letter`);
+    console.log(`📋 cvText length: ${cvText?.length || 0}, jobDesc length: ${jobDescription?.length || 0}`);
+
+    if (!cvText || !jobDescription || !language) {
+      throw new Error(`Missing required fields: cvText=${!!cvText}, jobDescription=${!!jobDescription}, language=${!!language}`);
+    }
 
     const lang = language === 'nl' ? 'Nederlands' : 'English';
     const prompt = `You are a professional cover letter writer. Write a compelling cover letter in ${lang}.

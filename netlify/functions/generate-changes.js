@@ -18,6 +18,11 @@ exports.handler = async (event) => {
     const { originalCV, improvedCV, language } = JSON.parse(event.body);
 
     console.log(`📝 Generating changes overview`);
+    console.log(`📋 originalCV length: ${originalCV?.length || 0}, improvedCV length: ${improvedCV?.length || 0}`);
+
+    if (!originalCV || !improvedCV || !language) {
+      throw new Error(`Missing required fields: originalCV=${!!originalCV}, improvedCV=${!!improvedCV}, language=${!!language}`);
+    }
 
     const lang = language === 'nl' ? 'Nederlands' : 'English';
     const labels = language === 'nl'
