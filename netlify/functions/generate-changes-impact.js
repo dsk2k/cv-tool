@@ -28,32 +28,28 @@ exports.handler = async (event) => {
       ? { original: 'Origineel', improved: 'Verbeterd', why: 'Waarom beter' }
       : { original: 'Original', improved: 'Improved', why: 'Why better' };
 
-    const prompt = `Analyseer Impact & Resultaten verbeteringen in ${lang}.
+    const prompt = `Impact & Resultaten verbeteringen in ${lang}.
 
-ORIGINEEL:
-${originalCV.substring(0, 4000)}
+VOOR:
+${originalCV.substring(0, 2500)}
 
-VERBETERD:
-${improvedCV.substring(0, 4000)}
+NA:
+${improvedCV.substring(0, 2500)}
 
 Formaat:
 
-### 1. [Specifieke impact verbetering]
+### 1. [Impact verbetering]
 
-**${labels.original}:** [Hoe resultaten beschreven waren]
-**${labels.improved}:** [Hoe ze nu beschreven zijn]
-**${labels.why}:** [Waarom dit overtuigender is]
+**${labels.original}:** [Was]
+**${labels.improved}:** [Nu]
+**${labels.why}:** [Waarom beter]
 
-Analyseer 3-4 verbeteringen over:
-- Kwantificeerbare resultaten (cijfers, %)
-- Action verbs & impact statements
-- Concrete achievements
-- Meetbare successen`;
+Geef 2-3 verbeteringen: cijfers, action verbs, resultaten.`;
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.0-flash',
       generationConfig: {
-        maxOutputTokens: 700,
+        maxOutputTokens: 500, // Reduced: 700 → 500 for speed
         temperature: 0.7,
         topP: 0.95
       }

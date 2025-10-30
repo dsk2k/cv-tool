@@ -25,20 +25,20 @@ exports.handler = async (event) => {
     }
 
     const lang = language === 'nl' ? 'Nederlands' : 'English';
-    const jobSummary = jobDescription.substring(0, 1500);
+    const jobSummary = jobDescription.substring(0, 1000);
 
     const prompt = `Recruiter tips in ${lang}.
 
 Job: ${jobSummary}
 
-Give 6-8 bullet points: what recruiters want, stand out, interview prep, mistakes, key skills.
+5-7 bullet points: stand out, interview prep, key skills.
 
 Tips:`;
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.0-flash',
       generationConfig: {
-        maxOutputTokens: 700, // Reduced from 1024
+        maxOutputTokens: 500, // Reduced: 700 → 500 for speed
         temperature: 0.7,
         topP: 0.95
       }

@@ -28,35 +28,31 @@ exports.handler = async (event) => {
       ? { original: 'Origineel', improved: 'Verbeterd', why: 'Waarom beter' }
       : { original: 'Original', improved: 'Improved', why: 'Why better' };
 
-    const prompt = `Analyseer Job Match & Targeting verbeteringen in ${lang}.
+    const prompt = `Job Match verbeteringen in ${lang}.
 
 JOB:
-${jobDescription.substring(0, 1500)}
+${jobDescription.substring(0, 800)}
 
-ORIGINEEL CV:
-${originalCV.substring(0, 3000)}
+VOOR:
+${originalCV.substring(0, 2000)}
 
-VERBETERD CV:
-${improvedCV.substring(0, 3000)}
+NA:
+${improvedCV.substring(0, 2000)}
 
 Formaat:
 
-### 1. [Specifieke targeting verbetering]
+### 1. [Match verbetering]
 
-**${labels.original}:** [Hoe CV naar job verwees]
-**${labels.improved}:** [Hoe het nu gericht is]
-**${labels.why}:** [Impact op job match]
+**${labels.original}:** [Was]
+**${labels.improved}:** [Nu]
+**${labels.why}:** [Impact]
 
-Analyseer 2-3 verbeteringen over:
-- Relevante ervaring highlighted
-- Skills match met job requirements
-- Custom targeting voor deze rol
-- Alignment met job priorities`;
+Geef 2 verbeteringen: relevante ervaring, skills match.`;
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.0-flash',
       generationConfig: {
-        maxOutputTokens: 600,
+        maxOutputTokens: 400, // Reduced: 600 → 400 for speed
         temperature: 0.7,
         topP: 0.95
       }
