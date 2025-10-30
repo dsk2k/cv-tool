@@ -217,20 +217,65 @@ document.addEventListener('DOMContentLoaded', () => {
                 results.recruiterTips = tipsData.recruiterTips;
                 console.log('✅ Step 3 complete');
 
-                // Longer delay before Step 4 (most intensive request)
-                await delay(3000);
+                // Step 4: Generate DETAILED changes overview (split into 4 focused analyses)
+                console.log('📝 Step 4: Generating detailed changes analysis (4 categories for comprehensive feedback)...');
 
-                // Step 4: Generate changes overview (DETAILED - ~20-25s, this is the core value!)
-                console.log('📝 Step 4: Generating detailed changes analysis (this takes longer for comprehensive feedback)...');
-                const changesResponse = await fetchWithRetry('/.netlify/functions/generate-changes', {
+                // Delay before Step 4a
+                await delay(2000);
+
+                // Step 4a: ATS & Keywords analysis
+                console.log('🎯 Step 4a: ATS & Keywords...');
+                const atsResponse = await fetchWithRetry('/.netlify/functions/generate-changes-ats', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ originalCV: cvText, improvedCV: results.improvedCV, language })
                 });
-                if (!changesResponse.ok) throw new Error('Changes generation failed');
-                const changesData = await changesResponse.json();
-                results.changesOverview = changesData.changesOverview;
-                console.log('✅ Step 4 complete');
+                if (!atsResponse.ok) throw new Error('ATS analysis failed');
+                const atsData = await atsResponse.json();
+                console.log('✅ Step 4a complete');
+
+                await delay(2000);
+
+                // Step 4b: Impact & Results analysis
+                console.log('💥 Step 4b: Impact & Results...');
+                const impactResponse = await fetchWithRetry('/.netlify/functions/generate-changes-impact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ originalCV: cvText, improvedCV: results.improvedCV, language })
+                });
+                if (!impactResponse.ok) throw new Error('Impact analysis failed');
+                const impactData = await impactResponse.json();
+                console.log('✅ Step 4b complete');
+
+                await delay(2000);
+
+                // Step 4c: Professional Polish analysis
+                console.log('✨ Step 4c: Professional Polish...');
+                const polishResponse = await fetchWithRetry('/.netlify/functions/generate-changes-polish', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ originalCV: cvText, improvedCV: results.improvedCV, language })
+                });
+                if (!polishResponse.ok) throw new Error('Polish analysis failed');
+                const polishData = await polishResponse.json();
+                console.log('✅ Step 4c complete');
+
+                await delay(2000);
+
+                // Step 4d: Job Match & Targeting analysis
+                console.log('🎯 Step 4d: Job Match & Targeting...');
+                const matchResponse = await fetchWithRetry('/.netlify/functions/generate-changes-match', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ originalCV: cvText, improvedCV: results.improvedCV, jobDescription, language })
+                });
+                if (!matchResponse.ok) throw new Error('Match analysis failed');
+                const matchData = await matchResponse.json();
+                console.log('✅ Step 4d complete');
+
+                // Combine all changes into one overview
+                results.changesOverview = `${atsData.atsChanges}\n\n${impactData.impactChanges}\n\n${polishData.polishChanges}\n\n${matchData.matchChanges}`;
+                console.log('✅ All changes analysis complete!');
 
                 // Store combined results
                 results.metadata = { language, timestamp: new Date().toISOString() };

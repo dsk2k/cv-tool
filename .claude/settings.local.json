@@ -8,7 +8,9 @@
       "Bash(npm install:*)",
       "Bash(cat:*)",
       "Bash(git for-each-ref:*)",
-      "Bash(xargs:*)"
+      "Bash(xargs:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
