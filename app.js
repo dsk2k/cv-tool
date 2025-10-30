@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 // Create FormData for file upload
                 const formData = new FormData();
-                formData.append('cvFile', cvFile);
+                formData.append('cv', cvFile);
                 formData.append('jobDescription', jobDescription);
                 formData.append('language', language);
                 if (email) {
@@ -142,44 +142,90 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
 
-                // Submit CV for analysis (synchronous - optimized to finish in ~15-18s)
-                console.log('📤 Submitting CV for analysis...');
-                const response = await fetch('/.netlify/functions/analyze-cv', {
+                // Submit job to Netlify Background Function (Pro: 15 min limit)
+                console.log('📤 Submitting job to background processor...');
+                const submitResponse = await fetch('/.netlify/functions/submit-cv-job', {
                     method: 'POST',
                     body: formData
                 });
 
-                console.log('✅ Response received, status:', response.status);
-
-                if (!response.ok) {
-                    throw new Error(`Server error: ${response.status}`);
+                if (!submitResponse.ok) {
+                    throw new Error(`Submit failed: ${submitResponse.status}`);
                 }
 
-                const result = await response.json();
-                console.log('✅ Response parsed successfully');
-                console.log('📦 Response keys:', Object.keys(result));
+                const submitResult = await submitResponse.json();
+                console.log('✅ Job submitted:', submitResult.jobId);
+                console.log('📊 Rate limit:', submitResult.rateLimit);
 
-                // Store result in sessionStorage
-                try {
-                    const dataToStore = JSON.stringify(result);
-                    console.log('💾 Storing data in sessionStorage, size:', dataToStore.length, 'chars');
-                    sessionStorage.setItem('cvAnalysisResult', dataToStore);
-                    console.log('✅ Data stored successfully in sessionStorage');
-                } catch (storageError) {
-                    console.error('❌ Failed to store in sessionStorage:', storageError);
-                    throw storageError;
+                // If cached, use immediately
+                if (submitResult.status === 'completed' && submitResult.result) {
+                    console.log('🎯 Using cached result');
+                    sessionStorage.setItem('cvAnalysisResult', JSON.stringify({
+                        ...submitResult.result,
+                        rateLimit: submitResult.rateLimit
+                    }));
+                    window.location.href = 'improvements.html';
+                    return;
                 }
 
-                // Track successful analysis in GA4
-                if (window.trackEvent) {
-                    window.trackEvent('cv_analysis_success', {
-                        language: language,
-                        has_email: !!email
-                    });
-                }
+                // Poll for completion (background function processing)
+                const jobId = submitResult.jobId;
+                let pollCount = 0;
+                const maxPolls = 90; // 90 polls x 2s = 3 min max
 
-                console.log('🚀 Redirecting to improvements.html');
-                window.location.href = 'improvements.html';
+                const pollInterval = setInterval(async () => {
+                    pollCount++;
+                    console.log(`🔄 Polling (${pollCount})...`);
+
+                    try {
+                        const statusResponse = await fetch(`/.netlify/functions/check-job-status?jobId=${jobId}`);
+                        if (!statusResponse.ok) {
+                            console.error('❌ Status check failed');
+                            return;
+                        }
+
+                        const statusData = await statusResponse.json();
+                        console.log(`📋 Status: ${statusData.status}`);
+
+                        if (statusData.status === 'completed') {
+                            clearInterval(pollInterval);
+                            console.log('✅ Job completed!');
+
+                            sessionStorage.setItem('cvAnalysisResult', JSON.stringify({
+                                ...statusData.result,
+                                rateLimit: statusData.rateLimit || submitResult.rateLimit
+                            }));
+
+                            if (window.trackEvent) {
+                                window.trackEvent('cv_analysis_success', {
+                                    language: language,
+                                    has_email: !!email,
+                                    processing_time: statusData.processingTime
+                                });
+                            }
+
+                            console.log('🚀 Redirecting to improvements.html');
+                            window.location.href = 'improvements.html';
+
+                        } else if (statusData.status === 'failed') {
+                            clearInterval(pollInterval);
+                            throw new Error(statusData.error || 'Processing failed');
+
+                        } else if (pollCount >= maxPolls) {
+                            clearInterval(pollInterval);
+                            throw new Error('Timeout - please try again');
+                        }
+
+                    } catch (pollError) {
+                        clearInterval(pollInterval);
+                        console.error('❌ Polling error:', pollError);
+
+                        loadingOverlay.classList.add('hidden');
+                        loadingOverlay.classList.remove('flex');
+
+                        alert('Error: ' + pollError.message);
+                    }
+                }, 2000);
                 
             } catch (error) {
                 console.error('Error:', error);
