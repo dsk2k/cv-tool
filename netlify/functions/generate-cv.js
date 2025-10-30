@@ -80,7 +80,10 @@ Improved CV:`;
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ improvedCV })
+      body: JSON.stringify({
+        improvedCV,
+        originalCVText: cvText // Return parsed text for subsequent requests
+      })
     };
 
   } catch (error) {
