@@ -24,34 +24,40 @@ exports.handler = async (event) => {
       ? { original: 'Origineel', improved: 'Verbeterd', why: 'Waarom beter' }
       : { original: 'Original', improved: 'Improved', why: 'Why better' };
 
-    const prompt = `Compare these two CV versions and list the key improvements in ${lang}.
+    const prompt = `Vergelijk deze twee CV-versies in detail en lijst ALLE belangrijke verbeteringen op in ${lang}.
 
-Original CV:
-${originalCV.substring(0, 1000)}
+ORIGINELE CV:
+${originalCV}
 
-Improved CV:
-${improvedCV.substring(0, 1000)}
+VERBETERDE CV:
+${improvedCV}
 
-Format your response EXACTLY like this (using ${lang}):
+Geef een UITGEBREIDE analyse van alle veranderingen. Gebruik dit EXACTE formaat (in ${lang}):
 
-### 1. [Change title]
+### 1. [Titel van verandering]
 
-**${labels.original}:** [Brief description of original version]
-**${labels.improved}:** [Brief description of improved version]
-**${labels.why}:** [Why this improvement matters]
+**${labels.original}:** [Gedetailleerde beschrijving van hoe het was]
+**${labels.improved}:** [Gedetailleerde beschrijving van hoe het nu is]
+**${labels.why}:** [Uitgebreide uitleg waarom dit belangrijk is voor recruiters en waarom dit de kans op een interview vergroot]
 
-### 2. [Second change title]
+### 2. [Tweede verandering]
 
-**${labels.original}:** [Brief description]
-**${labels.improved}:** [Brief description]
-**${labels.why}:** [Why this matters]
+**${labels.original}:** [Gedetailleerde beschrijving]
+**${labels.improved}:** [Gedetailleerde beschrijving]
+**${labels.why}:** [Uitgebreide uitleg met concrete voordelen]
 
-List 3-5 of the MOST IMPORTANT changes only.`;
+BELANGRIJK:
+- Analyseer ALLE secties: persoonlijke info, samenvatting, werkervaring, opleidingen, vaardigheden
+- Lijst 8-12 verbeteringen (niet slechts 3-5)
+- Wees specifiek over wat er veranderd is
+- Leg uit HOE elke verandering de kans op een interview vergroot
+- Vermeld concrete voorbeelden uit de CV's
+- Focus op: professionaliteit, ATS-optimalisatie, impact statements, kwantificeerbare resultaten`;
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.0-flash',
       generationConfig: {
-        maxOutputTokens: 512,
+        maxOutputTokens: 2048,
         temperature: 0.7,
         topP: 0.95
       }
