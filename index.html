@@ -1623,10 +1623,9 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="translations.js?v=20241030-quizfix3"></script>
-    <script src="app.js?v=20241030-quizfix3"></script>
+    <script src="translations.js?v=20241030-quizfix4"></script>
 
-    <!-- Interactive Loading Experience Script -->
+    <!-- Interactive Loading Experience Script (BEFORE app.js so functions are available) -->
     <script>
         // CV Trivia Quiz Data (Bilingual)
         const triviaQuestions = {
@@ -2026,6 +2025,9 @@
             }
         });
     </script>
+
+    <!-- Load app.js AFTER quiz functions are defined -->
+    <script src="app.js?v=20241030-quizfix4"></script>
 
     <script>
         // Smooth scroll functions
