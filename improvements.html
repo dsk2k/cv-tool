@@ -442,6 +442,30 @@
             border-radius: 12px;
         }
 
+        .skeleton-text {
+            background: linear-gradient(90deg, #e5e7eb 0%, #f3f4f6 50%, #e5e7eb 100%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite linear;
+            color: transparent;
+            user-select: none;
+            border-radius: 6px;
+        }
+
+        .progress-bar-loading {
+            animation: progressPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes progressPulse {
+            0%, 100% {
+                opacity: 0.3;
+                width: 20%;
+            }
+            50% {
+                opacity: 0.6;
+                width: 40%;
+            }
+        }
+
         .score-animate {
             animation: scoreCountUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -702,18 +726,18 @@
                                     <span class="text-3xl">🎯</span>
                                 </div>
                                 <div class="category-score text-right">
-                                    <div class="text-3xl font-bold" id="score-ats" data-color="text-gray-400">--</div>
-                                    <div class="text-xs text-gray-500 font-semibold">/ 100</div>
+                                    <div class="text-3xl font-bold skeleton-text" id="score-ats" data-color="text-gray-400">88</div>
+                                    <div class="text-xs text-gray-400 font-semibold mt-1">⏳ Loading...</div>
                                 </div>
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-2">ATS & Keywords</h3>
                             <p class="text-sm text-gray-600 mb-4">Optimalisatie voor recruitment systemen</p>
                             <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
-                                <div id="progress-ats" class="h-2 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-1000" style="width: 0%"></div>
+                                <div id="progress-ats" class="h-2 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 progress-bar-loading"></div>
                             </div>
                             <div class="flex items-center justify-between text-xs">
-                                <span class="text-gray-500"><span id="count-ats">0</span> verbeteringen</span>
-                                <span class="font-semibold text-blue-600" id="level-ats">Level 1</span>
+                                <span class="text-gray-500"><span id="count-ats" class="skeleton-text">3</span> verbeteringen</span>
+                                <span class="font-semibold text-blue-600" id="level-ats">⏳</span>
                             </div>
                         </div>
 
@@ -725,18 +749,18 @@
                                     <span class="text-3xl">💪</span>
                                 </div>
                                 <div class="category-score text-right">
-                                    <div class="text-3xl font-bold" id="score-impact" data-color="text-gray-400">--</div>
-                                    <div class="text-xs text-gray-500 font-semibold">/ 100</div>
+                                    <div class="text-3xl font-bold skeleton-text" id="score-impact" data-color="text-gray-400">88</div>
+                                    <div class="text-xs text-gray-400 font-semibold mt-1">⏳ Loading...</div>
                                 </div>
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-2">Impact & Resultaten</h3>
                             <p class="text-sm text-gray-600 mb-4">Kwantificeerbare prestaties en cijfers</p>
                             <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
-                                <div id="progress-impact" class="h-2 rounded-full bg-gradient-to-r from-green-500 to-green-600 transition-all duration-1000" style="width: 0%"></div>
+                                <div id="progress-impact" class="h-2 rounded-full bg-gradient-to-r from-green-500 to-green-600 progress-bar-loading"></div>
                             </div>
                             <div class="flex items-center justify-between text-xs">
-                                <span class="text-gray-500"><span id="count-impact">0</span> verbeteringen</span>
-                                <span class="font-semibold text-green-600" id="level-impact">Level 1</span>
+                                <span class="text-gray-500"><span id="count-impact" class="skeleton-text">3</span> verbeteringen</span>
+                                <span class="font-semibold text-green-600" id="level-impact">⏳</span>
                             </div>
                         </div>
 
@@ -748,18 +772,18 @@
                                     <span class="text-3xl">✨</span>
                                 </div>
                                 <div class="category-score text-right">
-                                    <div class="text-3xl font-bold" id="score-polish" data-color="text-gray-400">--</div>
-                                    <div class="text-xs text-gray-500 font-semibold">/ 100</div>
+                                    <div class="text-3xl font-bold skeleton-text" id="score-polish" data-color="text-gray-400">88</div>
+                                    <div class="text-xs text-gray-400 font-semibold mt-1">⏳ Loading...</div>
                                 </div>
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-2">Professionele Polish</h3>
                             <p class="text-sm text-gray-600 mb-4">Toon, grammatica en consistentie</p>
                             <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
-                                <div id="progress-polish" class="h-2 rounded-full bg-gradient-to-r from-purple-500 to-purple-600 transition-all duration-1000" style="width: 0%"></div>
+                                <div id="progress-polish" class="h-2 rounded-full bg-gradient-to-r from-purple-500 to-purple-600 progress-bar-loading"></div>
                             </div>
                             <div class="flex items-center justify-between text-xs">
-                                <span class="text-gray-500"><span id="count-polish">0</span> verbeteringen</span>
-                                <span class="font-semibold text-purple-600" id="level-polish">Level 1</span>
+                                <span class="text-gray-500"><span id="count-polish" class="skeleton-text">3</span> verbeteringen</span>
+                                <span class="font-semibold text-purple-600" id="level-polish">⏳</span>
                             </div>
                         </div>
 
@@ -771,18 +795,18 @@
                                     <span class="text-3xl">🎨</span>
                                 </div>
                                 <div class="category-score text-right">
-                                    <div class="text-3xl font-bold" id="score-structure" data-color="text-gray-400">--</div>
-                                    <div class="text-xs text-gray-500 font-semibold">/ 100</div>
+                                    <div class="text-3xl font-bold skeleton-text" id="score-structure" data-color="text-gray-400">88</div>
+                                    <div class="text-xs text-gray-400 font-semibold mt-1">⏳ Loading...</div>
                                 </div>
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-2">Structuur & Leesbaarheid</h3>
                             <p class="text-sm text-gray-600 mb-4">Layout en visuele hiërarchie</p>
                             <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
-                                <div id="progress-structure" class="h-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all duration-1000" style="width: 0%"></div>
+                                <div id="progress-structure" class="h-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 progress-bar-loading"></div>
                             </div>
                             <div class="flex items-center justify-between text-xs">
-                                <span class="text-gray-500"><span id="count-structure">0</span> verbeteringen</span>
-                                <span class="font-semibold text-orange-600" id="level-structure">Level 1</span>
+                                <span class="text-gray-500"><span id="count-structure" class="skeleton-text">3</span> verbeteringen</span>
+                                <span class="font-semibold text-orange-600" id="level-structure">⏳</span>
                             </div>
                         </div>
 
@@ -794,18 +818,18 @@
                                     <span class="text-3xl">🔥</span>
                                 </div>
                                 <div class="category-score text-right">
-                                    <div class="text-3xl font-bold" id="score-targeting" data-color="text-gray-400">--</div>
-                                    <div class="text-xs text-gray-500 font-semibold">/ 100</div>
+                                    <div class="text-3xl font-bold skeleton-text" id="score-targeting" data-color="text-gray-400">88</div>
+                                    <div class="text-xs text-gray-400 font-semibold mt-1">⏳ Loading...</div>
                                 </div>
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-2">Job Match & Targeting</h3>
                             <p class="text-sm text-gray-600 mb-4">Afstemming op de specifieke rol</p>
                             <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
-                                <div id="progress-targeting" class="h-2 rounded-full bg-gradient-to-r from-red-500 to-red-600 transition-all duration-1000" style="width: 0%"></div>
+                                <div id="progress-targeting" class="h-2 rounded-full bg-gradient-to-r from-red-500 to-red-600 progress-bar-loading"></div>
                             </div>
                             <div class="flex items-center justify-between text-xs">
-                                <span class="text-gray-500"><span id="count-targeting">0</span> verbeteringen</span>
-                                <span class="font-semibold text-red-600" id="level-targeting">Level 1</span>
+                                <span class="text-gray-500"><span id="count-targeting" class="skeleton-text">3</span> verbeteringen</span>
+                                <span class="font-semibold text-red-600" id="level-targeting">⏳</span>
                             </div>
                         </div>
                     </div>
@@ -1462,16 +1486,32 @@
                 const improvementGain = optimizedScore - originalScore;
 
                 // Update UI - show IMPROVEMENT GAIN as the score
-                document.getElementById(`score-${catKey}`).textContent = '+' + improvementGain;
-                document.getElementById(`score-${catKey}`).classList.add('score-animate');
-                document.getElementById(`count-${catKey}`).textContent = count;
-                document.getElementById(`progress-${catKey}`).style.width = improvementGain + '%';
+                const scoreEl = document.getElementById(`score-${catKey}`);
+                scoreEl.textContent = '+' + improvementGain;
+                scoreEl.classList.remove('skeleton-text'); // Remove loading skeleton
+                scoreEl.classList.add('score-animate');
+
+                const countEl = document.getElementById(`count-${catKey}`);
+                countEl.textContent = count;
+                countEl.classList.remove('skeleton-text'); // Remove loading skeleton
+
+                const progressEl = document.getElementById(`progress-${catKey}`);
+                progressEl.classList.remove('progress-bar-loading'); // Remove loading animation
+                progressEl.classList.add('transition-all', 'duration-1000');
+                progressEl.style.width = improvementGain + '%';
+
+                // Update "Loading..." text below score to show actual /100
+                const scoreParent = scoreEl.parentElement;
+                const loadingText = scoreParent.querySelector('.text-xs');
+                if (loadingText) {
+                    loadingText.textContent = '/ 100';
+                    loadingText.className = 'text-xs text-gray-500 font-semibold';
+                }
 
                 // Color coding based on improvement gain
-                const scoreEl = document.getElementById(`score-${catKey}`);
-                if (improvementGain >= 50) scoreEl.className = 'text-3xl font-bold text-green-600';
-                else if (improvementGain >= 30) scoreEl.className = 'text-3xl font-bold text-yellow-600';
-                else scoreEl.className = 'text-3xl font-bold text-blue-600';
+                if (improvementGain >= 50) scoreEl.className = 'text-3xl font-bold text-green-600 score-animate';
+                else if (improvementGain >= 30) scoreEl.className = 'text-3xl font-bold text-yellow-600 score-animate';
+                else scoreEl.className = 'text-3xl font-bold text-blue-600 score-animate';
 
                 // Level badges based on improvement
                 const levelEl = document.getElementById(`level-${catKey}`);
