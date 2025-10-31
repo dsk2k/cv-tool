@@ -64,6 +64,9 @@ Gebruik markdown formatting met ## voor headers en - voor bullet points.
 Wees specifiek en actionable, geen algemene adviezen.
 Elke tip moet kort en direct zijn (max 2 zinnen per bullet point).
 
+BELANGRIJK: Elk bullet point moet volledige actionable content bevatten, niet alleen een titel.
+Voorbeeld: "- Bestudeer de bedrijfswebsite grondig en let op hun waardepropositie. Noteer 2-3 concrete vragen over hun business model."
+
 Checklist:`
       : `You are an experienced recruiter and interview coach. Create a comprehensive interview preparation checklist in English for the following job role.
 
@@ -100,6 +103,9 @@ Create a detailed interview preparation checklist with AT LEAST 25-30 items divi
 Use markdown formatting with ## for headers and - for bullet points.
 Be specific and actionable, no generic advice.
 Each tip should be brief and direct (max 2 sentences per bullet point).
+
+IMPORTANT: Each bullet point must contain full actionable content, not just a title.
+Example: "- Study the company website thoroughly and note their value proposition. Prepare 2-3 specific questions about their business model."
 
 Checklist:`;
 
