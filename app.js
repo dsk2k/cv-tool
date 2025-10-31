@@ -296,11 +296,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                // Sequential generation (4 requests with delays to avoid rate limits)
+                // FAST FIRST PAINT: Only generate CV, then redirect immediately
+                // Other content (cover letter, tips, changes) will load in background on improvements page
                 const results = {};
 
                 // Step 1: Generate improved CV (~15s)
                 console.log('📄 Step 1: Generating improved CV...');
+                updateStep(1, 'active');
                 const cvResponse = await fetchWithRetry('/.netlify/functions/generate-cv', {
                     method: 'POST',
                     body: formData
@@ -309,14 +311,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cvData = await cvResponse.json();
                 results.improvedCV = cvData.improvedCV;
                 const cvText = cvData.originalCVText; // Use backend-parsed text
-                console.log('✅ Step 1 complete');
+                console.log('✅ Step 1 complete - CV ready!');
                 console.log(`📋 Received cvText length: ${cvText?.length || 0}`);
                 updateStep(1, 'completed');
-                if (progressBar) progressBar.style.width = '14%';
+                if (progressBar) progressBar.style.width = '100%'; // Show complete for perceived speed
 
-                // Longer delay to avoid rate limits (we make 7 API calls total)
-                await delay(4000);
+                // Store essential data for lazy loading on improvements page
+                results.metadata = {
+                    language,
+                    timestamp: new Date().toISOString(),
+                    cvText, // Original CV text needed for other generations
+                    jobDescription, // Job description needed for matching
+                    email // Email for potential future use
+                };
+                sessionStorage.setItem('cvAnalysisResult', JSON.stringify(results));
 
+                if (window.trackEvent) {
+                    window.trackEvent('cv_fast_load', {
+                        language: language,
+                        has_email: !!email
+                    });
+                }
+
+                console.log('🚀 CV ready! Redirecting to improvements page...');
+                console.log('💡 Other content will load in background for better UX');
+
+                // Small delay so user sees completion
+                await delay(500);
+                window.location.href = 'improvements.html';
+
+                return; // Exit early - no need for steps 2-7
+
+                // OLD CODE BELOW - keeping as fallback/reference for now
                 // Step 2: Generate cover letter (~10s)
                 console.log('✉️ Step 2: Generating cover letter...');
                 updateStep(2, 'active');
