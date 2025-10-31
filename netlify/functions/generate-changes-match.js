@@ -28,7 +28,7 @@ exports.handler = async (event) => {
       ? { original: 'Origineel', improved: 'Verbeterd', why: 'Waarom beter' }
       : { original: 'Original', improved: 'Improved', why: 'Why better' };
 
-    const prompt = `Vergelijk deze CV's en geef gedetailleerde Job Match & Targeting verbeteringen in ${lang}.
+    const prompt = `Je bent een professional CV expert. Vergelijk deze CV's en geef gedetailleerde Job Match & Targeting verbeteringen in ${lang}.
 
 JOB DESCRIPTION:
 ${jobDescription.substring(0, 1000)}
@@ -39,30 +39,51 @@ ${originalCV.substring(0, 2500)}
 VERBETERD CV:
 ${improvedCV.substring(0, 2500)}
 
-BELANGRIJK: Gebruik EXACT dit formaat, vul ALLE velden UITGEBREID in:
+KRITIEKE INSTRUCTIES - LEES DIT ZORGVULDIG:
+1. Je MOET EXACT 3 velden invullen per verbetering: ${labels.original}, ${labels.improved}, en ${labels.why}
+2. ALLE velden zijn VERPLICHT - laat NOOIT een veld leeg of met alleen "[...]"
+3. Elk veld moet MINIMAAL 2-3 complete zinnen bevatten met concrete voorbeelden
+4. Citeer ALTIJD specifieke tekst uit job description EN CV's tussen aanhalingstekens
+5. Vergelijk de EXACTE verschillen tussen origineel en verbeterd
 
-### 1. [Precieze titel van de matching-verbetering]
+VERPLICHT FORMAAT - kopieer dit EXACT en vul ALLE placeholders volledig in:
 
-**${labels.original}:** [GEDETAILLEERDE beschrijving van hoe het originele CV aansloot (of juist niet aansloot) bij de vacature. Citeer specifieke requirements uit de job description en vergelijk met wat er in het originele CV stond. Leg uit welke belangrijke skills, ervaring of keywords ontbraken. Beschrijf de mismatch tussen wat de werkgever zoekt en wat het CV liet zien. Minimaal 2-3 zinnen met concrete voorbeelden.]
+### 1. [Precieze titel van de match-verbetering - bijvoorbeeld: "Afstemming van leiderschapservaring op vereiste 'team management skills'"]
 
-**${labels.improved}:** [GEDETAILLEERDE beschrijving van hoe het verbeterde CV nu perfect aansluit bij de vacature. Citeer exacte matches tussen job requirements en CV content. Laat zien welke relevante ervaring nu prominent wordt getoond, welke gevraagde skills zijn toegevoegd/benadrukt, welke termen uit de vacature nu in het CV staan. Leg uit HOE het CV nu op maat is gemaakt voor deze specifieke functie. Minimaal 2-3 zinnen met concrete voorbeelden.]
+**${labels.original}:** [Beschrijf in 2-3 complete zinnen de mismatch. Citeer uit job description EN CV. Bijvoorbeeld: "De vacature vraagt 'minimum 3 jaar leidinggevende ervaring aan teams van 5+ personen'. Het originele CV vermeldde alleen 'werkervaring in teamverband' zonder leiderschapsrol. De job description benadrukt 'stakeholder management' en 'cross-functional collaboration', maar het CV toonde geen voorbeelden hiervan."]
 
-**${labels.why}:** [UITGEBREIDE uitleg waarom deze targeted aanpak zo effectief is. Leg uit waarom recruiters CV's willen zien die perfect aansluiten bij hun vacature. Beschrijf hoe relevantie je kansen dramatisch verhoogt. Noem het belang van het "spiegelen" van de job description. Gebruik inzichten over ATS scoring en recruiter psychologie. Minimaal 3-4 zinnen.]
+**${labels.improved}:** [Beschrijf in 2-3 complete zinnen de perfecte match. Citeer specifieke toevoegingen. Bijvoorbeeld: "Het verbeterde CV toont nu 'Leidinggevend aan team van 8 developers gedurende 4 jaar'. Er staat expliciet 'Stakeholder management met C-level executives en product owners'. De ervaring is herschreven naar 'Led cross-functional initiatives tussen Engineering, Product en Sales teams', exact spiegelend aan de vacature-eisen."]
 
-Geef 2-3 Match verbeteringen. Focus op:
-- Alignment tussen gevraagde en getoonde skills
-- Relevante ervaring die nu prominent staat
-- Keywords uit de job description in het CV
-- Herschrijven van ervaring om te matchen met functie-eisen
-- Prioritering van meest relevante informatie
+**${labels.why}:** [Leg in 3-4 complete zinnen uit waarom dit werkt. Bijvoorbeeld: "Recruiters scannen op directe matches tussen hun requirements en jouw ervaring. Wanneer je exact hun terminologie gebruikt ('stakeholder management', 'cross-functional') herkennen ze onmiddellijk de fit. Een targeted CV verhoogt je kans met 3-5x omdat recruiters gemiddeld 50+ CV's bekijken - alleen perfecte matches krijgen een gesprek. Het 'spiegelen' van job description taal zorgt ervoor dat jouw CV resoneert en blijft hangen."]
 
-Wees SPECIFIEK met citaten uit zowel job description als CV. ALLE 3 velden zijn VERPLICHT en moeten UITGEBREID zijn!`;
+### 2. [Tweede match-verbetering - wederom met volledige titel]
+
+**${labels.original}:** [Weer 2-3 complete zinnen met citaten uit job description EN origineel CV...]
+
+**${labels.improved}:** [Weer 2-3 complete zinnen met citaten uit verbeterd CV...]
+
+**${labels.why}:** [Weer 3-4 complete zinnen met specifieke uitleg...]
+
+LET OP: Geef 2-3 Match verbeteringen. Focus specifiek op:
+- Directe alignment tussen job requirements en CV content (citeer beide!)
+- Keywords uit vacature die nu in CV staan
+- Relevante ervaring die nu prominent/eerst wordt getoond
+- Herschrijven met exact dezelfde terminologie als job description
+
+VALIDATIE CHECKLIST - controleer dit voor je antwoord geeft:
+✓ Heeft elke verbetering ALLE 3 velden volledig ingevuld?
+✓ Bevat elk veld minimaal 2-3 (of 3-4 voor ${labels.why}) complete zinnen?
+✓ Heb je ZOWEL job description ALS CV citaten gebruikt?
+✓ Zijn de matches tussen vacature en CV expliciet gemaakt?
+✓ Is elk veld uniek en inhoudelijk verschillend van de andere velden?
+
+BELANGRIJK: Deze content is waar klanten voor betalen. Lege of incomplete velden zijn NIET acceptabel!`;
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.0-flash',
       generationConfig: {
-        maxOutputTokens: 1000, // Increased for detailed responses
-        temperature: 0.7,
+        maxOutputTokens: 1500, // Increased further for complete detailed responses
+        temperature: 0.8, // Slightly higher for more complete/creative responses
         topP: 0.95
       }
     });
