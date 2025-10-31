@@ -365,7 +365,7 @@
         }
 
         .category-card::after {
-            content: '👆 Click to filter';
+            content: '👆 Click to expand';
             position: absolute;
             bottom: 8px;
             right: 12px;
@@ -387,9 +387,32 @@
         }
 
         .category-card.active::after {
-            content: '✓ Active filter';
+            content: '✓ Expanded';
             opacity: 1;
             color: #8b5cf6;
+        }
+
+        /* Category group collapse/expand animations */
+        .category-group {
+            max-height: 10000px;
+            overflow: visible;
+            opacity: 1;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.4s ease,
+                        margin-bottom 0.3s ease;
+        }
+
+        .category-group.collapsed {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            margin-bottom: 0;
+        }
+
+        /* Flex container for category reordering */
+        #changesContent {
+            display: flex;
+            flex-direction: column;
         }
 
         @keyframes scoreCountUp {
@@ -779,7 +802,7 @@
 
             <!-- Improved CV (Collapsible) -->
             <div class="glass-card rounded-2xl shadow-2xl animate-slide-up overflow-hidden">
-                <div class="collapsible-header" onclick="toggleSection('cv')">
+                <div class="collapsible-header" onclick="toggleMainSection('cv')">
                     <div class="flex items-center gap-3">
                         <span class="text-4xl float-animation">✨</span>
                         <span class="text-2xl font-bold">Jouw Geoptimaliseerde CV</span>
@@ -797,7 +820,7 @@
 
             <!-- Cover Letter (Collapsible) - Professional Letter Format -->
             <div class="glass-card rounded-2xl shadow-2xl animate-slide-up overflow-hidden" style="border: 2px solid rgba(102,126,234,0.1);">
-                <div class="collapsible-header" onclick="toggleSection('cover')" style="
+                <div class="collapsible-header" onclick="toggleMainSection('cover')" style="
                     background: linear-gradient(135deg, rgba(102,126,234,0.05) 0%, rgba(118,75,162,0.05) 100%);
                     border-bottom: 2px solid rgba(102,126,234,0.1);
                     padding: 2rem;
@@ -882,7 +905,7 @@
                 border-image: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #fbbf24 100%) 1;
                 box-shadow: 0 20px 60px rgba(251, 191, 36, 0.25), 0 0 0 1px rgba(251, 191, 36, 0.1) inset;
             ">
-                <div class="collapsible-header" onclick="toggleSection('tips')" style="
+                <div class="collapsible-header" onclick="toggleMainSection('tips')" style="
                     background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fde68a 100%);
                     border-bottom: 3px solid rgba(251,191,36,0.3);
                     padding: 2.5rem;
@@ -1336,20 +1359,25 @@
         let activeCategory = null;
 
         function toggleCategory(catKey) {
-            const card = document.querySelector(`[data-category="${catKey}"]`);
+            const card = document.querySelector(`.category-card[data-category="${catKey}"]`);
             const categoryChanges = document.querySelectorAll(`.category-group[data-category="${catKey}"]`);
+            const changesContainer = document.getElementById('changesContent');
 
-            // Toggle active state on card
+            // Check if this category is already active
             const isExpanded = card.classList.contains('active');
 
             if (isExpanded) {
-                // Collapse this category
+                // Collapse this category - show all categories again
                 card.classList.remove('active');
                 categoryChanges.forEach(change => {
-                    change.style.maxHeight = '0';
-                    change.style.overflow = 'hidden';
-                    change.style.marginBottom = '0';
-                    change.style.opacity = '0';
+                    change.classList.remove('collapsed');
+                });
+
+                // Reset order - show all categories
+                const allCategoryGroups = document.querySelectorAll('.category-group');
+                allCategoryGroups.forEach(change => {
+                    change.classList.remove('collapsed');
+                    change.style.order = '';
                 });
 
                 // Track category collapse in GA4
@@ -1359,13 +1387,24 @@
                     });
                 }
             } else {
+                // Collapse all other categories first
+                document.querySelectorAll('.category-card').forEach(c => {
+                    c.classList.remove('active');
+                });
+
                 // Expand this category
                 card.classList.add('active');
-                categoryChanges.forEach(change => {
-                    change.style.maxHeight = '10000px';
-                    change.style.overflow = 'visible';
-                    change.style.marginBottom = '';
-                    change.style.opacity = '1';
+
+                // Hide all category groups first
+                const allCategoryGroups = document.querySelectorAll('.category-group');
+                allCategoryGroups.forEach(change => {
+                    if (change.dataset.category !== catKey) {
+                        change.classList.add('collapsed');
+                        change.style.order = '999'; // Move to bottom
+                    } else {
+                        change.classList.remove('collapsed');
+                        change.style.order = '-1'; // Move to top
+                    }
                 });
 
                 // Track category expansion in GA4
@@ -2363,7 +2402,7 @@
         // SECTION TOGGLE
         // ============================================
 
-        function toggleSection(sectionName) {
+        function toggleMainSection(sectionName) {
             const content = document.getElementById(`${sectionName}-content`);
             const icon = document.getElementById(`${sectionName}-icon`);
             const header = content.previousElementSibling;
