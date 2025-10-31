@@ -1,32 +1,94 @@
 // AI CV Tailor - Main Application Logic
 
-// Helper function to update loading step status
+// Helper function to update loading step status (compact design)
 function updateStep(stepNumber, status = 'active') {
-    const step = document.querySelector(`.progress-step[data-step="${stepNumber}"]`);
-    if (!step) return;
+    // Get current language
+    const lang = document.getElementById('language')?.value || 'en';
 
-    const icon = step.querySelector('.step-icon');
-    const statusText = step.querySelector('.step-status');
+    const stepLabels = {
+        en: [
+            'Optimize resume',
+            'Cover letter',
+            'Recruiter tips',
+            'ATS analysis',
+            'Impact analysis',
+            'Professionalism',
+            'Job match'
+        ],
+        nl: [
+            'CV optimaliseren',
+            'Motivatiebrief',
+            'Recruiter tips',
+            'ATS analyse',
+            'Impact analyse',
+            'Professionaliteit',
+            'Job match'
+        ]
+    };
 
+    const statusLabels = {
+        en: {
+            generating: 'Generating...',
+            completed: 'All steps completed!',
+            loading: 'Loading your results...'
+        },
+        nl: {
+            generating: 'Bezig met genereren...',
+            completed: 'Alle stappen voltooid!',
+            loading: 'Je resultaten worden geladen...'
+        }
+    };
+
+    const labels = stepLabels[lang];
+
+    // Update mini step indicator
+    const miniStep = document.querySelector(`.progress-step-mini[data-step="${stepNumber}"]`);
+    if (miniStep) {
+        const icon = miniStep.querySelector('.step-icon');
+        const number = miniStep.querySelector('span:last-child');
+
+        if (status === 'active') {
+            miniStep.style.background = 'white';
+            miniStep.style.borderColor = '#667eea';
+            miniStep.style.opacity = '1';
+            if (icon) icon.textContent = '⏳';
+            if (number) number.style.color = '#667eea';
+        } else if (status === 'completed') {
+            miniStep.style.background = 'rgba(16,185,129,0.1)';
+            miniStep.style.borderColor = '#10b981';
+            miniStep.style.opacity = '1';
+            if (icon) icon.textContent = '✅';
+            if (number) number.style.color = '#10b981';
+        }
+    }
+
+    // Update current step detail box
     if (status === 'active') {
-        step.style.opacity = '1';
-        step.style.background = 'white';
-        step.style.border = '1.5px solid #667eea';
-        step.style.boxShadow = '0 2px 8px rgba(102,126,234,0.1)';
-        if (icon) icon.textContent = '⏳';
-        if (statusText) {
-            statusText.textContent = 'Bezig...';
-            statusText.style.color = '#667eea';
+        const detailBox = document.getElementById('currentStepDetail');
+        if (detailBox) {
+            detailBox.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="font-size: 1.5rem;">⏳</span>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700; font-size: 0.875rem; color: #1f2937; margin-bottom: 2px;">Step ${stepNumber}: ${labels[stepNumber - 1]}</div>
+                        <div style="font-size: 0.75rem; color: #667eea; font-weight: 600;">${statusLabels[lang].generating}</div>
+                    </div>
+                </div>
+            `;
         }
     } else if (status === 'completed') {
-        step.style.opacity = '1';
-        step.style.background = 'rgba(16,185,129,0.05)';
-        step.style.border = '1.5px solid #10b981';
-        step.style.boxShadow = '0 2px 8px rgba(16,185,129,0.1)';
-        if (icon) icon.textContent = '✅';
-        if (statusText) {
-            statusText.textContent = 'Klaar!';
-            statusText.style.color = '#10b981';
+        const detailBox = document.getElementById('currentStepDetail');
+        if (detailBox && stepNumber === 7) {
+            // Show completion message after last step
+            detailBox.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="font-size: 1.5rem;">✅</span>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700; font-size: 0.875rem; color: #10b981; margin-bottom: 2px;">${statusLabels[lang].completed}</div>
+                        <div style="font-size: 0.75rem; color: #10b981; font-weight: 600;">${statusLabels[lang].loading}</div>
+                    </div>
+                </div>
+            `;
         }
     }
 }

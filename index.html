@@ -1398,7 +1398,7 @@
                     box-shadow: 0 8px 24px rgba(102,126,234,0.3);
                 ">✨</div>
 
-                <h3 style="
+                <h3 id="loadingTitle" style="
                     font-size: 1.5rem;
                     font-weight: 800;
                     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -1406,14 +1406,14 @@
                     -webkit-text-fill-color: transparent;
                     background-clip: text;
                     margin-bottom: 0.5rem;
-                ">Jouw CV wordt geoptimaliseerd<span class="loading-dots">...</span></h3>
+                ">Your resume is being optimized<span class="loading-dots">...</span></h3>
 
-                <p style="color: #6b7280; font-size: 0.875rem; font-weight: 500;">
-                    Dit duurt ongeveer <strong>60-90 seconden</strong> • Maak je geen zorgen, we houden je bezig! 🎯
+                <p id="loadingSubtext" style="color: #6b7280; font-size: 0.875rem; font-weight: 500;">
+                    This takes approximately <strong>60-90 seconds</strong> • Don't worry, we'll keep you entertained! 🎯
                 </p>
             </div>
 
-            <!-- Progress Steps - All 7 Steps -->
+            <!-- Compact Progress Steps -->
             <div id="stepsContainer" style="
                 background: rgba(249,250,251,0.8);
                 border-radius: 16px;
@@ -1421,61 +1421,62 @@
                 margin-bottom: 1.5rem;
                 border: 1px solid rgba(229,231,235,0.8);
             ">
-                <h4 style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #9ca3af; margin-bottom: 1rem; font-weight: 700;">
+                <h4 style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #9ca3af; margin-bottom: 0.75rem; font-weight: 700;">
                     Progress
                 </h4>
 
-                <!-- Step 1: CV Genereren -->
-                <div class="progress-step active" data-step="1" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: white; border-radius: 8px; margin-bottom: 0.5rem; border: 1.5px solid #667eea; box-shadow: 0 2px 8px rgba(102,126,234,0.1);">
-                    <span class="step-icon" style="font-size: 1.25rem;">⏳</span>
-                    <span style="flex: 1; font-weight: 600; font-size: 0.875rem; color: #1f2937;">1. CV optimaliseren</span>
-                    <span class="step-status" style="font-size: 0.75rem; color: #667eea;">Bezig...</span>
+                <!-- Compact Step Indicators -->
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <div class="progress-step-mini" data-step="1" style="flex: 1; min-width: 45px; height: 45px; background: white; border: 2px solid #667eea; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; transition: all 0.3s;">
+                        <span class="step-icon" style="font-size: 1rem;">⏳</span>
+                        <span style="font-size: 0.625rem; font-weight: 600; color: #667eea;">1</span>
+                    </div>
+                    <div class="progress-step-mini" data-step="2" style="flex: 1; min-width: 45px; height: 45px; background: rgba(243,244,246,0.5); border: 2px solid #e5e7eb; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; opacity: 0.5; transition: all 0.3s;">
+                        <span class="step-icon" style="font-size: 1rem;">⏳</span>
+                        <span style="font-size: 0.625rem; font-weight: 600; color: #9ca3af;">2</span>
+                    </div>
+                    <div class="progress-step-mini" data-step="3" style="flex: 1; min-width: 45px; height: 45px; background: rgba(243,244,246,0.5); border: 2px solid #e5e7eb; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; opacity: 0.5; transition: all 0.3s;">
+                        <span class="step-icon" style="font-size: 1rem;">⏳</span>
+                        <span style="font-size: 0.625rem; font-weight: 600; color: #9ca3af;">3</span>
+                    </div>
+                    <div class="progress-step-mini" data-step="4" style="flex: 1; min-width: 45px; height: 45px; background: rgba(243,244,246,0.5); border: 2px solid #e5e7eb; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-center; gap: 2px; opacity: 0.5; transition: all 0.3s;">
+                        <span class="step-icon" style="font-size: 1rem;">⏳</span>
+                        <span style="font-size: 0.625rem; font-weight: 600; color: #9ca3af;">4</span>
+                    </div>
+                    <div class="progress-step-mini" data-step="5" style="flex: 1; min-width: 45px; height: 45px; background: rgba(243,244,246,0.5); border: 2px solid #e5e7eb; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; opacity: 0.5; transition: all 0.3s;">
+                        <span class="step-icon" style="font-size: 1rem;">⏳</span>
+                        <span style="font-size: 0.625rem; font-weight: 600; color: #9ca3af;">5</span>
+                    </div>
+                    <div class="progress-step-mini" data-step="6" style="flex: 1; min-width: 45px; height: 45px; background: rgba(243,244,246,0.5); border: 2px solid #e5e7eb; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; opacity: 0.5; transition: all 0.3s;">
+                        <span class="step-icon" style="font-size: 1rem;">⏳</span>
+                        <span style="font-size: 0.625rem; font-weight: 600; color: #9ca3af;">6</span>
+                    </div>
+                    <div class="progress-step-mini" data-step="7" style="flex: 1; min-width: 45px; height: 45px; background: rgba(243,244,246,0.5); border: 2px solid #e5e7eb; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; opacity: 0.5; transition: all 0.3s;">
+                        <span class="step-icon" style="font-size: 1rem;">⏳</span>
+                        <span style="font-size: 0.625rem; font-weight: 600; color: #9ca3af;">7</span>
+                    </div>
                 </div>
 
-                <!-- Step 2: Motivatiebrief -->
-                <div class="progress-step" data-step="2" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: rgba(243,244,246,0.5); border-radius: 8px; margin-bottom: 0.5rem; opacity: 0.6;">
-                    <span class="step-icon" style="font-size: 1.25rem;">⏳</span>
-                    <span style="flex: 1; font-weight: 600; font-size: 0.875rem; color: #6b7280;">2. Motivatiebrief</span>
-                    <span class="step-status" style="font-size: 0.75rem; color: #9ca3af;">Wachten...</span>
-                </div>
-
-                <!-- Step 3: Recruiter Tips -->
-                <div class="progress-step" data-step="3" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: rgba(243,244,246,0.5); border-radius: 8px; margin-bottom: 0.5rem; opacity: 0.6;">
-                    <span class="step-icon" style="font-size: 1.25rem;">⏳</span>
-                    <span style="flex: 1; font-weight: 600; font-size: 0.875rem; color: #6b7280;">3. Recruiter tips</span>
-                    <span class="step-status" style="font-size: 0.75rem; color: #9ca3af;">Wachten...</span>
-                </div>
-
-                <!-- Step 4a: ATS Keywords -->
-                <div class="progress-step" data-step="4" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: rgba(243,244,246,0.5); border-radius: 8px; margin-bottom: 0.5rem; opacity: 0.6;">
-                    <span class="step-icon" style="font-size: 1.25rem;">⏳</span>
-                    <span style="flex: 1; font-weight: 600; font-size: 0.875rem; color: #6b7280;">4. ATS analyse</span>
-                    <span class="step-status" style="font-size: 0.75rem; color: #9ca3af;">Wachten...</span>
-                </div>
-
-                <!-- Step 5: Impact -->
-                <div class="progress-step" data-step="5" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: rgba(243,244,246,0.5); border-radius: 8px; margin-bottom: 0.5rem; opacity: 0.6;">
-                    <span class="step-icon" style="font-size: 1.25rem;">⏳</span>
-                    <span style="flex: 1; font-weight: 600; font-size: 0.875rem; color: #6b7280;">5. Impact analyse</span>
-                    <span class="step-status" style="font-size: 0.75rem; color: #9ca3af;">Wachten...</span>
-                </div>
-
-                <!-- Step 6: Polish -->
-                <div class="progress-step" data-step="6" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: rgba(243,244,246,0.5); border-radius: 8px; margin-bottom: 0.5rem; opacity: 0.6;">
-                    <span class="step-icon" style="font-size: 1.25rem;">⏳</span>
-                    <span style="flex: 1; font-weight: 600; font-size: 0.875rem; color: #6b7280;">6. Professionaliteit</span>
-                    <span class="step-status" style="font-size: 0.75rem; color: #9ca3af;">Wachten...</span>
-                </div>
-
-                <!-- Step 7: Match -->
-                <div class="progress-step" data-step="7" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: rgba(243,244,246,0.5); border-radius: 8px; opacity: 0.6;">
-                    <span class="step-icon" style="font-size: 1.25rem;">⏳</span>
-                    <span style="flex: 1; font-weight: 600; font-size: 0.875rem; color: #6b7280;">7. Job match</span>
-                    <span class="step-status" style="font-size: 0.75rem; color: #9ca3af;">Wachten...</span>
+                <!-- Current Step Detail -->
+                <div id="currentStepDetail" style="
+                    background: white;
+                    border: 1.5px solid #667eea;
+                    border-radius: 8px;
+                    padding: 0.875rem;
+                    margin-bottom: 0.75rem;
+                    box-shadow: 0 2px 8px rgba(102,126,234,0.1);
+                ">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <span style="font-size: 1.5rem;">⏳</span>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 0.875rem; color: #1f2937; margin-bottom: 2px;">Step 1: Optimize resume</div>
+                            <div style="font-size: 0.75rem; color: #667eea; font-weight: 600;">Generating...</div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Progress Bar -->
-                <div style="margin-top: 1rem; height: 6px; background: rgba(229,231,235,0.6); border-radius: 999px; overflow: hidden;">
+                <div style="height: 6px; background: rgba(229,231,235,0.6); border-radius: 999px; overflow: hidden;">
                     <div id="progressBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); border-radius: 999px; transition: width 0.5s ease;"></div>
                 </div>
             </div>
@@ -1488,7 +1489,7 @@
                 border: 1px solid rgba(102,126,234,0.1);
             ">
                 <h4 style="font-size: 0.875rem; font-weight: 700; color: #1f2937; margin-bottom: 1rem; text-align: center;">
-                    💡 Tijdens het wachten: Test je CV kennis!
+                    💡 While you wait: Test your resume knowledge!
                 </h4>
 
                 <!-- CV Trivia Quiz -->
@@ -1509,7 +1510,7 @@
                 <!-- Fun Fact Carousel -->
                 <div id="funFactCarousel" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(229,231,235,0.6);">
                     <p style="font-size: 0.75rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; text-align: center;">
-                        💼 Wist je dat...
+                        💼 Did you know...
                     </p>
                     <p id="funFact" style="font-size: 0.875rem; color: #374151; text-align: center; font-style: italic; line-height: 1.6;"></p>
                 </div>
@@ -1622,85 +1623,278 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="translations.js?v=20241030-interactive"></script>
-    <script src="app.js?v=20241030-interactive"></script>
+    <script src="translations.js?v=20241030-bilingual"></script>
+    <script src="app.js?v=20241030-bilingual"></script>
 
     <!-- Interactive Loading Experience Script -->
     <script>
-        // CV Trivia Quiz Data
-        const triviaQuestions = [
-            {
-                question: "Hoeveel seconden kijkt een recruiter gemiddeld naar een CV?",
-                options: ["7 seconden", "30 seconden", "2 minuten", "5 minuten"],
-                correct: 0,
-                explanation: "Recruiters scannen een CV gemiddeld slechts 7 seconden! Daarom moet je CV direct impact maken."
-            },
-            {
-                question: "Welk percentage CV's wordt automatisch gescreend door ATS systemen?",
-                options: ["25%", "50%", "75%", "90%"],
-                correct: 2,
-                explanation: "Ongeveer 75% van alle CV's wordt eerst gescreend door ATS software voordat een recruiter ze ziet."
-            },
-            {
-                question: "Wat verhoogt je kans op een interview het meest?",
-                options: ["Lange CV", "Kwantificeerbare resultaten", "Kleurrijk design", "Veel vaardigheden"],
-                correct: 1,
-                explanation: "Kwantificeerbare resultaten (cijfers, percentages) maken je CV 40% effectiever!"
-            },
-            {
-                question: "Hoeveel pagina's mag een CV idealiter zijn?",
-                options: ["1 pagina", "2 pagina's", "3 pagina's", "Maakt niet uit"],
-                correct: 1,
-                explanation: "Voor de meeste functies is 2 pagina's ideaal - genoeg ruimte zonder te veel detail."
-            },
-            {
-                question: "Wat is de #1 reden dat CV's worden afgew ijzen?",
-                options: ["Spelling fouten", "Irrelevante info", "Geen foto", "Verkeerd formaat"],
-                correct: 1,
-                explanation: "Irrelevante informatie is de grootste oorzaak - focus op wat relevant is voor de functie!"
-            }
-        ];
+        // CV Trivia Quiz Data (Bilingual)
+        const triviaQuestions = {
+            en: [
+                {
+                    question: "How long does a recruiter typically spend reviewing a resume?",
+                    options: ["7 seconds", "30 seconds", "2 minutes", "5 minutes"],
+                    correct: 0,
+                    explanation: "Recruiters spend an average of just 7 seconds scanning a resume! That's why immediate impact is crucial."
+                },
+                {
+                    question: "What percentage of resumes are automatically screened by ATS systems?",
+                    options: ["25%", "50%", "75%", "90%"],
+                    correct: 2,
+                    explanation: "About 75% of all resumes are first screened by ATS software before a recruiter ever sees them."
+                },
+                {
+                    question: "What increases your interview chances the most?",
+                    options: ["Long resume", "Quantifiable results", "Colorful design", "Many skills"],
+                    correct: 1,
+                    explanation: "Quantifiable results (numbers, percentages) make your resume 40% more effective!"
+                },
+                {
+                    question: "What's the ideal length for a professional resume?",
+                    options: ["1 page", "2 pages", "3 pages", "Doesn't matter"],
+                    correct: 1,
+                    explanation: "For most positions, 2 pages is ideal - enough space without overwhelming detail."
+                },
+                {
+                    question: "What's the #1 reason resumes get rejected?",
+                    options: ["Spelling errors", "Irrelevant info", "No photo", "Wrong format"],
+                    correct: 1,
+                    explanation: "Irrelevant information is the top reason - focus on what's relevant to the role!"
+                },
+                {
+                    question: "How many keywords should you include from the job description?",
+                    options: ["2-3", "5-7", "10-15", "As many as possible"],
+                    correct: 2,
+                    explanation: "Include 10-15 relevant keywords from the job description to pass ATS screening effectively."
+                },
+                {
+                    question: "What's the best format for a modern resume?",
+                    options: ["PDF", "Word (.docx)", "Text (.txt)", "Image (.jpg)"],
+                    correct: 0,
+                    explanation: "PDF is best as it preserves formatting across all devices and is ATS-friendly."
+                },
+                {
+                    question: "Should you customize your resume for each job application?",
+                    options: ["Never", "Sometimes", "Always", "Only for senior roles"],
+                    correct: 2,
+                    explanation: "Always customize! Tailored resumes get 3x more callbacks than generic ones."
+                },
+                {
+                    question: "What's the optimal font size for resume body text?",
+                    options: ["8-9pt", "10-11pt", "12-14pt", "16pt+"],
+                    correct: 1,
+                    explanation: "10-11pt is optimal - readable without wasting space. Headers can be 12-14pt."
+                },
+                {
+                    question: "How far back should your work history go?",
+                    options: ["5 years", "10-15 years", "20 years", "Entire career"],
+                    correct: 1,
+                    explanation: "10-15 years is standard. Older experience can be summarized or omitted unless highly relevant."
+                },
+                {
+                    question: "What percentage of job seekers lie on their resumes?",
+                    options: ["10%", "30%", "50%", "70%"],
+                    correct: 2,
+                    explanation: "Shockingly, about 50% embellish their resumes. Don't be one of them - honesty matters!"
+                },
+                {
+                    question: "Should you include references on your resume?",
+                    options: ["Always", "Never", "Only if requested", "Only for entry level"],
+                    correct: 1,
+                    explanation: "Never include references on your resume. Use 'Available upon request' or save space entirely."
+                }
+            ],
+            nl: [
+                {
+                    question: "Hoeveel seconden kijkt een recruiter gemiddeld naar een CV?",
+                    options: ["7 seconden", "30 seconden", "2 minuten", "5 minuten"],
+                    correct: 0,
+                    explanation: "Recruiters scannen een CV gemiddeld slechts 7 seconden! Daarom moet je CV direct impact maken."
+                },
+                {
+                    question: "Welk percentage CV's wordt automatisch gescreend door ATS systemen?",
+                    options: ["25%", "50%", "75%", "90%"],
+                    correct: 2,
+                    explanation: "Ongeveer 75% van alle CV's wordt eerst gescreend door ATS software voordat een recruiter ze ziet."
+                },
+                {
+                    question: "Wat verhoogt je kans op een interview het meest?",
+                    options: ["Lang CV", "Kwantificeerbare resultaten", "Kleurrijk design", "Veel vaardigheden"],
+                    correct: 1,
+                    explanation: "Kwantificeerbare resultaten (cijfers, percentages) maken je CV 40% effectiever!"
+                },
+                {
+                    question: "Hoeveel pagina's mag een CV idealiter zijn?",
+                    options: ["1 pagina", "2 pagina's", "3 pagina's", "Maakt niet uit"],
+                    correct: 1,
+                    explanation: "Voor de meeste functies is 2 pagina's ideaal - genoeg ruimte zonder te veel detail."
+                },
+                {
+                    question: "Wat is de #1 reden dat CV's worden afgewezen?",
+                    options: ["Spelfouten", "Irrelevante info", "Geen foto", "Verkeerd formaat"],
+                    correct: 1,
+                    explanation: "Irrelevante informatie is de grootste oorzaak - focus op wat relevant is voor de functie!"
+                },
+                {
+                    question: "Hoeveel keywords moet je opnemen uit de vacaturetekst?",
+                    options: ["2-3", "5-7", "10-15", "Zoveel mogelijk"],
+                    correct: 2,
+                    explanation: "Neem 10-15 relevante keywords op uit de vacaturetekst om effectief door ATS screening te komen."
+                },
+                {
+                    question: "Wat is het beste formaat voor een modern CV?",
+                    options: ["PDF", "Word (.docx)", "Tekst (.txt)", "Afbeelding (.jpg)"],
+                    correct: 0,
+                    explanation: "PDF is het beste omdat het de opmaak behoudt op alle apparaten en ATS-vriendelijk is."
+                },
+                {
+                    question: "Moet je je CV aanpassen voor elke sollicitatie?",
+                    options: ["Nooit", "Soms", "Altijd", "Alleen voor senior functies"],
+                    correct: 2,
+                    explanation: "Altijd aanpassen! Gepersonaliseerde CV's krijgen 3x meer callbacks dan generieke."
+                },
+                {
+                    question: "Wat is de optimale lettergrootte voor CV-tekst?",
+                    options: ["8-9pt", "10-11pt", "12-14pt", "16pt+"],
+                    correct: 1,
+                    explanation: "10-11pt is optimaal - goed leesbaar zonder ruimte te verspillen. Headers mogen 12-14pt zijn."
+                },
+                {
+                    question: "Hoe ver terug moet je werkgeschiedenis gaan?",
+                    options: ["5 jaar", "10-15 jaar", "20 jaar", "Hele carrière"],
+                    correct: 1,
+                    explanation: "10-15 jaar is standaard. Oudere ervaring kan worden samengevat of weggelaten tenzij zeer relevant."
+                },
+                {
+                    question: "Welk percentage sollicitanten liegt op hun CV?",
+                    options: ["10%", "30%", "50%", "70%"],
+                    correct: 2,
+                    explanation: "Schokkend: ongeveer 50% verfraait hun CV. Wees er geen van - eerlijkheid is belangrijk!"
+                },
+                {
+                    question: "Moet je referenties op je CV vermelden?",
+                    options: ["Altijd", "Nooit", "Alleen op verzoek", "Alleen voor starters"],
+                    correct: 1,
+                    explanation: "Nooit referenties op je CV. Gebruik 'Op aanvraag beschikbaar' of bespaar de ruimte helemaal."
+                }
+            ]
+        };
 
-        const funFacts = [
-            "Een professioneel CV verhoogt je kans op een interview met 40%!",
-            "88% van de recruiters gebruikt ATS-software om CV's te screenen.",
-            "Een persoonlijke motivatiebrief verhoogt je kans met 50%.",
-            "Recruiters besteden 80% van hun tijd aan de bovenste 20% van je CV.",
-            "Action verbs maken je CV 35% krachtiger en overtuigender.",
-            "Een goed geoptimaliseerd CV wordt 3x vaker gelezen dan een standaard CV.",
-            "CV's met kwantificeerbare resultaten (cijfers) scoren 60% beter.",
-            "De gemiddelde recruiter leest 250+ CV's per dag!",
-            "Een goede opmaak kan je kans op selectie met 30% verhogen."
-        ];
+        const funFacts = {
+            en: [
+                "A professional resume increases your interview chances by 40%!",
+                "88% of recruiters use ATS software to screen resumes.",
+                "A personalized cover letter increases your chances by 50%.",
+                "Recruiters spend 80% of their time on the top 20% of your resume.",
+                "Action verbs make your resume 35% more powerful and convincing.",
+                "A well-optimized resume gets read 3x more often than a standard one.",
+                "Resumes with quantifiable results (numbers) score 60% better.",
+                "The average recruiter reads 250+ resumes per day!",
+                "Good formatting can increase your selection chances by 30%.",
+                "White space matters! Dense resumes are 40% less likely to be fully read.",
+                "LinkedIn profiles with professional photos get 21x more views.",
+                "Typos can reduce your chances by up to 50% - proofread carefully!"
+            ],
+            nl: [
+                "Een professioneel CV verhoogt je kans op een interview met 40%!",
+                "88% van de recruiters gebruikt ATS-software om CV's te screenen.",
+                "Een persoonlijke motivatiebrief verhoogt je kans met 50%.",
+                "Recruiters besteden 80% van hun tijd aan de bovenste 20% van je CV.",
+                "Actieve werkwoorden maken je CV 35% krachtiger en overtuigender.",
+                "Een goed geoptimaliseerd CV wordt 3x vaker gelezen dan een standaard CV.",
+                "CV's met kwantificeerbare resultaten (cijfers) scoren 60% beter.",
+                "De gemiddelde recruiter leest 250+ CV's per dag!",
+                "Een goede opmaak kan je kans op selectie met 30% verhogen.",
+                "Witruimte is belangrijk! Dichte CV's worden 40% minder vaak volledig gelezen.",
+                "LinkedIn profielen met professionele foto's krijgen 21x meer views.",
+                "Typefouten kunnen je kansen met 50% verminderen - controleer zorgvuldig!"
+            ]
+        };
 
         let currentQuizIndex = 0;
         let quizScore = 0;
         let quizAnswered = false;
         let funFactInterval;
+        let currentLang = 'en'; // Default language
+
+        // Get language from form or default to 'en'
+        function getCurrentLanguage() {
+            const langSelect = document.getElementById('language');
+            return (langSelect && langSelect.value) || 'en';
+        }
+
+        // UI text translations
+        const translations = {
+            en: {
+                loadingTitle: "Your resume is being optimized",
+                loadingSubtext: "This takes approximately <strong>60-90 seconds</strong> • Don't worry, we'll keep you entertained! 🎯",
+                progressTitle: "Progress",
+                quizComplete: "🎉 Quiz complete! You know your resume facts!",
+                scoreText: "✨ Great! You scored",
+                correctText: "✅ Correct!",
+                wrongText: "❌ Not quite.",
+                whileYouWait: "💡 While you wait: Test your resume knowledge!",
+                didYouKnow: "💼 Did you know...",
+                secureEncrypted: "🔒 Secure & Encrypted"
+            },
+            nl: {
+                loadingTitle: "Jouw CV wordt geoptimaliseerd",
+                loadingSubtext: "Dit duurt ongeveer <strong>60-90 seconden</strong> • Maak je geen zorgen, we houden je bezig! 🎯",
+                progressTitle: "Progress",
+                quizComplete: "🎉 Quiz voltooid! Je kent je CV feiten!",
+                scoreText: "✨ Super! Je scoorde",
+                correctText: "✅ Juist!",
+                wrongText: "❌ Helaas.",
+                whileYouWait: "💡 Tijdens het wachten: Test je CV kennis!",
+                didYouKnow: "💼 Wist je dat...",
+                secureEncrypted: "🔒 Veilig & Versleuteld"
+            }
+        };
 
         // Initialize Quiz
         function initQuiz() {
             if (!document.getElementById('triviaQuiz')) return;
+
+            // Get current language
+            currentLang = getCurrentLanguage();
+
+            // Update loading overlay text
+            const loadingTitle = document.getElementById('loadingTitle');
+            if (loadingTitle) loadingTitle.innerHTML = translations[currentLang].loadingTitle + '<span class="loading-dots">...</span>';
+
+            const loadingSubtext = document.getElementById('loadingSubtext');
+            if (loadingSubtext) loadingSubtext.innerHTML = translations[currentLang].loadingSubtext;
+
+            const progressTitle = document.querySelector('#stepsContainer h4');
+            if (progressTitle) progressTitle.textContent = translations[currentLang].progressTitle;
+
+            // Update quiz section text
+            const h4 = document.querySelector('#funSection h4');
+            if (h4) h4.innerHTML = translations[currentLang].whileYouWait;
+
+            const didYouKnow = document.querySelector('#funFactCarousel p:first-child');
+            if (didYouKnow) didYouKnow.textContent = translations[currentLang].didYouKnow;
 
             loadQuizQuestion();
             startFunFactCarousel();
         }
 
         function loadQuizQuestion() {
-            if (currentQuizIndex >= triviaQuestions.length) {
+            const questions = triviaQuestions[currentLang];
+            if (currentQuizIndex >= questions.length) {
                 // Quiz completed
-                document.getElementById('triviaQuestion').textContent = "🎉 Quiz voltooid! Je kent je CV feiten!";
+                document.getElementById('triviaQuestion').textContent = translations[currentLang].quizComplete;
                 document.getElementById('triviaOptions').innerHTML = '';
-                document.getElementById('triviaFeedback').innerHTML = `<span style="color: #10b981;">✨ Super! Je scoorde ${quizScore}/${triviaQuestions.length}</span>`;
+                document.getElementById('triviaFeedback').innerHTML = `<span style="color: #10b981;">${translations[currentLang].scoreText} ${quizScore}/${questions.length}</span>`;
                 return;
             }
 
-            const question = triviaQuestions[currentQuizIndex];
+            const question = questions[currentQuizIndex];
             quizAnswered = false;
 
             document.getElementById('triviaQuestion').textContent = question.question;
             document.getElementById('triviaFeedback').innerHTML = '';
-            document.getElementById('quizTotal').textContent = triviaQuestions.length;
+            document.getElementById('quizTotal').textContent = questions.length;
             document.getElementById('quizScore').textContent = quizScore;
 
             const optionsHTML = question.options.map((option, index) => `
@@ -1728,7 +1922,8 @@
             if (quizAnswered) return;
             quizAnswered = true;
 
-            const question = triviaQuestions[currentQuizIndex];
+            const questions = triviaQuestions[currentLang];
+            const question = questions[currentQuizIndex];
             const isCorrect = selectedIndex === question.correct;
 
             if (isCorrect) {
@@ -1738,8 +1933,8 @@
 
             // Update feedback
             const feedbackHTML = isCorrect
-                ? `<span style="color: #10b981;">✅ Correct! ${question.explanation}</span>`
-                : `<span style="color: #ef4444;">❌ Helaas. ${question.explanation}</span>`;
+                ? `<span style="color: #10b981;">${translations[currentLang].correctText} ${question.explanation}</span>`
+                : `<span style="color: #ef4444;">${translations[currentLang].wrongText} ${question.explanation}</span>`;
 
             document.getElementById('triviaFeedback').innerHTML = feedbackHTML;
 
@@ -1767,9 +1962,10 @@
 
         function startFunFactCarousel() {
             let factIndex = 0;
+            const facts = funFacts[currentLang];
             const updateFact = () => {
-                document.getElementById('funFact').textContent = funFacts[factIndex];
-                factIndex = (factIndex + 1) % funFacts.length;
+                document.getElementById('funFact').textContent = facts[factIndex];
+                factIndex = (factIndex + 1) % facts.length;
             };
 
             updateFact();
