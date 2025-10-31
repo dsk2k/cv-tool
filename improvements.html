@@ -1337,13 +1337,20 @@
 
         function toggleCategory(catKey) {
             const card = document.querySelector(`[data-category="${catKey}"]`);
+            const categoryChanges = document.querySelectorAll(`.category-group[data-category="${catKey}"]`);
 
-            if (activeCategory === catKey) {
-                // Collapse
+            // Toggle active state on card
+            const isExpanded = card.classList.contains('active');
+
+            if (isExpanded) {
+                // Collapse this category
                 card.classList.remove('active');
-                activeCategory = null;
-                // Show all changes
-                document.querySelectorAll('.category-group').forEach(g => g.style.display = 'block');
+                categoryChanges.forEach(change => {
+                    change.style.maxHeight = '0';
+                    change.style.overflow = 'hidden';
+                    change.style.marginBottom = '0';
+                    change.style.opacity = '0';
+                });
 
                 // Track category collapse in GA4
                 if (window.trackEvent) {
@@ -1352,14 +1359,13 @@
                     });
                 }
             } else {
-                // Collapse previous
-                document.querySelectorAll('.category-card').forEach(c => c.classList.remove('active'));
-                // Expand new
+                // Expand this category
                 card.classList.add('active');
-                activeCategory = catKey;
-                // Show only this category
-                document.querySelectorAll('.category-group').forEach(g => {
-                    g.style.display = g.dataset.category === catKey ? 'block' : 'none';
+                categoryChanges.forEach(change => {
+                    change.style.maxHeight = '10000px';
+                    change.style.overflow = 'visible';
+                    change.style.marginBottom = '';
+                    change.style.opacity = '1';
                 });
 
                 // Track category expansion in GA4
