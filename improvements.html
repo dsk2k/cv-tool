@@ -1411,6 +1411,7 @@
             let sectionChangesBuffer = '';
             let changeContentBuffer = '';
             let sectionChangeCount = 0;
+            const sectionChangeCounts = {}; // Track change count per section
 
             for (let line of lines) {
                 line = line.trim();
@@ -1437,6 +1438,8 @@
                             </div>
                         </div>
                         `;
+                        // Store the change count for this section
+                        sectionChangeCounts[currentSection] = sectionChangeCount;
                         sectionChangesBuffer = '';
                         sectionChangeCount = 0;
                     }
@@ -1507,14 +1510,6 @@
                                 <div class="px-5 pb-4 space-y-3">
                     `;
                     currentChange = globalChangeIndex;
-
-                    // Update section count
-                    setTimeout(() => {
-                        const countEl = document.getElementById(`section-count-${currentSection}`);
-                        if (countEl) {
-                            countEl.textContent = `${sectionChangeCount} wijziging${sectionChangeCount !== 1 ? 'en' : ''}`;
-                        }
-                    }, 100);
                 }
                 // Original section
                 else if (line.match(/^\*\*Original(:|eel)?\*\*/i)) {
@@ -1586,10 +1581,42 @@
                         </div>
                     </div>
                 `;
+                // Store the change count for the last section
+                sectionChangeCounts[currentSection] = sectionChangeCount;
             }
 
             container.innerHTML = html || '<p class="text-gray-400 italic">Geen wijzigingen gevonden</p>';
             console.log(`✅ Changes rendered: ${sectionIndex} sections, ${globalChangeIndex} changes`);
+
+            // Update all section counts after rendering
+            Object.keys(sectionChangeCounts).forEach(secIdx => {
+                const count = sectionChangeCounts[secIdx];
+                const countEl = document.getElementById(`section-count-${secIdx}`);
+                if (countEl) {
+                    countEl.textContent = `${count} wijziging${count !== 1 ? 'en' : ''}`;
+                }
+            });
+            console.log(`✅ Section counts updated:`, sectionChangeCounts);
+
+            // Categorize changes and update category scores (same as OLD format)
+            setTimeout(() => {
+                const allChanges = document.querySelectorAll('.change-card-collapsible');
+                const categorizedChanges = { ats: [], impact: [], polish: [], structure: [], targeting: [] };
+
+                allChanges.forEach((card, idx) => {
+                    const title = card.querySelector('h4')?.textContent || '';
+                    const content = card.querySelector('.change-content-collapsible')?.textContent || '';
+                    const category = categorizeChange(title, content);
+                    categorizedChanges[category].push({ title, content, index: idx + 1 });
+
+                    // Add category class
+                    card.classList.add('category-group');
+                    card.dataset.category = category;
+                });
+
+                updateCategoryScores(categorizedChanges);
+                console.log('✅ Category scores updated:', categorizedChanges);
+            }, 500);
         }
 
         // Toggle CV section
