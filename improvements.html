@@ -1196,27 +1196,47 @@
             targeting: { name: 'Job Match & Targeting', icon: '🔥', color: 'red', changes: [] }
         };
 
-        function categorizeChange(changeTitle, changeContent) {
-            const text = (changeTitle + ' ' + changeContent).toLowerCase();
+        function categorizeChange(changeTitle, changeContent, sectionTitle = '') {
+            const fullText = (changeTitle + ' ' + changeContent + ' ' + sectionTitle).toLowerCase();
+            const sectionText = sectionTitle.toLowerCase();
 
+            // PRIORITY: Check section title first for explicit category matches
+            // This ensures section-based grouping takes precedence
+            if (sectionText.match(/ats|keywords|optimalisatie/i)) {
+                return 'ats';
+            }
+            if (sectionText.match(/impact|resultaten|achievements/i)) {
+                return 'impact';
+            }
+            if (sectionText.match(/polish|professionele/i)) {
+                return 'polish';
+            }
+            if (sectionText.match(/structuur|leesbaarheid|readability/i)) {
+                return 'structure';
+            }
+            if (sectionText.match(/job.*match|targeting/i)) {
+                return 'targeting';
+            }
+
+            // FALLBACK: Check content for category keywords
             // ATS & Keywords
-            if (text.match(/keyword|ats|applicant tracking|seo|search|optimalisatie|zoekwoord/i)) {
+            if (fullText.match(/keyword|ats|applicant tracking|seo|search|optimalisatie|zoekwoord/i)) {
                 return 'ats';
             }
             // Impact & Achievements
-            if (text.match(/kwantif|cijfer|resultaat|impact|achievement|metric|percentage|increase|ROI|revenue|growth/i)) {
+            if (fullText.match(/kwantif|cijfer|resultaat|impact|achievement|metric|percentage|increase|ROI|revenue|growth/i)) {
                 return 'impact';
             }
-            // Structure & Readability (check before polish to avoid false matches)
-            if (text.match(/structuur|layout|format|leesbaarheid|readability|bullet|section|visual|hierarchy/i)) {
+            // Structure & Readability
+            if (fullText.match(/structuur|layout|format|leesbaarheid|readability|bullet|section|visual|hierarchy/i)) {
                 return 'structure';
             }
             // Job Match & Targeting
-            if (text.match(/job.*match|targeting|relevance|specifiek|tailored|customized|afstemming/i)) {
+            if (fullText.match(/job.*match|targeting|relevance|specifiek|tailored|customized|afstemming/i)) {
                 return 'targeting';
             }
-            // Professional Polish - explicitly check for polish keywords
-            if (text.match(/polish|professionele|grammatica|spelling|toon|consistency|consistentie|taal|language|formeel|formal/i)) {
+            // Professional Polish
+            if (fullText.match(/polish|professionele|grammatica|spelling|toon|consistency|consistentie|taal|language|formeel|formal/i)) {
                 return 'polish';
             }
             // Default to polish for anything not categorized
@@ -1748,7 +1768,7 @@
                     const parentSection = card.closest('[id^="section-content-"]')?.previousElementSibling;
                     const sectionTitle = parentSection?.querySelector('h2')?.textContent || '';
 
-                    const category = categorizeChange(title + ' ' + sectionTitle, content);
+                    const category = categorizeChange(title, content, sectionTitle);
                     categorizedChanges[category].push({ title, content, index: idx + 1 });
 
                     // Add category class
