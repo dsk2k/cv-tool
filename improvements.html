@@ -1518,8 +1518,9 @@
                             <span class="label-badge label-original">❌ Origineel</span>
                     `;
                     // Capture any text on the same line after the header
-                    const sameLineText = line.replace(/^\*\*Original(:|eel)?\*\*:?\s*/i, '').trim();
+                    let sameLineText = line.replace(/^\*\*Original(:|eel)?\*\*:?\s*/i, '').trim();
                     if (sameLineText) {
+                        sameLineText = sameLineText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                         changeContentBuffer += `<p class="text-gray-700 leading-relaxed text-sm">${sameLineText}</p>`;
                     }
                 }
@@ -1530,8 +1531,9 @@
                             <span class="label-badge label-improved">✅ Verbeterd</span>
                     `;
                     // Capture any text on the same line after the header
-                    const sameLineText = line.replace(/^\*\*(Verbeterd(:|e)?|Improved(:|e)?)\*\*:?\s*/i, '').trim();
+                    let sameLineText = line.replace(/^\*\*(Verbeterd(:|e)?|Improved(:|e)?)\*\*:?\s*/i, '').trim();
                     if (sameLineText) {
+                        sameLineText = sameLineText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                         changeContentBuffer += `<p class="text-gray-700 leading-relaxed text-sm">${sameLineText}</p>`;
                     }
                 }
@@ -1542,8 +1544,9 @@
                             <span class="label-badge label-why">💡 Waarom dit belangrijk is</span>
                     `;
                     // Capture any text on the same line after the header
-                    const sameLineText = line.replace(/^\*\*(Why this (change )?matters(:|e)?|Waarom(:|e)?)\*\*:?\s*/i, '').trim();
+                    let sameLineText = line.replace(/^\*\*(Why this (change )?matters(:|e)?|Waarom(:|e)?)\*\*:?\s*/i, '').trim();
                     if (sameLineText) {
+                        sameLineText = sameLineText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                         changeContentBuffer += `<p class="text-gray-700 leading-relaxed text-sm">${sameLineText}</p>`;
                     }
                 }
@@ -1765,8 +1768,9 @@
                             <span class="label-badge label-original">❌ Origineel</span>
                     `;
                     // Capture any text on the same line after the header
-                    const sameLineText = line.replace(/^\*\*Original(:|eel)?\*\*:?\s*/i, '').trim();
+                    let sameLineText = line.replace(/^\*\*Original(:|eel)?\*\*:?\s*/i, '').trim();
                     if (sameLineText) {
+                        sameLineText = sameLineText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                         changeContentBuffer += `<p class="text-gray-700 leading-relaxed">${sameLineText}</p>`;
                     }
                 }
@@ -1777,8 +1781,9 @@
                             <span class="label-badge label-improved">✅ Verbeterd</span>
                     `;
                     // Capture any text on the same line after the header
-                    const sameLineText = line.replace(/^\*\*(Verbeterd(:|e)?|Improved(:|e)?|Nieuw(:|e)?)\*\*:?\s*/i, '').trim();
+                    let sameLineText = line.replace(/^\*\*(Verbeterd(:|e)?|Improved(:|e)?|Nieuw(:|e)?)\*\*:?\s*/i, '').trim();
                     if (sameLineText) {
+                        sameLineText = sameLineText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                         changeContentBuffer += `<p class="text-gray-700 leading-relaxed">${sameLineText}</p>`;
                     }
                 }
@@ -1789,8 +1794,9 @@
                             <span class="label-badge label-why">💡 Waarom dit belangrijk is</span>
                     `;
                     // Capture any text on the same line after the header
-                    const sameLineText = line.replace(/^\*\*(Why[^*]*|Waarom[^*]*)\*\*:?\s*/i, '').trim();
+                    let sameLineText = line.replace(/^\*\*(Why[^*]*|Waarom[^*]*)\*\*:?\s*/i, '').trim();
                     if (sameLineText) {
+                        sameLineText = sameLineText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                         changeContentBuffer += `<p class="text-gray-700 leading-relaxed">${sameLineText}</p>`;
                     }
                 }
