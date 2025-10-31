@@ -260,24 +260,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Helper function to add delay between requests
                 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-                // Helper function to fetch with retry logic for rate limits
+                // Helper function to fetch with retry logic for rate limits AND server errors
                 async function fetchWithRetry(url, options, maxRetries = 3) {
                     for (let i = 0; i < maxRetries; i++) {
-                        const response = await fetch(url, options);
+                        try {
+                            const response = await fetch(url, options);
 
-                        if (response.ok) {
+                            if (response.ok) {
+                                return response;
+                            }
+
+                            // Retry on rate limits (429) or server errors (500-599)
+                            const shouldRetry = (response.status === 429 || response.status >= 500) && i < maxRetries - 1;
+
+                            if (shouldRetry) {
+                                const waitTime = (i + 1) * 3000; // 3s, 6s, 9s
+                                const errorType = response.status === 429 ? 'Rate limited' : `Server error (${response.status})`;
+                                console.log(`⏳ ${errorType}, waiting ${waitTime/1000}s before retry ${i + 1}/${maxRetries}...`);
+                                await delay(waitTime);
+                                continue;
+                            }
+
+                            // No more retries, return error response
+                            console.error(`❌ Request failed with status ${response.status} after ${i + 1} attempts`);
                             return response;
-                        }
 
-                        // If rate limited (429), wait and retry
-                        if (response.status === 429 && i < maxRetries - 1) {
-                            const waitTime = (i + 1) * 3000; // 3s, 6s, 9s
-                            console.log(`⏳ Rate limited, waiting ${waitTime/1000}s before retry ${i + 1}/${maxRetries}...`);
-                            await delay(waitTime);
-                            continue;
+                        } catch (error) {
+                            console.error(`❌ Network error on attempt ${i + 1}:`, error);
+                            if (i < maxRetries - 1) {
+                                await delay((i + 1) * 3000);
+                                continue;
+                            }
+                            throw error;
                         }
-
-                        return response;
                     }
                 }
 
