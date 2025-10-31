@@ -1623,7 +1623,7 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="translations.js?v=20241030-quizfix6"></script>
+    <script src="translations.js?v=20241031-quizfix-final"></script>
 
     <!-- Interactive Loading Experience Script (BEFORE app.js so functions are available) -->
     <script>
@@ -1823,8 +1823,8 @@
             return (langSelect && langSelect.value) || 'en';
         }
 
-        // UI text translations
-        const translations = {
+        // UI text translations for quiz (renamed to avoid conflict with translations.js)
+        const quizTranslations = {
             en: {
                 loadingTitle: "Your resume is being optimized",
                 loadingSubtext: "This takes approximately <strong>60-90 seconds</strong> • Don't worry, we'll keep you entertained! 🎯",
@@ -1872,20 +1872,20 @@
 
             // Update loading overlay text
             const loadingTitle = document.getElementById('loadingTitle');
-            if (loadingTitle) loadingTitle.innerHTML = translations[quizLang].loadingTitle + '<span class="loading-dots">...</span>';
+            if (loadingTitle) loadingTitle.innerHTML = quizTranslations[quizLang].loadingTitle + '<span class="loading-dots">...</span>';
 
             const loadingSubtext = document.getElementById('loadingSubtext');
-            if (loadingSubtext) loadingSubtext.innerHTML = translations[quizLang].loadingSubtext;
+            if (loadingSubtext) loadingSubtext.innerHTML = quizTranslations[quizLang].loadingSubtext;
 
             const progressTitle = document.querySelector('#stepsContainer h4');
-            if (progressTitle) progressTitle.textContent = translations[quizLang].progressTitle;
+            if (progressTitle) progressTitle.textContent = quizTranslations[quizLang].progressTitle;
 
             // Update quiz section text
             const h4 = document.querySelector('#funSection h4');
-            if (h4) h4.innerHTML = translations[quizLang].whileYouWait;
+            if (h4) h4.innerHTML = quizTranslations[quizLang].whileYouWait;
 
             const didYouKnow = document.querySelector('#funFactCarousel p:first-child');
-            if (didYouKnow) didYouKnow.textContent = translations[quizLang].didYouKnow;
+            if (didYouKnow) didYouKnow.textContent = quizTranslations[quizLang].didYouKnow;
 
             loadQuizQuestion();
             startFunFactCarousel();
@@ -1898,9 +1898,9 @@
             if (currentQuizIndex >= questions.length) {
                 // Quiz completed
                 console.log('🎉 Quiz completed!');
-                document.getElementById('triviaQuestion').textContent = translations[quizLang].quizComplete;
+                document.getElementById('triviaQuestion').textContent = quizTranslations[quizLang].quizComplete;
                 document.getElementById('triviaOptions').innerHTML = '';
-                document.getElementById('triviaFeedback').innerHTML = `<span style="color: #10b981;">${translations[quizLang].scoreText} ${quizScore}/${questions.length}</span>`;
+                document.getElementById('triviaFeedback').innerHTML = `<span style="color: #10b981;">${quizTranslations[quizLang].scoreText} ${quizScore}/${questions.length}</span>`;
                 return;
             }
 
@@ -1953,8 +1953,8 @@
 
             // Update feedback
             const feedbackHTML = isCorrect
-                ? `<span style="color: #10b981;">${translations[quizLang].correctText} ${question.explanation}</span>`
-                : `<span style="color: #ef4444;">${translations[quizLang].wrongText} ${question.explanation}</span>`;
+                ? `<span style="color: #10b981;">${quizTranslations[quizLang].correctText} ${question.explanation}</span>`
+                : `<span style="color: #ef4444;">${quizTranslations[quizLang].wrongText} ${question.explanation}</span>`;
 
             document.getElementById('triviaFeedback').innerHTML = feedbackHTML;
 
@@ -2032,7 +2032,7 @@
     </script>
 
     <!-- Load app.js AFTER quiz functions are defined -->
-    <script src="app.js?v=20241030-retry500"></script>
+    <script src="app.js?v=20241031-quizfix-final"></script>
 
     <script>
         // Smooth scroll functions
