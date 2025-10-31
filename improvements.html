@@ -1384,9 +1384,13 @@
 
             const container = document.getElementById('changesContent');
 
-            // Detect format: Check if content has ## section headers (but not 📊 Summary)
-            const hasNewFormat = /^##\s+(?!.*📊)/.test(content);
-            console.log(`📋 Format detected: ${hasNewFormat ? 'NEW (hierarchical)' : 'OLD (flat)'}`);
+            // Detect format: Check if content has the new field structure
+            const hasNewFormat = content.includes('**Origineel:**') ||
+                                 content.includes('**Original:**') ||
+                                 content.includes('**Verbeterd:**') ||
+                                 content.includes('**Improved:**');
+            console.log(`📋 Format detected: ${hasNewFormat ? 'NEW (with fields)' : 'OLD (flat)'}`);
+            console.log(`📄 First 300 chars: ${content.substring(0, 300)}`);
 
             if (!hasNewFormat) {
                 console.log('🔄 Using OLD format renderer');
