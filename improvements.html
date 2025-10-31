@@ -1101,12 +1101,19 @@
                 return;
             }
 
-            // Load content in parallel (with delays to avoid rate limits)
+            // Load content with priority order:
+            // 1. Changes (match score + improvements) - MOST IMPORTANT
+            // 2. Cover letter - secondary
+            // 3. Recruiter tips - tertiary
             try {
-                // Start all requests with delays
-                loadCoverLetterInBackground(cvText, jobDescription, language);
-                setTimeout(() => loadRecruiterTipsInBackground(jobDescription, language), 4000);
-                setTimeout(() => loadChangesInBackground(cvText, result.improvedCV, jobDescription, language), 8000);
+                // Priority 1: Load changes immediately (contains match score & improvements)
+                loadChangesInBackground(cvText, result.improvedCV, jobDescription, language);
+
+                // Priority 2: Load cover letter after 2s
+                setTimeout(() => loadCoverLetterInBackground(cvText, jobDescription, language), 2000);
+
+                // Priority 3: Load recruiter tips after 5s
+                setTimeout(() => loadRecruiterTipsInBackground(jobDescription, language), 5000);
             } catch (error) {
                 console.error('❌ Error in lazy loading:', error);
             }
