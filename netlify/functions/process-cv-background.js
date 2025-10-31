@@ -127,7 +127,7 @@ exports.handler = async (event, context) => {
     console.log(`🤖 [BACKGROUND] Calling Gemini for job: ${jobId}`);
     const prompt = createPrompt(cvText, jobDescription, language);
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash',
       generationConfig: {
         maxOutputTokens: 4096,  // Full quality
         temperature: 0.7,

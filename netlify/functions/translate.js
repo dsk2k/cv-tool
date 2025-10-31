@@ -71,7 +71,7 @@ exports.handler = async (event) => {
     const prompt = createTranslationPrompt(content, sourceLanguage, targetLanguage);
 
     // Call Gemini API
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     console.log('🤖 Calling Gemini for translation...');
     const result = await model.generateContent(prompt);
