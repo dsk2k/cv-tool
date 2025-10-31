@@ -1,5 +1,36 @@
 // AI CV Tailor - Main Application Logic
 
+// Helper function to update loading step status
+function updateStep(stepNumber, status = 'active') {
+    const step = document.querySelector(`.progress-step[data-step="${stepNumber}"]`);
+    if (!step) return;
+
+    const icon = step.querySelector('.step-icon');
+    const statusText = step.querySelector('.step-status');
+
+    if (status === 'active') {
+        step.style.opacity = '1';
+        step.style.background = 'white';
+        step.style.border = '1.5px solid #667eea';
+        step.style.boxShadow = '0 2px 8px rgba(102,126,234,0.1)';
+        if (icon) icon.textContent = '⏳';
+        if (statusText) {
+            statusText.textContent = 'Bezig...';
+            statusText.style.color = '#667eea';
+        }
+    } else if (status === 'completed') {
+        step.style.opacity = '1';
+        step.style.background = 'rgba(16,185,129,0.05)';
+        step.style.border = '1.5px solid #10b981';
+        step.style.boxShadow = '0 2px 8px rgba(16,185,129,0.1)';
+        if (icon) icon.textContent = '✅';
+        if (statusText) {
+            statusText.textContent = 'Klaar!';
+            statusText.style.color = '#10b981';
+        }
+    }
+}
+
 // Form submission handler with file upload support
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('cvForm');
@@ -181,12 +212,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cvText = cvData.originalCVText; // Use backend-parsed text
                 console.log('✅ Step 1 complete');
                 console.log(`📋 Received cvText length: ${cvText?.length || 0}`);
+                updateStep(1, 'completed');
+                if (progressBar) progressBar.style.width = '14%';
 
                 // Longer delay to avoid rate limits (we make 7 API calls total)
                 await delay(4000);
 
                 // Step 2: Generate cover letter (~10s)
                 console.log('✉️ Step 2: Generating cover letter...');
+                updateStep(2, 'active');
                 console.log(`📤 Sending: cvText length=${cvText?.length || 0}, jobDesc length=${jobDescription?.length || 0}`);
                 const letterResponse = await fetchWithRetry('/.netlify/functions/generate-letter', {
                     method: 'POST',
@@ -201,12 +235,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const letterData = await letterResponse.json();
                 results.coverLetter = letterData.coverLetter;
                 console.log('✅ Step 2 complete');
+                updateStep(2, 'completed');
+                if (progressBar) progressBar.style.width = '28%';
 
                 // Delay before next request
                 await delay(4000);
 
                 // Step 3: Generate recruiter tips (~10s)
                 console.log('💡 Step 3: Generating recruiter tips...');
+                updateStep(3, 'active');
                 const tipsResponse = await fetchWithRetry('/.netlify/functions/generate-tips', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -216,6 +253,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tipsData = await tipsResponse.json();
                 results.recruiterTips = tipsData.recruiterTips;
                 console.log('✅ Step 3 complete');
+                updateStep(3, 'completed');
+                if (progressBar) progressBar.style.width = '42%';
 
                 // Step 4: Generate DETAILED changes overview (split into 4 focused analyses)
                 console.log('📝 Step 4: Generating detailed changes analysis (4 categories for comprehensive feedback)...');
@@ -225,6 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Step 4a: ATS & Keywords analysis
                 console.log('🎯 Step 4a: ATS & Keywords...');
+                updateStep(4, 'active');
                 const atsResponse = await fetchWithRetry('/.netlify/functions/generate-changes-ats', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -233,11 +273,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!atsResponse.ok) throw new Error('ATS analysis failed');
                 const atsData = await atsResponse.json();
                 console.log('✅ Step 4a complete');
+                updateStep(4, 'completed');
+                if (progressBar) progressBar.style.width = '56%';
 
                 await delay(3000);
 
                 // Step 4b: Impact & Results analysis
                 console.log('💥 Step 4b: Impact & Results...');
+                updateStep(5, 'active');
                 const impactResponse = await fetchWithRetry('/.netlify/functions/generate-changes-impact', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -246,11 +289,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!impactResponse.ok) throw new Error('Impact analysis failed');
                 const impactData = await impactResponse.json();
                 console.log('✅ Step 4b complete');
+                updateStep(5, 'completed');
+                if (progressBar) progressBar.style.width = '70%';
 
                 await delay(3000);
 
                 // Step 4c: Professional Polish analysis
                 console.log('✨ Step 4c: Professional Polish...');
+                updateStep(6, 'active');
                 const polishResponse = await fetchWithRetry('/.netlify/functions/generate-changes-polish', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -259,11 +305,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!polishResponse.ok) throw new Error('Polish analysis failed');
                 const polishData = await polishResponse.json();
                 console.log('✅ Step 4c complete');
+                updateStep(6, 'completed');
+                if (progressBar) progressBar.style.width = '85%';
 
                 await delay(3000);
 
                 // Step 4d: Job Match & Targeting analysis
                 console.log('🎯 Step 4d: Job Match & Targeting...');
+                updateStep(7, 'active');
                 const matchResponse = await fetchWithRetry('/.netlify/functions/generate-changes-match', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -272,6 +321,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!matchResponse.ok) throw new Error('Match analysis failed');
                 const matchData = await matchResponse.json();
                 console.log('✅ Step 4d complete');
+                updateStep(7, 'completed');
+                if (progressBar) progressBar.style.width = '100%';
 
                 // Combine all changes into one overview
                 results.changesOverview = `${atsData.atsChanges}\n\n${impactData.impactChanges}\n\n${polishData.polishChanges}\n\n${matchData.matchChanges}`;
