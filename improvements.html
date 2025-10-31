@@ -1458,7 +1458,7 @@
                             }
                         });
                     } else {
-                        // Section has no matching changes - collapse entire section
+                        // Section has no matching changes - keep visible but collapsed and move to bottom
                         section.style.display = '';
                         section.style.order = '999'; // Move to bottom
 
@@ -1473,9 +1473,10 @@
                             sectionIcon.classList.remove('rotate-180');
                         }
 
-                        // Hide all changes in this section
+                        // Keep changes visible but ensure they're in collapsed section
+                        // Don't hide them - they'll be hidden by the collapsed parent
                         changeCardsInSection.forEach(changeCard => {
-                            changeCard.style.display = 'none';
+                            changeCard.style.display = '';
                         });
                     }
                 });
