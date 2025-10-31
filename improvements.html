@@ -1787,10 +1787,14 @@
             const icon = document.getElementById(`section-icon-${sectionNum}`);
 
             if (content.classList.contains('expanded')) {
+                // Collapse
                 content.classList.remove('expanded');
+                content.style.maxHeight = '0px'; // Override any inline style from category filter
                 icon.classList.remove('rotate-180');
             } else {
+                // Expand
                 content.classList.add('expanded');
+                content.style.maxHeight = '5000px'; // Override any inline style from category filter
                 icon.classList.add('rotate-180');
             }
         }
