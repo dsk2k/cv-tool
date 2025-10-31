@@ -1254,74 +1254,63 @@
 
                 <!-- 🌍 Language Selector -->
                 <div>
-                    <label class="block text-gray-900 font-bold mb-4 text-lg">
-                        🌍 Taal Voorkeur / Language Preference
+                    <label class="block text-gray-700 font-semibold mb-2 text-sm">
+                        🌍 Language / Taal
                     </label>
 
-                    <div class="bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl border-2 border-gray-200">
-                        <p class="text-sm text-gray-600 mb-4 font-medium">
-                            Kies de taal voor jouw geoptimaliseerde CV en feedback
-                        </p>
-
-                        <!-- Toggle Switch -->
-                        <div class="flex items-center justify-center gap-4">
-                            <!-- Dutch Option -->
-                            <div id="lang-nl-option" class="language-option active" onclick="selectLanguage('nl')" style="
-                                flex: 1;
-                                padding: 1.25rem 1.5rem;
-                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                border: 3px solid #667eea;
-                                border-radius: 16px;
-                                cursor: pointer;
-                                transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-                                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-                                transform: scale(1.02);
-                            ">
-                                <div class="flex flex-col items-center gap-2">
-                                    <span style="font-size: 2rem;">🇳🇱</span>
-                                    <span style="font-weight: 700; color: white; font-size: 1.125rem;">Nederlands</span>
-                                    <span style="font-size: 0.875rem; color: rgba(255,255,255,0.9);">Dutch output</span>
-                                    <div class="checkmark" style="
-                                        width: 24px;
-                                        height: 24px;
-                                        background: white;
-                                        border-radius: 50%;
-                                        display: flex;
-                                        align-items: center;
-                                        justify-content: center;
-                                        font-weight: bold;
-                                        color: #667eea;
-                                        margin-top: 0.5rem;
-                                    ">✓</div>
-                                </div>
-                            </div>
-
-                            <!-- English Option -->
-                            <div id="lang-en-option" class="language-option" onclick="selectLanguage('en')" style="
-                                flex: 1;
-                                padding: 1.25rem 1.5rem;
-                                background: white;
-                                border: 3px solid #e5e7eb;
-                                border-radius: 16px;
-                                cursor: pointer;
-                                transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-                                transform: scale(1);
-                            ">
-                                <div class="flex flex-col items-center gap-2">
-                                    <span style="font-size: 2rem;">🇬🇧</span>
-                                    <span style="font-weight: 700; color: #1f2937; font-size: 1.125rem;">English</span>
-                                    <span style="font-size: 0.875rem; color: #6b7280;">English output</span>
-                                    <div class="checkmark" style="
-                                        width: 24px;
-                                        height: 24px;
-                                        background: transparent;
-                                        border: 2px solid #d1d5db;
-                                        border-radius: 50%;
-                                        margin-top: 0.5rem;
-                                    "></div>
-                                </div>
+                    <!-- Compact Toggle -->
+                    <div class="flex items-center gap-3" style="max-width: 280px;">
+                        <!-- Dutch Option -->
+                        <div id="lang-nl-option" class="language-option active" onclick="selectLanguage('nl')" style="
+                            padding: 0.625rem 1rem;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            border: 2px solid #667eea;
+                            border-radius: 10px;
+                            cursor: pointer;
+                            transition: all 0.2s;
+                            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+                        ">
+                            <div class="flex items-center gap-2">
+                                <span style="font-size: 1.25rem;">🇳🇱</span>
+                                <span style="font-weight: 600; color: white; font-size: 0.875rem;">NL</span>
+                                <div class="checkmark" style="
+                                    width: 16px;
+                                    height: 16px;
+                                    background: white;
+                                    border-radius: 50%;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-size: 0.625rem;
+                                    font-weight: bold;
+                                    color: #667eea;
+                                ">✓</div>
                             </div>
                         </div>
+
+                        <!-- English Option -->
+                        <div id="lang-en-option" class="language-option" onclick="selectLanguage('en')" style="
+                            padding: 0.625rem 1rem;
+                            background: white;
+                            border: 2px solid #e5e7eb;
+                            border-radius: 10px;
+                            cursor: pointer;
+                            transition: all 0.2s;
+                        ">
+                            <div class="flex items-center gap-2">
+                                <span style="font-size: 1.25rem;">🇬🇧</span>
+                                <span style="font-weight: 600; color: #1f2937; font-size: 0.875rem;">EN</span>
+                                <div class="checkmark" style="
+                                    width: 16px;
+                                    height: 16px;
+                                    background: transparent;
+                                    border: 2px solid #d1d5db;
+                                    border-radius: 50%;
+                                    font-size: 0.625rem;
+                                "></div>
+                            </div>
+                        </div>
+                    </div>
 
                         <!-- Hidden input for form submission -->
                         <input type="hidden" id="language" name="language" value="nl">
