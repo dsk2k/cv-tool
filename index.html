@@ -1484,49 +1484,49 @@
             <!-- Fun Interactive Section -->
             <div id="funSection" style="
                 background: linear-gradient(135deg, rgba(102,126,234,0.05) 0%, rgba(118,75,162,0.05) 100%);
-                border-radius: 16px;
-                padding: 1.5rem;
+                border-radius: 12px;
+                padding: 1rem;
                 border: 1px solid rgba(102,126,234,0.1);
             ">
-                <h4 style="font-size: 0.875rem; font-weight: 700; color: #1f2937; margin-bottom: 1rem; text-align: center;">
+                <h4 style="font-size: 0.8125rem; font-weight: 700; color: #1f2937; margin-bottom: 0.625rem; text-align: center;">
                     💡 While you wait: Test your resume knowledge!
                 </h4>
 
                 <!-- CV Trivia Quiz -->
                 <div id="triviaQuiz" style="text-align: center;">
-                    <p id="triviaQuestion" style="font-size: 0.9375rem; font-weight: 600; color: #374151; margin-bottom: 1rem; line-height: 1.5;"></p>
+                    <p id="triviaQuestion" style="font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem; line-height: 1.4;"></p>
 
-                    <div id="triviaOptions" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;"></div>
+                    <div id="triviaOptions" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem;"></div>
 
-                    <div id="triviaFeedback" style="font-size: 0.875rem; font-weight: 500; min-height: 2rem; display: flex; align-items: center; justify-content: center;"></div>
+                    <div id="triviaFeedback" style="font-size: 0.8125rem; font-weight: 500; min-height: 1.25rem; display: flex; align-items: center; justify-content: center;"></div>
 
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(229,231,235,0.6);">
-                        <p style="font-size: 0.75rem; color: #9ca3af;">
+                    <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(229,231,235,0.6);">
+                        <p style="font-size: 0.7rem; color: #9ca3af;">
                             Score: <strong id="quizScore" style="color: #667eea;">0</strong> / <span id="quizTotal">0</span>
                         </p>
                     </div>
                 </div>
 
                 <!-- Fun Fact Carousel -->
-                <div id="funFactCarousel" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(229,231,235,0.6);">
-                    <p style="font-size: 0.75rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; text-align: center;">
+                <div id="funFactCarousel" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(229,231,235,0.6);">
+                    <p style="font-size: 0.7rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; text-align: center;">
                         💼 Did you know...
                     </p>
-                    <p id="funFact" style="font-size: 0.875rem; color: #374151; text-align: center; font-style: italic; line-height: 1.6;"></p>
+                    <p id="funFact" style="font-size: 0.8125rem; color: #374151; text-align: center; font-style: italic; line-height: 1.5;"></p>
                 </div>
             </div>
 
             <!-- Trust Badge -->
             <div style="
-                margin-top: 1.5rem;
-                padding-top: 1.5rem;
+                margin-top: 0.75rem;
+                padding-top: 0.75rem;
                 border-top: 1px solid rgba(229,231,235,0.6);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 0.5rem;
+                gap: 0.375rem;
                 color: #10b981;
-                font-size: 0.8125rem;
+                font-size: 0.75rem;
                 font-weight: 600;
             ">
                 <svg style="width: 16px; height: 16px;" fill="currentColor" viewBox="0 0 20 20">
@@ -1623,7 +1623,7 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="translations.js?v=20241031-quizfix-final"></script>
+    <script src="translations.js?v=20241031-compact"></script>
 
     <!-- Interactive Loading Experience Script (BEFORE app.js so functions are available) -->
     <script>
@@ -1914,12 +1914,12 @@
 
             const optionsHTML = question.options.map((option, index) => `
                 <button onclick="checkAnswer(${index})" style="
-                    padding: 0.75rem 1rem;
+                    padding: 0.5rem 0.75rem;
                     background: white;
                     border: 2px solid #e5e7eb;
                     border-radius: 8px;
                     font-weight: 600;
-                    font-size: 0.8125rem;
+                    font-size: 0.75rem;
                     color: #374151;
                     cursor: pointer;
                     transition: all 0.2s;
@@ -2032,7 +2032,7 @@
     </script>
 
     <!-- Load app.js AFTER quiz functions are defined -->
-    <script src="app.js?v=20241031-quizfix-final"></script>
+    <script src="app.js?v=20241031-compact"></script>
 
     <script>
         // Smooth scroll functions
