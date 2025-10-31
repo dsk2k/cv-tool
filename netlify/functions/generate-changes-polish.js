@@ -85,10 +85,35 @@ BELANGRIJK: Deze content is waar klanten voor betalen. Lege of incomplete velden
       }
     });
 
-    const result = await model.generateContent(prompt);
-    const polishChanges = result.response.text();
+    let polishChanges = '';
+    let attempt = 0;
+    const maxAttempts = 2;
 
-    console.log(`✅ Polish analysis generated (${polishChanges.length} chars)`);
+    while (attempt < maxAttempts) {
+      attempt++;
+      console.log(`📝 Attempt ${attempt}/${maxAttempts} to generate Polish analysis`);
+
+      const result = await model.generateContent(prompt);
+      polishChanges = result.response.text();
+
+      // VALIDATION: Check if all required fields are present (support both NL and EN)
+      const hasOriginal = (polishChanges.match(/\*\*(Origineel|Original)\*\*:/gi) || []).length;
+      const hasVerbeterd = (polishChanges.match(/\*\*(Verbeterd|Improved)\*\*:/gi) || []).length;
+      const hasWaarom = (polishChanges.match(/\*\*(Waarom|Why)\*\*:/gi) || []).length;
+
+      console.log(`🔍 Validation: Original=${hasOriginal}, Verbeterd=${hasVerbeterd}, Waarom=${hasWaarom}`);
+
+      if (hasOriginal >= 2 && hasVerbeterd >= 2 && hasWaarom >= 2) {
+        console.log(`✅ Polish analysis validated (${polishChanges.length} chars)`);
+        break;
+      }
+
+      console.warn(`⚠️ Incomplete output on attempt ${attempt}. Retrying...`);
+
+      if (attempt === maxAttempts) {
+        console.error(`❌ Failed to generate complete output after ${maxAttempts} attempts`);
+      }
+    }
 
     return {
       statusCode: 200,

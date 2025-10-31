@@ -43,15 +43,23 @@ KRITIEKE INSTRUCTIES - LEES DIT ZORGVULDIG:
 4. Citeer ALTIJD specifieke tekst uit de CV's tussen aanhalingstekens
 5. Vergelijk de EXACTE verschillen tussen origineel en verbeterd
 
-VERPLICHT FORMAAT - kopieer dit EXACT en vul ALLE placeholders volledig in:
+EXACT VOORBEELD - Je MOET dit formaat volgen met dezelfde uitgebreidheid:
 
-### 1. [Precieze titel van de impact-verbetering - bijvoorbeeld: "Kwantificering van sales resultaten met concrete percentages"]
+### 1. Kwantificering van Sales Resultaten met Concrete Cijfers en Percentages
 
-**${labels.original}:** [Beschrijf in 2-3 complete zinnen hoe het origineel was geformuleerd. Citeer specifieke tekst. Bijvoorbeeld: "Het originele CV vermeldde 'verantwoordelijk voor sales' zonder cijfers. Er stond 'goede resultaten behaald' zonder kwantificering. De achievements waren vaag geformuleerd zoals 'bijgedragen aan teamdoelen' zonder meetbare metrics."]
+**${labels.original}:** Het originele CV vermeldde "verantwoordelijk voor sales" zonder enige cijfermatige onderbouwing. Er stond "goede resultaten behaald in klantenwerving" zonder concrete metrics. De achievements sectie bevatte vage uitspraken zoals "bijgedragen aan teamdoelen" en "succesvol projecten afgerond", zonder meetbare KPI's of voor/na vergelijkingen.
 
-**${labels.improved}:** [Beschrijf in 2-3 complete zinnen wat er nu staat. Citeer specifieke nieuwe tekst. Bijvoorbeeld: "Het verbeterde CV toont nu 'Sales verhoogd met 45% in 6 maanden (van €200k naar €290k)'. Er staat 'Nieuwe klantenwerving: 23 enterprise accounts met gemiddelde deal size van €15k'. Action verbs zijn veranderd van 'verantwoordelijk voor' naar 'Gerealiseerd', 'Behaald', 'Overtroffen met 30%'."]
+**${labels.improved}:** Het geoptimaliseerde CV toont nu "Sales omzet verhoogd met 45% in 6 maanden (van €200k naar €290k MRR)". Klantenwerving is concreet: "23 nieuwe enterprise accounts binnengehaald met gemiddelde deal size van €15k". Action verbs zijn krachtiger: van "verantwoordelijk voor" naar "Gerealiseerd 130% van sales target", "Overtroffen quota met 30% gedurende 4 kwartalen", en "Behaald #1 sales ranking in team van 12".
 
-**${labels.why}:** [Leg in 3-4 complete zinnen uit waarom dit cruciaal is. Bijvoorbeeld: "Recruiters onthouden kwantificeerbare prestaties 70% beter dan vage claims. Concrete cijfers maken je impact tastbaar en geloofwaardig - '45% groei' is veel overtuigender dan 'goede resultaten'. Volgens onderzoek verhogen CV's met metrics de kans op uitnodiging met 60%. Cijfers onderscheiden jou van de 90% kandidaten die alleen verantwoordelijkheden opsommen zonder resultaten te tonen."]
+**${labels.why}:** Recruiters onthouden kwantificeerbare prestaties 70% beter dan vage claims volgens cognitief onderzoek. Concrete cijfers maken je impact tastbaar en geloofwaardig - "45% omzetgroei" is oneindig overtuigender dan "goede salesresultaten". Studies tonen aan dat CV's met metrics 60% hogere uitnodigingspercentages hebben voor interviews. Cijfers onderscheiden jou van de 90% kandidaten die alleen taken en verantwoordelijkheden opsommen zonder bewezen resultaten. Elke metric vertelt een succesverhaal dat recruiters direct kunnen presenteren aan hiring managers.
+
+### 2. [Tweede impact-verbetering met EXACTE ZELFDE uitgebreidheid...]
+
+**${labels.original}:** [Weer 2-3 VOLLEDIGE zinnen...]
+
+**${labels.improved}:** [Weer 2-3 VOLLEDIGE zinnen...]
+
+**${labels.why}:** [Weer 3-4 VOLLEDIGE zinnen...]
 
 ### 2. [Tweede impact-verbetering - wederom met volledige titel]
 
@@ -85,10 +93,35 @@ BELANGRIJK: Deze content is waar klanten voor betalen. Lege of incomplete velden
       }
     });
 
-    const result = await model.generateContent(prompt);
-    const impactChanges = result.response.text();
+    let impactChanges = '';
+    let attempt = 0;
+    const maxAttempts = 2;
 
-    console.log(`✅ Impact analysis generated (${impactChanges.length} chars)`);
+    while (attempt < maxAttempts) {
+      attempt++;
+      console.log(`📝 Attempt ${attempt}/${maxAttempts} to generate Impact analysis`);
+
+      const result = await model.generateContent(prompt);
+      impactChanges = result.response.text();
+
+      // VALIDATION: Check if all required fields are present (support both NL and EN)
+      const hasOriginal = (impactChanges.match(/\*\*(Origineel|Original)\*\*:/gi) || []).length;
+      const hasVerbeterd = (impactChanges.match(/\*\*(Verbeterd|Improved)\*\*:/gi) || []).length;
+      const hasWaarom = (impactChanges.match(/\*\*(Waarom|Why)\*\*:/gi) || []).length;
+
+      console.log(`🔍 Validation: Original=${hasOriginal}, Verbeterd=${hasVerbeterd}, Waarom=${hasWaarom}`);
+
+      if (hasOriginal >= 2 && hasVerbeterd >= 2 && hasWaarom >= 2) {
+        console.log(`✅ Impact analysis validated (${impactChanges.length} chars)`);
+        break;
+      }
+
+      console.warn(`⚠️ Incomplete output on attempt ${attempt}. Retrying...`);
+
+      if (attempt === maxAttempts) {
+        console.error(`❌ Failed to generate complete output after ${maxAttempts} attempts`);
+      }
+    }
 
     return {
       statusCode: 200,

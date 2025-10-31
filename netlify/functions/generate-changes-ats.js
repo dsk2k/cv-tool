@@ -43,15 +43,23 @@ KRITIEKE INSTRUCTIES - LEES DIT ZORGVULDIG:
 4. Citeer ALTIJD specifieke tekst uit de CV's tussen aanhalingstekens
 5. Vergelijk de EXACTE verschillen tussen origineel en verbeterd
 
-VERPLICHT FORMAAT - kopieer dit EXACT en vul ALLE placeholders volledig in:
+EXACT VOORBEELD - Je MOET dit formaat volgen met dezelfde uitgebreidheid:
 
-### 1. [Precieze titel van de ATS-verbetering - bijvoorbeeld: "Toevoeging van technische keywords voor software development"]
+### 1. Toevoeging van Specifieke Technische Keywords en Tools
 
-**${labels.original}:** [Beschrijf in 2-3 complete zinnen wat er in het ORIGINELE CV stond. Citeer specifieke tekst. Bijvoorbeeld: "Het originele CV vermeldde 'ervaring met programmeren' zonder specifieke talen. De skills sectie was generiek met alleen 'IT vaardigheden'. Er ontbraken belangrijke ATS keywords zoals programmeertalen, frameworks of tools."]
+**${labels.original}:** Het originele CV gebruikte algemene termen zoals "ervaring met programmeren" en "IT vaardigheden" zonder concrete technologieën te noemen. In de werkervaring stond "ontwikkeld software oplossingen" zonder specifieke programmeertalen of frameworks. De skills sectie vermeldde enkel "computervaardigheden" en "technische achtergrond", wat te vaag is voor ATS-systemen.
 
-**${labels.improved}:** [Beschrijf in 2-3 complete zinnen wat er in het VERBETERDE CV staat. Citeer specifieke nieuwe tekst. Bijvoorbeeld: "Het verbeterde CV bevat nu 'Python, JavaScript, React, Node.js' expliciet genoemd. De skills sectie lijst 'Git, Docker, AWS, MongoDB' op. Elke technologie wordt nu met naam genoemd, bijvoorbeeld 'Ontwikkeld microservices met Node.js en Express'."]
+**${labels.improved}:** Het geoptimaliseerde CV bevat nu expliciete technische keywords: "Python, JavaScript, React, Node.js" in de skills sectie. Bij werkervaring staat nu "Ontwikkeld microservices met Node.js en Express framework" en "Gebouwd frontend applicaties met React en TypeScript". Ook toegevoegd: "Git version control, Docker containers, AWS cloud deployment, MongoDB databases". Elke technologie wordt met naam genoemd met concrete toepassingen.
 
-**${labels.why}:** [Leg in 3-4 complete zinnen uit waarom dit cruciaal is. Bijvoorbeeld: "ATS-systemen scannen op exacte keyword matches. Zonder specifieke technologienamen wordt je CV niet gevonden bij zoekopdrachten naar 'Python developer' of 'React specialist'. Recruiters zoeken gemiddeld naar 10-15 specifieke keywords per vacature. Door deze keywords toe te voegen verhoog je de ATS-score met 60-80% en kom je automatisch hoger in de candidate ranking."]
+**${labels.why}:** ATS-systemen scannen op exacte keyword matches tussen vacature en CV. Zonder specifieke technologienamen wordt je CV niet gevonden bij zoekopdrachten naar "Python developer" of "React specialist", zelfs als je deze skills bezit. Recruiters zoeken gemiddeld naar 10-15 specifieke keywords per vacature. Door deze concrete keywords toe te voegen verhoog je de ATS-match score met 60-80% en kom je automatisch bovenaan de candidate ranking. Generieke termen zoals "IT vaardigheden" worden door ATS volledig genegeerd, terwijl "Python, AWS, Docker" directe matches opleveren.
+
+### 2. [Tweede verbetering met EXACTE ZELFDE uitgebreidheid...]
+
+**${labels.original}:** [Weer 2-3 VOLLEDIGE zinnen met citaten...]
+
+**${labels.improved}:** [Weer 2-3 VOLLEDIGE zinnen met citaten...]
+
+**${labels.why}:** [Weer 3-4 VOLLEDIGE zinnen met uitleg...]
 
 ### 2. [Tweede ATS-verbetering - wederom met volledige titel]
 
@@ -85,10 +93,37 @@ BELANGRIJK: Deze content is waar klanten voor betalen. Lege of incomplete velden
       }
     });
 
-    const result = await model.generateContent(prompt);
-    const atsChanges = result.response.text();
+    let atsChanges = '';
+    let attempt = 0;
+    const maxAttempts = 2;
 
-    console.log(`✅ ATS analysis generated (${atsChanges.length} chars)`);
+    while (attempt < maxAttempts) {
+      attempt++;
+      console.log(`📝 Attempt ${attempt}/${maxAttempts} to generate ATS analysis`);
+
+      const result = await model.generateContent(prompt);
+      atsChanges = result.response.text();
+
+      // VALIDATION: Check if all required fields are present (support both NL and EN)
+      const hasOriginal = (atsChanges.match(/\*\*(Origineel|Original)\*\*:/gi) || []).length;
+      const hasVerbeterd = (atsChanges.match(/\*\*(Verbeterd|Improved)\*\*:/gi) || []).length;
+      const hasWaarom = (atsChanges.match(/\*\*(Waarom|Why)\*\*:/gi) || []).length;
+
+      console.log(`🔍 Validation: Original=${hasOriginal}, Verbeterd=${hasVerbeterd}, Waarom=${hasWaarom}`);
+
+      // Check if we have at least 2 complete sets
+      if (hasOriginal >= 2 && hasVerbeterd >= 2 && hasWaarom >= 2) {
+        console.log(`✅ ATS analysis validated (${atsChanges.length} chars)`);
+        break;
+      }
+
+      console.warn(`⚠️ Incomplete output on attempt ${attempt}. Retrying with stricter prompt...`);
+
+      if (attempt === maxAttempts) {
+        console.error(`❌ Failed to generate complete output after ${maxAttempts} attempts`);
+        // Use what we have, but log the issue
+      }
+    }
 
     return {
       statusCode: 200,
