@@ -43,25 +43,17 @@ KRITIEKE INSTRUCTIES - LEES DIT ZORGVULDIG:
 4. Citeer ALTIJD specifieke tekst uit de CV's tussen aanhalingstekens
 5. Vergelijk de EXACTE verschillen tussen origineel en verbeterd
 
-EXACT VOORBEELD - Je MOET dit formaat volgen met dezelfde uitgebreidheid:
+VERPLICHT FORMAAT (volg dit EXACT):
 
-### 1. Toevoeging van Specifieke Technische Keywords en Tools
+### 1. [Concrete titel]
 
-**${labels.original}:** Het originele CV gebruikte algemene termen zoals "ervaring met programmeren" en "IT vaardigheden" zonder concrete technologieën te noemen. In de werkervaring stond "ontwikkeld software oplossingen" zonder specifieke programmeertalen of frameworks. De skills sectie vermeldde enkel "computervaardigheden" en "technische achtergrond", wat te vaag is voor ATS-systemen.
+**${labels.original}:** [2-3 zinnen: wat stond in origineel, citeer tekst, wat ontbrak]
 
-**${labels.improved}:** Het geoptimaliseerde CV bevat nu expliciete technische keywords: "Python, JavaScript, React, Node.js" in de skills sectie. Bij werkervaring staat nu "Ontwikkeld microservices met Node.js en Express framework" en "Gebouwd frontend applicaties met React en TypeScript". Ook toegevoegd: "Git version control, Docker containers, AWS cloud deployment, MongoDB databases". Elke technologie wordt met naam genoemd met concrete toepassingen.
+**${labels.improved}:** [2-3 zinnen: wat staat nu in verbeterd, citeer specifieke toevoegingen]
 
-**${labels.why}:** ATS-systemen scannen op exacte keyword matches tussen vacature en CV. Zonder specifieke technologienamen wordt je CV niet gevonden bij zoekopdrachten naar "Python developer" of "React specialist", zelfs als je deze skills bezit. Recruiters zoeken gemiddeld naar 10-15 specifieke keywords per vacature. Door deze concrete keywords toe te voegen verhoog je de ATS-match score met 60-80% en kom je automatisch bovenaan de candidate ranking. Generieke termen zoals "IT vaardigheden" worden door ATS volledig genegeerd, terwijl "Python, AWS, Docker" directe matches opleveren.
+**${labels.why}:** [3-4 zinnen: waarom dit cruciaal is, impact op ATS/recruiters]
 
-### 2. [Tweede verbetering met EXACTE ZELFDE uitgebreidheid...]
-
-**${labels.original}:** [Weer 2-3 VOLLEDIGE zinnen met citaten...]
-
-**${labels.improved}:** [Weer 2-3 VOLLEDIGE zinnen met citaten...]
-
-**${labels.why}:** [Weer 3-4 VOLLEDIGE zinnen met uitleg...]
-
-### 2. [Tweede ATS-verbetering - wederom met volledige titel]
+### 2. [Tweede ATS-verbetering]
 
 **${labels.original}:** [Weer 2-3 complete zinnen met citaten uit origineel CV...]
 
@@ -93,36 +85,19 @@ BELANGRIJK: Deze content is waar klanten voor betalen. Lege of incomplete velden
       }
     });
 
-    let atsChanges = '';
-    let attempt = 0;
-    const maxAttempts = 2;
+    const result = await model.generateContent(prompt);
+    const atsChanges = result.response.text();
 
-    while (attempt < maxAttempts) {
-      attempt++;
-      console.log(`📝 Attempt ${attempt}/${maxAttempts} to generate ATS analysis`);
+    // VALIDATION: Log field presence for debugging
+    const hasOriginal = (atsChanges.match(/\*\*(Origineel|Original)\*\*:/gi) || []).length;
+    const hasVerbeterd = (atsChanges.match(/\*\*(Verbeterd|Improved)\*\*:/gi) || []).length;
+    const hasWaarom = (atsChanges.match(/\*\*(Waarom|Why)\*\*:/gi) || []).length;
+    console.log(`🔍 Validation: Original=${hasOriginal}, Verbeterd=${hasVerbeterd}, Waarom=${hasWaarom}`);
 
-      const result = await model.generateContent(prompt);
-      atsChanges = result.response.text();
-
-      // VALIDATION: Check if all required fields are present (support both NL and EN)
-      const hasOriginal = (atsChanges.match(/\*\*(Origineel|Original)\*\*:/gi) || []).length;
-      const hasVerbeterd = (atsChanges.match(/\*\*(Verbeterd|Improved)\*\*:/gi) || []).length;
-      const hasWaarom = (atsChanges.match(/\*\*(Waarom|Why)\*\*:/gi) || []).length;
-
-      console.log(`🔍 Validation: Original=${hasOriginal}, Verbeterd=${hasVerbeterd}, Waarom=${hasWaarom}`);
-
-      // Check if we have at least 2 complete sets
-      if (hasOriginal >= 2 && hasVerbeterd >= 2 && hasWaarom >= 2) {
-        console.log(`✅ ATS analysis validated (${atsChanges.length} chars)`);
-        break;
-      }
-
-      console.warn(`⚠️ Incomplete output on attempt ${attempt}. Retrying with stricter prompt...`);
-
-      if (attempt === maxAttempts) {
-        console.error(`❌ Failed to generate complete output after ${maxAttempts} attempts`);
-        // Use what we have, but log the issue
-      }
+    if (hasOriginal >= 2 && hasVerbeterd >= 2 && hasWaarom >= 2) {
+      console.log(`✅ ATS analysis validated (${atsChanges.length} chars)`);
+    } else {
+      console.warn(`⚠️ Incomplete output detected but continuing`);
     }
 
     return {

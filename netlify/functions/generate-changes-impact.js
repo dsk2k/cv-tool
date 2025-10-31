@@ -93,34 +93,19 @@ BELANGRIJK: Deze content is waar klanten voor betalen. Lege of incomplete velden
       }
     });
 
-    let impactChanges = '';
-    let attempt = 0;
-    const maxAttempts = 2;
+    const result = await model.generateContent(prompt);
+    const impactChanges = result.response.text();
 
-    while (attempt < maxAttempts) {
-      attempt++;
-      console.log(`📝 Attempt ${attempt}/${maxAttempts} to generate Impact analysis`);
+    // VALIDATION: Log field presence for debugging
+    const hasOriginal = (impactChanges.match(/\*\*(Origineel|Original)\*\*:/gi) || []).length;
+    const hasVerbeterd = (impactChanges.match(/\*\*(Verbeterd|Improved)\*\*:/gi) || []).length;
+    const hasWaarom = (impactChanges.match(/\*\*(Waarom|Why)\*\*:/gi) || []).length;
+    console.log(`🔍 Validation: Original=${hasOriginal}, Verbeterd=${hasVerbeterd}, Waarom=${hasWaarom}`);
 
-      const result = await model.generateContent(prompt);
-      impactChanges = result.response.text();
-
-      // VALIDATION: Check if all required fields are present (support both NL and EN)
-      const hasOriginal = (impactChanges.match(/\*\*(Origineel|Original)\*\*:/gi) || []).length;
-      const hasVerbeterd = (impactChanges.match(/\*\*(Verbeterd|Improved)\*\*:/gi) || []).length;
-      const hasWaarom = (impactChanges.match(/\*\*(Waarom|Why)\*\*:/gi) || []).length;
-
-      console.log(`🔍 Validation: Original=${hasOriginal}, Verbeterd=${hasVerbeterd}, Waarom=${hasWaarom}`);
-
-      if (hasOriginal >= 2 && hasVerbeterd >= 2 && hasWaarom >= 2) {
-        console.log(`✅ Impact analysis validated (${impactChanges.length} chars)`);
-        break;
-      }
-
-      console.warn(`⚠️ Incomplete output on attempt ${attempt}. Retrying...`);
-
-      if (attempt === maxAttempts) {
-        console.error(`❌ Failed to generate complete output after ${maxAttempts} attempts`);
-      }
+    if (hasOriginal >= 2 && hasVerbeterd >= 2 && hasWaarom >= 2) {
+      console.log(`✅ Impact analysis validated (${impactChanges.length} chars)`);
+    } else {
+      console.warn(`⚠️ Incomplete output detected but continuing`);
     }
 
     return {
