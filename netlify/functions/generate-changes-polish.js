@@ -25,8 +25,8 @@ exports.handler = async (event) => {
 
     const lang = language === 'nl' ? 'Nederlands' : 'English';
     const labels = language === 'nl'
-      ? { original: 'Origineel', improved: 'Verbeterd', why: 'Waarom beter' }
-      : { original: 'Original', improved: 'Improved', why: 'Why better' };
+      ? { original: 'Origineel', improved: 'Verbeterd', why: 'Waarom' }
+      : { original: 'Original', improved: 'Improved', why: 'Why' };
 
     const prompt = `Je bent een professional CV expert. Vergelijk deze CV's en geef gedetailleerde Professionele Polish verbeteringen in ${lang}.
 

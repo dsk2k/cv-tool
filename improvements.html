@@ -364,9 +364,32 @@
             transform: translateX(100%);
         }
 
+        .category-card::after {
+            content: '👆 Click to filter';
+            position: absolute;
+            bottom: 8px;
+            right: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #9ca3af;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .category-card:hover::after {
+            opacity: 1;
+        }
+
         .category-card.active {
             border-color: #8b5cf6;
             box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .category-card.active::after {
+            content: '✓ Active filter';
+            opacity: 1;
+            color: #8b5cf6;
         }
 
         @keyframes scoreCountUp {
@@ -619,6 +642,14 @@
 
                 <!-- Category Cards Grid -->
                 <div class="p-6 bg-gradient-to-br from-gray-50 to-white">
+                    <!-- Click Instructions -->
+                    <div class="text-center mb-4 px-4 py-3 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-100">
+                        <p class="text-sm font-semibold text-gray-700">
+                            👆 <span class="text-indigo-600">Klik op een categorie</span> om specifieke verbeteringen te bekijken •
+                            <span class="text-gray-500">Click again to show all</span>
+                        </p>
+                    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                         <!-- Category 1: ATS & Keywords -->
                         <div class="category-card bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all cursor-pointer hover:scale-105"
@@ -1130,7 +1161,8 @@
         }
 
         function updateCategoryScores(categorizedChanges) {
-            let totalScore = 0;
+            let totalOriginalScore = 0;
+            let totalOptimizedScore = 0;
             let totalChanges = 0;
 
             Object.keys(categories).forEach(catKey => {
@@ -1138,39 +1170,51 @@
                 const count = changes.length;
                 totalChanges += count;
 
-                // Calculate score (max 100 per category)
-                const score = Math.min(100, count * 20); // 5 changes = 100 points
+                // NEW LOGIC: Calculate Original CV Quality (inverse - fewer changes = better original)
+                // 0 changes = 100% (excellent original), 5+ changes = 40% (poor original)
+                const originalScore = Math.max(35, 100 - (count * 12));
 
-                // Update UI
-                document.getElementById(`score-${catKey}`).textContent = score;
+                // Optimized CV is always excellent (95%)
+                const optimizedScore = 95;
+
+                // Improvement gain
+                const improvementGain = optimizedScore - originalScore;
+
+                // Update UI - show IMPROVEMENT GAIN as the score
+                document.getElementById(`score-${catKey}`).textContent = '+' + improvementGain;
                 document.getElementById(`score-${catKey}`).classList.add('score-animate');
                 document.getElementById(`count-${catKey}`).textContent = count;
-                document.getElementById(`progress-${catKey}`).style.width = score + '%';
+                document.getElementById(`progress-${catKey}`).style.width = improvementGain + '%';
 
-                // Color coding
+                // Color coding based on improvement gain
                 const scoreEl = document.getElementById(`score-${catKey}`);
-                if (score >= 80) scoreEl.className = 'text-3xl font-bold text-green-600';
-                else if (score >= 50) scoreEl.className = 'text-3xl font-bold text-yellow-600';
-                else scoreEl.className = 'text-3xl font-bold text-red-600';
+                if (improvementGain >= 50) scoreEl.className = 'text-3xl font-bold text-green-600';
+                else if (improvementGain >= 30) scoreEl.className = 'text-3xl font-bold text-yellow-600';
+                else scoreEl.className = 'text-3xl font-bold text-blue-600';
 
-                // Level badges
+                // Level badges based on improvement
                 const levelEl = document.getElementById(`level-${catKey}`);
-                if (score >= 90) levelEl.textContent = '💎 Platinum';
-                else if (score >= 70) levelEl.textContent = '🥇 Gold';
-                else if (score >= 50) levelEl.textContent = '🥈 Silver';
-                else levelEl.textContent = '🥉 Bronze';
+                if (improvementGain >= 55) levelEl.textContent = '💎 Massive Gain';
+                else if (improvementGain >= 40) levelEl.textContent = '🥇 Major Boost';
+                else if (improvementGain >= 25) levelEl.textContent = '🥈 Good Improvement';
+                else levelEl.textContent = '✨ Enhanced';
 
-                totalScore += score;
+                totalOriginalScore += originalScore;
+                totalOptimizedScore += optimizedScore;
             });
 
-            // Overall score
-            const overallScore = Math.round(totalScore / 5);
-            animateNumber(document.getElementById('overall-score'), 0, overallScore, 1500, '');
+            // Overall scores
+            const avgOriginal = Math.round(totalOriginalScore / 5);
+            const avgOptimized = Math.round(totalOptimizedScore / 5);
+            const overallGain = avgOptimized - avgOriginal;
 
-            // Circular progress
+            // Show the improvement gain
+            animateNumber(document.getElementById('overall-score'), 0, overallGain, 1500, '');
+
+            // Circular progress - show the improvement gain
             const circle = document.getElementById('overall-progress-ring');
             const circumference = 2 * Math.PI * 56;
-            const offset = circumference - (overallScore / 100) * circumference;
+            const offset = circumference - (overallGain / 60) * circumference; // Max gain is ~60
             setTimeout(() => {
                 circle.style.strokeDashoffset = offset;
             }, 500);
@@ -1178,30 +1222,29 @@
             // Track gamification scores in GA4
             if (window.trackEvent) {
                 window.trackEvent('cv_score_calculated', {
-                    overall_score: overallScore,
-                    total_changes: totalChanges,
-                    ats_score: categorizedChanges.ats?.length * 20 || 0,
-                    impact_score: categorizedChanges.impact?.length * 20 || 0,
-                    polish_score: categorizedChanges.polish?.length * 20 || 0,
-                    structure_score: categorizedChanges.structure?.length * 20 || 0,
-                    targeting_score: categorizedChanges.targeting?.length * 20 || 0
+                    overall_improvement: overallGain,
+                    original_score: avgOriginal,
+                    optimized_score: avgOptimized,
+                    total_changes: totalChanges
                 });
             }
 
             // Show achievements
-            showAchievements(overallScore, totalChanges);
+            showAchievements(overallGain, totalChanges, avgOriginal, avgOptimized);
         }
 
-        function showAchievements(score, totalChanges) {
+        function showAchievements(improvementGain, totalChanges, originalScore, optimizedScore) {
             const badgesContainer = document.getElementById('achievement-badges');
             badgesContainer.innerHTML = '';
 
             const achievements = [];
 
-            if (totalChanges >= 10) achievements.push({ icon: '🏆', text: 'Perfectionist' });
-            if (score >= 80) achievements.push({ icon: '⭐', text: 'High Achiever' });
-            if (score >= 90) achievements.push({ icon: '🎯', text: 'Expert Level' });
-            if (totalChanges >= 15) achievements.push({ icon: '🚀', text: 'Overachiever' });
+            // NEW: Achievements based on IMPROVEMENT, not just changes
+            if (improvementGain >= 50) achievements.push({ icon: '🚀', text: 'Massive Transformation' });
+            if (improvementGain >= 40) achievements.push({ icon: '⭐', text: 'Major Upgrade' });
+            if (improvementGain >= 30) achievements.push({ icon: '💎', text: 'Significant Boost' });
+            if (totalChanges >= 12) achievements.push({ icon: '🏆', text: 'Fully Optimized' });
+            if (optimizedScore >= 90) achievements.push({ icon: '🎯', text: 'Elite Quality CV' });
 
             achievements.forEach((ach, index) => {
                 setTimeout(() => {
@@ -1217,20 +1260,22 @@
                 window.trackEvent('achievements_unlocked', {
                     achievement_count: achievements.length,
                     achievements: achievements.map(a => a.text).join(', '),
-                    score: score,
+                    improvement_gain: improvementGain,
+                    original_score: originalScore,
+                    optimized_score: optimizedScore,
                     total_changes: totalChanges
                 });
             }
 
-            // Confetti on high score
-            if (score >= 85) {
+            // Confetti on big improvements!
+            if (improvementGain >= 40) {
                 setTimeout(() => {
                     createConfetti();
 
                     // Track confetti celebration in GA4
                     if (window.trackEvent) {
                         window.trackEvent('confetti_celebration', {
-                            score: score
+                            improvement_gain: improvementGain
                         });
                     }
                 }, 1000);
