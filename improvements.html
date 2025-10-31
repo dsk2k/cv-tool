@@ -1224,10 +1224,13 @@
             let totalOptimizedScore = 0;
             let totalChanges = 0;
 
+            console.log('📊 Updating category scores:', categorizedChanges);
+
             Object.keys(categories).forEach(catKey => {
                 const changes = categorizedChanges[catKey] || [];
                 const count = changes.length;
                 totalChanges += count;
+                console.log(`  ${catKey}: ${count} changes`);
 
                 // NEW LOGIC: Calculate Original CV Quality (inverse - fewer changes = better original)
                 // 0 changes = 100% (excellent original), 5+ changes = 40% (poor original)
@@ -1388,6 +1391,7 @@
                     const sectionIcon = section.querySelector('[id^="section-icon-"]');
                     if (sectionContent) {
                         sectionContent.classList.add('expanded');
+                        sectionContent.style.maxHeight = ''; // Remove inline style
                     }
                     if (sectionIcon) {
                         sectionIcon.classList.add('rotate-180');
@@ -1422,11 +1426,14 @@
                         section.style.display = '';
                         section.style.order = '-1'; // Move to top
 
-                        // Expand the section
+                        // Force expand the section (override any previous collapse)
                         const sectionContent = section.querySelector('[id^="section-content-"]');
                         const sectionIcon = section.querySelector('[id^="section-icon-"]');
                         if (sectionContent) {
+                            sectionContent.classList.remove('collapsed');
                             sectionContent.classList.add('expanded');
+                            // Force max-height to ensure visibility
+                            sectionContent.style.maxHeight = '5000px';
                         }
                         if (sectionIcon) {
                             sectionIcon.classList.add('rotate-180');
