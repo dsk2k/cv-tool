@@ -2062,8 +2062,28 @@
                 const headerMatch = section.match(/^#{2,3}\s+(.+?)$/m);
                 const header = headerMatch ? headerMatch[1].trim() : `Categorie ${index + 1}`;
 
-                // Extract list items (- or *)
-                const items = section.match(/^[\*\-]\s+(.+)$/gm) || [];
+                // Extract list items - improved to handle multi-line bullets
+                // Split section into lines and group bullet points
+                const lines = section.split('\n');
+                const items = [];
+                let currentItem = '';
+
+                for (let line of lines) {
+                    if (line.match(/^[\*\-]\s+/)) {
+                        // New bullet point - save previous if exists
+                        if (currentItem) {
+                            items.push(currentItem.trim());
+                        }
+                        currentItem = line;
+                    } else if (currentItem && line.trim() && !line.match(/^#{1,3}\s/)) {
+                        // Continuation of current bullet point
+                        currentItem += ' ' + line.trim();
+                    }
+                }
+                // Don't forget the last item
+                if (currentItem) {
+                    items.push(currentItem.trim());
+                }
 
                 if (items.length === 0) return;
 
