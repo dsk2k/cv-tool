@@ -25,21 +25,89 @@ exports.handler = async (event) => {
     }
 
     const lang = language === 'nl' ? 'Nederlands' : 'English';
-    const jobSummary = jobDescription.substring(0, 1000);
+    const jobSummary = jobDescription.substring(0, 1500);
 
-    const prompt = `Recruiter tips in ${lang}.
+    const prompt = language === 'nl'
+      ? `Je bent een ervaren recruiter en interview coach. Maak een comprehensive interview voorbereiding checklist in Nederlands voor de volgende functie.
 
-Job: ${jobSummary}
+FUNCTIE:
+${jobSummary}
 
-5-7 bullet points: stand out, interview prep, key skills.
+Maak een gedetailleerde interview voorbereiding checklist met MINIMAAL 25-30 items verdeeld over de volgende categorieën:
 
-Tips:`;
+## Onderscheidend Vermogen (Stand Out)
+- 4-5 specifieke tips hoe de kandidaat zich kan onderscheiden van andere kandidaten
+- Focus op unieke selling points en waardevolle inzichten
+
+## Interview Voorbereiding (Interview Prep)
+- 5-6 concrete voorbereidingsstappen
+- Research tips over het bedrijf
+- Voorbereiding op specifieke interviewformats
+
+## STAR Method Vragen
+- 5-6 specifieke STAR-vragen die waarschijnlijk gesteld worden voor deze functie
+- Elke vraag moet relevant zijn voor de functie-eisen
+
+## Competentie-gebaseerde Vragen
+- 4-5 competentie vragen specifiek voor deze rol
+- Focus op technische en soft skills uit de job description
+
+## Vragen aan de Werkgever
+- 3-4 slimme vragen die de kandidaat kan stellen
+- Toon interesse en strategisch denken
+
+## Do's and Don'ts
+- 3-4 specifieke do's
+- 3-4 specifieke don'ts
+
+Gebruik markdown formatting met ## voor headers en - voor bullet points.
+Wees specifiek en actionable, geen algemene adviezen.
+Elke tip moet kort en direct zijn (max 2 zinnen per bullet point).
+
+Checklist:`
+      : `You are an experienced recruiter and interview coach. Create a comprehensive interview preparation checklist in English for the following job role.
+
+JOB DESCRIPTION:
+${jobSummary}
+
+Create a detailed interview preparation checklist with AT LEAST 25-30 items divided into the following categories:
+
+## Stand Out Strategies
+- 4-5 specific tips on how the candidate can stand out from other applicants
+- Focus on unique selling points and valuable insights
+
+## Interview Preparation
+- 5-6 concrete preparation steps
+- Research tips about the company
+- Preparation for specific interview formats
+
+## STAR Method Questions
+- 5-6 specific STAR questions likely to be asked for this role
+- Each question must be relevant to the job requirements
+
+## Competency-Based Questions
+- 4-5 competency questions specific to this role
+- Focus on technical and soft skills from the job description
+
+## Questions to Ask the Employer
+- 3-4 smart questions the candidate can ask
+- Show interest and strategic thinking
+
+## Do's and Don'ts
+- 3-4 specific do's
+- 3-4 specific don'ts
+
+Use markdown formatting with ## for headers and - for bullet points.
+Be specific and actionable, no generic advice.
+Each tip should be brief and direct (max 2 sentences per bullet point).
+
+Checklist:`;
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.5-flash-lite',
       generationConfig: {
-        maxOutputTokens: 500, // Reduced: 700 → 500 for speed
-        temperature: 0.7,
+        maxOutputTokens: 2500,
+        temperature: 0.8,
         topP: 0.95
       }
     });
