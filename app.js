@@ -1,94 +1,53 @@
 // AI CV Tailor - Main Application Logic
 
-// Helper function to update loading step status (compact design)
+// Helper function to update loading status
 function updateStep(stepNumber, status = 'active') {
     // Get current language
     const lang = document.getElementById('language')?.value || 'en';
 
-    const stepLabels = {
-        en: [
-            'Optimize resume',
-            'Cover letter',
-            'Recruiter tips',
-            'ATS analysis',
-            'Impact analysis',
-            'Professionalism',
-            'Job match'
-        ],
-        nl: [
-            'CV optimaliseren',
-            'Motivatiebrief',
-            'Recruiter tips',
-            'ATS analyse',
-            'Impact analyse',
-            'Professionaliteit',
-            'Job match'
-        ]
-    };
-
-    const statusLabels = {
-        en: {
-            generating: 'Generating...',
-            completed: 'All steps completed!',
-            loading: 'Loading your results...'
+    const statusTexts = {
+        1: {
+            nl: 'AI analyseert uw profiel...',
+            en: 'AI is analyzing your profile...'
         },
-        nl: {
-            generating: 'Bezig met genereren...',
-            completed: 'Alle stappen voltooid!',
-            loading: 'Je resultaten worden geladen...'
+        2: {
+            nl: 'Motivatiebrief wordt gegenereerd...',
+            en: 'Cover letter is being generated...'
+        },
+        3: {
+            nl: 'Recruiter tips worden verzameld...',
+            en: 'Gathering recruiter tips...'
+        },
+        4: {
+            nl: 'ATS optimalisatie loopt...',
+            en: 'ATS optimization in progress...'
+        },
+        5: {
+            nl: 'Impact analyse bezig...',
+            en: 'Impact analysis in progress...'
+        },
+        6: {
+            nl: 'Professionele polish wordt toegepast...',
+            en: 'Applying professional polish...'
+        },
+        7: {
+            nl: 'Job targeting optimalisatie...',
+            en: 'Job targeting optimization...'
+        },
+        completed: {
+            nl: 'Klaar! U wordt doorverwezen...',
+            en: 'Done! Redirecting you...'
         }
     };
 
-    const labels = stepLabels[lang];
+    const statusEl = document.getElementById('loadingStatus');
 
-    // Update mini step indicator
-    const miniStep = document.querySelector(`.progress-step-mini[data-step="${stepNumber}"]`);
-    if (miniStep) {
-        const icon = miniStep.querySelector('.step-icon');
-        const number = miniStep.querySelector('span:last-child');
-
-        if (status === 'active') {
-            miniStep.style.background = 'white';
-            miniStep.style.borderColor = '#667eea';
-            miniStep.style.opacity = '1';
-            if (icon) icon.textContent = '⏳';
-            if (number) number.style.color = '#667eea';
-        } else if (status === 'completed') {
-            miniStep.style.background = 'rgba(16,185,129,0.1)';
-            miniStep.style.borderColor = '#10b981';
-            miniStep.style.opacity = '1';
-            if (icon) icon.textContent = '✅';
-            if (number) number.style.color = '#10b981';
-        }
-    }
-
-    // Update current step detail box
-    if (status === 'active') {
-        const detailBox = document.getElementById('currentStepDetail');
-        if (detailBox) {
-            detailBox.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <span style="font-size: 1.5rem;">⏳</span>
-                    <div style="flex: 1;">
-                        <div style="font-weight: 700; font-size: 0.875rem; color: #1f2937; margin-bottom: 2px;">Step ${stepNumber}: ${labels[stepNumber - 1]}</div>
-                        <div style="font-size: 0.75rem; color: #667eea; font-weight: 600;">${statusLabels[lang].generating}</div>
-                    </div>
-                </div>
-            `;
-        }
-    } else if (status === 'completed') {
-        const detailBox = document.getElementById('currentStepDetail');
-        if (detailBox && stepNumber === 7) {
-            // Show completion message after last step
-            detailBox.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <span style="font-size: 1.5rem;">✅</span>
-                    <div style="flex: 1;">
-                        <div style="font-weight: 700; font-size: 0.875rem; color: #10b981; margin-bottom: 2px;">${statusLabels[lang].completed}</div>
-                        <div style="font-size: 0.75rem; color: #10b981; font-weight: 600;">${statusLabels[lang].loading}</div>
-                    </div>
-                </div>
-            `;
+    if (statusEl) {
+        if (status === 'active' && statusTexts[stepNumber]) {
+            statusEl.textContent = statusTexts[stepNumber][lang] || statusTexts[stepNumber].nl;
+        } else if (status === 'completed' && stepNumber === 1) {
+            // Only show completed for step 1 in fast mode
+            statusEl.textContent = statusTexts.completed[lang] || statusTexts.completed.nl;
         }
     }
 }
