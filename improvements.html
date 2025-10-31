@@ -1207,7 +1207,7 @@
             if (text.match(/kwantif|cijfer|resultaat|impact|achievement|metric|percentage|increase|ROI|revenue|growth/i)) {
                 return 'impact';
             }
-            // Structure & Readability
+            // Structure & Readability (check before polish to avoid false matches)
             if (text.match(/structuur|layout|format|leesbaarheid|readability|bullet|section|visual|hierarchy/i)) {
                 return 'structure';
             }
@@ -1215,7 +1215,11 @@
             if (text.match(/job.*match|targeting|relevance|specifiek|tailored|customized|afstemming/i)) {
                 return 'targeting';
             }
-            // Professional Polish (default)
+            // Professional Polish - explicitly check for polish keywords
+            if (text.match(/polish|professionele|grammatica|spelling|toon|consistency|consistentie|taal|language|formeel|formal/i)) {
+                return 'polish';
+            }
+            // Default to polish for anything not categorized
             return 'polish';
         }
 
@@ -1368,7 +1372,7 @@
             const isExpanded = card.classList.contains('active');
 
             if (isExpanded) {
-                // Collapse this category - show all changes and sections again
+                // Clicking on active category - deactivate and show all
                 card.classList.remove('active');
 
                 // Show all change cards
@@ -1382,7 +1386,7 @@
                     }
                 });
 
-                // Show and expand all sections
+                // Show all sections but keep them collapsed initially
                 const allSections = document.querySelectorAll('#changesContent > div');
                 allSections.forEach(section => {
                     section.style.display = '';
@@ -1390,11 +1394,11 @@
                     const sectionContent = section.querySelector('[id^="section-content-"]');
                     const sectionIcon = section.querySelector('[id^="section-icon-"]');
                     if (sectionContent) {
-                        sectionContent.classList.add('expanded');
-                        sectionContent.style.maxHeight = ''; // Remove inline style
+                        // Don't force expand - keep user's previous state
+                        sectionContent.style.maxHeight = '';
                     }
                     if (sectionIcon) {
-                        sectionIcon.classList.add('rotate-180');
+                        // Don't force rotate - keep user's previous state
                     }
                 });
 
@@ -1405,7 +1409,7 @@
                     });
                 }
             } else {
-                // Deactivate all other category cards
+                // Deactivate all other category cards (without resetting view)
                 document.querySelectorAll('.category-card').forEach(c => {
                     c.classList.remove('active');
                 });
@@ -1458,11 +1462,12 @@
                         section.style.display = '';
                         section.style.order = '999'; // Move to bottom
 
-                        // Collapse the section
+                        // Force collapse the section
                         const sectionContent = section.querySelector('[id^="section-content-"]');
                         const sectionIcon = section.querySelector('[id^="section-icon-"]');
                         if (sectionContent) {
                             sectionContent.classList.remove('expanded');
+                            sectionContent.style.maxHeight = '0px'; // Force collapse
                         }
                         if (sectionIcon) {
                             sectionIcon.classList.remove('rotate-180');
@@ -1737,7 +1742,12 @@
                 allChanges.forEach((card, idx) => {
                     const title = card.querySelector('h4')?.textContent || '';
                     const content = card.querySelector('.change-content-collapsible')?.textContent || '';
-                    const category = categorizeChange(title, content);
+
+                    // Also get parent section title for better categorization
+                    const parentSection = card.closest('[id^="section-content-"]')?.previousElementSibling;
+                    const sectionTitle = parentSection?.querySelector('h2')?.textContent || '';
+
+                    const category = categorizeChange(title + ' ' + sectionTitle, content);
                     categorizedChanges[category].push({ title, content, index: idx + 1 });
 
                     // Add category class
