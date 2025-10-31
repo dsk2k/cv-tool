@@ -1517,6 +1517,11 @@
                         <div class="original-block">
                             <span class="label-badge label-original">❌ Origineel</span>
                     `;
+                    // Capture any text on the same line after the header
+                    const sameLineText = line.replace(/^\*\*Original(:|eel)?\*\*:?\s*/i, '').trim();
+                    if (sameLineText) {
+                        changeContentBuffer += `<p class="text-gray-700 leading-relaxed text-sm">${sameLineText}</p>`;
+                    }
                 }
                 // Improved section
                 else if (line.match(/^\*\*Verbeterd(:|e)?\*\*/i) || line.match(/^\*\*Improved(:|e)?\*\*/i)) {
@@ -1524,6 +1529,11 @@
                         <div class="improved-block">
                             <span class="label-badge label-improved">✅ Verbeterd</span>
                     `;
+                    // Capture any text on the same line after the header
+                    const sameLineText = line.replace(/^\*\*(Verbeterd(:|e)?|Improved(:|e)?)\*\*:?\s*/i, '').trim();
+                    if (sameLineText) {
+                        changeContentBuffer += `<p class="text-gray-700 leading-relaxed text-sm">${sameLineText}</p>`;
+                    }
                 }
                 // Why section
                 else if (line.match(/^\*\*Why this (change )?matters(:|e)?\*\*/i) || line.match(/^\*\*Waarom(:|e)?\*\*/i)) {
@@ -1531,6 +1541,11 @@
                         <div class="why-block">
                             <span class="label-badge label-why">💡 Waarom dit belangrijk is</span>
                     `;
+                    // Capture any text on the same line after the header
+                    const sameLineText = line.replace(/^\*\*(Why this (change )?matters(:|e)?|Waarom(:|e)?)\*\*:?\s*/i, '').trim();
+                    if (sameLineText) {
+                        changeContentBuffer += `<p class="text-gray-700 leading-relaxed text-sm">${sameLineText}</p>`;
+                    }
                 }
                 // Impact rating
                 else if (line.match(/^\*\*Impact/i)) {
@@ -1749,6 +1764,11 @@
                         <div class="original-block">
                             <span class="label-badge label-original">❌ Origineel</span>
                     `;
+                    // Capture any text on the same line after the header
+                    const sameLineText = line.replace(/^\*\*Original(:|eel)?\*\*:?\s*/i, '').trim();
+                    if (sameLineText) {
+                        changeContentBuffer += `<p class="text-gray-700 leading-relaxed">${sameLineText}</p>`;
+                    }
                 }
                 // Improved section
                 else if (line.match(/^\*\*Verbeterd(:|e)?\*\*/i) || line.match(/^\*\*Improved(:|e)?\*\*/i) || line.match(/^\*\*Nieuw(:|e)?\*\*/i)) {
@@ -1756,6 +1776,11 @@
                         <div class="improved-block">
                             <span class="label-badge label-improved">✅ Verbeterd</span>
                     `;
+                    // Capture any text on the same line after the header
+                    const sameLineText = line.replace(/^\*\*(Verbeterd(:|e)?|Improved(:|e)?|Nieuw(:|e)?)\*\*:?\s*/i, '').trim();
+                    if (sameLineText) {
+                        changeContentBuffer += `<p class="text-gray-700 leading-relaxed">${sameLineText}</p>`;
+                    }
                 }
                 // Why section
                 else if (line.match(/^\*\*Why|^\*\*Waarom/i)) {
@@ -1763,6 +1788,11 @@
                         <div class="why-block">
                             <span class="label-badge label-why">💡 Waarom dit belangrijk is</span>
                     `;
+                    // Capture any text on the same line after the header
+                    const sameLineText = line.replace(/^\*\*(Why[^*]*|Waarom[^*]*)\*\*:?\s*/i, '').trim();
+                    if (sameLineText) {
+                        changeContentBuffer += `<p class="text-gray-700 leading-relaxed">${sameLineText}</p>`;
+                    }
                 }
                 // Impact rating
                 else if (line.match(/^\*\*Impact/i)) {
