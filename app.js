@@ -423,8 +423,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateStep(7, 'completed');
                 if (progressBar) progressBar.style.width = '100%';
 
-                // Combine all changes into one overview
-                results.changesOverview = `${atsData.atsChanges}\n\n${impactData.impactChanges}\n\n${polishData.polishChanges}\n\n${matchData.matchChanges}`;
+                // Combine all changes into one overview with section headers
+                results.changesOverview = `## 🎯 ATS & Keywords Optimalisatie\n\n${atsData.atsChanges}\n\n## 💪 Impact & Resultaten\n\n${impactData.impactChanges}\n\n## ✨ Professionele Polish\n\n${polishData.polishChanges}\n\n## 🔥 Job Match & Targeting\n\n${matchData.matchChanges}`;
                 console.log('✅ All changes analysis complete!');
 
                 // Store combined results
