@@ -2024,10 +2024,15 @@
                 console.log('🎮 Quiz observer started');
             }
         });
+
+        // Signal that quiz functions are ready
+        console.log('✅ Quiz functions loaded and ready');
+        window.quizFunctionsReady = true;
+        document.dispatchEvent(new CustomEvent('quizReady'));
     </script>
 
     <!-- Load app.js AFTER quiz functions are defined -->
-    <script src="app.js?v=20241030-quizfix4"></script>
+    <script src="app.js?v=20241030-quizfix5"></script>
 
     <script>
         // Smooth scroll functions

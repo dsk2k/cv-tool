@@ -137,19 +137,27 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingOverlay.classList.remove('hidden');
             loadingOverlay.classList.add('flex');
 
-            // Initialize quiz with retry mechanism (inline script loads after app.js)
-            function tryInitQuiz(retries = 0) {
-                if (typeof window.initQuiz === 'function') {
-                    console.log('🎮 Calling initQuiz() - attempt', retries + 1);
+            // Initialize quiz using event-based approach
+            function startQuiz() {
+                if (window.quizFunctionsReady && typeof window.initQuiz === 'function') {
+                    console.log('🎮 Quiz functions already ready, calling initQuiz()');
                     window.initQuiz();
-                } else if (retries < 10) {
-                    // Retry after 50ms, up to 10 times (500ms total)
-                    setTimeout(() => tryInitQuiz(retries + 1), 50);
                 } else {
-                    console.error('❌ initQuiz function not found after 10 retries');
+                    console.log('⏳ Waiting for quizReady event...');
+                    // Listen for quizReady event
+                    const quizReadyHandler = () => {
+                        console.log('📢 Received quizReady event!');
+                        if (typeof window.initQuiz === 'function') {
+                            console.log('🎮 Calling initQuiz() after event');
+                            window.initQuiz();
+                        } else {
+                            console.error('❌ initQuiz still not found after quizReady event');
+                        }
+                    };
+                    document.addEventListener('quizReady', quizReadyHandler, { once: true });
                 }
             }
-            setTimeout(tryInitQuiz, 100);
+            setTimeout(startQuiz, 50);
 
             // Reset progress
             const progressBar = document.getElementById('progressBar');
