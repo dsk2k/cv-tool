@@ -137,13 +137,19 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingOverlay.classList.remove('hidden');
             loadingOverlay.classList.add('flex');
 
-            // Initialize quiz immediately
-            if (typeof window.initQuiz === 'function') {
-                console.log('🎮 Calling initQuiz() directly from app.js');
-                setTimeout(() => window.initQuiz(), 100);
-            } else {
-                console.error('❌ initQuiz function not found on window');
+            // Initialize quiz with retry mechanism (inline script loads after app.js)
+            function tryInitQuiz(retries = 0) {
+                if (typeof window.initQuiz === 'function') {
+                    console.log('🎮 Calling initQuiz() - attempt', retries + 1);
+                    window.initQuiz();
+                } else if (retries < 10) {
+                    // Retry after 50ms, up to 10 times (500ms total)
+                    setTimeout(() => tryInitQuiz(retries + 1), 50);
+                } else {
+                    console.error('❌ initQuiz function not found after 10 retries');
+                }
             }
+            setTimeout(tryInitQuiz, 100);
 
             // Reset progress
             const progressBar = document.getElementById('progressBar');
