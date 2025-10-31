@@ -1623,8 +1623,8 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="translations.js?v=20241030-bilingual"></script>
-    <script src="app.js?v=20241030-bilingual"></script>
+    <script src="translations.js?v=20241030-quizfix"></script>
+    <script src="app.js?v=20241030-quizfix"></script>
 
     <!-- Interactive Loading Experience Script -->
     <script>
@@ -1816,6 +1816,7 @@
         let quizAnswered = false;
         let funFactInterval;
         let currentLang = 'en'; // Default language
+        let quizInitialized = false; // Prevent multiple initializations
 
         // Get language from form or default to 'en'
         function getCurrentLanguage() {
@@ -1853,10 +1854,22 @@
 
         // Initialize Quiz
         function initQuiz() {
-            if (!document.getElementById('triviaQuiz')) return;
+            if (!document.getElementById('triviaQuiz')) {
+                console.log('❌ Quiz element not found');
+                return;
+            }
+
+            if (quizInitialized) {
+                console.log('⚠️ Quiz already initialized, skipping...');
+                return;
+            }
+
+            quizInitialized = true;
+            console.log('✅ Initializing quiz...');
 
             // Get current language
             currentLang = getCurrentLanguage();
+            console.log('🌍 Language:', currentLang);
 
             // Update loading overlay text
             const loadingTitle = document.getElementById('loadingTitle');
@@ -1881,8 +1894,11 @@
 
         function loadQuizQuestion() {
             const questions = triviaQuestions[currentLang];
+            console.log(`📝 Loading question ${currentQuizIndex + 1}/${questions.length}`);
+
             if (currentQuizIndex >= questions.length) {
                 // Quiz completed
+                console.log('🎉 Quiz completed!');
                 document.getElementById('triviaQuestion').textContent = translations[currentLang].quizComplete;
                 document.getElementById('triviaOptions').innerHTML = '';
                 document.getElementById('triviaFeedback').innerHTML = `<span style="color: #10b981;">${translations[currentLang].scoreText} ${quizScore}/${questions.length}</span>`;
@@ -1977,16 +1993,20 @@
             mutations.forEach((mutation) => {
                 if (mutation.attributeName === 'class') {
                     const loadingOverlay = document.getElementById('loadingOverlay');
-                    if (loadingOverlay && !loadingOverlay.classList.contains('hidden')) {
-                        // Loading started
+                    if (loadingOverlay && loadingOverlay.classList.contains('flex')) {
+                        // Loading started - flex class was added
+                        console.log('🎮 Loading overlay shown - initializing quiz...');
                         setTimeout(initQuiz, 500);
-                    } else {
-                        // Loading stopped - cleanup
+                    } else if (loadingOverlay && loadingOverlay.classList.contains('hidden')) {
+                        // Loading stopped - hidden class was added
+                        console.log('🎮 Loading overlay hidden - cleaning up quiz...');
                         if (funFactInterval) {
                             clearInterval(funFactInterval);
                         }
                         currentQuizIndex = 0;
                         quizScore = 0;
+                        quizInitialized = false; // Reset for next time
+                        quizAnswered = false;
                     }
                 }
             });
@@ -1997,6 +2017,7 @@
             const loadingOverlay = document.getElementById('loadingOverlay');
             if (loadingOverlay) {
                 observer.observe(loadingOverlay, { attributes: true });
+                console.log('🎮 Quiz observer started');
             }
         });
     </script>
