@@ -1623,8 +1623,8 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="translations.js?v=20241030-quizfix"></script>
-    <script src="app.js?v=20241030-quizfix"></script>
+    <script src="translations.js?v=20241030-quizfix2"></script>
+    <script src="app.js?v=20241030-quizfix2"></script>
 
     <!-- Interactive Loading Experience Script -->
     <script>
@@ -1852,8 +1852,8 @@
             }
         };
 
-        // Initialize Quiz
-        function initQuiz() {
+        // Initialize Quiz - Expose globally for app.js to call
+        window.initQuiz = function() {
             if (!document.getElementById('triviaQuiz')) {
                 console.log('❌ Quiz element not found');
                 return;
@@ -1890,7 +1890,7 @@
 
             loadQuizQuestion();
             startFunFactCarousel();
-        }
+        };
 
         function loadQuizQuestion() {
             const questions = triviaQuestions[currentLang];
@@ -1934,13 +1934,18 @@
             document.getElementById('triviaOptions').innerHTML = optionsHTML;
         }
 
-        function checkAnswer(selectedIndex) {
-            if (quizAnswered) return;
+        window.checkAnswer = function(selectedIndex) {
+            console.log(`🖱️ Answer clicked: option ${selectedIndex}`);
+            if (quizAnswered) {
+                console.log('⚠️ Question already answered');
+                return;
+            }
             quizAnswered = true;
 
             const questions = triviaQuestions[currentLang];
             const question = questions[currentQuizIndex];
             const isCorrect = selectedIndex === question.correct;
+            console.log(`${isCorrect ? '✅' : '❌'} Answer was ${isCorrect ? 'correct' : 'wrong'}`);
 
             if (isCorrect) {
                 quizScore++;

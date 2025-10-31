@@ -137,6 +137,14 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingOverlay.classList.remove('hidden');
             loadingOverlay.classList.add('flex');
 
+            // Initialize quiz immediately
+            if (typeof window.initQuiz === 'function') {
+                console.log('🎮 Calling initQuiz() directly from app.js');
+                setTimeout(() => window.initQuiz(), 100);
+            } else {
+                console.error('❌ initQuiz function not found on window');
+            }
+
             // Reset progress
             const progressBar = document.getElementById('progressBar');
             if (progressBar) progressBar.style.width = '0%';
