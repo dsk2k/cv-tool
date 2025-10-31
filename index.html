@@ -1623,7 +1623,7 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="translations.js?v=20241030-quizfix4"></script>
+    <script src="translations.js?v=20241030-quizfix6"></script>
 
     <!-- Interactive Loading Experience Script (BEFORE app.js so functions are available) -->
     <script>
@@ -1814,11 +1814,11 @@
         let quizScore = 0;
         let quizAnswered = false;
         let funFactInterval;
-        let currentLang = 'en'; // Default language
+        let quizLang = 'en'; // Quiz language (renamed to avoid conflict with translations.js global currentLang)
         let quizInitialized = false; // Prevent multiple initializations
 
         // Get language from form or default to 'en'
-        function getCurrentLanguage() {
+        function getQuizLanguage() {
             const langSelect = document.getElementById('language');
             return (langSelect && langSelect.value) || 'en';
         }
@@ -1867,40 +1867,40 @@
             console.log('✅ Initializing quiz...');
 
             // Get current language
-            currentLang = getCurrentLanguage();
-            console.log('🌍 Language:', currentLang);
+            quizLang = getQuizLanguage();
+            console.log('🌍 Quiz Language:', quizLang);
 
             // Update loading overlay text
             const loadingTitle = document.getElementById('loadingTitle');
-            if (loadingTitle) loadingTitle.innerHTML = translations[currentLang].loadingTitle + '<span class="loading-dots">...</span>';
+            if (loadingTitle) loadingTitle.innerHTML = translations[quizLang].loadingTitle + '<span class="loading-dots">...</span>';
 
             const loadingSubtext = document.getElementById('loadingSubtext');
-            if (loadingSubtext) loadingSubtext.innerHTML = translations[currentLang].loadingSubtext;
+            if (loadingSubtext) loadingSubtext.innerHTML = translations[quizLang].loadingSubtext;
 
             const progressTitle = document.querySelector('#stepsContainer h4');
-            if (progressTitle) progressTitle.textContent = translations[currentLang].progressTitle;
+            if (progressTitle) progressTitle.textContent = translations[quizLang].progressTitle;
 
             // Update quiz section text
             const h4 = document.querySelector('#funSection h4');
-            if (h4) h4.innerHTML = translations[currentLang].whileYouWait;
+            if (h4) h4.innerHTML = translations[quizLang].whileYouWait;
 
             const didYouKnow = document.querySelector('#funFactCarousel p:first-child');
-            if (didYouKnow) didYouKnow.textContent = translations[currentLang].didYouKnow;
+            if (didYouKnow) didYouKnow.textContent = translations[quizLang].didYouKnow;
 
             loadQuizQuestion();
             startFunFactCarousel();
         };
 
         function loadQuizQuestion() {
-            const questions = triviaQuestions[currentLang];
+            const questions = triviaQuestions[quizLang];
             console.log(`📝 Loading question ${currentQuizIndex + 1}/${questions.length}`);
 
             if (currentQuizIndex >= questions.length) {
                 // Quiz completed
                 console.log('🎉 Quiz completed!');
-                document.getElementById('triviaQuestion').textContent = translations[currentLang].quizComplete;
+                document.getElementById('triviaQuestion').textContent = translations[quizLang].quizComplete;
                 document.getElementById('triviaOptions').innerHTML = '';
-                document.getElementById('triviaFeedback').innerHTML = `<span style="color: #10b981;">${translations[currentLang].scoreText} ${quizScore}/${questions.length}</span>`;
+                document.getElementById('triviaFeedback').innerHTML = `<span style="color: #10b981;">${translations[quizLang].scoreText} ${quizScore}/${questions.length}</span>`;
                 return;
             }
 
@@ -1941,7 +1941,7 @@
             }
             quizAnswered = true;
 
-            const questions = triviaQuestions[currentLang];
+            const questions = triviaQuestions[quizLang];
             const question = questions[currentQuizIndex];
             const isCorrect = selectedIndex === question.correct;
             console.log(`${isCorrect ? '✅' : '❌'} Answer was ${isCorrect ? 'correct' : 'wrong'}`);
@@ -1953,8 +1953,8 @@
 
             // Update feedback
             const feedbackHTML = isCorrect
-                ? `<span style="color: #10b981;">${translations[currentLang].correctText} ${question.explanation}</span>`
-                : `<span style="color: #ef4444;">${translations[currentLang].wrongText} ${question.explanation}</span>`;
+                ? `<span style="color: #10b981;">${translations[quizLang].correctText} ${question.explanation}</span>`
+                : `<span style="color: #ef4444;">${translations[quizLang].wrongText} ${question.explanation}</span>`;
 
             document.getElementById('triviaFeedback').innerHTML = feedbackHTML;
 
@@ -1982,7 +1982,7 @@
 
         function startFunFactCarousel() {
             let factIndex = 0;
-            const facts = funFacts[currentLang];
+            const facts = funFacts[quizLang];
             const updateFact = () => {
                 document.getElementById('funFact').textContent = facts[factIndex];
                 factIndex = (factIndex + 1) % facts.length;
@@ -2032,7 +2032,7 @@
     </script>
 
     <!-- Load app.js AFTER quiz functions are defined -->
-    <script src="app.js?v=20241030-quizfix5"></script>
+    <script src="app.js?v=20241030-quizfix6"></script>
 
     <script>
         // Smooth scroll functions
