@@ -1360,24 +1360,38 @@
 
         function toggleCategory(catKey) {
             const card = document.querySelector(`.category-card[data-category="${catKey}"]`);
-            const categoryChanges = document.querySelectorAll(`.category-group[data-category="${catKey}"]`);
-            const changesContainer = document.getElementById('changesContent');
 
             // Check if this category is already active
             const isExpanded = card.classList.contains('active');
 
             if (isExpanded) {
-                // Collapse this category - show all categories again
+                // Collapse this category - show all changes and sections again
                 card.classList.remove('active');
-                categoryChanges.forEach(change => {
-                    change.classList.remove('collapsed');
+
+                // Show all change cards
+                const allChangeCards = document.querySelectorAll('.category-group');
+                allChangeCards.forEach(change => {
+                    change.style.display = '';
+                    change.style.order = '';
+                    const changeContent = change.querySelector('.change-content-collapsible');
+                    if (changeContent) {
+                        changeContent.classList.add('expanded');
+                    }
                 });
 
-                // Reset order - show all categories
-                const allCategoryGroups = document.querySelectorAll('.category-group');
-                allCategoryGroups.forEach(change => {
-                    change.classList.remove('collapsed');
-                    change.style.order = '';
+                // Show and expand all sections
+                const allSections = document.querySelectorAll('#changesContent > div');
+                allSections.forEach(section => {
+                    section.style.display = '';
+                    section.style.order = '';
+                    const sectionContent = section.querySelector('[id^="section-content-"]');
+                    const sectionIcon = section.querySelector('[id^="section-icon-"]');
+                    if (sectionContent) {
+                        sectionContent.classList.add('expanded');
+                    }
+                    if (sectionIcon) {
+                        sectionIcon.classList.add('rotate-180');
+                    }
                 });
 
                 // Track category collapse in GA4
@@ -1387,23 +1401,70 @@
                     });
                 }
             } else {
-                // Collapse all other categories first
+                // Deactivate all other category cards
                 document.querySelectorAll('.category-card').forEach(c => {
                     c.classList.remove('active');
                 });
 
-                // Expand this category
+                // Activate this category
                 card.classList.add('active');
 
-                // Hide all category groups first
-                const allCategoryGroups = document.querySelectorAll('.category-group');
-                allCategoryGroups.forEach(change => {
-                    if (change.dataset.category !== catKey) {
-                        change.classList.add('collapsed');
-                        change.style.order = '999'; // Move to bottom
+                // Process all sections
+                const allSections = document.querySelectorAll('#changesContent > div');
+                allSections.forEach((section, sectionIndex) => {
+                    const changeCardsInSection = section.querySelectorAll('.category-group');
+                    const hasMatchingChanges = Array.from(changeCardsInSection).some(
+                        card => card.dataset.category === catKey
+                    );
+
+                    if (hasMatchingChanges) {
+                        // Section has matching changes - show section, show matching changes, collapse others
+                        section.style.display = '';
+                        section.style.order = '-1'; // Move to top
+
+                        // Expand the section
+                        const sectionContent = section.querySelector('[id^="section-content-"]');
+                        const sectionIcon = section.querySelector('[id^="section-icon-"]');
+                        if (sectionContent) {
+                            sectionContent.classList.add('expanded');
+                        }
+                        if (sectionIcon) {
+                            sectionIcon.classList.add('rotate-180');
+                        }
+
+                        // Show/hide changes within this section
+                        changeCardsInSection.forEach(changeCard => {
+                            if (changeCard.dataset.category === catKey) {
+                                changeCard.style.display = '';
+                                changeCard.style.order = '-1';
+                                // Expand the change
+                                const changeContent = changeCard.querySelector('.change-content-collapsible');
+                                if (changeContent) {
+                                    changeContent.classList.add('expanded');
+                                }
+                            } else {
+                                changeCard.style.display = 'none';
+                            }
+                        });
                     } else {
-                        change.classList.remove('collapsed');
-                        change.style.order = '-1'; // Move to top
+                        // Section has no matching changes - collapse entire section
+                        section.style.display = '';
+                        section.style.order = '999'; // Move to bottom
+
+                        // Collapse the section
+                        const sectionContent = section.querySelector('[id^="section-content-"]');
+                        const sectionIcon = section.querySelector('[id^="section-icon-"]');
+                        if (sectionContent) {
+                            sectionContent.classList.remove('expanded');
+                        }
+                        if (sectionIcon) {
+                            sectionIcon.classList.remove('rotate-180');
+                        }
+
+                        // Hide all changes in this section
+                        changeCardsInSection.forEach(changeCard => {
+                            changeCard.style.display = 'none';
+                        });
                     }
                 });
 
