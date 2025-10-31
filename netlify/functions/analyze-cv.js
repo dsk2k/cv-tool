@@ -173,7 +173,7 @@ exports.handler = async (event) => {
         console.log(`✅ Prompt created successfully. Length: ${prompt.length} chars.`);
 
         // Call Gemini API with EXTREME speed optimizations (target: <18 seconds)
-        const modelName = 'gemini-2.5-flash';
+        const modelName = 'gemini-2.5-flash-lite';
         console.log(`🤖 Calling Gemini with speed-optimized config...`);
         const model = genAI.getGenerativeModel({
           model: modelName,

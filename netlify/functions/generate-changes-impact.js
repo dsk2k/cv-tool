@@ -85,7 +85,7 @@ VALIDATIE CHECKLIST - controleer dit voor je antwoord geeft:
 BELANGRIJK: Deze content is waar klanten voor betalen. Lege of incomplete velden zijn NIET acceptabel!`;
 
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.5-flash-lite',
       generationConfig: {
         maxOutputTokens: 1500, // Increased further for complete detailed responses
         temperature: 0.8, // Slightly higher for more complete/creative responses

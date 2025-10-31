@@ -36,7 +36,7 @@ Job: ${jobSummary}
 Tips:`;
 
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.5-flash-lite',
       generationConfig: {
         maxOutputTokens: 500, // Reduced: 700 → 500 for speed
         temperature: 0.7,

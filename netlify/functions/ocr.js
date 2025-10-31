@@ -62,7 +62,7 @@ exports.handler = async (event) => {
         
         // Use Gemini 2.0 Flash for vision (it has excellent OCR)
         const model = genAI.getGenerativeModel({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.5-flash-lite',
             generationConfig: {
                 temperature: 0.1, // Low temperature for accurate extraction
                 maxOutputTokens: 2048,

@@ -65,7 +65,7 @@ exports.handler = async (event) => {
         
         // Try models in order: 2.5 flash -> 2.0 variants -> 1.5 flash
         const modelsToTry = [
-            { name: 'gemini-2.5-flash', tokens: 8192 },
+            { name: 'gemini-2.5-flash-lite', tokens: 8192 },
             { name: 'gemini-2.0-flash', tokens: 8192 },
             { name: 'gemini-2.0-flash-exp', tokens: 8192 },
             { name: 'gemini-1.5-flash', tokens: 8192 }

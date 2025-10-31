@@ -63,7 +63,7 @@ CV: ${cvInput}
 Improved CV with ATS keywords:`;
 
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.5-flash-lite',
       generationConfig: {
         maxOutputTokens: 1200, // Further reduced: 1536 → 1200 for speed
         temperature: 0.7,

@@ -63,7 +63,7 @@ Analyseer 8-12 belangrijke wijzigingen in categorieën:
 Wees specifiek met voorbeelden uit de CV's!`;
 
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.5-flash-lite',
       generationConfig: {
         maxOutputTokens: 2500, // INCREASED for detailed feedback (this is the core value!)
         temperature: 0.7,

@@ -40,7 +40,7 @@ CV: ${cvSummary}
 Letter:`;
 
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.5-flash-lite',
       generationConfig: {
         maxOutputTokens: 600, // Reduced: 800 → 600 for speed
         temperature: 0.8,
