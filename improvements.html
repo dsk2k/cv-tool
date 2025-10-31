@@ -2015,6 +2015,7 @@
             // Split by headers (## or ###)
             const sections = content.split(/(?=#{2,3}\s)/);
             let totalItems = 0;
+            let sectionCounter = 0;
 
             sections.forEach((section, index) => {
                 if (!section.trim()) return;
@@ -2028,17 +2029,20 @@
 
                 if (items.length === 0) return;
 
-                // Create section - PREMIUM STYLING
+                sectionCounter++;
+                const sectionId = `tips-section-${sectionCounter}`;
+
+                // Create section wrapper - PREMIUM STYLING
                 const sectionDiv = document.createElement('div');
                 sectionDiv.style.cssText = `
                     background: linear-gradient(135deg, #ffffff 0%, #fffbeb 50%, #fef3c7 100%);
                     border: 2px solid;
                     border-image: linear-gradient(135deg, #f59e0b, #fbbf24, #f59e0b) 1;
                     border-radius: 16px;
-                    padding: 2rem;
                     box-shadow: 0 10px 40px rgba(251, 191, 36, 0.15), 0 0 0 1px rgba(251, 191, 36, 0.1) inset;
                     position: relative;
                     overflow: hidden;
+                    margin-bottom: 1rem;
                 `;
 
                 // Add premium glow effect
@@ -2055,30 +2059,46 @@
                 `;
                 sectionDiv.appendChild(glowDiv);
 
-                // Section header - PREMIUM STYLING
-                const sectionHeader = document.createElement('h3');
+                // Section header - CLICKABLE/COLLAPSIBLE
+                const sectionHeader = document.createElement('button');
+                sectionHeader.onclick = () => toggleTipsSection(sectionId);
                 sectionHeader.style.cssText = `
+                    width: 100%;
+                    padding: 1.5rem 2rem;
                     font-size: 1.375rem;
                     font-weight: 800;
-                    background: linear-gradient(135deg, #b45309 0%, #f59e0b 50%, #fbbf24 100%);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    background-clip: text;
-                    margin-bottom: 1.25rem;
+                    background: transparent;
+                    border: none;
+                    cursor: pointer;
                     display: flex;
                     align-items: center;
+                    justify-content: space-between;
                     gap: 0.75rem;
                     position: relative;
                     z-index: 1;
-                    text-shadow: 0 2px 10px rgba(251, 191, 36, 0.2);
+                    transition: all 0.3s ease;
                 `;
-                sectionHeader.innerHTML = `<span style="
-                    font-size: 1.5rem;
-                    filter: drop-shadow(0 2px 4px rgba(251,191,36,0.3));
-                ">💎</span> ${header}`;
+                sectionHeader.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <span style="font-size: 1.5rem; filter: drop-shadow(0 2px 4px rgba(251,191,36,0.3));">💎</span>
+                        <span style="background: linear-gradient(135deg, #b45309 0%, #f59e0b 50%, #fbbf24 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">${header}</span>
+                    </div>
+                    <svg id="${sectionId}-icon" style="width: 1.5rem; height: 1.5rem; color: #f59e0b; transition: transform 0.3s ease; transform: rotate(0deg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                `;
                 sectionDiv.appendChild(sectionHeader);
 
-                // Checklist items - PREMIUM CONTAINER
+                // Checklist items container - COLLAPSIBLE
+                const itemsContainer = document.createElement('div');
+                itemsContainer.id = sectionId;
+                itemsContainer.style.cssText = `
+                    max-height: 0;
+                    overflow: hidden;
+                    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    padding: 0 2rem;
+                `;
+
                 const itemsList = document.createElement('div');
                 itemsList.style.cssText = `
                     display: flex;
@@ -2086,11 +2106,15 @@
                     gap: 1rem;
                     position: relative;
                     z-index: 1;
+                    padding-bottom: 2rem;
                 `;
 
                 items.forEach((item, itemIndex) => {
-                    const text = item.replace(/^[\*\-]\s+/, '').trim();
-                    const itemId = `tip-${index}-${itemIndex}`;
+                    // Clean markdown bold syntax from text
+                    let text = item.replace(/^[\*\-]\s+/, '').trim();
+                    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+                    const itemId = `tip-${sectionCounter}-${itemIndex}`;
                     totalItems++;
 
                     const itemDiv = document.createElement('div');
@@ -2154,7 +2178,7 @@
                         }
                     });
 
-                    // Label - PREMIUM STYLING
+                    // Label - PREMIUM STYLING with HTML support
                     const label = document.createElement('label');
                     label.htmlFor = itemId;
                     label.style.cssText = `
@@ -2166,11 +2190,11 @@
                         font-weight: 500;
                         transition: all 0.3s ease;
                     `;
-                    label.textContent = text;
+                    label.innerHTML = text;
 
                     // Click on div checks checkbox
                     itemDiv.addEventListener('click', (e) => {
-                        if (e.target !== checkbox) {
+                        if (e.target !== checkbox && e.target.tagName !== 'LABEL') {
                             checkbox.checked = !checkbox.checked;
                             checkbox.dispatchEvent(new Event('change'));
                         }
@@ -2181,15 +2205,38 @@
                     itemsList.appendChild(itemDiv);
                 });
 
-                sectionDiv.appendChild(itemsList);
+                itemsContainer.appendChild(itemsList);
+                sectionDiv.appendChild(itemsContainer);
                 checklistContainer.appendChild(sectionDiv);
+
+                // Open first item by default
+                if (sectionCounter === 1) {
+                    setTimeout(() => toggleTipsSection(sectionId), 100);
+                }
             });
 
             // Update total count
             document.getElementById('total-count').textContent = totalItems;
             updateTipsProgress();
 
-            console.log(`✅ Rendered ${totalItems} checklist items`);
+            console.log(`✅ Rendered ${totalItems} checklist items in ${sectionCounter} sections`);
+        }
+
+        function toggleTipsSection(sectionId) {
+            const content = document.getElementById(sectionId);
+            const icon = document.getElementById(`${sectionId}-icon`);
+
+            if (!content || !icon) return;
+
+            if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+                // Collapse
+                content.style.maxHeight = '0px';
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                // Expand
+                content.style.maxHeight = content.scrollHeight + 'px';
+                icon.style.transform = 'rotate(180deg)';
+            }
         }
 
         function updateTipsProgress() {
