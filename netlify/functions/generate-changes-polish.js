@@ -28,28 +28,37 @@ exports.handler = async (event) => {
       ? { original: 'Origineel', improved: 'Verbeterd', why: 'Waarom beter' }
       : { original: 'Original', improved: 'Improved', why: 'Why better' };
 
-    const prompt = `Vergelijk deze CV's en geef Polish verbeteringen in ${lang}.
+    const prompt = `Vergelijk deze CV's en geef gedetailleerde Professionele Polish verbeteringen in ${lang}.
 
 ORIGINEEL:
-${originalCV.substring(0, 2000)}
+${originalCV.substring(0, 2500)}
 
 VERBETERD:
-${improvedCV.substring(0, 2000)}
+${improvedCV.substring(0, 2500)}
 
-BELANGRIJK: Gebruik EXACT dit formaat, vul ALLE velden in:
+BELANGRIJK: Gebruik EXACT dit formaat, vul ALLE velden UITGEBREID in:
 
-### 1. [Titel van verbetering]
+### 1. [Precieze titel van de polish-verbetering]
 
-**${labels.original}:** [Concrete beschrijving van originele CV]
-**${labels.improved}:** [Concrete beschrijving van verbeterde CV]
-**${labels.why}:** [Waarom dit belangrijk is]
+**${labels.original}:** [GEDETAILLEERDE beschrijving van de professionele uitstraling van het originele CV. Beschrijf de tone, taalgebruik, grammatica, consistentie, formatting. Citeer voorbeelden van onprofessionele of inconsistente elementen. Leg uit wat de visuele en tekstuele indruk was. Minimaal 2-3 zinnen met concrete voorbeelden.]
 
-Geef 2 Polish verbeteringen (tone, formatting, structuur). ALLE 3 velden zijn VERPLICHT!`;
+**${labels.improved}:** [GEDETAILLEERDE beschrijving van hoe de professionele uitstraling is verbeterd. Citeer voorbeelden uit het verbeterde CV. Beschrijf verbeteringen in tone (formeler, zelfverzekerder), grammatica correcties, consistentie in formatting (bullets, datums, headings), visuele hiërarchie. Leg uit HOE het nu professioneler overkomt. Minimaal 2-3 zinnen met concrete voorbeelden.]
+
+**${labels.why}:** [UITGEBREIDE uitleg waarom professionele polish zo cruciaal is voor eerste indruk. Leg uit hoe recruiters binnen seconden oordelen op basis van professionaliteit. Beschrijf het verschil tussen een goed CV en een excellent CV. Gebruik inzichten over waarom formatting, consistentie en tone zo belangrijk zijn voor geloofwaardigheid. Minimaal 3-4 zinnen.]
+
+Geef 2-3 Polish verbeteringen. Focus op:
+- Professionele tone en taalgebruik
+- Consistentie in formatting (bullets, datums, headings)
+- Grammatica en spelling correcties
+- Visuele hiërarchie en leesbaarheid
+- Verwijdering van informele elementen
+
+Wees SPECIFIEK met voor/na voorbeelden. ALLE 3 velden zijn VERPLICHT en moeten UITGEBREID zijn!`;
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.0-flash',
       generationConfig: {
-        maxOutputTokens: 500, // Increased from 400 for complete responses
+        maxOutputTokens: 1000, // Increased for detailed responses
         temperature: 0.7,
         topP: 0.95
       }
