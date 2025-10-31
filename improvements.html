@@ -426,6 +426,22 @@
             }
         }
 
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        .skeleton-loading {
+            background: linear-gradient(90deg, #e5e7eb 0%, #f3f4f6 50%, #e5e7eb 100%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite linear;
+            border-radius: 12px;
+        }
+
         .score-animate {
             animation: scoreCountUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -510,14 +526,18 @@
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <div class="stat-card bg-white rounded-2xl shadow-xl p-8 text-center">
-                <div id="matchScore" class="text-7xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">0%</div>
+                <div id="matchScore" class="mb-3">
+                    <div class="skeleton-loading mx-auto" style="width: 180px; height: 90px;"></div>
+                </div>
                 <div class="text-gray-600 font-semibold text-lg">Match Score</div>
-                <div class="text-gray-400 text-sm mt-2">Job compatibility</div>
+                <div class="text-gray-400 text-sm mt-2">⏳ Loading...</div>
             </div>
             <div class="stat-card bg-white rounded-2xl shadow-xl p-8 text-center">
-                <div id="changesCount" class="text-7xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">0</div>
+                <div id="changesCount" class="mb-3">
+                    <div class="skeleton-loading mx-auto" style="width: 150px; height: 90px;"></div>
+                </div>
                 <div class="text-gray-600 font-semibold text-lg">Wijzigingen Gemaakt</div>
-                <div class="text-gray-400 text-sm mt-2">Optimalisaties toegepast</div>
+                <div class="text-gray-400 text-sm mt-2">⏳ Loading...</div>
             </div>
             <div class="stat-card bg-white rounded-2xl shadow-xl p-8 text-center">
                 <div id="rateLimitUsage" class="text-7xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent mb-3">0/10</div>
@@ -1273,6 +1293,26 @@
 
             const matchScoreEl = document.getElementById('matchScore');
             const changesCountEl = document.getElementById('changesCount');
+
+            // Replace skeleton with actual content for match score
+            matchScoreEl.className = 'text-7xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3';
+            matchScoreEl.innerHTML = ''; // Clear skeleton
+
+            // Update "Loading..." text below match score
+            const matchScoreSubtext = matchScoreEl.parentElement.querySelector('.text-gray-400');
+            if (matchScoreSubtext) {
+                matchScoreSubtext.textContent = 'Job compatibility';
+            }
+
+            // Replace skeleton with actual content for changes count
+            changesCountEl.className = 'text-7xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3';
+            changesCountEl.innerHTML = ''; // Clear skeleton
+
+            // Update "Loading..." text below changes count
+            const changesCountSubtext = changesCountEl.parentElement.querySelector('.text-gray-400');
+            if (changesCountSubtext) {
+                changesCountSubtext.textContent = 'Optimalisaties toegepast';
+            }
 
             animateNumber(matchScoreEl, 0, matchScore, 1500, '%');
             animateNumber(changesCountEl, 0, changesCount, 1000, '');
