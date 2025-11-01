@@ -590,23 +590,21 @@
                 </div>
             </div>
 
-            <!-- Social Proof / Achievement -->
+            <!-- AI Impact Metrics -->
             <div class="stat-card bg-white rounded-2xl shadow-xl p-6 lg:p-8 text-center relative overflow-hidden" style="min-height: 260px; display: flex; flex-direction: column;">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-100 to-teal-100 rounded-full opacity-20 -mr-16 -mt-16"></div>
 
                 <div class="relative z-10" style="flex: 1; display: flex; flex-direction: column;">
-                    <div class="text-xs lg:text-sm text-gray-500 font-bold uppercase tracking-wide mb-2">Your Ranking</div>
+                    <div class="text-xs lg:text-sm text-gray-500 font-bold uppercase tracking-wide mb-2">AI Impact</div>
 
-                    <div id="rankingContainer" style="flex: 1; display: flex; align-items: center; justify-content: center; margin: 1rem 0;">
-                        <div class="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
-                            Top 15%
-                        </div>
+                    <div id="impactContainer" style="flex: 1; display: flex; align-items: center; justify-content: center; margin: 1rem 0;">
+                        <div class="skeleton-loading mx-auto" style="width: 140px; height: 60px; border-radius: 12px;"></div>
                     </div>
 
                     <div style="margin-top: auto;">
-                        <div class="text-gray-600 font-semibold text-sm lg:text-base">Van alle kandidaten</div>
-                        <div class="text-gray-400 text-xs lg:text-sm mt-1">
-                            <span class="text-green-600 font-bold">3x meer</span> kans op interview
+                        <div id="impactTitle" class="text-gray-600 font-semibold text-sm lg:text-base">⏳ Calculating...</div>
+                        <div id="impactSubtext" class="text-gray-400 text-xs lg:text-sm mt-1">
+                            Analyseren...
                         </div>
                     </div>
                 </div>
@@ -1424,12 +1422,57 @@
                 changesCountEl.classList.remove('skeleton-text');
             }
 
+            // Update AI Impact Metrics (dynamic!)
+            updateImpactMetrics(matchScore, changesCount, improvement);
+
             // Show achievement if score is high
             if (matchScore >= 85) {
                 showAchievement('ATS Master', 'Uw CV scoort ' + matchScore + '%+ op ATS systemen!');
             }
 
             console.log('✅ Stats updated');
+        }
+
+        function updateImpactMetrics(matchScore, changesCount, improvement) {
+            const container = document.getElementById('impactContainer');
+            const titleEl = document.getElementById('impactTitle');
+            const subtextEl = document.getElementById('impactSubtext');
+
+            // Calculate time saved (assume ~5 min per improvement)
+            const timeSaved = Math.round(changesCount * 5);
+            const hours = Math.floor(timeSaved / 60);
+            const minutes = timeSaved % 60;
+            const timeText = hours > 0 ? `${hours}u ${minutes}m` : `${minutes} min`;
+
+            // Dynamic display based on number of improvements
+            container.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                    <div style="font-size: 3rem; line-height: 1;">
+                        ${changesCount}
+                    </div>
+                    <div style="font-size: 0.875rem; font-weight: 700; color: #10b981; text-transform: uppercase; letter-spacing: 0.05em;">
+                        Verbeteringen
+                    </div>
+                </div>
+            `;
+
+            titleEl.innerHTML = `⏱️ ${timeText} werk bespaard`;
+            titleEl.className = 'text-gray-600 font-semibold text-sm lg:text-base';
+
+            // Dynamic subtext based on improvement level
+            let impactText = '';
+            if (improvement >= 30) {
+                impactText = '<span class="text-green-600 font-bold">💎 Elite-level</span> optimalisatie';
+            } else if (improvement >= 20) {
+                impactText = '<span class="text-blue-600 font-bold">🚀 Major</span> verbetering';
+            } else if (improvement >= 10) {
+                impactText = '<span class="text-purple-600 font-bold">✨ Goede</span> upgrade';
+            } else {
+                impactText = '<span class="text-gray-600 font-bold">📈 Verfijnd</span> en gepolijst';
+            }
+
+            subtextEl.innerHTML = impactText;
+            subtextEl.className = 'text-xs lg:text-sm mt-1';
         }
 
         function updateQualityBadge(matchScore, changesCount) {
