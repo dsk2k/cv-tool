@@ -2926,14 +2926,24 @@
             const usageUpgradeBtn = document.getElementById('usage-upgrade-btn');
 
             if (status.unlimited || serverStatus.whitelisted) {
-                // Show unlimited banner for whitelisted users
+                // Show unlimited banner for whitelisted/premium users
                 usageBanner.style.display = 'block';
-                usageBannerText.textContent = '∞ Unlimited Analyses';
-                usageBannerSubtitle.textContent = 'Premium toegang actief';
+
+                if (serverStatus.isDeveloper) {
+                    // Developer mode - show usage count
+                    const devUsageCount = status.usage || serverStatus.usage || 0;
+                    usageBannerText.textContent = `🔧 Developer Mode: ${devUsageCount} CVs geanalyseerd`;
+                    usageBannerSubtitle.textContent = 'Unlimited toegang - IP Whitelisted';
+                } else {
+                    // Premium/whitelisted
+                    usageBannerText.textContent = '∞ Unlimited Analyses';
+                    usageBannerSubtitle.textContent = 'Premium toegang actief';
+                }
+
                 usageProgressContainer.style.display = 'none';
                 usageUpgradeBtn.style.display = 'none';
             } else {
-                // Show usage banner for free users
+                // Show usage banner for free users (dynamic values!)
                 usageBanner.style.display = 'block';
                 usageBannerText.textContent = `${remaining}/${maxUses} Gratis CV Analyses`;
 
@@ -2946,7 +2956,7 @@
                     usageProgressContainer.style.display = 'flex';
                     usageUpgradeBtn.style.display = 'inline-block';
 
-                    // Update progress bar
+                    // Update progress bar (dynamic!)
                     const percentage = (remaining / maxUses) * 100;
                     usageProgressBar.style.width = `${percentage}%`;
                 } else {
@@ -2955,6 +2965,14 @@
                     usageUpgradeBtn.style.display = 'none';
                 }
             }
+
+            console.log('✅ Usage banner updated:', {
+                remaining,
+                maxUses,
+                used,
+                isDeveloper: serverStatus.isDeveloper,
+                whitelisted: serverStatus.whitelisted
+            });
 
             if (status.unlimited || serverStatus.whitelisted) {
                 // Hide tries display for whitelisted users
