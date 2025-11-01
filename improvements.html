@@ -1798,12 +1798,11 @@
                     const levelEl = document.getElementById(`level-${catKey}`);
                     levelEl.innerHTML = '<span style="color: #10b981;">✓ Al perfect</span>';
 
-                    // Disable the category card - make it non-clickable
+                    // Disable the category card - make it visually subdued but still clickable for scrolling
                     const card = document.querySelector(`.category-card[data-category="${catKey}"]`);
                     if (card) {
                         card.classList.add('category-disabled');
-                        card.style.cursor = 'default';
-                        card.style.pointerEvents = 'none';
+                        card.style.cursor = 'pointer'; // Keep clickable for scrolling
                         card.style.opacity = '0.8';
                     }
                 } else {
@@ -1926,8 +1925,19 @@
         function toggleCategory(catKey) {
             const card = document.querySelector(`.category-card[data-category="${catKey}"]`);
 
-            // Don't allow interaction with disabled categories (0 improvements)
+            // For disabled categories (0 improvements), scroll to category cards section
             if (card && card.classList.contains('category-disabled')) {
+                const categorySection = document.querySelector('.grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3');
+                if (categorySection) {
+                    const offset = 100; // pixels from top
+                    const elementPosition = categorySection.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
                 return;
             }
 
