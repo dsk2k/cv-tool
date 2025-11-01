@@ -8,7 +8,7 @@
 window.APP_CONFIG = {
     // Supabase Configuration
     supabase: {
-        url: 'https://YOUR_PROJECT.supabase.co', // Replace with your Supabase project URL
+        url: 'https://wyglsmhhdfsdndjjulwc.supabase.co',
         anonKey: null  // Loaded from SUPABASE_ANON_KEY environment variable
     },
 
