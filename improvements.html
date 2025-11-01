@@ -2685,6 +2685,34 @@
             console.log('✅ CV content rendered');
         }
 
+        /**
+         * Clean AI response by removing introductory phrases
+         */
+        function cleanAIResponse(content) {
+            if (!content) return content;
+
+            // Remove common AI intro patterns
+            const introPatterns = [
+                /^Absoluut!?\s*Hier zijn.*?(?=\n\n|$)/i,
+                /^Natuurlijk!?\s*Hier.*?(?=\n\n|$)/i,
+                /^Zeker!?\s*Hier.*?(?=\n\n|$)/i,
+                /^Uiteraard!?\s*Hier.*?(?=\n\n|$)/i,
+                /^Oké!?\s*Hier.*?(?=\n\n|$)/i,
+                /^Prima!?\s*Hier.*?(?=\n\n|$)/i,
+                /^Hier zijn.*?CV van.*?opgesteld.*?(?=\n\n|$)/i,
+                /^Hier zijn.*?gedetailleerde.*?verbeteringen.*?(?=\n\n|$)/i,
+                /^(?:Absoluut|Natuurlijk|Zeker|Uiteraard).*?(?:Hier is|Hier zijn).*?(?=\n\n|###|\d+\.)/is
+            ];
+
+            let cleaned = content;
+            for (const pattern of introPatterns) {
+                cleaned = cleaned.replace(pattern, '');
+            }
+
+            // Remove leading whitespace
+            return cleaned.trim();
+        }
+
         function renderMarkdownContent(elementId, content) {
             if (!content) return;
 
@@ -2692,7 +2720,9 @@
             const element = document.getElementById(elementId);
 
             try {
-                element.innerHTML = marked.parse(content);
+                // Clean AI response before rendering
+                const cleanedContent = cleanAIResponse(content);
+                element.innerHTML = marked.parse(cleanedContent);
                 console.log(`✅ Rendered ${elementId}`);
             } catch (error) {
                 console.error(`❌ Error rendering ${elementId}:`, error);
@@ -2705,16 +2735,19 @@
 
             console.log('🎨 Rendering Recruiter Tips as checklist...');
 
+            // Clean AI response before processing
+            const cleanedContent = cleanAIResponse(content);
+
             // Store original content in hidden div
             const originalDiv = document.getElementById('recruiterTips');
-            originalDiv.innerHTML = marked.parse(content);
+            originalDiv.innerHTML = marked.parse(cleanedContent);
 
             // Parse content into checklist items
             const checklistContainer = document.getElementById('recruiterTipsChecklist');
             checklistContainer.innerHTML = '';
 
             // Split by headers (## or ###)
-            const sections = content.split(/(?=#{2,3}\s)/);
+            const sections = cleanedContent.split(/(?=#{2,3}\s)/);
             let totalItems = 0;
             let sectionCounter = 0;
 
