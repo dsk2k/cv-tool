@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - CV Tool</title>
+    <link rel="stylesheet" href="/dist/output.css">
+    <style>
+        body {
+            background: #f9fafb;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            background: #f9fafb;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            color: #6b7280;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-premium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-free {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .badge-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-canceled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .query-box {
+            background: #1f2937;
+            color: #10b981;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin-top: 12px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360px); }
+        }
+    </style>
+</head>
+<body class="p-6">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold mb-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                Admin Dashboard
+            </h1>
+            <p class="text-gray-600">Real-time subscription and usage monitoring</p>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="stat-box">
+                <div class="stat-value" id="stat-total-users">-</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="stat-premium-users">-</div>
+                <div class="stat-label">Premium Users</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="stat-mrr">€0</div>
+                <div class="stat-label">Monthly Revenue (MRR)</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="stat-cv-count">-</div>
+                <div class="stat-label">CVs This Month</div>
+            </div>
+        </div>
+
+        <!-- Active Subscriptions -->
+        <div class="dashboard-card">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Active Subscriptions</h2>
+                <button onclick="refreshData()" class="refresh-btn" id="refresh-btn">
+                    🔄 Refresh
+                </button>
+            </div>
+
+            <div id="subscriptions-table">
+                <div class="text-center py-8 text-gray-500">
+                    <div class="loading mx-auto mb-4"></div>
+                    <p>Loading subscriptions...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Users -->
+        <div class="dashboard-card">
+            <h2 class="text-2xl font-bold mb-4">Recent Users</h2>
+
+            <div id="users-table">
+                <div class="text-center py-8 text-gray-500">
+                    <div class="loading mx-auto mb-4"></div>
+                    <p>Loading users...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SQL Queries Reference -->
+        <div class="dashboard-card">
+            <h2 class="text-2xl font-bold mb-4">📊 Useful SQL Queries</h2>
+            <p class="text-gray-600 mb-4">Run these in your Supabase SQL Editor</p>
+
+            <div class="space-y-4">
+                <div>
+                    <div class="font-semibold text-sm mb-2">View Active Subscriptions:</div>
+                    <div class="query-box">SELECT * FROM active_subscriptions ORDER BY current_period_end ASC;</div>
+                </div>
+
+                <div>
+                    <div class="font-semibold text-sm mb-2">Check Revenue Metrics:</div>
+                    <div class="query-box">SELECT * FROM subscription_revenue;</div>
+                </div>
+
+                <div>
+                    <div class="font-semibold text-sm mb-2">View Recent Subscription Events:</div>
+                    <div class="query-box">SELECT * FROM subscription_events ORDER BY created_at DESC LIMIT 10;</div>
+                </div>
+
+                <div>
+                    <div class="font-semibold text-sm mb-2">User Usage Stats:</div>
+                    <div class="query-box">
+SELECT
+    subscription_status,
+    COUNT(*) as user_count,
+    AVG(monthly_cv_count) as avg_usage
+FROM users
+GROUP BY subscription_status;</div>
+                </div>
+
+                <div>
+                    <div class="font-semibold text-sm mb-2">Top Users by Activity:</div>
+                    <div class="query-box">
+SELECT
+    email,
+    subscription_status,
+    monthly_cv_count,
+    created_at
+FROM users
+ORDER BY monthly_cv_count DESC
+LIMIT 10;</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Mode Warning -->
+        <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4 mt-6">
+            <div class="font-bold text-yellow-900 mb-2">⚠️ Test Mode Active</div>
+            <div class="text-yellow-700 text-sm">
+                This dashboard shows test data. Connect to your production Supabase database to see real data.
+                <br>To connect: Update the Supabase credentials in the script below.
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        // ⚠️ REPLACE WITH YOUR SUPABASE CREDENTIALS
+        const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+        // Initialize Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Load data on page load
+        window.addEventListener('DOMContentLoaded', refreshData);
+
+        async function refreshData() {
+            const btn = document.getElementById('refresh-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Loading...';
+
+            try {
+                await Promise.all([
+                    loadStats(),
+                    loadSubscriptions(),
+                    loadUsers()
+                ]);
+
+                btn.innerHTML = '🔄 Refresh';
+            } catch (error) {
+                console.error('Error loading data:', error);
+                alert('Error loading data. Check console and verify Supabase credentials.');
+                btn.innerHTML = '❌ Error - Try Again';
+            }
+
+            btn.disabled = false;
+        }
+
+        async function loadStats() {
+            // Total users
+            const { count: totalUsers } = await supabase
+                .from('users')
+                .select('*', { count: 'exact', head: true });
+
+            document.getElementById('stat-total-users').textContent = totalUsers || 0;
+
+            // Premium users
+            const { count: premiumUsers } = await supabase
+                .from('users')
+                .select('*', { count: 'exact', head: true })
+                .in('subscription_status', ['active', 'trialing']);
+
+            document.getElementById('stat-premium-users').textContent = premiumUsers || 0;
+
+            // MRR (simplified calculation)
+            const mrr = (premiumUsers || 0) * 9.99;
+            document.getElementById('stat-mrr').textContent = `€${mrr.toFixed(2)}`;
+
+            // Total CV count this month
+            const { data: usageData } = await supabase
+                .from('users')
+                .select('monthly_cv_count');
+
+            const totalCVs = usageData?.reduce((sum, user) => sum + (user.monthly_cv_count || 0), 0) || 0;
+            document.getElementById('stat-cv-count').textContent = totalCVs;
+        }
+
+        async function loadSubscriptions() {
+            const { data: subscriptions, error } = await supabase
+                .from('users')
+                .select('*')
+                .in('subscription_status', ['active', 'trialing'])
+                .order('current_period_end', { ascending: true });
+
+            if (error) {
+                console.error('Error loading subscriptions:', error);
+                document.getElementById('subscriptions-table').innerHTML = '<p class="text-red-500">Error loading subscriptions</p>';
+                return;
+            }
+
+            if (!subscriptions || subscriptions.length === 0) {
+                document.getElementById('subscriptions-table').innerHTML = '<p class="text-gray-500 text-center py-8">No active subscriptions yet</p>';
+                return;
+            }
+
+            const html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Plan</th>
+                            <th>Status</th>
+                            <th>Usage This Month</th>
+                            <th>Renews</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${subscriptions.map(sub => `
+                            <tr>
+                                <td>${sub.email}</td>
+                                <td><span class="badge badge-premium">${sub.subscription_plan || 'monthly'}</span></td>
+                                <td><span class="badge badge-active">${sub.subscription_status}</span></td>
+                                <td>${sub.monthly_cv_count || 0} CVs</td>
+                                <td>${sub.current_period_end ? new Date(sub.current_period_end).toLocaleDateString() : 'N/A'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('subscriptions-table').innerHTML = html;
+        }
+
+        async function loadUsers() {
+            const { data: users, error } = await supabase
+                .from('users')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(10);
+
+            if (error) {
+                console.error('Error loading users:', error);
+                document.getElementById('users-table').innerHTML = '<p class="text-red-500">Error loading users</p>';
+                return;
+            }
+
+            if (!users || users.length === 0) {
+                document.getElementById('users-table').innerHTML = '<p class="text-gray-500 text-center py-8">No users yet</p>';
+                return;
+            }
+
+            const html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Usage</th>
+                            <th>Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(user => `
+                            <tr>
+                                <td>${user.email}</td>
+                                <td>
+                                    <span class="badge ${user.subscription_status === 'active' || user.subscription_status === 'trialing' ? 'badge-premium' : 'badge-free'}">
+                                        ${user.subscription_status || 'free'}
+                                    </span>
+                                </td>
+                                <td>${user.monthly_cv_count || 0} / ${user.subscription_status === 'active' || user.subscription_status === 'trialing' ? '∞' : '3'}</td>
+                                <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('users-table').innerHTML = html;
+        }
+    </script>
+</body>
+</html>
