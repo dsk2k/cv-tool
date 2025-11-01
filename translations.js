@@ -194,8 +194,14 @@ const translations = {
         
         // Loading
         'loading-title': 'Analyzing Your CV...',
-        'loading-text': 'Our AI is optimizing your CV to match the job requirements. This usually takes 30-60 seconds.',
-        
+        'loading-text': 'Our AI is optimizing your CV to match the job requirements. This usually takes around 15 seconds.',
+        'loading-calculating': '⏳ Calculating...',
+        'loading-analyzing': 'Analyzing...',
+        'loading-generic': '⏳ Loading...',
+        'no-data': 'No CV analysis data available.',
+        'no-data-title': 'No Data Found',
+        'back-to-home': '🏠 Back to Home',
+
         // Footer
         'footer-tagline': 'Your AI-powered career companion',
         'footer-privacy': 'Privacy',
@@ -398,8 +404,14 @@ const translations = {
         
         // Loading
         'loading-title': 'Uw CV Wordt Geanalyseerd...',
-        'loading-text': 'Onze AI optimaliseert uw CV om te matchen met de functie-eisen. Dit duurt meestal 30-60 seconden.',
-        
+        'loading-text': 'Onze AI optimaliseert uw CV om te matchen met de functie-eisen. Dit duurt meestal ongeveer 15 seconden.',
+        'loading-calculating': '⏳ Berekenen...',
+        'loading-analyzing': 'Analyseren...',
+        'loading-generic': '⏳ Laden...',
+        'no-data': 'Geen CV-analysegegevens beschikbaar.',
+        'no-data-title': 'Geen Data Gevonden',
+        'back-to-home': '🏠 Terug naar Home',
+
         // Footer
         'footer-tagline': 'Uw AI-gestuurde carrière begeleider',
         'footer-privacy': 'Privacy',

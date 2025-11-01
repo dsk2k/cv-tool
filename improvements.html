@@ -631,9 +631,9 @@
                     </div>
 
                     <div style="margin-top: auto;">
-                        <div id="impactTitle" class="text-gray-600 font-semibold text-sm lg:text-base">⏳ Calculating...</div>
-                        <div id="impactSubtext" class="text-gray-400 text-xs lg:text-sm mt-1">
-                            Analyseren...
+                        <div id="impactTitle" class="text-gray-600 font-semibold text-sm lg:text-base" data-i18n="loading-calculating">⏳ Calculating...</div>
+                        <div id="impactSubtext" class="text-gray-400 text-xs lg:text-sm mt-1" data-i18n="loading-analyzing">
+                            Analyzing...
                         </div>
                     </div>
                 </div>
@@ -825,7 +825,7 @@
                                 </div>
                                 <div class="category-score text-right">
                                     <div class="text-3xl font-bold skeleton-text" id="score-ats" data-color="text-gray-400">88</div>
-                                    <div class="text-xs text-gray-400 font-semibold mt-1">⏳ Loading...</div>
+                                    <div class="text-xs text-gray-400 font-semibold mt-1" data-i18n="loading-generic">⏳ Loading...</div>
                                 </div>
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-2">ATS & Keywords</h3>
@@ -848,7 +848,7 @@
                                 </div>
                                 <div class="category-score text-right">
                                     <div class="text-3xl font-bold skeleton-text" id="score-impact" data-color="text-gray-400">88</div>
-                                    <div class="text-xs text-gray-400 font-semibold mt-1">⏳ Loading...</div>
+                                    <div class="text-xs text-gray-400 font-semibold mt-1" data-i18n="loading-generic">⏳ Loading...</div>
                                 </div>
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-2">Impact & Resultaten</h3>
@@ -871,7 +871,7 @@
                                 </div>
                                 <div class="category-score text-right">
                                     <div class="text-3xl font-bold skeleton-text" id="score-polish" data-color="text-gray-400">88</div>
-                                    <div class="text-xs text-gray-400 font-semibold mt-1">⏳ Loading...</div>
+                                    <div class="text-xs text-gray-400 font-semibold mt-1" data-i18n="loading-generic">⏳ Loading...</div>
                                 </div>
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-2">Professionele Polish</h3>
@@ -894,7 +894,7 @@
                                 </div>
                                 <div class="category-score text-right">
                                     <div class="text-3xl font-bold skeleton-text" id="score-structure" data-color="text-gray-400">88</div>
-                                    <div class="text-xs text-gray-400 font-semibold mt-1">⏳ Loading...</div>
+                                    <div class="text-xs text-gray-400 font-semibold mt-1" data-i18n="loading-generic">⏳ Loading...</div>
                                 </div>
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-2">Structuur & Leesbaarheid</h3>
@@ -917,7 +917,7 @@
                                 </div>
                                 <div class="category-score text-right">
                                     <div class="text-3xl font-bold skeleton-text" id="score-targeting" data-color="text-gray-400">88</div>
-                                    <div class="text-xs text-gray-400 font-semibold mt-1">⏳ Loading...</div>
+                                    <div class="text-xs text-gray-400 font-semibold mt-1" data-i18n="loading-generic">⏳ Loading...</div>
                                 </div>
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-2">Job Match & Targeting</h3>
@@ -1160,11 +1160,12 @@
             document.body.innerHTML = `
                 <div class="container mx-auto px-4 py-16 text-center">
                     <div class="text-8xl mb-6">⚠️</div>
-                    <h1 class="text-4xl font-bold text-red-600 mb-4">Geen Data Gevonden</h1>
-                    <p class="text-gray-600 mb-8 text-lg">Er is geen CV analyse data beschikbaar.</p>
-                    <button onclick="window.location.href='index.html'" 
-                            class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-4 rounded-xl font-semibold shadow-lg transition-all hover:scale-105">
-                        🏠 Terug naar Home
+                    <h1 class="text-4xl font-bold text-red-600 mb-4" data-i18n="no-data-title">No Data Found</h1>
+                    <p class="text-gray-600 mb-8 text-lg" data-i18n="no-data">No CV analysis data available.</p>
+                    <button onclick="window.location.href='index.html'"
+                            class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-4 rounded-xl font-semibold shadow-lg transition-all hover:scale-105"
+                            data-i18n="back-to-home">
+                        🏠 Back to Home
                     </button>
                 </div>
             `;
