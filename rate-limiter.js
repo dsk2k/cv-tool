@@ -24,11 +24,17 @@ class RateLimiter {
         // Generate browser fingerprint
         this.fingerprint = await this.generateFingerprint();
 
-        // Check if whitelisted
-        const isWhitelisted = await this.checkWhitelist();
-        if (isWhitelisted) {
+        // Check if whitelisted (via server)
+        const serverStatus = await this.checkServerUsage();
+        if (serverStatus.whitelisted) {
             console.log('✅ User is whitelisted - unlimited access');
-            return { allowed: true, unlimited: true };
+            return {
+                allowed: true,
+                unlimited: true,
+                usage: serverStatus.usage || 0,
+                remaining: 999999,
+                maxUses: 3
+            };
         }
 
         // Get usage count
