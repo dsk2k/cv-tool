@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemaps
-Sitemap: https://your-domain.com/sitemap.xml
+Sitemap: https://applyjobmatch.nl/sitemap.xml
 
 # Block sensitive directories
 Disallow: /netlify/

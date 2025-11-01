@@ -119,7 +119,7 @@ Expanded from 6 to 15+ relevant long-tail keywords:
 
 ### Update Placeholder URLs
 
-Replace `https://your-domain.com` in:
+Replace `https://applyjobmatch.nl` in:
 
 1. **Meta Tags** (`index.html` lines 22, 26, 29, 38)
    - Open Graph URL
@@ -144,7 +144,7 @@ Replace `https://your-domain.com` in:
 **Quick find/replace:**
 ```bash
 # When you have your domain:
-find . -type f -name "*.html" -o -name "*.xml" -o -name "*.txt" | xargs sed -i 's/https:\/\/your-domain\.com/https:\/\/youractualdomain.com/g'
+find . -type f -name "*.html" -o -name "*.xml" -o -name "*.txt" | xargs sed -i 's/https:\/\/your-domain\.com/https:\/\/applyjobmatch.nl/g'
 ```
 
 ---
