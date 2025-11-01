@@ -1,0 +1,573 @@
+<!-- Auth Modal Component -->
+<!-- Include this in your HTML pages with: <div id="auth-modal-container"></div> -->
+
+<style>
+    .auth-modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(4px);
+        z-index: 9998;
+        animation: fadeIn 0.2s ease-out;
+    }
+
+    .auth-modal-overlay.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .auth-modal {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        max-width: 480px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        position: relative;
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .auth-modal-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: none;
+        border: none;
+        font-size: 28px;
+        cursor: pointer;
+        color: #9ca3af;
+        transition: color 0.2s;
+        line-height: 1;
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .auth-modal-close:hover {
+        color: #374151;
+    }
+
+    .auth-modal h2 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .auth-modal p {
+        color: #6b7280;
+        margin-bottom: 32px;
+        font-size: 15px;
+    }
+
+    .auth-form-group {
+        margin-bottom: 20px;
+    }
+
+    .auth-form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+
+    .auth-form-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 15px;
+        transition: all 0.2s;
+        box-sizing: border-box;
+    }
+
+    .auth-form-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .auth-form-button {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        margin-top: 8px;
+    }
+
+    .auth-form-button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .auth-form-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .auth-google-button {
+        background: white;
+        color: #374151;
+        border: 2px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .auth-google-button:hover:not(:disabled) {
+        background: #f9fafb;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .auth-divider {
+        display: flex;
+        align-items: center;
+        margin: 24px 0;
+        color: #9ca3af;
+        font-size: 14px;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: #e5e7eb;
+    }
+
+    .auth-divider span {
+        padding: 0 16px;
+    }
+
+    .auth-toggle {
+        text-align: center;
+        margin-top: 24px;
+        font-size: 14px;
+        color: #6b7280;
+    }
+
+    .auth-toggle a {
+        color: #667eea;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .auth-toggle a:hover {
+        text-decoration: underline;
+    }
+
+    .auth-error {
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+        color: #dc2626;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        margin-bottom: 20px;
+        display: none;
+    }
+
+    .auth-error.active {
+        display: block;
+    }
+
+    .auth-success {
+        background: #d1fae5;
+        border: 1px solid #a7f3d0;
+        color: #065f46;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        margin-bottom: 20px;
+        display: none;
+    }
+
+    .auth-success.active {
+        display: block;
+    }
+
+    .auth-forgot-password {
+        text-align: right;
+        margin-top: -12px;
+        margin-bottom: 20px;
+    }
+
+    .auth-forgot-password a {
+        color: #667eea;
+        font-size: 13px;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .auth-forgot-password a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<!-- Auth Modal HTML -->
+<div id="auth-modal-overlay" class="auth-modal-overlay" onclick="closeAuthModalOnOutsideClick(event)">
+    <div class="auth-modal">
+        <button class="auth-modal-close" onclick="closeAuthModal()">&times;</button>
+
+        <!-- Error Message -->
+        <div id="auth-error" class="auth-error"></div>
+
+        <!-- Success Message -->
+        <div id="auth-success" class="auth-success"></div>
+
+        <!-- Login Form -->
+        <div id="login-form-container">
+            <h2>Welcome Back!</h2>
+            <p>Sign in to access your premium features</p>
+
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="auth-form-group">
+                    <label class="auth-form-label" for="login-email">Email</label>
+                    <input
+                        type="email"
+                        id="login-email"
+                        class="auth-form-input"
+                        placeholder="your@email.com"
+                        required
+                    />
+                </div>
+
+                <div class="auth-form-group">
+                    <label class="auth-form-label" for="login-password">Password</label>
+                    <input
+                        type="password"
+                        id="login-password"
+                        class="auth-form-input"
+                        placeholder="••••••••"
+                        required
+                    />
+                </div>
+
+                <div class="auth-forgot-password">
+                    <a onclick="showForgotPassword()">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="auth-form-button" id="login-button">
+                    Sign In
+                </button>
+            </form>
+
+            <div class="auth-divider">
+                <span>or continue with</span>
+            </div>
+
+            <button class="auth-form-button auth-google-button" onclick="handleGoogleLogin()">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M19.6 10.227c0-.709-.064-1.39-.182-2.045H10v3.868h5.382a4.6 4.6 0 0 1-1.996 3.018v2.509h3.232c1.891-1.742 2.982-4.305 2.982-7.35z" fill="#4285F4"/>
+                    <path d="M10 20c2.7 0 4.964-.895 6.618-2.423l-3.232-2.509c-.895.6-2.04.955-3.386.955-2.605 0-4.81-1.76-5.595-4.123H1.064v2.59A9.996 9.996 0 0 0 10 20z" fill="#34A853"/>
+                    <path d="M4.405 11.9c-.2-.6-.314-1.24-.314-1.9 0-.66.114-1.3.314-1.9V5.51H1.064A9.996 9.996 0 0 0 0 10c0 1.614.386 3.14 1.064 4.49l3.34-2.59z" fill="#FBBC04"/>
+                    <path d="M10 3.977c1.468 0 2.786.505 3.823 1.496l2.868-2.868C14.959.99 12.695 0 10 0 6.09 0 2.71 2.24 1.064 5.51l3.34 2.59C5.19 5.736 7.395 3.977 10 3.977z" fill="#EA4335"/>
+                </svg>
+                Sign in with Google
+            </button>
+
+            <div class="auth-toggle">
+                Don't have an account? <a onclick="switchToSignup()">Sign up</a>
+            </div>
+        </div>
+
+        <!-- Signup Form -->
+        <div id="signup-form-container" style="display: none;">
+            <h2>Create Account</h2>
+            <p>Start optimizing your CV with AI today</p>
+
+            <form id="signup-form" onsubmit="handleSignup(event)">
+                <div class="auth-form-group">
+                    <label class="auth-form-label" for="signup-name">Full Name</label>
+                    <input
+                        type="text"
+                        id="signup-name"
+                        class="auth-form-input"
+                        placeholder="John Doe"
+                    />
+                </div>
+
+                <div class="auth-form-group">
+                    <label class="auth-form-label" for="signup-email">Email</label>
+                    <input
+                        type="email"
+                        id="signup-email"
+                        class="auth-form-input"
+                        placeholder="your@email.com"
+                        required
+                    />
+                </div>
+
+                <div class="auth-form-group">
+                    <label class="auth-form-label" for="signup-password">Password</label>
+                    <input
+                        type="password"
+                        id="signup-password"
+                        class="auth-form-input"
+                        placeholder="••••••••"
+                        minlength="6"
+                        required
+                    />
+                </div>
+
+                <button type="submit" class="auth-form-button" id="signup-button">
+                    Create Account
+                </button>
+            </form>
+
+            <div class="auth-divider">
+                <span>or continue with</span>
+            </div>
+
+            <button class="auth-form-button auth-google-button" onclick="handleGoogleLogin()">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M19.6 10.227c0-.709-.064-1.39-.182-2.045H10v3.868h5.382a4.6 4.6 0 0 1-1.996 3.018v2.509h3.232c1.891-1.742 2.982-4.305 2.982-7.35z" fill="#4285F4"/>
+                    <path d="M10 20c2.7 0 4.964-.895 6.618-2.423l-3.232-2.509c-.895.6-2.04.955-3.386.955-2.605 0-4.81-1.76-5.595-4.123H1.064v2.59A9.996 9.996 0 0 0 10 20z" fill="#34A853"/>
+                    <path d="M4.405 11.9c-.2-.6-.314-1.24-.314-1.9 0-.66.114-1.3.314-1.9V5.51H1.064A9.996 9.996 0 0 0 0 10c0 1.614.386 3.14 1.064 4.49l3.34-2.59z" fill="#FBBC04"/>
+                    <path d="M10 3.977c1.468 0 2.786.505 3.823 1.496l2.868-2.868C14.959.99 12.695 0 10 0 6.09 0 2.71 2.24 1.064 5.51l3.34 2.59C5.19 5.736 7.395 3.977 10 3.977z" fill="#EA4335"/>
+                </svg>
+                Sign up with Google
+            </button>
+
+            <div class="auth-toggle">
+                Already have an account? <a onclick="switchToLogin()">Sign in</a>
+            </div>
+        </div>
+
+        <!-- Forgot Password Form -->
+        <div id="forgot-password-container" style="display: none;">
+            <h2>Reset Password</h2>
+            <p>Enter your email to receive a password reset link</p>
+
+            <form id="forgot-password-form" onsubmit="handleForgotPassword(event)">
+                <div class="auth-form-group">
+                    <label class="auth-form-label" for="reset-email">Email</label>
+                    <input
+                        type="email"
+                        id="reset-email"
+                        class="auth-form-input"
+                        placeholder="your@email.com"
+                        required
+                    />
+                </div>
+
+                <button type="submit" class="auth-form-button" id="reset-button">
+                    Send Reset Link
+                </button>
+            </form>
+
+            <div class="auth-toggle">
+                <a onclick="switchToLogin()">Back to sign in</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auth Modal Functions
+
+    function openAuthModal(mode = 'login') {
+        document.getElementById('auth-modal-overlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+
+        // Clear messages
+        hideAuthError();
+        hideAuthSuccess();
+
+        // Show correct form
+        if (mode === 'signup') {
+            switchToSignup();
+        } else {
+            switchToLogin();
+        }
+    }
+
+    function closeAuthModal() {
+        document.getElementById('auth-modal-overlay').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    function closeAuthModalOnOutsideClick(event) {
+        if (event.target.id === 'auth-modal-overlay') {
+            closeAuthModal();
+        }
+    }
+
+    function switchToLogin() {
+        document.getElementById('login-form-container').style.display = 'block';
+        document.getElementById('signup-form-container').style.display = 'none';
+        document.getElementById('forgot-password-container').style.display = 'none';
+        hideAuthError();
+        hideAuthSuccess();
+    }
+
+    function switchToSignup() {
+        document.getElementById('login-form-container').style.display = 'none';
+        document.getElementById('signup-form-container').style.display = 'block';
+        document.getElementById('forgot-password-container').style.display = 'none';
+        hideAuthError();
+        hideAuthSuccess();
+    }
+
+    function showForgotPassword() {
+        document.getElementById('login-form-container').style.display = 'none';
+        document.getElementById('signup-form-container').style.display = 'none';
+        document.getElementById('forgot-password-container').style.display = 'block';
+        hideAuthError();
+        hideAuthSuccess();
+    }
+
+    function showAuthError(message) {
+        const errorDiv = document.getElementById('auth-error');
+        errorDiv.textContent = message;
+        errorDiv.classList.add('active');
+    }
+
+    function hideAuthError() {
+        document.getElementById('auth-error').classList.remove('active');
+    }
+
+    function showAuthSuccess(message) {
+        const successDiv = document.getElementById('auth-success');
+        successDiv.textContent = message;
+        successDiv.classList.add('active');
+    }
+
+    function hideAuthSuccess() {
+        document.getElementById('auth-success').classList.remove('active');
+    }
+
+    async function handleLogin(event) {
+        event.preventDefault();
+
+        const button = document.getElementById('login-button');
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+
+        button.disabled = true;
+        button.textContent = 'Signing in...';
+        hideAuthError();
+
+        const result = await window.authManager.signIn(email, password);
+
+        if (result.success) {
+            showAuthSuccess('Successfully signed in! Redirecting...');
+            setTimeout(() => {
+                closeAuthModal();
+                window.location.reload();
+            }, 1000);
+        } else {
+            showAuthError(result.error || 'Failed to sign in. Please try again.');
+            button.disabled = false;
+            button.textContent = 'Sign In';
+        }
+    }
+
+    async function handleSignup(event) {
+        event.preventDefault();
+
+        const button = document.getElementById('signup-button');
+        const email = document.getElementById('signup-email').value;
+        const password = document.getElementById('signup-password').value;
+        const fullName = document.getElementById('signup-name').value;
+
+        button.disabled = true;
+        button.textContent = 'Creating account...';
+        hideAuthError();
+
+        const result = await window.authManager.signUp(email, password, fullName);
+
+        if (result.success) {
+            showAuthSuccess('Account created! Please check your email to verify your account.');
+            setTimeout(() => {
+                switchToLogin();
+            }, 3000);
+        } else {
+            showAuthError(result.error || 'Failed to create account. Please try again.');
+        }
+
+        button.disabled = false;
+        button.textContent = 'Create Account';
+    }
+
+    async function handleGoogleLogin() {
+        hideAuthError();
+        const result = await window.authManager.signInWithGoogle();
+
+        if (!result.success) {
+            showAuthError(result.error || 'Failed to sign in with Google.');
+        }
+    }
+
+    async function handleForgotPassword(event) {
+        event.preventDefault();
+
+        const button = document.getElementById('reset-button');
+        const email = document.getElementById('reset-email').value;
+
+        button.disabled = true;
+        button.textContent = 'Sending...';
+        hideAuthError();
+
+        const result = await window.authManager.resetPassword(email);
+
+        if (result.success) {
+            showAuthSuccess('Password reset link sent! Please check your email.');
+            setTimeout(() => {
+                switchToLogin();
+            }, 3000);
+        } else {
+            showAuthError(result.error || 'Failed to send reset link. Please try again.');
+        }
+
+        button.disabled = false;
+        button.textContent = 'Send Reset Link';
+    }
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeAuthModal();
+        }
+    });
+</script>
