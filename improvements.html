@@ -550,55 +550,61 @@
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <!-- Match Score with Before/After -->
-            <div class="stat-card bg-white rounded-2xl shadow-xl p-8 text-center relative overflow-hidden">
+            <div class="stat-card bg-white rounded-2xl shadow-xl p-6 text-center relative overflow-hidden" style="min-height: 260px; display: flex; flex-direction: column;">
                 <!-- Background decoration -->
                 <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full opacity-20 -mr-16 -mt-16"></div>
 
-                <div class="relative z-10">
+                <div class="relative z-10" style="flex: 1; display: flex; flex-direction: column;">
                     <div class="text-xs text-gray-500 font-bold uppercase tracking-wide mb-2">Interview Kans</div>
 
                     <!-- Before/After Display -->
-                    <div id="matchScoreContainer" class="mb-3">
-                        <div class="skeleton-loading mx-auto" style="width: 200px; height: 100px; border-radius: 12px;"></div>
+                    <div id="matchScoreContainer" style="flex: 1; display: flex; align-items: center; justify-content: center; margin: 1rem 0;">
+                        <div class="skeleton-loading mx-auto" style="width: 160px; height: 70px; border-radius: 12px;"></div>
                     </div>
 
-                    <div class="text-gray-600 font-semibold text-base">Na AI Optimalisatie</div>
-                    <div id="matchScoreSubtext" class="text-gray-400 text-xs mt-1">⏳ Calculating...</div>
+                    <div style="margin-top: auto;">
+                        <div class="text-gray-600 font-semibold text-sm">Na AI Optimalisatie</div>
+                        <div id="matchScoreSubtext" class="text-gray-400 text-xs mt-1">⏳ Calculating...</div>
+                    </div>
                 </div>
             </div>
 
             <!-- Quality Badge System -->
-            <div class="stat-card bg-white rounded-2xl shadow-xl p-8 text-center relative overflow-hidden">
+            <div class="stat-card bg-white rounded-2xl shadow-xl p-6 text-center relative overflow-hidden" style="min-height: 260px; display: flex; flex-direction: column;">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-full opacity-20 -mr-16 -mt-16"></div>
 
-                <div class="relative z-10">
+                <div class="relative z-10" style="flex: 1; display: flex; flex-direction: column;">
                     <div class="text-xs text-gray-500 font-bold uppercase tracking-wide mb-2">CV Kwaliteit</div>
 
-                    <div id="qualityBadgeContainer" class="mb-3">
-                        <div class="skeleton-loading mx-auto" style="width: 120px; height: 120px; border-radius: 50%;"></div>
+                    <div id="qualityBadgeContainer" style="flex: 1; display: flex; align-items: center; justify-content: center; margin: 0.5rem 0;">
+                        <div class="skeleton-loading mx-auto" style="width: 90px; height: 90px; border-radius: 50%;"></div>
                     </div>
 
-                    <div id="qualityLevel" class="text-gray-600 font-semibold text-base">⏳ Analyzing...</div>
-                    <div id="qualitySubtext" class="text-gray-400 text-xs mt-1">Gebaseerd op <span id="changesCount" class="skeleton-text">12</span> verbeteringen</div>
+                    <div style="margin-top: auto;">
+                        <div id="qualityLevel" class="text-gray-600 font-semibold text-sm mb-1">⏳ Analyzing...</div>
+                        <div id="qualitySubtext" class="text-gray-400 text-xs">Gebaseerd op <span id="changesCount" class="skeleton-text">12</span> verbeteringen</div>
+                    </div>
                 </div>
             </div>
 
             <!-- Social Proof / Achievement -->
-            <div class="stat-card bg-white rounded-2xl shadow-xl p-8 text-center relative overflow-hidden">
+            <div class="stat-card bg-white rounded-2xl shadow-xl p-6 text-center relative overflow-hidden" style="min-height: 260px; display: flex; flex-direction: column;">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-100 to-teal-100 rounded-full opacity-20 -mr-16 -mt-16"></div>
 
-                <div class="relative z-10">
+                <div class="relative z-10" style="flex: 1; display: flex; flex-direction: column;">
                     <div class="text-xs text-gray-500 font-bold uppercase tracking-wide mb-2">Your Ranking</div>
 
-                    <div id="rankingContainer" class="mb-3">
-                        <div class="text-6xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
+                    <div id="rankingContainer" style="flex: 1; display: flex; align-items: center; justify-content: center; margin: 1rem 0;">
+                        <div class="text-5xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
                             Top 15%
                         </div>
                     </div>
 
-                    <div class="text-gray-600 font-semibold text-base">Van alle kandidaten</div>
-                    <div class="text-gray-400 text-xs mt-1">
-                        <span class="text-green-600 font-bold">3x meer</span> kans op interview
+                    <div style="margin-top: auto;">
+                        <div class="text-gray-600 font-semibold text-sm">Van alle kandidaten</div>
+                        <div class="text-gray-400 text-xs mt-1">
+                            <span class="text-green-600 font-bold">3x meer</span> kans op interview
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1380,22 +1386,24 @@
             // Update Match Score with Before/After
             const matchScoreContainer = document.getElementById('matchScoreContainer');
             matchScoreContainer.innerHTML = `
-                <div class="flex items-center justify-center gap-4 mb-2">
-                    <div class="text-center">
-                        <div class="text-gray-400 text-xs font-bold uppercase mb-1">Was</div>
-                        <div class="text-3xl font-bold text-gray-400 line-through">${beforeScore}%</div>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: center; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.625rem; color: #9ca3af; font-weight: 700; text-transform: uppercase; margin-bottom: 0.25rem;">Was</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: #9ca3af; text-decoration: line-through;">${beforeScore}%</div>
+                        </div>
+                        <div style="font-size: 1.5rem; color: #10b981;">→</div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.625rem; color: #10b981; font-weight: 700; text-transform: uppercase; margin-bottom: 0.25rem;">Nu</div>
+                            <div style="font-size: 2rem; font-weight: 700; background: linear-gradient(to right, #10b981, #14b8a6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" class="score-animate">${matchScore}%</div>
+                        </div>
                     </div>
-                    <div class="text-3xl text-green-600">→</div>
-                    <div class="text-center">
-                        <div class="text-green-600 text-xs font-bold uppercase mb-1">Nu</div>
-                        <div class="text-5xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent score-animate">${matchScore}%</div>
+                    <div style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.75rem; background: #dcfce7; border-radius: 999px;">
+                        <svg style="width: 1rem; height: 1rem; color: #10b981;" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/>
+                        </svg>
+                        <span style="color: #166534; font-weight: 700; font-size: 0.75rem;">+${improvement}%</span>
                     </div>
-                </div>
-                <div class="inline-flex items-center gap-2 px-3 py-1 bg-green-100 rounded-full">
-                    <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="text-green-700 font-bold text-sm">+${improvement}% verbetering</span>
                 </div>
             `;
 
@@ -1450,12 +1458,12 @@
             }
 
             container.innerHTML = `
-                <div class="w-28 h-28 mx-auto rounded-full bg-gradient-to-br ${color} flex items-center justify-center text-5xl shadow-lg score-animate">
+                <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-br ${color} flex items-center justify-center text-4xl shadow-lg score-animate">
                     ${emoji}
                 </div>
             `;
 
-            levelEl.innerHTML = `<span class="text-xl font-bold">${badge}</span> ${level}`;
+            levelEl.innerHTML = `<span class="font-bold">${badge}</span> ${level}`;
         }
 
         function showAchievement(title, description) {
