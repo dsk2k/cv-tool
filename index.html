@@ -2526,13 +2526,38 @@
     <!-- Auth Modal -->
     <div id="auth-modal-container"></div>
     <script>
-        // Load auth modal HTML
+        // Load auth modal HTML and execute scripts
         fetch('/auth-modal.html')
             .then(response => response.text())
             .then(html => {
-                document.getElementById('auth-modal-container').innerHTML = html;
+                const container = document.getElementById('auth-modal-container');
+
+                // Create a temporary div to parse the HTML
+                const temp = document.createElement('div');
+                temp.innerHTML = html;
+
+                // Extract and execute scripts
+                const scripts = temp.querySelectorAll('script');
+                const scriptContents = [];
+
+                scripts.forEach(script => {
+                    scriptContents.push(script.textContent);
+                    script.remove(); // Remove script tags from HTML
+                });
+
+                // Insert the HTML without scripts
+                container.innerHTML = temp.innerHTML;
+
+                // Execute scripts in order
+                scriptContents.forEach(scriptContent => {
+                    const scriptEl = document.createElement('script');
+                    scriptEl.textContent = scriptContent;
+                    document.body.appendChild(scriptEl);
+                });
+
+                console.log('✅ Auth modal loaded and initialized');
             })
-            .catch(error => console.error('Error loading auth modal:', error));
+            .catch(error => console.error('❌ Error loading auth modal:', error));
     </script>
 
     <!-- Initialize Auth with Supabase Config -->
