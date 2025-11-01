@@ -452,6 +452,138 @@
             animation: countUp 0.6s ease-out forwards;
         }
     </style>
+
+    <!-- Schema.org Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Organization",
+                "name": "AI CV Tailor",
+                "url": "https://your-domain.com",
+                "logo": "https://your-domain.com/logo.png",
+                "description": "AI-powered CV optimization service that tailors resumes to job descriptions in 60 seconds",
+                "sameAs": [
+                    "https://twitter.com/your-profile",
+                    "https://linkedin.com/company/your-profile"
+                ],
+                "contactPoint": {
+                    "@type": "ContactPoint",
+                    "contactType": "Customer Service",
+                    "availableLanguage": ["en", "nl"]
+                }
+            },
+            {
+                "@type": "WebSite",
+                "name": "AI CV Tailor",
+                "url": "https://your-domain.com",
+                "description": "Get 3X more interviews with AI-optimized CVs. Our AI tailors your resume to any job description in 60 seconds.",
+                "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": "https://your-domain.com/?q={search_term_string}",
+                    "query-input": "required name=search_term_string"
+                }
+            },
+            {
+                "@type": "Service",
+                "serviceType": "CV Optimization Service",
+                "provider": {
+                    "@type": "Organization",
+                    "name": "AI CV Tailor"
+                },
+                "areaServed": "Worldwide",
+                "hasOfferCatalog": {
+                    "@type": "OfferCatalog",
+                    "name": "CV Optimization Services",
+                    "itemListElement": [
+                        {
+                            "@type": "Offer",
+                            "itemOffered": {
+                                "@type": "Service",
+                                "name": "Free CV Optimization",
+                                "description": "3 CV analyses per month with full AI optimization"
+                            },
+                            "price": "0",
+                            "priceCurrency": "EUR"
+                        },
+                        {
+                            "@type": "Offer",
+                            "itemOffered": {
+                                "@type": "Service",
+                                "name": "Premium CV Optimization",
+                                "description": "Unlimited CV analyses with priority support"
+                            },
+                            "price": "9.99",
+                            "priceCurrency": "EUR"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type": "FAQPage",
+                "mainEntity": [
+                    {
+                        "@type": "Question",
+                        "name": "How does the AI CV optimization work?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Our AI analyzes your CV and the job description to identify gaps, optimize keywords, and restructure content for maximum impact. It uses advanced natural language processing to match your skills and experience with employer requirements, ensuring your CV passes ATS (Applicant Tracking Systems) and catches recruiter attention."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "What file formats do you support?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "We accept PDF, DOC, and DOCX files. Maximum file size is 10MB. Your CV should be text-based (not scanned images) for best results. We recommend using PDF format for optimal formatting preservation."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Is my data safe and private?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Absolutely! We are GDPR compliant and take data security seriously. Your CV is processed securely, cached for 30 days for performance, and never shared with third parties. All data is encrypted in transit and at rest. You can request data deletion at any time by contacting us."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "How is this different from ChatGPT?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "While ChatGPT is a general-purpose AI, our system is specifically trained for CV optimization. We provide job-specific tailoring (not generic advice), professional cover letter generation, recruiter-specific tips for each role, detailed change explanations with before/after comparison, and 30-day result caching for quick revisions."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "How long does the analysis take?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "The entire process takes 30-60 seconds. Our AI analyzes your CV, compares it with the job description, generates improvements, creates a tailored cover letter, and provides recruiter tips - all in under a minute!"
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Can I edit the AI suggestions?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Yes! You can copy the optimized CV and paste it into your preferred editor (Word, Google Docs, etc.) to make any adjustments. The AI provides a strong foundation, but you have full control over the final version. Think of it as a professional CV writer giving you expert suggestions."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "What's included in the free version?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "The free version includes: 3 CV analyses per month, full AI optimization with detailed improvements, professional cover letter generation, recruiter tips tailored to the job, and 30-day result caching. Premium plans offer unlimited analyses, priority support, and advanced features."
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
 </head>
 <body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 min-h-screen">
     
