@@ -540,22 +540,22 @@
 
    
 
-    <div class="container mx-auto px-4 py-8 max-w-7xl">
+    <div class="container mx-auto px-4 lg:px-8 py-8 lg:py-12 max-w-7xl">
         <!-- Header -->
-        <div class="text-center mb-12 animate-slide-up">
-            <h1 id="mainTitle" class="text-5xl font-bold mb-3 section-header">Uw Verbeterde CV</h1>
-            <p class="text-gray-600 text-lg">AI-gestuurde optimalisatie resultaten</p>
+        <div class="text-center mb-12 lg:mb-16 animate-slide-up">
+            <h1 id="mainTitle" class="text-5xl lg:text-6xl font-bold mb-3 lg:mb-4 section-header">Uw Verbeterde CV</h1>
+            <p class="text-gray-600 text-lg lg:text-xl">AI-gestuurde optimalisatie resultaten</p>
         </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 xl:gap-10 mb-12 lg:mb-16">
             <!-- Match Score with Before/After -->
-            <div class="stat-card bg-white rounded-2xl shadow-xl p-6 text-center relative overflow-hidden" style="min-height: 260px; display: flex; flex-direction: column;">
+            <div class="stat-card bg-white rounded-2xl shadow-xl p-6 lg:p-8 text-center relative overflow-hidden" style="min-height: 260px; display: flex; flex-direction: column;">
                 <!-- Background decoration -->
                 <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full opacity-20 -mr-16 -mt-16"></div>
 
                 <div class="relative z-10" style="flex: 1; display: flex; flex-direction: column;">
-                    <div class="text-xs text-gray-500 font-bold uppercase tracking-wide mb-2">Interview Kans</div>
+                    <div class="text-xs lg:text-sm text-gray-500 font-bold uppercase tracking-wide mb-2">Interview Kans</div>
 
                     <!-- Before/After Display -->
                     <div id="matchScoreContainer" style="flex: 1; display: flex; align-items: center; justify-content: center; margin: 1rem 0;">
@@ -563,46 +563,46 @@
                     </div>
 
                     <div style="margin-top: auto;">
-                        <div class="text-gray-600 font-semibold text-sm">Na AI Optimalisatie</div>
-                        <div id="matchScoreSubtext" class="text-gray-400 text-xs mt-1">⏳ Calculating...</div>
+                        <div class="text-gray-600 font-semibold text-sm lg:text-base">Na AI Optimalisatie</div>
+                        <div id="matchScoreSubtext" class="text-gray-400 text-xs lg:text-sm mt-1">⏳ Calculating...</div>
                     </div>
                 </div>
             </div>
 
             <!-- Quality Badge System -->
-            <div class="stat-card bg-white rounded-2xl shadow-xl p-6 text-center relative overflow-hidden" style="min-height: 260px; display: flex; flex-direction: column;">
+            <div class="stat-card bg-white rounded-2xl shadow-xl p-6 lg:p-8 text-center relative overflow-hidden" style="min-height: 260px; display: flex; flex-direction: column;">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-full opacity-20 -mr-16 -mt-16"></div>
 
                 <div class="relative z-10" style="flex: 1; display: flex; flex-direction: column;">
-                    <div class="text-xs text-gray-500 font-bold uppercase tracking-wide mb-2">CV Kwaliteit</div>
+                    <div class="text-xs lg:text-sm text-gray-500 font-bold uppercase tracking-wide mb-2">CV Kwaliteit</div>
 
                     <div id="qualityBadgeContainer" style="flex: 1; display: flex; align-items: center; justify-content: center; margin: 0.5rem 0;">
                         <div class="skeleton-loading mx-auto" style="width: 90px; height: 90px; border-radius: 50%;"></div>
                     </div>
 
                     <div style="margin-top: auto;">
-                        <div id="qualityLevel" class="text-gray-600 font-semibold text-sm mb-1">⏳ Analyzing...</div>
-                        <div id="qualitySubtext" class="text-gray-400 text-xs">Gebaseerd op <span id="changesCount" class="skeleton-text">12</span> verbeteringen</div>
+                        <div id="qualityLevel" class="text-gray-600 font-semibold text-sm lg:text-base mb-1">⏳ Analyzing...</div>
+                        <div id="qualitySubtext" class="text-gray-400 text-xs lg:text-sm">Gebaseerd op <span id="changesCount" class="skeleton-text">12</span> verbeteringen</div>
                     </div>
                 </div>
             </div>
 
             <!-- Social Proof / Achievement -->
-            <div class="stat-card bg-white rounded-2xl shadow-xl p-6 text-center relative overflow-hidden" style="min-height: 260px; display: flex; flex-direction: column;">
+            <div class="stat-card bg-white rounded-2xl shadow-xl p-6 lg:p-8 text-center relative overflow-hidden" style="min-height: 260px; display: flex; flex-direction: column;">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-100 to-teal-100 rounded-full opacity-20 -mr-16 -mt-16"></div>
 
                 <div class="relative z-10" style="flex: 1; display: flex; flex-direction: column;">
-                    <div class="text-xs text-gray-500 font-bold uppercase tracking-wide mb-2">Your Ranking</div>
+                    <div class="text-xs lg:text-sm text-gray-500 font-bold uppercase tracking-wide mb-2">Your Ranking</div>
 
                     <div id="rankingContainer" style="flex: 1; display: flex; align-items: center; justify-content: center; margin: 1rem 0;">
-                        <div class="text-5xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
+                        <div class="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
                             Top 15%
                         </div>
                     </div>
 
                     <div style="margin-top: auto;">
-                        <div class="text-gray-600 font-semibold text-sm">Van alle kandidaten</div>
-                        <div class="text-gray-400 text-xs mt-1">
+                        <div class="text-gray-600 font-semibold text-sm lg:text-base">Van alle kandidaten</div>
+                        <div class="text-gray-400 text-xs lg:text-sm mt-1">
                             <span class="text-green-600 font-bold">3x meer</span> kans op interview
                         </div>
                     </div>
@@ -627,18 +627,18 @@
         </div>
 
         <!-- Download Buttons -->
-        <div class="flex flex-wrap justify-center gap-4 mb-12">
-            <button onclick="openEmailModal()" class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-8 py-4 rounded-xl font-semibold shadow-lg transition-all hover:scale-105 hover:shadow-xl flex items-center gap-3">
-                <span class="text-2xl">📧</span> Email Me Results
+        <div class="flex flex-wrap justify-center gap-4 lg:gap-6 mb-12 lg:mb-16">
+            <button onclick="openEmailModal()" class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-8 lg:px-10 py-4 lg:py-5 rounded-xl font-semibold text-base lg:text-lg shadow-lg transition-all hover:scale-105 hover:shadow-xl flex items-center gap-3">
+                <span class="text-2xl lg:text-3xl">📧</span> Email Me Results
             </button>
-            <button onclick="downloadPDF()" class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 rounded-xl font-semibold shadow-lg transition-all hover:scale-105 hover:shadow-xl flex items-center gap-3">
-                <span class="text-2xl">📄</span> Download PDF
+            <button onclick="downloadPDF()" class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 lg:px-10 py-4 lg:py-5 rounded-xl font-semibold text-base lg:text-lg shadow-lg transition-all hover:scale-105 hover:shadow-xl flex items-center gap-3">
+                <span class="text-2xl lg:text-3xl">📄</span> Download PDF
             </button>
-            <button onclick="copyCV()" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 rounded-xl font-semibold shadow-lg transition-all hover:scale-105 hover:shadow-xl flex items-center gap-3">
-                <span class="text-2xl">📋</span> Kopieer CV
+            <button onclick="copyCV()" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 lg:px-10 py-4 lg:py-5 rounded-xl font-semibold text-base lg:text-lg shadow-lg transition-all hover:scale-105 hover:shadow-xl flex items-center gap-3">
+                <span class="text-2xl lg:text-3xl">📋</span> Kopieer CV
             </button>
-            <button onclick="window.location.href='index.html'" class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-4 rounded-xl font-semibold shadow-lg transition-all hover:scale-105 hover:shadow-xl flex items-center gap-3">
-                <span class="text-2xl">🔄</span> Nieuw CV
+            <button onclick="window.location.href='index.html'" class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 lg:px-10 py-4 lg:py-5 rounded-xl font-semibold text-base lg:text-lg shadow-lg transition-all hover:scale-105 hover:shadow-xl flex items-center gap-3">
+                <span class="text-2xl lg:text-3xl">🔄</span> Nieuw CV
             </button>
         </div>
 
@@ -734,11 +734,11 @@
             <!-- 🎮 GAMIFIED CV IMPROVEMENT DASHBOARD -->
             <div class="glass-card rounded-3xl shadow-2xl animate-slide-up overflow-hidden border-2 border-purple-100">
                 <!-- Overall Score Header -->
-                <div class="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 px-8 py-6 text-white">
+                <div class="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 px-6 lg:px-10 py-6 lg:py-8 text-white">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h2 class="text-3xl font-bold mb-2">🎯 Jouw CV Optimalisatie Score</h2>
-                            <p class="text-purple-100 text-lg">Van goed naar uitstekend in 5 categorieën</p>
+                            <h2 class="text-3xl lg:text-4xl font-bold mb-2">🎯 Jouw CV Optimalisatie Score</h2>
+                            <p class="text-purple-100 text-lg lg:text-xl">Van goed naar uitstekend in 5 categorieën</p>
                         </div>
                         <div class="text-center">
                             <div class="relative inline-block">
@@ -764,7 +764,7 @@
                 </div>
 
                 <!-- Category Cards Grid -->
-                <div class="p-6 bg-gradient-to-br from-gray-50 to-white">
+                <div class="p-6 lg:p-10 bg-gradient-to-br from-gray-50 to-white">
                     <!-- Click Instructions -->
                     <div class="text-center mb-4 px-4 py-3 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-100">
                         <p class="text-sm font-semibold text-gray-700">
@@ -773,9 +773,9 @@
                         </p>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6">
                         <!-- Category 1: ATS & Keywords -->
-                        <div class="category-card bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all cursor-pointer hover:scale-105"
+                        <div class="category-card bg-white rounded-2xl p-6 lg:p-8 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all cursor-pointer hover:scale-105"
                              data-category="ats" onclick="toggleCategory('ats')">
                             <div class="flex items-start justify-between mb-4">
                                 <div class="p-3 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl">
@@ -798,7 +798,7 @@
                         </div>
 
                         <!-- Category 2: Impact & Achievements -->
-                        <div class="category-card bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all cursor-pointer hover:scale-105"
+                        <div class="category-card bg-white rounded-2xl p-6 lg:p-8 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all cursor-pointer hover:scale-105"
                              data-category="impact" onclick="toggleCategory('impact')">
                             <div class="flex items-start justify-between mb-4">
                                 <div class="p-3 bg-gradient-to-br from-green-100 to-green-200 rounded-xl">
@@ -821,7 +821,7 @@
                         </div>
 
                         <!-- Category 3: Professional Polish -->
-                        <div class="category-card bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all cursor-pointer hover:scale-105"
+                        <div class="category-card bg-white rounded-2xl p-6 lg:p-8 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all cursor-pointer hover:scale-105"
                              data-category="polish" onclick="toggleCategory('polish')">
                             <div class="flex items-start justify-between mb-4">
                                 <div class="p-3 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl">
@@ -844,7 +844,7 @@
                         </div>
 
                         <!-- Category 4: Structure & Readability -->
-                        <div class="category-card bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all cursor-pointer hover:scale-105"
+                        <div class="category-card bg-white rounded-2xl p-6 lg:p-8 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all cursor-pointer hover:scale-105"
                              data-category="structure" onclick="toggleCategory('structure')">
                             <div class="flex items-start justify-between mb-4">
                                 <div class="p-3 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl">
@@ -867,7 +867,7 @@
                         </div>
 
                         <!-- Category 5: Job Match & Targeting -->
-                        <div class="category-card bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all cursor-pointer hover:scale-105"
+                        <div class="category-card bg-white rounded-2xl p-6 lg:p-8 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all cursor-pointer hover:scale-105"
                              data-category="targeting" onclick="toggleCategory('targeting')">
                             <div class="flex items-start justify-between mb-4">
                                 <div class="p-3 bg-gradient-to-br from-red-100 to-red-200 rounded-xl">
