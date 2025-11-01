@@ -392,6 +392,11 @@
             color: #8b5cf6;
         }
 
+        /* Hide "Click to expand" for disabled categories with no improvements */
+        .category-card.category-disabled::after {
+            display: none;
+        }
+
         /* Category group collapse/expand animations */
         .category-group {
             max-height: 10000px;
