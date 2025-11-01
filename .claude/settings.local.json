@@ -1,20 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git config:*)",
-      "Bash(git remote:*)",
-      "Bash(curl:*)",
-      "Bash(npm outdated:*)",
-      "Bash(npm install:*)",
-      "Bash(cat:*)",
-      "Bash(git for-each-ref:*)",
-      "Bash(xargs:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git push:*)",
-      "Bash(git fetch:*)",
-      "Bash(test:*)",
-      "Bash(IP Whitelisted\"\n\nNext: Add remaining tries display in form section\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(start og-image-generator.html)"
     ],
     "deny": [],
     "ask": []
