@@ -613,6 +613,46 @@
         </div>
     </div>
 
+    <!-- Usage Banner (for all users) -->
+    <div id="usage-banner" style="display: none;" class="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between gap-4">
+                <!-- Left: Usage Info -->
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/20 rounded-lg px-3 py-1.5 backdrop-blur-sm">
+                        <svg class="w-5 h-5 text-white inline-block mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="font-bold text-white" id="usage-banner-text">3/3 Gratis CV Analyses</span>
+                    </div>
+                    <div class="hidden sm:block text-white/90 text-sm" id="usage-banner-subtitle">
+                        Nog beschikbaar deze maand
+                    </div>
+                </div>
+
+                <!-- Right: Progress or CTA -->
+                <div id="usage-banner-right" class="flex items-center gap-3">
+                    <!-- Progress Bar (shown when usage > 0) -->
+                    <div id="usage-progress-container" style="display: none;" class="hidden sm:flex items-center gap-2">
+                        <div class="w-32 bg-white/20 rounded-full h-2 overflow-hidden">
+                            <div id="usage-progress-bar" class="bg-white h-2 rounded-full transition-all duration-500" style="width: 100%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Upgrade Button (shown when usage > 0) -->
+                    <button type="button"
+                            id="usage-upgrade-btn"
+                            onclick="window.location.href='/#pricing';"
+                            style="display: none;"
+                            class="bg-white text-indigo-600 px-4 py-1.5 rounded-lg font-semibold text-sm hover:bg-indigo-50 transition-all hover:scale-105 shadow-lg">
+                        Upgrade
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container mx-auto px-4 lg:px-8 py-8 lg:py-12 max-w-7xl">
         <!-- Header -->
         <div class="text-center mb-12 lg:mb-16 animate-slide-up">
@@ -3461,8 +3501,53 @@
                         console.log('✅ Developer mode banner activated on improvements page');
                     }
                 }
+
+                // Update USAGE BANNER (for all users)
+                const remaining = status.remaining || 0;
+                const maxUses = status.maxUses || 3;
+                const used = maxUses - remaining;
+
+                const usageBanner = document.getElementById('usage-banner');
+                const usageBannerText = document.getElementById('usage-banner-text');
+                const usageBannerSubtitle = document.getElementById('usage-banner-subtitle');
+                const usageProgressBar = document.getElementById('usage-progress-bar');
+                const usageProgressContainer = document.getElementById('usage-progress-container');
+                const usageUpgradeBtn = document.getElementById('usage-upgrade-btn');
+
+                if (status.unlimited || serverStatus.whitelisted) {
+                    // Show unlimited banner for whitelisted users
+                    usageBanner.style.display = 'block';
+                    usageBannerText.textContent = '∞ Unlimited Analyses';
+                    usageBannerSubtitle.textContent = 'Premium toegang actief';
+                    usageProgressContainer.style.display = 'none';
+                    usageUpgradeBtn.style.display = 'none';
+                } else {
+                    // Show usage banner for free users
+                    usageBanner.style.display = 'block';
+                    usageBannerText.textContent = `${remaining}/${maxUses} Gratis CV Analyses`;
+
+                    if (remaining === 0) {
+                        usageBannerSubtitle.textContent = 'Limiet bereikt - Upgrade voor meer';
+                        usageUpgradeBtn.style.display = 'inline-block';
+                        usageUpgradeBtn.textContent = '⭐ Upgrade Now';
+                    } else if (used > 0) {
+                        usageBannerSubtitle.textContent = `${used} gebruikt, ${remaining} over`;
+                        usageProgressContainer.style.display = 'flex';
+                        usageUpgradeBtn.style.display = 'inline-block';
+
+                        // Update progress bar
+                        const percentage = (remaining / maxUses) * 100;
+                        usageProgressBar.style.width = `${percentage}%`;
+                    } else {
+                        usageBannerSubtitle.textContent = 'Nog beschikbaar deze maand';
+                        usageProgressContainer.style.display = 'none';
+                        usageUpgradeBtn.style.display = 'none';
+                    }
+                }
+
+                console.log('✅ Usage banner initialized on improvements page:', { remaining, maxUses, used });
             } catch (error) {
-                console.error('❌ Error initializing developer mode:', error);
+                console.error('❌ Error initializing banners:', error);
             }
         });
     </script>
