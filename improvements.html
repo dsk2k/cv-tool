@@ -2036,6 +2036,22 @@
                         category: catKey
                     });
                 }
+
+                // Scroll to the improvements section
+                setTimeout(() => {
+                    const changesSection = document.getElementById('changesContent');
+                    if (changesSection) {
+                        // Calculate position with offset for better visibility
+                        const offset = 100; // pixels from top
+                        const elementPosition = changesSection.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                }, 150); // Small delay to let DOM updates complete
             }
         }
 
