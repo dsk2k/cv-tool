@@ -1626,7 +1626,6 @@
                 scoreEl.classList.add('score-animate');
 
                 const countEl = document.getElementById(`count-${catKey}`);
-                countEl.textContent = count;
                 countEl.classList.remove('skeleton-text'); // Remove loading skeleton
 
                 const progressEl = document.getElementById(`progress-${catKey}`);
@@ -1642,17 +1641,37 @@
                     loadingText.className = 'text-xs text-gray-500 font-semibold';
                 }
 
-                // Color coding based on improvement gain
-                if (improvementGain >= 50) scoreEl.className = 'text-3xl font-bold text-green-600 score-animate';
-                else if (improvementGain >= 30) scoreEl.className = 'text-3xl font-bold text-yellow-600 score-animate';
-                else scoreEl.className = 'text-3xl font-bold text-blue-600 score-animate';
+                // Special handling for categories with 0 changes (already perfect!)
+                if (count === 0) {
+                    // Change score color to green (already excellent)
+                    scoreEl.className = 'text-3xl font-bold text-green-600 score-animate';
 
-                // Level badges based on improvement
-                const levelEl = document.getElementById(`level-${catKey}`);
-                if (improvementGain >= 55) levelEl.textContent = '💎 Massive Gain';
-                else if (improvementGain >= 40) levelEl.textContent = '🥇 Major Boost';
-                else if (improvementGain >= 25) levelEl.textContent = '🥈 Good Improvement';
-                else levelEl.textContent = '✨ Enhanced';
+                    // Show positive message instead of "0 verbeteringen"
+                    countEl.innerHTML = '<span style="color: #10b981; font-weight: 700;">✓ Reeds uitstekend!</span>';
+
+                    // Green full progress bar
+                    progressEl.style.width = '100%';
+                    progressEl.className = 'h-2 rounded-full bg-gradient-to-r from-green-500 to-green-600 transition-all duration-1000';
+
+                    // Level badge
+                    const levelEl = document.getElementById(`level-${catKey}`);
+                    levelEl.innerHTML = '<span style="color: #10b981;">✓ Perfect</span>';
+                } else {
+                    // Normal flow for categories with changes
+                    countEl.textContent = count;
+
+                    // Color coding based on improvement gain
+                    if (improvementGain >= 50) scoreEl.className = 'text-3xl font-bold text-green-600 score-animate';
+                    else if (improvementGain >= 30) scoreEl.className = 'text-3xl font-bold text-yellow-600 score-animate';
+                    else scoreEl.className = 'text-3xl font-bold text-blue-600 score-animate';
+
+                    // Level badges based on improvement
+                    const levelEl = document.getElementById(`level-${catKey}`);
+                    if (improvementGain >= 55) levelEl.textContent = '💎 Massive Gain';
+                    else if (improvementGain >= 40) levelEl.textContent = '🥇 Major Boost';
+                    else if (improvementGain >= 25) levelEl.textContent = '🥈 Good Improvement';
+                    else levelEl.textContent = '✨ Enhanced';
+                }
 
                 totalOriginalScore += originalScore;
                 totalOptimizedScore += optimizedScore;
