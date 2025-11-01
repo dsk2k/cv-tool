@@ -3475,15 +3475,20 @@
         // Initialize developer mode banner on improvements page
         window.addEventListener('DOMContentLoaded', async () => {
             try {
-                // Wait for rate limiter to be available
-                if (!window.rateLimiter) {
-                    console.warn('⚠️ Rate limiter not available');
-                    return;
-                }
+                let status = { remaining: 3, maxUses: 3, usage: 0, unlimited: false };
+                let serverStatus = { whitelisted: false, isDeveloper: false, usage: 0 };
 
                 // Check rate limiter status
-                const status = await window.rateLimiter.init();
-                const serverStatus = await window.rateLimiter.checkServerUsage();
+                if (window.rateLimiter) {
+                    try {
+                        status = await window.rateLimiter.init();
+                        serverStatus = await window.rateLimiter.checkServerUsage();
+                    } catch (apiError) {
+                        console.warn('⚠️ Rate limiter API unavailable, using defaults:', apiError);
+                    }
+                } else {
+                    console.warn('⚠️ Rate limiter not available, using defaults');
+                }
 
                 // Show developer mode notice if applicable
                 if (serverStatus.isDeveloper) {

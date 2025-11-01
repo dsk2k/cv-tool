@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(start og-image-generator.html)"
+      "Bash(start og-image-generator.html)",
+      "Bash(start index.html)"
     ],
     "deny": [],
     "ask": []
