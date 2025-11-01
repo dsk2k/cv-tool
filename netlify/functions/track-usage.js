@@ -3,16 +3,25 @@
 
 const usageStore = new Map();
 
-// Get whitelisted IPs from environment variable (SECURE!)
+// Get whitelisted IPs from environment variables (SECURE!)
 // Set in Netlify Dashboard: Environment Variables
 // Format: WHITELISTED_IPS=123.45.67.89,98.76.54.32,111.22.33.44
-const WHITELISTED_IPS = process.env.WHITELISTED_IPS 
+const WHITELISTED_IPS = process.env.WHITELISTED_IPS
     ? process.env.WHITELISTED_IPS.split(',').map(ip => ip.trim())
     : [];
 
+// Developer whitelist (for testing - separate from production whitelist)
+const DEV_WHITELIST_IPS = process.env.DEV_WHITELIST_IPS
+    ? process.env.DEV_WHITELIST_IPS.split(',').map(ip => ip.trim())
+    : [];
+
+// Combine both whitelists
+const ALL_WHITELISTED_IPS = [...WHITELISTED_IPS, ...DEV_WHITELIST_IPS];
+
 // Log on startup (for debugging only - won't expose IPs to users)
-if (WHITELISTED_IPS.length > 0) {
-    console.log('IP whitelist enabled with', WHITELISTED_IPS.length, 'addresses');
+if (ALL_WHITELISTED_IPS.length > 0) {
+    console.log('IP whitelist enabled with', ALL_WHITELISTED_IPS.length, 'addresses');
+    console.log('Production:', WHITELISTED_IPS.length, 'Dev:', DEV_WHITELIST_IPS.length);
 } else {
     console.log('No IP whitelist configured');
 }
@@ -61,12 +70,14 @@ exports.handler = async (event) => {
                        event.headers['client-ip'] || 
                        'unknown';
 
-        // Check if IP is whitelisted
-        const isWhitelisted = WHITELISTED_IPS.length > 0 && WHITELISTED_IPS.includes(userIP);
+        // Check if IP is whitelisted (production or dev)
+        const isWhitelisted = ALL_WHITELISTED_IPS.length > 0 && ALL_WHITELISTED_IPS.includes(userIP);
+        const isDevWhitelisted = DEV_WHITELIST_IPS.includes(userIP);
 
         if (isWhitelisted) {
-            console.log('Whitelisted IP detected - Unlimited access granted');
-            
+            const whitelistType = isDevWhitelisted ? 'developer' : 'production';
+            console.log(`Whitelisted IP detected (${whitelistType}) - Unlimited access granted`);
+
             // Always return 0 usage for whitelisted IPs
             return {
                 statusCode: 200,
@@ -77,7 +88,8 @@ exports.handler = async (event) => {
                 body: JSON.stringify({
                     usage: 0,
                     whitelisted: true,
-                    message: 'Unlimited access (whitelisted)'
+                    isDeveloper: isDevWhitelisted,
+                    message: `Unlimited access (${whitelistType} whitelist)`
                 })
             };
         }
