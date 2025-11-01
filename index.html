@@ -58,6 +58,11 @@
         };
     </script>
 
+    <!-- Auth & Subscription System -->
+    <script src="/config.js"></script>
+    <script src="/auth.js"></script>
+    <script src="/tracking.js"></script>
+
     <!-- Production Tailwind CSS - Compiled locally (15KB instead of 3.5MB!) -->
     <link rel="stylesheet" href="/dist/output.css">
     <style>
@@ -472,7 +477,16 @@
                             NL
                         </button>
                     </div>
-                    
+
+                    <!-- Auth Button -->
+                    <button
+                        id="auth-button"
+                        onclick="openAuthModal('login')"
+                        class="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg font-semibold hover:scale-105 transition-transform shadow-md"
+                    >
+                        🔐 Login / Sign Up
+                    </button>
+
                     <!-- HUGE GET PREMIUM BUTTON -->
                     <button onclick="scrollToPricing()" class="relative btn-success text-white px-8 py-3 rounded-full font-bold text-lg shadow-xl pulse-glow">
                         <span data-i18n="header-cta">👑 Get Premium</span>
@@ -2508,5 +2522,82 @@
         }
     </script>
     -->
+
+    <!-- Auth Modal -->
+    <div id="auth-modal-container"></div>
+    <script>
+        // Load auth modal HTML
+        fetch('/auth-modal.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('auth-modal-container').innerHTML = html;
+            })
+            .catch(error => console.error('Error loading auth modal:', error));
+    </script>
+
+    <!-- Initialize Auth with Supabase Config -->
+    <script>
+        // Wait for config to load, then init auth with correct credentials
+        window.addEventListener('DOMContentLoaded', async () => {
+            const config = window.getSupabaseConfig();
+
+            // Override auth manager init to use config
+            const originalInit = window.authManager.init;
+            window.authManager.init = async function() {
+                if (!window.supabase) {
+                    await this.loadSupabaseScript();
+                }
+
+                this.supabase = window.supabase.createClient(config.url, config.anonKey);
+
+                this.supabase.auth.onAuthStateChange((event, session) => {
+                    console.log('🔐 Auth state changed:', event);
+                    this.currentUser = session?.user || null;
+                    this.notifyAuthChange(session);
+
+                    // Update UI when auth changes
+                    updateAuthUI();
+                });
+
+                const { data: { session } } = await this.supabase.auth.getSession();
+                this.currentUser = session?.user || null;
+
+                // Initial UI update
+                updateAuthUI();
+
+                return this.currentUser;
+            };
+
+            // Initialize
+            await window.authManager.init();
+        });
+
+        // Update UI based on auth state
+        function updateAuthUI() {
+            const user = window.authManager.getUser();
+            const authButton = document.getElementById('auth-button');
+
+            if (authButton) {
+                if (user) {
+                    authButton.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">
+                                ${user.email.charAt(0).toUpperCase()}
+                            </div>
+                            <span>${user.email.split('@')[0]}</span>
+                        </div>
+                    `;
+                    authButton.onclick = () => {
+                        if (confirm('Log out?')) {
+                            window.authManager.signOut().then(() => window.location.reload());
+                        }
+                    };
+                } else {
+                    authButton.innerHTML = '🔐 Login / Sign Up';
+                    authButton.onclick = () => openAuthModal('login');
+                }
+            }
+        }
+    </script>
 </body>
 </html>
