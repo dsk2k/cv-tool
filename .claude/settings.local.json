@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(start og-image-generator.html)",
-      "Bash(start index.html)"
+      "Bash(start index.html)",
+      "Bash(met specifieke ATS-verbeteringen, geformatteerd volgens jouw instructies.\"\n\nOutput now starts directly with \"Origineel:\" or improvement content.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []

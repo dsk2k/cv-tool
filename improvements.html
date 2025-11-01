@@ -2693,6 +2693,7 @@
 
             // Remove common AI intro patterns
             const introPatterns = [
+                // Dutch intro phrases
                 /^Absoluut!?\s*Hier zijn.*?(?=\n\n|$)/i,
                 /^Natuurlijk!?\s*Hier.*?(?=\n\n|$)/i,
                 /^Zeker!?\s*Hier.*?(?=\n\n|$)/i,
@@ -2701,7 +2702,17 @@
                 /^Prima!?\s*Hier.*?(?=\n\n|$)/i,
                 /^Hier zijn.*?CV van.*?opgesteld.*?(?=\n\n|$)/i,
                 /^Hier zijn.*?gedetailleerde.*?verbeteringen.*?(?=\n\n|$)/i,
-                /^(?:Absoluut|Natuurlijk|Zeker|Uiteraard).*?(?:Hier is|Hier zijn).*?(?=\n\n|###|\d+\.)/is
+
+                // "Hieronder vind je..." patterns
+                /^Hieronder vind je.*?(?=\n\n|###|Origineel:|$)/i,
+
+                // Generic patterns
+                /^(?:Absoluut|Natuurlijk|Zeker|Uiteraard).*?(?:Hier is|Hier zijn).*?(?=\n\n|###|\d+\.)/is,
+
+                // English patterns (just in case)
+                /^Absolutely!?\s*Here.*?(?=\n\n|$)/i,
+                /^Of course!?\s*Here.*?(?=\n\n|$)/i,
+                /^Sure!?\s*Here.*?(?=\n\n|$)/i
             ];
 
             let cleaned = content;
