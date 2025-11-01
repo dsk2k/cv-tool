@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OG Image Generator - AI CV Tailor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f3f4f6;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        /* This is the exact image to screenshot */
+        .og-image {
+            width: 1200px;
+            height: 630px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Decorative circles */
+        .og-image::before,
+        .og-image::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .og-image::before {
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            left: -100px;
+        }
+
+        .og-image::after {
+            width: 300px;
+            height: 300px;
+            bottom: -80px;
+            right: -80px;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            color: white;
+            text-align: center;
+            padding: 60px;
+        }
+
+        .logo {
+            font-size: 72px;
+            margin-bottom: 30px;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+        }
+
+        .title {
+            font-size: 64px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 36px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            opacity: 0.95;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .highlight {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 42px;
+            font-weight: 700;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .url {
+            position: absolute;
+            bottom: 40px;
+            right: 60px;
+            font-size: 24px;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .instructions {
+            margin-top: 40px;
+            max-width: 800px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .instructions h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .instructions ol {
+            text-align: left;
+            line-height: 1.8;
+            color: #374151;
+        }
+
+        .instructions li {
+            margin-bottom: 12px;
+        }
+
+        .instructions code {
+            background: #f3f4f6;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- This is what needs to be screenshot -->
+        <div class="og-image" id="og-image">
+            <div class="content">
+                <div class="logo">🎯</div>
+                <h1 class="title">AI CV Tailor</h1>
+                <p class="subtitle">Perfect CV for Every Job</p>
+                <div class="highlight">Get 3X More Interviews</div>
+            </div>
+            <div class="url">applyjobmatch.nl</div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="instructions">
+            <h2>📸 How to Create og-image.jpg</h2>
+            <ol>
+                <li><strong>Option 1 - Screenshot (Easiest):</strong>
+                    <ul>
+                        <li>Press <code>F12</code> to open browser DevTools</li>
+                        <li>Click the "Toggle device toolbar" button (mobile icon) or press <code>Ctrl+Shift+M</code></li>
+                        <li>Set dimensions to exactly <code>1200 x 630</code> pixels</li>
+                        <li>Right-click the purple image above and select "Capture node screenshot"</li>
+                        <li>Save as <code>og-image.jpg</code> in your project root</li>
+                    </ul>
+                </li>
+                <li><strong>Option 2 - Online Tools:</strong>
+                    <ul>
+                        <li>Visit <a href="https://www.canva.com" target="_blank">Canva.com</a></li>
+                        <li>Create a custom size: 1200 x 630 pixels</li>
+                        <li>Use the design above as reference</li>
+                        <li>Export as JPG and save as <code>og-image.jpg</code></li>
+                    </ul>
+                </li>
+                <li><strong>Option 3 - Code (Advanced):</strong>
+                    <ul>
+                        <li>Use Puppeteer or Playwright to automate screenshot</li>
+                        <li>Or use html2canvas library in browser</li>
+                    </ul>
+                </li>
+            </ol>
+            <p style="margin-top: 20px; color: #6b7280;">
+                💡 <strong>Tip:</strong> The image is already perfectly sized at 1200x630px.
+                Just screenshot the purple gradient box above!
+            </p>
+            <button class="btn" onclick="downloadAsImage()">⬇️ Download as Image (Experimental)</button>
+        </div>
+    </div>
+
+    <script>
+        // Experimental: Try to download as image using canvas
+        async function downloadAsImage() {
+            try {
+                // Dynamically load html2canvas if not already loaded
+                if (typeof html2canvas === 'undefined') {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                    document.head.appendChild(script);
+
+                    await new Promise((resolve) => {
+                        script.onload = resolve;
+                    });
+                }
+
+                const element = document.getElementById('og-image');
+                const canvas = await html2canvas(element, {
+                    width: 1200,
+                    height: 630,
+                    scale: 1,
+                    backgroundColor: null
+                });
+
+                // Convert to blob and download
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'og-image.jpg';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    alert('✅ Image downloaded! Save it as og-image.jpg in your project root.');
+                }, 'image/jpeg', 0.95);
+            } catch (error) {
+                console.error('Error generating image:', error);
+                alert('❌ Automatic download failed. Please use the screenshot method instead (Option 1).');
+            }
+        }
+    </script>
+</body>
+</html>
