@@ -12,7 +12,9 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(test:*)",
+      "Bash(IP Whitelisted\"\n\nNext: Add remaining tries display in form section\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []
