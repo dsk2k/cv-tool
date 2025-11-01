@@ -3490,22 +3490,8 @@
                     console.warn('⚠️ Rate limiter not available, using defaults');
                 }
 
-                // Show developer mode notice if applicable
-                if (serverStatus.isDeveloper) {
-                    const devNotice = document.getElementById('dev-mode-notice');
-                    if (devNotice) {
-                        devNotice.style.display = 'block';
-
-                        // Update usage count in developer banner
-                        const usageCount = status.usage || serverStatus.usage || 0;
-                        const devCountEl = document.getElementById('dev-usage-count');
-                        if (devCountEl) {
-                            devCountEl.textContent = usageCount;
-                        }
-
-                        console.log('✅ Developer mode banner activated on improvements page');
-                    }
-                }
+                // NOTE: Developer mode is now shown in the usage banner, not the separate dev banner
+                // The usage banner will show "🔧 Developer Mode: X CVs geanalyseerd" for developers
 
                 // Update USAGE BANNER (for all users)
                 const remaining = status.remaining || 0;
