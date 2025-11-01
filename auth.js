@@ -14,16 +14,26 @@ class AuthManager {
      * Initialize Supabase client
      */
     async init() {
+        // Wait for config to load
+        if (window.loadAppConfig) {
+            await window.loadAppConfig();
+        }
+
         // Load Supabase client from CDN if not already loaded
         if (!window.supabase) {
             await this.loadSupabaseScript();
         }
 
-        // Initialize client with public anon key (safe for frontend)
-        const supabaseUrl = 'YOUR_SUPABASE_URL'; // Will be replaced with actual URL
-        const supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY'; // Public key, safe to expose
+        // Get config from APP_CONFIG
+        const config = window.getSupabaseConfig();
 
-        this.supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+        if (!config.url || !config.anonKey) {
+            console.error('❌ Supabase configuration not found. Please check your config.js and environment variables.');
+            throw new Error('Missing Supabase configuration');
+        }
+
+        // Initialize client with config from environment variables
+        this.supabase = window.supabase.createClient(config.url, config.anonKey);
 
         // Listen for auth changes
         this.supabase.auth.onAuthStateChange((event, session) => {

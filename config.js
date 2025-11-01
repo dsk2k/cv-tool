@@ -3,18 +3,18 @@
  * Centralized configuration for Supabase, Stripe, and feature flags
  */
 
-// ⚠️ IMPORTANT: Replace these with your actual values
-// These are PUBLIC keys and can safely be exposed in frontend code
+// ⚠️ IMPORTANT: Update your Supabase URL below
+// Anon key is loaded from SUPABASE_ANON_KEY environment variable in Netlify
 window.APP_CONFIG = {
     // Supabase Configuration
     supabase: {
         url: 'https://YOUR_PROJECT.supabase.co', // Replace with your Supabase project URL
-        anonKey: 'YOUR_SUPABASE_ANON_KEY'        // Replace with your anon/public key (safe to expose)
+        anonKey: null  // Loaded from SUPABASE_ANON_KEY environment variable
     },
 
     // Stripe Configuration
     stripe: {
-        publishableKey: 'pk_test_YOUR_KEY'       // Replace with your Stripe publishable key (safe to expose)
+        publishableKey: null  // Loaded from STRIPE_PUBLISHABLE_KEY environment variable
     },
 
     // Feature Flags
@@ -52,9 +52,13 @@ window.APP_CONFIG = {
             submitCV: '/submit-cv-job',
             checkStatus: '/check-job-status',
             checkSubscription: '/check-subscription',
-            createCheckout: '/create-checkout'
+            createCheckout: '/create-checkout',
+            getConfig: '/get-config'
         }
-    }
+    },
+
+    // Flag to track if config is loaded
+    _configLoaded: false
 };
 
 /**
@@ -87,4 +91,47 @@ window.getRateLimit = function(isPremium = false) {
         : window.APP_CONFIG.rateLimits.free;
 };
 
-console.log('⚙️ App configuration loaded');
+/**
+ * Load configuration from Netlify environment variables
+ * This fetches the anon key and publishable key from the backend
+ */
+window.loadAppConfig = async function() {
+    if (window.APP_CONFIG._configLoaded) {
+        return window.APP_CONFIG;
+    }
+
+    try {
+        const response = await fetch('/.netlify/functions/get-config');
+        if (!response.ok) {
+            throw new Error('Failed to load configuration');
+        }
+
+        const config = await response.json();
+
+        // Update APP_CONFIG with values from environment variables
+        if (config.supabase?.anonKey) {
+            window.APP_CONFIG.supabase.anonKey = config.supabase.anonKey;
+        }
+        if (config.stripe?.publishableKey) {
+            window.APP_CONFIG.stripe.publishableKey = config.stripe.publishableKey;
+        }
+
+        window.APP_CONFIG._configLoaded = true;
+        console.log('⚙️ App configuration loaded from environment');
+
+        return window.APP_CONFIG;
+    } catch (error) {
+        console.error('❌ Failed to load app configuration:', error);
+        console.warn('⚠️ Continuing with default configuration');
+        return window.APP_CONFIG;
+    }
+};
+
+// Auto-load configuration when the script loads
+if (typeof window !== 'undefined') {
+    window.loadAppConfig().catch(err => {
+        console.error('Failed to auto-load config:', err);
+    });
+}
+
+console.log('⚙️ App configuration initializing...');
