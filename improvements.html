@@ -1797,6 +1797,15 @@
                     // Level badge
                     const levelEl = document.getElementById(`level-${catKey}`);
                     levelEl.innerHTML = '<span style="color: #10b981;">✓ Al perfect</span>';
+
+                    // Disable the category card - make it non-clickable
+                    const card = document.querySelector(`.category-card[data-category="${catKey}"]`);
+                    if (card) {
+                        card.classList.add('category-disabled');
+                        card.style.cursor = 'default';
+                        card.style.pointerEvents = 'none';
+                        card.style.opacity = '0.8';
+                    }
                 } else {
                     // Normal flow for categories with changes
                     countEl.textContent = count;
@@ -1916,6 +1925,11 @@
 
         function toggleCategory(catKey) {
             const card = document.querySelector(`.category-card[data-category="${catKey}"]`);
+
+            // Don't allow interaction with disabled categories (0 improvements)
+            if (card && card.classList.contains('category-disabled')) {
+                return;
+            }
 
             // Check if this category is already active
             const isExpanded = card.classList.contains('active');
