@@ -428,24 +428,48 @@
 
         @keyframes shimmer {
             0% {
-                background-position: -1000px 0;
+                background-position: -200% 0;
             }
             100% {
-                background-position: 1000px 0;
+                background-position: 200% 0;
+            }
+        }
+
+        @keyframes skeletonPulse {
+            0%, 100% {
+                opacity: 0.6;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.02);
             }
         }
 
         .skeleton-loading {
-            background: linear-gradient(90deg, #e5e7eb 0%, #f3f4f6 50%, #e5e7eb 100%);
-            background-size: 1000px 100%;
-            animation: shimmer 2s infinite linear;
+            background: linear-gradient(90deg,
+                #e5e7eb 0%,
+                #f3f4f6 25%,
+                #fff 50%,
+                #f3f4f6 75%,
+                #e5e7eb 100%
+            );
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite ease-in-out, skeletonPulse 2s infinite ease-in-out;
             border-radius: 12px;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.1);
         }
 
         .skeleton-text {
-            background: linear-gradient(90deg, #e5e7eb 0%, #f3f4f6 50%, #e5e7eb 100%);
-            background-size: 1000px 100%;
-            animation: shimmer 2s infinite linear;
+            background: linear-gradient(90deg,
+                #e5e7eb 0%,
+                #f3f4f6 25%,
+                #fff 50%,
+                #f3f4f6 75%,
+                #e5e7eb 100%
+            );
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite ease-in-out, skeletonPulse 2s infinite ease-in-out;
             color: transparent;
             user-select: none;
             border-radius: 6px;
@@ -550,7 +574,7 @@
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 xl:gap-10 mb-12 lg:mb-16">
             <!-- Match Score with Before/After -->
-            <div class="stat-card bg-white rounded-2xl shadow-xl p-6 lg:p-8 text-center relative overflow-hidden" style="min-height: 260px; display: flex; flex-direction: column;">
+            <div class="stat-card bg-white rounded-2xl shadow-xl p-6 lg:p-8 text-center relative overflow-hidden" style="min-height: 300px; display: flex; flex-direction: column;">
                 <!-- Background decoration -->
                 <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full opacity-20 -mr-16 -mt-16"></div>
 
@@ -570,7 +594,7 @@
             </div>
 
             <!-- Quality Badge System -->
-            <div class="stat-card bg-white rounded-2xl shadow-xl p-6 lg:p-8 text-center relative overflow-hidden" style="min-height: 260px; display: flex; flex-direction: column;">
+            <div class="stat-card bg-white rounded-2xl shadow-xl p-6 lg:p-8 text-center relative overflow-hidden" style="min-height: 300px; display: flex; flex-direction: column;">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-full opacity-20 -mr-16 -mt-16"></div>
 
                 <div class="relative z-10" style="flex: 1; display: flex; flex-direction: column;">
@@ -591,7 +615,7 @@
             </div>
 
             <!-- AI Impact Metrics -->
-            <div class="stat-card bg-white rounded-2xl shadow-xl p-6 lg:p-8 text-center relative overflow-hidden" style="min-height: 260px; display: flex; flex-direction: column;">
+            <div class="stat-card bg-white rounded-2xl shadow-xl p-6 lg:p-8 text-center relative overflow-hidden" style="min-height: 300px; display: flex; flex-direction: column;">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-100 to-teal-100 rounded-full opacity-20 -mr-16 -mt-16"></div>
 
                 <div class="relative z-10" style="flex: 1; display: flex; flex-direction: column;">
