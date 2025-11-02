@@ -787,6 +787,76 @@
             </div>
         </div>
 
+        <!-- Feature Comparison Table (Free Users Only) -->
+        <div id="feature-comparison" style="display: none;" class="mb-12 lg:mb-16 bg-white rounded-2xl shadow-2xl overflow-hidden border-2 border-purple-100">
+            <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-6 px-8 text-center">
+                <h3 class="text-3xl font-bold mb-2">See What You're Missing</h3>
+                <p class="text-purple-100">Upgrade to unlock your full CV potential</p>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="text-left py-4 px-6 font-semibold text-gray-900">Feature</th>
+                            <th class="text-center py-4 px-6 font-semibold text-gray-500">FREE</th>
+                            <th class="text-center py-4 px-6 font-semibold text-green-600 bg-green-50">PRO</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="py-4 px-6 font-medium text-gray-900">Match Score Analysis</td>
+                            <td class="text-center py-4 px-6"><span class="text-green-500 text-2xl">✓</span></td>
+                            <td class="text-center py-4 px-6 bg-green-50"><span class="text-green-500 text-2xl">✓</span></td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="py-4 px-6 font-medium text-gray-900">Top 3 Improvement Categories</td>
+                            <td class="text-center py-4 px-6"><span class="text-green-500 text-2xl">✓</span></td>
+                            <td class="text-center py-4 px-6 bg-green-50"><span class="text-green-500 text-2xl">✓</span></td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="py-4 px-6 font-medium text-gray-900">Full Detailed Analysis</td>
+                            <td class="text-center py-4 px-6"><span class="text-red-500 text-2xl">✗</span></td>
+                            <td class="text-center py-4 px-6 bg-green-50"><span class="text-green-500 text-2xl font-bold">✓</span></td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="py-4 px-6 font-medium text-gray-900">Recruiter Insider Tips</td>
+                            <td class="text-center py-4 px-6"><span class="text-red-500 text-2xl">✗</span></td>
+                            <td class="text-center py-4 px-6 bg-green-50"><span class="text-green-500 text-2xl font-bold">✓</span></td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="py-4 px-6 font-medium text-gray-900">AI Cover Letter Generator</td>
+                            <td class="text-center py-4 px-6"><span class="text-red-500 text-2xl">✗</span></td>
+                            <td class="text-center py-4 px-6 bg-green-50"><span class="text-green-500 text-2xl font-bold">✓</span></td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="py-4 px-6 font-medium text-gray-900">Unlimited CV Analyses</td>
+                            <td class="text-center py-4 px-6"><span class="text-gray-400 text-sm">3/month</span></td>
+                            <td class="text-center py-4 px-6 bg-green-50"><span class="text-green-600 text-xl font-bold">∞</span></td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="py-4 px-6 font-medium text-gray-900">Priority Processing</td>
+                            <td class="text-center py-4 px-6"><span class="text-red-500 text-2xl">✗</span></td>
+                            <td class="text-center py-4 px-6 bg-green-50"><span class="text-green-500 text-2xl font-bold">✓</span></td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="py-4 px-6 font-medium text-gray-900">Email Support</td>
+                            <td class="text-center py-4 px-6"><span class="text-red-500 text-2xl">✗</span></td>
+                            <td class="text-center py-4 px-6 bg-green-50"><span class="text-green-500 text-2xl font-bold">✓</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="bg-gray-50 py-6 px-8 text-center border-t-2 border-gray-100">
+                <button onclick="trackUpgradeClick('feature_comparison'); window.location.href='/#pricing';"
+                        class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-12 py-4 rounded-xl font-bold text-lg shadow-2xl hover:scale-105 transition-all inline-flex items-center gap-3">
+                    <span>🚀 Upgrade to Pro - €9.99/mo</span>
+                </button>
+                <p class="text-sm text-gray-600 mt-3">Just €0.33 per CV • Cancel anytime</p>
+            </div>
+        </div>
+
         <!-- Achievement Banner -->
         <div id="achievementBanner" class="mb-8 hidden">
             <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl shadow-xl p-6 text-white text-center">
@@ -1167,9 +1237,9 @@
                     </div>
                     <span id="cover-icon" class="collapse-icon rotated" style="color: #667eea; font-size: 1.5rem;">▼</span>
                 </div>
-                <div id="cover-content" class="collapsible-content expanded" style="padding: 0;">
+                <div id="cover-content" class="collapsible-content expanded locked-content" style="padding: 0; min-height: 400px;">
                     <!-- Professional Letter Paper -->
-                    <div style="
+                    <div class="blur-content" style="
                         background: white;
                         margin: 2rem;
                         padding: 3rem 2.5rem;
@@ -1184,6 +1254,20 @@
                         ">
                             <p class="text-gray-600">Content wordt geladen...</p>
                         </div>
+                    </div>
+
+                    <!-- Unlock Overlay -->
+                    <div class="unlock-overlay">
+                        <div class="text-6xl mb-4">🔒</div>
+                        <h3 class="text-3xl font-bold mb-3 text-gray-900">Unlock AI-Generated Cover Letter</h3>
+                        <p class="text-lg text-gray-600 mb-6 max-w-xl mx-auto">
+                            Get a professionally crafted cover letter that perfectly matches your CV and the job description
+                        </p>
+                        <button onclick="trackUpgradeClick('cover_letter_lock'); window.location.href='/#pricing';"
+                                class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-10 py-4 rounded-xl font-bold text-lg shadow-2xl hover:scale-105 transition-all">
+                            🚀 Upgrade to Pro - €9.99/mo
+                        </button>
+                        <p class="text-sm text-gray-500 mt-3">Unlimited CVs + Cover Letters + Full Analysis</p>
                     </div>
                 </div>
             </div>
@@ -1262,12 +1346,28 @@
                         filter: drop-shadow(0 2px 4px rgba(251, 191, 36, 0.3));
                     ">▼</span>
                 </div>
-                <div id="tips-content" class="collapsible-content expanded" style="padding: 2.5rem;">
-                    <div id="recruiterTips" style="display: none;">
-                        <p class="text-gray-600">Content wordt geladen...</p>
+                <div id="tips-content" class="collapsible-content expanded locked-content" style="padding: 2.5rem; min-height: 400px;">
+                    <div class="blur-content">
+                        <div id="recruiterTips" style="display: none;">
+                            <p class="text-gray-600">Content wordt geladen...</p>
+                        </div>
+                        <div id="recruiterTipsChecklist" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                            <!-- Checklist items will be dynamically inserted here -->
+                        </div>
                     </div>
-                    <div id="recruiterTipsChecklist" style="display: flex; flex-direction: column; gap: 1.5rem;">
-                        <!-- Checklist items will be dynamically inserted here -->
+
+                    <!-- Unlock Overlay -->
+                    <div class="unlock-overlay">
+                        <div class="text-6xl mb-4">🎯</div>
+                        <h3 class="text-3xl font-bold mb-3 text-gray-900">Unlock Recruiter Insider Tips</h3>
+                        <p class="text-lg text-gray-600 mb-6 max-w-xl mx-auto">
+                            Get expert interview tips and strategies that recruiters actually look for
+                        </p>
+                        <button onclick="trackUpgradeClick('recruiter_tips_lock'); window.location.href='/#pricing';"
+                                class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-10 py-4 rounded-xl font-bold text-lg shadow-2xl hover:scale-105 transition-all">
+                            🚀 Upgrade to Pro - €9.99/mo
+                        </button>
+                        <p class="text-sm text-gray-500 mt-3">Get 3X more interviews with Pro insights</p>
                     </div>
                 </div>
             </div>
@@ -3612,12 +3712,37 @@
                 const usageProgressContainer = document.getElementById('usage-progress-container');
                 const usageUpgradeBtn = document.getElementById('usage-upgrade-btn');
 
-                // Show/hide sticky upgrade bar
+                // Show/hide sticky upgrade bar and feature comparison
                 const stickyUpgradeBar = document.getElementById('sticky-upgrade-bar');
+                const featureComparison = document.getElementById('feature-comparison');
 
                 if (status.unlimited || serverStatus.whitelisted) {
-                    // Hide sticky bar for premium/whitelisted users
+                    // Hide upgrade elements for premium/whitelisted users
                     if (stickyUpgradeBar) stickyUpgradeBar.style.display = 'none';
+                    if (featureComparison) featureComparison.style.display = 'none';
+
+                    // UNLOCK PREMIUM CONTENT
+                    // Remove locks from cover letter and recruiter tips
+                    const coverContent = document.getElementById('cover-content');
+                    const tipsContent = document.getElementById('tips-content');
+
+                    if (coverContent) {
+                        coverContent.classList.remove('locked-content');
+                        const blurDiv = coverContent.querySelector('.blur-content');
+                        const unlockOverlay = coverContent.querySelector('.unlock-overlay');
+                        if (blurDiv) blurDiv.classList.remove('blur-content');
+                        if (unlockOverlay) unlockOverlay.remove();
+                    }
+
+                    if (tipsContent) {
+                        tipsContent.classList.remove('locked-content');
+                        const blurDiv = tipsContent.querySelector('.blur-content');
+                        const unlockOverlay = tipsContent.querySelector('.unlock-overlay');
+                        if (blurDiv) blurDiv.classList.remove('blur-content');
+                        if (unlockOverlay) unlockOverlay.remove();
+                    }
+
+                    console.log('✅ Premium content unlocked');
 
                     // Show unlimited banner for whitelisted/premium users
                     usageBanner.style.display = 'block';
@@ -3636,8 +3761,10 @@
                     usageProgressContainer.style.display = 'none';
                     usageUpgradeBtn.style.display = 'none';
                 } else {
-                    // Show sticky upgrade bar for free users
+                    // Show upgrade elements for free users
                     if (stickyUpgradeBar) stickyUpgradeBar.style.display = 'block';
+                    if (featureComparison) featureComparison.style.display = 'block';
+
                     // Show usage banner for free users (dynamic values!)
                     usageBanner.style.display = 'block';
                     usageBannerText.textContent = `${remaining}/${maxUses} Gratis CV Analyses`;
@@ -3672,6 +3799,220 @@
                 console.error('❌ Error initializing banners:', error);
             }
         });
+    </script>
+
+    <!-- Exit-Intent Popup -->
+    <div id="exit-intent-popup" style="display: none;">
+        <!-- Backdrop -->
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); z-index: 9998; backdrop-filter: blur(4px);"></div>
+
+        <!-- Modal -->
+        <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;">
+            <div style="background: white; border-radius: 24px; padding: 3rem 2.5rem; box-shadow: 0 25px 60px rgba(0,0,0,0.4); position: relative;">
+                <!-- Close Button -->
+                <button onclick="closeExitIntent()" style="position: absolute; top: 1.5rem; right: 1.5rem; background: #f3f4f6; border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 24px; color: #6b7280; transition: all 0.2s; hover:background: #e5e7eb;">
+                    ×
+                </button>
+
+                <!-- Content -->
+                <div style="text-align: center;">
+                    <div style="font-size: 72px; margin-bottom: 1rem;">⏰</div>
+                    <h2 style="font-size: 2rem; font-weight: 800; color: #1f2937; margin-bottom: 1rem; line-height: 1.2;">
+                        Wait! Don't Miss Your 50% Discount
+                    </h2>
+                    <p style="font-size: 1.125rem; color: #6b7280; margin-bottom: 2rem;">
+                        Unlock your complete CV analysis + AI cover letter for <strong>half price</strong>
+                    </p>
+
+                    <!-- Discount Badge -->
+                    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px dashed #f59e0b; border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;">
+                        <div style="font-size: 1rem; color: #92400e; font-weight: 600; margin-bottom: 0.5rem;">
+                            LIMITED TIME OFFER
+                        </div>
+                        <div style="display: flex; align-items: baseline; justify-content: center; gap: 1rem; margin-bottom: 0.5rem;">
+                            <span style="font-size: 1.5rem; color: #6b7280; text-decoration: line-through;">€9.99</span>
+                            <span style="font-size: 3rem; font-weight: 800; color: #059669;">€4.99</span>
+                            <span style="font-size: 1.25rem; color: #6b7280;">/month</span>
+                        </div>
+                        <div style="font-size: 0.875rem; color: #92400e; font-weight: 600;">
+                            ⏰ Offer expires in: <span id="countdown-timer" style="color: #dc2626;">10:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Benefits List -->
+                    <div style="text-align: left; margin-bottom: 2rem;">
+                        <div style="font-size: 1rem; font-weight: 700; color: #1f2937; margin-bottom: 1rem; text-align: center;">
+                            ✨ What You'll Get:
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <div style="display: flex; align-items: start; gap: 0.75rem;">
+                                <span style="color: #10b981; font-size: 1.5rem; flex-shrink: 0;">✓</span>
+                                <span style="color: #4b5563;">Full detailed CV analysis (12+ improvements)</span>
+                            </div>
+                            <div style="display: flex; align-items: start; gap: 0.75rem;">
+                                <span style="color: #10b981; font-size: 1.5rem; flex-shrink: 0;">✓</span>
+                                <span style="color: #4b5563;">AI-generated cover letter</span>
+                            </div>
+                            <div style="display: flex; align-items: start; gap: 0.75rem;">
+                                <span style="color: #10b981; font-size: 1.5rem; flex-shrink: 0;">✓</span>
+                                <span style="color: #4b5563;">Recruiter insider tips & interview strategies</span>
+                            </div>
+                            <div style="display: flex; align-items: start; gap: 0.75rem;">
+                                <span style="color: #10b981; font-size: 1.5rem; flex-shrink: 0;">✓</span>
+                                <span style="color: #4b5563;">Unlimited CV analyses every month</span>
+                            </div>
+                            <div style="display: flex; align-items: start; gap: 0.75rem;">
+                                <span style="color: #10b981; font-size: 1.5rem; flex-shrink: 0;">✓</span>
+                                <span style="color: #4b5563;">Priority 15-second processing</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CTA Button -->
+                    <button onclick="trackUpgradeClick('exit_intent_popup'); window.location.href='/#pricing';" style="width: 100%; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 1.25rem 2rem; border: none; border-radius: 12px; font-size: 1.125rem; font-weight: 700; cursor: pointer; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3); transition: all 0.2s; margin-bottom: 1rem;">
+                        🚀 Claim My 50% Discount Now
+                    </button>
+
+                    <!-- Trust Signals -->
+                    <div style="font-size: 0.875rem; color: #9ca3af; text-align: center;">
+                        ✓ Cancel anytime ✓ No hidden fees ✓ Instant access
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exit-Intent JavaScript -->
+    <script>
+        let exitIntentShown = false;
+        let scrollTriggered = false;
+        const EXIT_INTENT_DELAY = 500; // 500ms delay before showing
+
+        // Countdown Timer
+        let countdownMinutes = 10;
+        let countdownSeconds = 0;
+        let countdownInterval;
+
+        function startCountdown() {
+            const timerElement = document.getElementById('countdown-timer');
+            if (!timerElement) return;
+
+            countdownInterval = setInterval(() => {
+                if (countdownSeconds === 0) {
+                    if (countdownMinutes === 0) {
+                        clearInterval(countdownInterval);
+                        timerElement.textContent = 'EXPIRED';
+                        timerElement.style.color = '#dc2626';
+                        return;
+                    }
+                    countdownMinutes--;
+                    countdownSeconds = 59;
+                } else {
+                    countdownSeconds--;
+                }
+
+                const mins = countdownMinutes.toString().padStart(2, '0');
+                const secs = countdownSeconds.toString().padStart(2, '0');
+                timerElement.textContent = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function showExitIntent() {
+            // Don't show if already shown
+            if (exitIntentShown) return;
+
+            // Don't show for premium users
+            const status = localStorage.getItem('rateLimitStatus');
+            if (status) {
+                try {
+                    const parsed = JSON.parse(status);
+                    if (parsed.unlimited) {
+                        console.log('Exit intent: Skipped for premium user');
+                        return;
+                    }
+                } catch (e) {
+                    console.error('Error parsing rate limit status:', e);
+                }
+            }
+
+            const popup = document.getElementById('exit-intent-popup');
+            if (popup) {
+                popup.style.display = 'block';
+                exitIntentShown = true;
+                startCountdown();
+                console.log('✨ Exit intent popup shown');
+
+                // Track event
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'exit_intent_shown', {
+                        event_category: 'conversion',
+                        event_label: 'exit_intent_popup'
+                    });
+                }
+            }
+        }
+
+        function closeExitIntent() {
+            const popup = document.getElementById('exit-intent-popup');
+            if (popup) {
+                popup.style.display = 'none';
+                if (countdownInterval) {
+                    clearInterval(countdownInterval);
+                }
+                console.log('Exit intent popup closed');
+
+                // Track close event
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'exit_intent_closed', {
+                        event_category: 'conversion',
+                        event_label: 'exit_intent_popup'
+                    });
+                }
+            }
+        }
+
+        // Mouse-out detection (primary trigger)
+        document.addEventListener('mouseout', (e) => {
+            // Only trigger when mouse leaves from top of viewport
+            if (e.clientY < 10 && !exitIntentShown) {
+                console.log('Exit intent: Mouse out detected');
+                setTimeout(showExitIntent, EXIT_INTENT_DELAY);
+            }
+        });
+
+        // Scroll-based backup trigger (50% page scroll + 3s delay)
+        let scrollTimeout;
+        window.addEventListener('scroll', () => {
+            if (scrollTriggered || exitIntentShown) return;
+
+            const scrollPercentage = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+
+            if (scrollPercentage > 50) {
+                console.log('Exit intent: 50% scroll reached');
+                scrollTriggered = true;
+
+                // Show after 3 seconds of reaching 50%
+                scrollTimeout = setTimeout(() => {
+                    showExitIntent();
+                }, 3000);
+            }
+        });
+
+        // Close on backdrop click
+        document.getElementById('exit-intent-popup')?.addEventListener('click', (e) => {
+            if (e.target.id === 'exit-intent-popup') {
+                closeExitIntent();
+            }
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && exitIntentShown) {
+                closeExitIntent();
+            }
+        });
+
+        console.log('✅ Exit intent popup initialized');
     </script>
 </body>
 </html>
