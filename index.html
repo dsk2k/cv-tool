@@ -670,8 +670,8 @@
                             id="usage-upgrade-btn"
                             onclick="trackUpgradeClick('usage_banner'); window.location.href='#pricing';"
                             style="display: none;"
-                            class="bg-white text-indigo-600 px-4 py-1.5 rounded-lg font-semibold text-sm hover:bg-indigo-50 transition-all hover:scale-105 shadow-lg">
-                        Upgrade
+                            class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-2 rounded-lg font-bold text-sm hover:from-green-600 hover:to-emerald-700 transition-all hover:scale-105 shadow-lg">
+                        ⭐ Get Unlimited
                     </button>
                 </div>
             </div>
@@ -953,19 +953,31 @@
                         <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
-                        <span class="text-gray-700" data-i18n="plan-free-feat-1">1 CV per month</span>
+                        <span class="text-gray-700" data-i18n="plan-free-feat-1"><strong>3 CV analyses</strong> per month</span>
                     </li>
                     <li class="flex items-start">
                         <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
-                        <span class="text-gray-700" data-i18n="plan-free-feat-2">Basic optimization</span>
+                        <span class="text-gray-700" data-i18n="plan-free-feat-2">Top 3 improvement categories</span>
                     </li>
                     <li class="flex items-start">
                         <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
-                        <span class="text-gray-700" data-i18n="plan-free-feat-3">PDF & DOCX output</span>
+                        <span class="text-gray-700" data-i18n="plan-free-feat-3">Match score (before/after)</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 text-red-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        <span class="text-gray-500" data-i18n="plan-free-feat-4">No cover letter</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 text-red-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        <span class="text-gray-500" data-i18n="plan-free-feat-5">No full analysis</span>
                     </li>
                 </ul>
                 <button onclick="scrollToForm()" class="w-full bg-gray-100 text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors">
@@ -1019,9 +1031,12 @@
                         <span class="text-gray-700 font-semibold" data-i18n="plan-pro-feat-5">Email support</span>
                     </li>
                 </ul>
-                <button class="w-full btn-success text-white py-4 rounded-lg font-bold text-lg shadow-xl pulse-glow">
-                    <span data-i18n="plan-pro-cta">🚀 Get Pro Now</span>
+                <button class="w-full btn-success text-white py-4 rounded-lg font-bold text-lg shadow-xl pulse-glow hover:scale-105 transition-transform">
+                    <span data-i18n="plan-pro-cta">🚀 Get Unlimited CVs + Cover Letters</span>
                 </button>
+                <p class="text-center text-sm text-gray-600 mt-2">
+                    <span data-i18n="plan-pro-value">Just €0.33 per CV • Cancel anytime</span>
+                </p>
             </div>
             
             <!-- Enterprise Plan -->
@@ -1603,18 +1618,25 @@
                 <!-- Email (Optional) -->
                 <div>
                     <label class="block text-gray-700 font-semibold mb-2" data-i18n="form-email-label">
-                        Email (Optional)
+                        📧 Email Address *
                     </label>
-                    <input 
-                        type="email" 
-                        id="email" 
+                    <input
+                        type="email"
+                        id="email"
                         name="email"
+                        required
                         placeholder="your@email.com"
                         data-i18n-placeholder="form-email-placeholder"
                         class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none"
                     />
-                    <p class="text-sm text-gray-500 mt-2" data-i18n="form-email-help">
-                        Receive your optimized CV via email
+                    <p class="text-sm text-green-600 mt-2 flex items-center gap-2" data-i18n="form-email-help">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Get your results instantly + save for later
+                    </p>
+                    <p class="text-xs text-gray-400 mt-1">
+                        ✓ No spam ✓ Unsubscribe anytime ✓ GDPR compliant
                     </p>
                 </div>
 
