@@ -720,7 +720,37 @@
         <!-- Header -->
         <div class="text-center mb-12 lg:mb-16 animate-slide-up">
             <h1 id="mainTitle" class="text-5xl lg:text-6xl font-bold mb-3 lg:mb-4 section-header">Uw Verbeterde CV</h1>
-            <p class="text-gray-600 text-lg lg:text-xl">AI-gestuurde optimalisatie resultaten</p>
+            <p class="text-gray-600 text-lg lg:text-xl mb-6">AI-gestuurde optimalisatie resultaten</p>
+
+            <!-- Progress Indicator -->
+            <div id="progress-indicator" class="inline-flex items-center gap-3 bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-2xl px-6 py-3 shadow-lg">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="font-bold text-purple-900"><span id="visible-improvements">3</span> zichtbare verbeteringen</span>
+                </div>
+                <div class="h-6 w-px bg-purple-300"></div>
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="font-bold text-gray-600"><span id="locked-improvements">12+</span> verborgen</span>
+                </div>
+            </div>
+
+            <!-- Social Proof Badge -->
+            <div class="mt-6 flex items-center justify-center gap-2 text-sm text-gray-600">
+                <div class="flex -space-x-2">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 border-2 border-white flex items-center justify-center text-white font-bold text-xs">A</div>
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-teal-500 border-2 border-white flex items-center justify-center text-white font-bold text-xs">M</div>
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-red-500 border-2 border-white flex items-center justify-center text-white font-bold text-xs">S</div>
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 border-2 border-white flex items-center justify-center text-white font-bold text-xs">+</div>
+                </div>
+                <span class="font-semibold text-gray-700">12,847 CV's geoptimaliseerd</span>
+                <span class="text-gray-400">•</span>
+                <span class="text-green-600 font-semibold">⭐ 4.9/5</span>
+            </div>
         </div>
 
         <!-- Stats Cards -->
@@ -759,8 +789,8 @@
                     <div style="margin-top: auto;">
                         <div id="qualityLevel" class="text-gray-600 font-semibold text-sm lg:text-base mb-1">⏳ Analyzing...</div>
                         <div id="qualitySubtext" class="text-xs lg:text-sm">
-                            <span class="text-purple-600 font-semibold">Pas toe →</span>
-                            <span class="text-gray-400">Bereik dit niveau!</span>
+                            <span class="text-purple-600 font-semibold">Je potentieel →</span>
+                            <span class="text-gray-400">Met alle wijzigingen</span>
                         </div>
                     </div>
                 </div>
@@ -854,6 +884,47 @@
                     <span>🚀 Upgrade to Pro - €9.99/mo</span>
                 </button>
                 <p class="text-sm text-gray-600 mt-3">Just €0.33 per CV • Cancel anytime</p>
+            </div>
+        </div>
+
+        <!-- Next Steps CTA (For Free Users) -->
+        <div id="next-steps-cta" style="display: none;" class="mb-12 lg:mb-16">
+            <div class="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 border-2 border-green-200 rounded-3xl shadow-2xl overflow-hidden">
+                <div class="p-8 lg:p-10">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">🎯</div>
+                        <h3 class="text-3xl font-bold text-gray-900 mb-3">Klaar voor de Volgende Stap?</h3>
+                        <p class="text-lg text-gray-600">Je hebt <span class="font-bold text-green-600">3 verbeteringen</span> gezien. Unlock je volledige potentieel met Pro!</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white rounded-xl p-6 shadow-md">
+                            <div class="text-3xl mb-3">📊</div>
+                            <h4 class="font-bold text-gray-900 mb-2">Volledige Analyse</h4>
+                            <p class="text-sm text-gray-600">Zie alle 12+ verbeteringen en recruiter tips</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-6 shadow-md">
+                            <div class="text-3xl mb-3">✉️</div>
+                            <h4 class="font-bold text-gray-900 mb-2">AI Cover Letter</h4>
+                            <p class="text-sm text-gray-600">Professionele motivatiebrief in 60 seconden</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-6 shadow-md">
+                            <div class="text-3xl mb-3">♾️</div>
+                            <h4 class="font-bold text-gray-900 mb-2">Unlimited CVs</h4>
+                            <p class="text-sm text-gray-600">Optimaliseer voor elke vacature</p>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button onclick="trackUpgradeClick('next_steps_cta'); window.location.href='/#pricing';"
+                                class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-12 py-5 rounded-xl font-bold text-xl shadow-2xl hover:scale-105 transition-all inline-flex items-center gap-3 mb-3">
+                            <span>🚀 Unlock Alles - €9.99/mo</span>
+                        </button>
+                        <p class="text-sm text-gray-600">
+                            💰 Eerste maand 50% korting • ⭐ 4.9/5 rating • ✓ Cancel anytime
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -3721,6 +3792,12 @@
                     if (stickyUpgradeBar) stickyUpgradeBar.style.display = 'none';
                     if (featureComparison) featureComparison.style.display = 'none';
 
+                    const nextStepsCta = document.getElementById('next-steps-cta');
+                    if (nextStepsCta) nextStepsCta.style.display = 'none';
+
+                    const progressIndicator = document.getElementById('progress-indicator');
+                    if (progressIndicator) progressIndicator.style.display = 'none';
+
                     // UNLOCK PREMIUM CONTENT
                     // Remove locks from cover letter and recruiter tips
                     const coverContent = document.getElementById('cover-content');
@@ -3764,6 +3841,12 @@
                     // Show upgrade elements for free users
                     if (stickyUpgradeBar) stickyUpgradeBar.style.display = 'block';
                     if (featureComparison) featureComparison.style.display = 'block';
+
+                    const nextStepsCta = document.getElementById('next-steps-cta');
+                    if (nextStepsCta) nextStepsCta.style.display = 'block';
+
+                    const progressIndicator = document.getElementById('progress-indicator');
+                    if (progressIndicator) progressIndicator.style.display = 'inline-flex';
 
                     // Show usage banner for free users (dynamic values!)
                     usageBanner.style.display = 'block';
