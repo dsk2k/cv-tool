@@ -3983,14 +3983,132 @@
             }
         }
 
-        function downloadPDF() {
-            // Track PDF download attempt in GA4
+        async function downloadPDF() {
+            // Check if user is premium
+            const status = window.rateLimiter?.getStatus() || { unlimited: false };
+            let serverStatus = { whitelisted: false, unlimited: false };
+
+            try {
+                const serverData = localStorage.getItem('rateLimitServerStatus');
+                if (serverData) {
+                    serverStatus = JSON.parse(serverData);
+                }
+            } catch (e) {
+                console.error('Error parsing server status:', e);
+            }
+
+            const isPremium = status.unlimited || serverStatus.whitelisted;
+
+            // Track PDF download attempt
             if (window.trackEvent) {
                 window.trackEvent('pdf_download_attempted', {
-                    status: 'initiated'
+                    status: 'initiated',
+                    user_type: isPremium ? 'premium' : 'free',
+                    method: isPremium ? 'server_pdf' : 'browser_print'
                 });
             }
 
+            if (isPremium) {
+                // PREMIUM: Server-side professional PDF
+                await downloadProfessionalPDF();
+            } else {
+                // FREE: Browser print-to-PDF
+                downloadBrowserPDF();
+            }
+        }
+
+        async function downloadProfessionalPDF() {
+            // Show loading message
+            const loadingMsg = document.createElement('div');
+            loadingMsg.id = 'pdf-loading';
+            loadingMsg.style.cssText = 'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #6366F1, #8B5CF6); color: white; padding: 1.5rem 2.5rem; border-radius: 16px; box-shadow: 0 10px 40px rgba(99,102,241,0.4); z-index: 10000; font-weight: bold; text-align: center;';
+            loadingMsg.innerHTML = '⚙️ Generating professional PDF...<br><small style="font-weight: normal; opacity: 0.9;">This will take a few seconds</small>';
+            document.body.appendChild(loadingMsg);
+
+            try {
+                // Get analysis data from session storage
+                const result = JSON.parse(sessionStorage.getItem('cvAnalysisResult') || '{}');
+                const matchScore = extractMatchScore();
+
+                // Prepare payload
+                const payload = {
+                    matchScore: matchScore || 75,
+                    changesOverview: result.changesOverview || '',
+                    improvedCV: result.improvedCV || '',
+                    coverLetter: result.coverLetter || '',
+                    recruiterTips: result.recruiterTips || '',
+                    isPremium: true,
+                    language: result.language || 'nl'
+                };
+
+                console.log('📤 Sending PDF generation request...');
+
+                // Call Netlify function
+                const response = await fetch('/.netlify/functions/generate-pdf', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`PDF generation failed: ${response.statusText}`);
+                }
+
+                // Get PDF blob
+                const blob = await response.blob();
+                console.log('📄 PDF received:', blob.size, 'bytes');
+
+                // Trigger download
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `CV-Analysis-${Date.now()}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+
+                // Success message
+                loadingMsg.style.background = 'linear-gradient(135deg, #10B981, #059669)';
+                loadingMsg.innerHTML = '✅ Professional PDF downloaded!<br><small style="font-weight: normal; opacity: 0.9;">Check your downloads folder</small>';
+
+                setTimeout(() => loadingMsg.remove(), 3000);
+
+                // Track success
+                if (window.trackEvent) {
+                    window.trackEvent('pdf_download_completed', {
+                        method: 'server_pdf',
+                        user_type: 'premium',
+                        file_size: blob.size
+                    });
+                }
+
+            } catch (error) {
+                console.error('❌ PDF generation error:', error);
+
+                // Error message
+                loadingMsg.style.background = 'linear-gradient(135deg, #EF4444, #DC2626)';
+                loadingMsg.innerHTML = '❌ PDF generation failed<br><small style="font-weight: normal; opacity: 0.9;">Falling back to browser print...</small>';
+
+                setTimeout(() => {
+                    loadingMsg.remove();
+                    // Fallback to browser print
+                    downloadBrowserPDF();
+                }, 2000);
+
+                // Track error
+                if (window.trackEvent) {
+                    window.trackEvent('pdf_download_error', {
+                        error: error.message,
+                        method: 'server_pdf'
+                    });
+                }
+            }
+        }
+
+        function downloadBrowserPDF() {
             // Prepare page for print/PDF
             const elementsToHide = [
                 'sticky-upgrade-bar',
@@ -4061,11 +4179,22 @@
                     // Track completion
                     if (window.trackEvent) {
                         window.trackEvent('pdf_download_completed', {
-                            method: 'browser_print'
+                            method: 'browser_print',
+                            user_type: 'free'
                         });
                     }
                 }, 1000);
             }, 100);
+        }
+
+        function extractMatchScore() {
+            // Try to extract match score from the page
+            const scoreText = document.querySelector('[id*="matchScore"]')?.textContent;
+            if (scoreText) {
+                const match = scoreText.match(/(\d+)%/);
+                return match ? parseInt(match[1]) : null;
+            }
+            return null;
         }
 
         function copyCV() {
