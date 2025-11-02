@@ -703,9 +703,14 @@
 
                 <!-- Right: CTA + Timer -->
                 <div class="flex items-center gap-4">
-                    <div class="hidden sm:block text-white text-sm">
-                        <div class="font-semibold">⏰ Limited Time:</div>
-                        <div class="text-green-100">50% off first month</div>
+                    <div class="hidden sm:block text-white text-sm bg-white bg-opacity-20 rounded-lg px-4 py-2 border-2 border-white border-opacity-30">
+                        <div class="font-semibold flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                            </svg>
+                            50% OFF ends in:
+                        </div>
+                        <div class="text-lg font-bold font-mono" id="sticky-timer">--:--</div>
                     </div>
                     <button onclick="trackUpgradeClick('sticky_bar'); window.location.href='/#pricing';"
                             class="bg-white text-green-600 px-8 py-3 rounded-lg font-bold shadow-2xl hover:scale-105 transition-transform whitespace-nowrap">
@@ -760,6 +765,80 @@
                         <span class="font-bold text-green-600" id="last-upgrade-name">Sarah</span> upgraded to Pro
                         <span class="font-semibold" id="last-upgrade-time">3 min</span> ago
                     </span>
+                </div>
+            </div>
+
+            <!-- Progress Journey (Gamification) -->
+            <div class="mt-10 bg-white rounded-2xl shadow-xl p-6 lg:p-8 border-2 border-indigo-100">
+                <div class="text-center mb-6">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Your CV Improvement Journey</h3>
+                    <p class="text-sm text-gray-600">Follow these steps to maximize your interview chances</p>
+                </div>
+
+                <!-- Progress Steps -->
+                <div class="relative">
+                    <!-- Progress Line -->
+                    <div class="absolute top-6 left-0 right-0 h-1 bg-gray-200" style="z-index: 0;"></div>
+                    <div id="journey-progress-line" class="absolute top-6 left-0 h-1 bg-gradient-to-r from-green-500 to-emerald-600 transition-all duration-1000" style="width: 25%; z-index: 0;"></div>
+
+                    <!-- Steps -->
+                    <div class="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Step 1: Analysis (Always Complete) -->
+                        <div class="flex flex-col items-center text-center" id="step-1">
+                            <div class="w-12 h-12 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-lg mb-2 shadow-lg relative">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <div class="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-ping"></div>
+                            </div>
+                            <div class="font-bold text-green-600 text-sm mb-1">1. Analysis</div>
+                            <div class="text-xs text-gray-600">CV scanned</div>
+                        </div>
+
+                        <!-- Step 2: Review (Current) -->
+                        <div class="flex flex-col items-center text-center" id="step-2">
+                            <div class="w-12 h-12 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-lg mb-2 shadow-lg animate-pulse">
+                                2
+                            </div>
+                            <div class="font-bold text-blue-600 text-sm mb-1">2. Review</div>
+                            <div class="text-xs text-gray-600">Check results</div>
+                        </div>
+
+                        <!-- Step 3: Unlock (Pending) -->
+                        <div class="flex flex-col items-center text-center" id="step-3">
+                            <div class="w-12 h-12 rounded-full bg-gray-300 text-white flex items-center justify-center font-bold text-lg mb-2">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="font-bold text-gray-400 text-sm mb-1">3. Unlock</div>
+                            <div class="text-xs text-gray-400">Get full access</div>
+                        </div>
+
+                        <!-- Step 4: Apply (Pending) -->
+                        <div class="flex flex-col items-center text-center" id="step-4">
+                            <div class="w-12 h-12 rounded-full bg-gray-300 text-white flex items-center justify-center font-bold text-lg mb-2">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+                                </svg>
+                            </div>
+                            <div class="font-bold text-gray-400 text-sm mb-1">4. Apply</div>
+                            <div class="text-xs text-gray-400">Land interviews</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Step CTA -->
+                <div class="mt-8 text-center">
+                    <div id="journey-cta" class="inline-block">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4">
+                            <div class="font-bold text-blue-900 mb-2">Next Step: Unlock Full Analysis</div>
+                            <button onclick="trackUpgradeClick('journey_progress'); window.location.href='/#pricing';" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-bold shadow-lg hover:scale-105 transition-all">
+                                Unlock 12+ Improvements →
+                            </button>
+                            <div class="text-xs text-gray-600 mt-2">Access detailed feedback + AI cover letter</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1684,6 +1763,27 @@
                         <p class="text-lg text-gray-600 mb-6 max-w-xl mx-auto">
                             Get a professionally crafted cover letter that perfectly matches your CV and the job description
                         </p>
+
+                        <!-- Mini Testimonial -->
+                        <div class="bg-white bg-opacity-90 rounded-xl p-4 max-w-md mx-auto mb-6 shadow-lg border-2 border-green-200">
+                            <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white font-bold flex-shrink-0">
+                                    EK
+                                </div>
+                                <div class="flex-1 text-left">
+                                    <div class="flex items-center gap-1 mb-1">
+                                        <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                        <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                        <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                        <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                        <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                    </div>
+                                    <p class="text-sm text-gray-700 italic mb-1">"The cover letter alone saved me 10+ hours and landed me an interview!"</p>
+                                    <div class="text-xs text-gray-600 font-semibold">Emma K. - Product Designer</div>
+                                </div>
+                            </div>
+                        </div>
+
                         <button onclick="trackUpgradeClick('cover_letter_lock'); window.location.href='/#pricing';"
                                 class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-10 py-4 rounded-xl font-bold text-lg shadow-2xl hover:scale-105 transition-all">
                             🚀 Upgrade to Pro - €9.99/mo
@@ -1784,6 +1884,27 @@
                         <p class="text-lg text-gray-600 mb-6 max-w-xl mx-auto">
                             Get expert interview tips and strategies that recruiters actually look for
                         </p>
+
+                        <!-- Mini Testimonial -->
+                        <div class="bg-white bg-opacity-90 rounded-xl p-4 max-w-md mx-auto mb-6 shadow-lg border-2 border-purple-200">
+                            <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center text-white font-bold flex-shrink-0">
+                                    SM
+                                </div>
+                                <div class="flex-1 text-left">
+                                    <div class="flex items-center gap-1 mb-1">
+                                        <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                        <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                        <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                        <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                        <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                    </div>
+                                    <p class="text-sm text-gray-700 italic mb-1">"The insider tips helped me ace the interview! Got 3 offers in 2 weeks."</p>
+                                    <div class="text-xs text-gray-600 font-semibold">Sarah M. - Marketing Manager</div>
+                                </div>
+                            </div>
+                        </div>
+
                         <button onclick="trackUpgradeClick('recruiter_tips_lock'); window.location.href='/#pricing';"
                                 class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-10 py-4 rounded-xl font-bold text-lg shadow-2xl hover:scale-105 transition-all">
                             🚀 Upgrade to Pro - €9.99/mo
@@ -4750,6 +4871,67 @@
         // Call this function when match score is available
         // This will be triggered by the existing stats update logic
         window.updateComparisonStats = updateComparisonStats;
+
+        // === SCARCITY TIMER (Urgency + FOMO) ===
+        function initScarcityTimers() {
+            const TIMER_DURATION_MINUTES = 15; // 15 minute countdown
+            const STORAGE_KEY = 'scarcity_timer_end';
+
+            // Get or create timer end time
+            let timerEnd = localStorage.getItem(STORAGE_KEY);
+            if (!timerEnd || new Date(timerEnd) < new Date()) {
+                // Timer expired or doesn't exist - create new one
+                timerEnd = new Date(Date.now() + TIMER_DURATION_MINUTES * 60 * 1000).toISOString();
+                localStorage.setItem(STORAGE_KEY, timerEnd);
+            }
+
+            // Update all timer displays
+            function updateTimers() {
+                const now = new Date();
+                const end = new Date(timerEnd);
+                const diff = end - now;
+
+                if (diff <= 0) {
+                    // Timer expired - reset for next session
+                    const newEnd = new Date(Date.now() + TIMER_DURATION_MINUTES * 60 * 1000).toISOString();
+                    localStorage.setItem(STORAGE_KEY, newEnd);
+                    timerEnd = newEnd;
+                    return updateTimers(); // Restart with new timer
+                }
+
+                // Calculate minutes and seconds
+                const minutes = Math.floor(diff / 60000);
+                const seconds = Math.floor((diff % 60000) / 1000);
+                const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                // Update sticky bar timer
+                const stickyTimer = document.getElementById('sticky-timer');
+                if (stickyTimer) {
+                    stickyTimer.textContent = timeString;
+                }
+
+                // Update exit-intent timer
+                const countdownTimer = document.getElementById('countdown-timer');
+                if (countdownTimer) {
+                    countdownTimer.textContent = timeString;
+                }
+
+                // Add pulsing effect when less than 3 minutes
+                if (minutes < 3) {
+                    if (stickyTimer) stickyTimer.style.animation = 'pulse 1s infinite';
+                    if (countdownTimer) countdownTimer.style.animation = 'pulse 1s infinite';
+                }
+            }
+
+            // Update immediately and then every second
+            updateTimers();
+            setInterval(updateTimers, 1000);
+
+            console.log('✅ Scarcity timers initialized');
+        }
+
+        // Initialize timers
+        initScarcityTimers();
 
     </script>
 </body>
