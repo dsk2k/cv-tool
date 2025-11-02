@@ -260,6 +260,41 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
+        /* Freemium Gate - Locked Content */
+        .locked-content {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .locked-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.95) 40%, rgba(255,255,255,1) 70%);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .locked-content .unlock-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 20;
+            text-align: center;
+            padding: 3rem 2rem;
+            background: linear-gradient(to top, rgba(255,255,255,1) 60%, transparent 100%);
+        }
+
+        .blur-content {
+            filter: blur(5px);
+            user-select: none;
+            pointer-events: none;
+        }
+
         /* Floating animation */
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
@@ -647,6 +682,34 @@
                             style="display: none;"
                             class="bg-white text-indigo-600 px-4 py-1.5 rounded-lg font-semibold text-sm hover:bg-indigo-50 transition-all hover:scale-105 shadow-lg">
                         Upgrade
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sticky Upgrade Bar (Free Users Only) -->
+    <div id="sticky-upgrade-bar" style="display: none;" class="sticky top-0 z-40 bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 shadow-xl">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <!-- Left: Value Prop -->
+                <div class="flex items-center gap-3 text-white">
+                    <div class="hidden md:block text-4xl">🎯</div>
+                    <div>
+                        <div class="font-bold text-lg">Unlock Your Full CV Analysis + AI Cover Letter</div>
+                        <div class="text-sm text-green-100">12+ hidden improvements waiting for you</div>
+                    </div>
+                </div>
+
+                <!-- Right: CTA + Timer -->
+                <div class="flex items-center gap-4">
+                    <div class="hidden sm:block text-white text-sm">
+                        <div class="font-semibold">⏰ Limited Time:</div>
+                        <div class="text-green-100">50% off first month</div>
+                    </div>
+                    <button onclick="trackUpgradeClick('sticky_bar'); window.location.href='/#pricing';"
+                            class="bg-white text-green-600 px-8 py-3 rounded-lg font-bold shadow-2xl hover:scale-105 transition-transform whitespace-nowrap">
+                        Get Pro - €9.99/mo →
                     </button>
                 </div>
             </div>
@@ -3549,7 +3612,13 @@
                 const usageProgressContainer = document.getElementById('usage-progress-container');
                 const usageUpgradeBtn = document.getElementById('usage-upgrade-btn');
 
+                // Show/hide sticky upgrade bar
+                const stickyUpgradeBar = document.getElementById('sticky-upgrade-bar');
+
                 if (status.unlimited || serverStatus.whitelisted) {
+                    // Hide sticky bar for premium/whitelisted users
+                    if (stickyUpgradeBar) stickyUpgradeBar.style.display = 'none';
+
                     // Show unlimited banner for whitelisted/premium users
                     usageBanner.style.display = 'block';
 
@@ -3567,6 +3636,8 @@
                     usageProgressContainer.style.display = 'none';
                     usageUpgradeBtn.style.display = 'none';
                 } else {
+                    // Show sticky upgrade bar for free users
+                    if (stickyUpgradeBar) stickyUpgradeBar.style.display = 'block';
                     // Show usage banner for free users (dynamic values!)
                     usageBanner.style.display = 'block';
                     usageBannerText.textContent = `${remaining}/${maxUses} Gratis CV Analyses`;
