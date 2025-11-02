@@ -214,6 +214,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         file_type: cvFile.name.split('.').pop(),
                         file_size_kb: Math.round(cvFile.size / 1024)
                     });
+
+                    // Track email capture separately for conversion funnel
+                    if (email) {
+                        window.trackEvent('email_captured', {
+                            source: 'cv_form',
+                            language: language,
+                            user_type: 'free'
+                        });
+                        console.log('📧 Email tracked in analytics:', email);
+                    }
                 }
 
                 // Helper function to add delay between requests

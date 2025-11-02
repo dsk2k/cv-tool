@@ -2,6 +2,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const multipart = require('parse-multipart-data');
 const { checkCache, saveToCache } = require('./cache-helper');
 const { rateLimitMiddleware } = require('./rate-limiter');
+const { storeEmail } = require('./email-storage');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -30,6 +31,7 @@ exports.handler = async (event) => {
     const cvFilePart = parts.find(part => part.name === 'cvFile');
     const jobDescriptionPart = parts.find(part => part.name === 'jobDescription');
     const languagePart = parts.find(part => part.name === 'language');
+    const emailPart = parts.find(part => part.name === 'email');
 
     if (!cvFilePart || !jobDescriptionPart) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing required fields' }) };
@@ -37,6 +39,33 @@ exports.handler = async (event) => {
 
     const jobDescription = jobDescriptionPart.data.toString('utf-8');
     const language = languagePart ? languagePart.data.toString('utf-8') : 'nl';
+    const email = emailPart ? emailPart.data.toString('utf-8').trim() : null;
+
+    // Capture email if provided
+    if (email) {
+      const clientIp = event.headers['client-ip'] || event.headers['x-forwarded-for'] || 'unknown';
+      const userAgent = event.headers['user-agent'] || 'unknown';
+
+      // Store email asynchronously (don't block CV generation)
+      storeEmail({
+        email,
+        fingerprint: clientIp, // Use IP as fingerprint for now
+        language,
+        source: 'cv_form',
+        metadata: {
+          ip: clientIp,
+          userAgent,
+          timestamp: new Date().toISOString()
+        }
+      }).catch(err => {
+        // Don't fail the request if email storage fails
+        console.error('⚠️  Email storage failed (non-blocking):', err);
+      });
+
+      console.log(`📧 Email captured: ${email}`);
+    } else {
+      console.log('ℹ️  No email provided');
+    }
 
     // Parse PDF
     const pdfParser = await import('pdf-parse');
