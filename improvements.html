@@ -598,6 +598,93 @@
         .level-silver { background: linear-gradient(135deg, #c0c0c0 0%, #a8a8a8 100%); color: white; }
         .level-gold { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #000; }
         .level-platinum { background: linear-gradient(135deg, #e5e4e2 0%, #b9f2ff 100%); color: #000; }
+
+        /* Print Styles for PDF Download */
+        @media print {
+            /* Hide navigation and upgrade elements */
+            #sticky-upgrade-bar,
+            #sticky-download-btn,
+            #exit-intent-popup,
+            #feature-comparison,
+            #testimonial-slider,
+            #next-steps-cta,
+            #faq-section,
+            #progress-indicator,
+            #last-upgrade-counter,
+            #journey-cta,
+            #print-message,
+            .unlock-overlay,
+            button,
+            .no-print {
+                display: none !important;
+            }
+
+            /* Remove blur from locked content */
+            .blur-content,
+            .locked-content {
+                filter: none !important;
+                max-height: none !important;
+                overflow: visible !important;
+            }
+
+            /* Optimize page layout */
+            body {
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            /* Ensure content is visible */
+            .container {
+                max-width: 100% !important;
+                padding: 20px !important;
+            }
+
+            /* Optimize text for printing */
+            h1, h2, h3, h4, h5, h6 {
+                page-break-after: avoid;
+                color: #000 !important;
+            }
+
+            p, li {
+                orphans: 3;
+                widows: 3;
+            }
+
+            /* Improve readability */
+            .stat-card,
+            .section {
+                page-break-inside: avoid;
+                margin-bottom: 20px;
+            }
+
+            /* Remove shadows and gradients for cleaner PDF */
+            * {
+                box-shadow: none !important;
+                text-shadow: none !important;
+            }
+
+            /* Ensure links are visible */
+            a {
+                text-decoration: underline;
+                color: #0066cc !important;
+            }
+
+            /* Page breaks */
+            .page-break {
+                page-break-before: always;
+            }
+
+            /* Header on each page */
+            @page {
+                margin: 2cm;
+            }
+
+            /* Footer with page numbers */
+            @page :footer {
+                content: counter(page);
+            }
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 min-h-screen">
@@ -3808,11 +3895,85 @@
             // Track PDF download attempt in GA4
             if (window.trackEvent) {
                 window.trackEvent('pdf_download_attempted', {
-                    status: 'coming_soon'
+                    status: 'initiated'
                 });
             }
 
-            alert('📄 PDF download functionaliteit komt binnenkort!\n\nTip: Gebruik voor nu Ctrl+P (Print) en kies "Save as PDF" 🎉');
+            // Prepare page for print/PDF
+            const elementsToHide = [
+                'sticky-upgrade-bar',
+                'sticky-download-btn',
+                'exit-intent-popup',
+                'feature-comparison',
+                'testimonial-slider',
+                'next-steps-cta',
+                'faq-section',
+                'progress-indicator',
+                'last-upgrade-counter',
+                'journey-cta'
+            ];
+
+            // Hide upgrade elements before printing
+            const hiddenElements = [];
+            elementsToHide.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.style.display !== 'none') {
+                    el.dataset.originalDisplay = el.style.display || '';
+                    el.style.display = 'none';
+                    hiddenElements.push(el);
+                }
+            });
+
+            // Hide all unlock overlays
+            document.querySelectorAll('.unlock-overlay').forEach(overlay => {
+                overlay.dataset.originalDisplay = overlay.style.display || '';
+                overlay.style.display = 'none';
+                hiddenElements.push(overlay);
+            });
+
+            // Remove blur from locked content
+            document.querySelectorAll('.blur-content').forEach(content => {
+                content.dataset.originalFilter = content.style.filter || '';
+                content.style.filter = 'none';
+                hiddenElements.push(content);
+            });
+
+            // Show a helpful message
+            const printMessage = document.createElement('div');
+            printMessage.id = 'print-message';
+            printMessage.style.cssText = 'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 1rem 2rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 10000; font-weight: bold; text-align: center;';
+            printMessage.innerHTML = '📄 Print dialog opening...<br><small style="font-weight: normal;">Choose "Save as PDF" in the print dialog</small>';
+            document.body.appendChild(printMessage);
+
+            // Small delay to allow UI update
+            setTimeout(() => {
+                // Trigger print dialog
+                window.print();
+
+                // Restore elements after print dialog closes
+                setTimeout(() => {
+                    hiddenElements.forEach(el => {
+                        if (el.classList && el.classList.contains('blur-content')) {
+                            el.style.filter = el.dataset.originalFilter || '';
+                        } else if (el.classList && el.classList.contains('unlock-overlay')) {
+                            el.style.display = el.dataset.originalDisplay || '';
+                        } else {
+                            el.style.display = el.dataset.originalDisplay || '';
+                        }
+                    });
+
+                    // Remove print message
+                    const msg = document.getElementById('print-message');
+                    if (msg) msg.remove();
+
+                    // Track completion
+                    if (window.trackEvent) {
+                        window.trackEvent('pdf_download_completed', {
+                            method: 'browser_print'
+                        });
+                    }
+                }, 1000);
+            }, 100);
         }
 
         function copyCV() {
