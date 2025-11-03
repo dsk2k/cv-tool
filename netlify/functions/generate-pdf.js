@@ -38,6 +38,14 @@ exports.handler = async (event) => {
         } = data;
 
         console.log('📄 Generating PDF for', isPremium ? 'PREMIUM' : 'FREE', 'user');
+        console.log('📊 Data received:', {
+            matchScore,
+            hasChangesOverview: !!changesOverview,
+            hasImprovedCV: !!improvedCV,
+            hasCoverLetter: !!coverLetter,
+            hasRecruiterTips: !!recruiterTips,
+            language
+        });
 
         // Create PDF document
         const doc = new PDFDocument({

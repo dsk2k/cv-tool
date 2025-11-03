@@ -4043,13 +4043,17 @@
                 const result = JSON.parse(sessionStorage.getItem('cvAnalysisResult') || '{}');
                 const matchScore = extractMatchScore();
 
+                // If no data, use demo data for testing (helpful for development/testing)
+                const hasNoData = !result.changesOverview && !result.improvedCV;
+                const useDemoData = hasNoData;
+
                 // Prepare payload
                 const payload = {
-                    matchScore: matchScore || 75,
-                    changesOverview: result.changesOverview || '',
-                    improvedCV: result.improvedCV || '',
-                    coverLetter: result.coverLetter || '',
-                    recruiterTips: result.recruiterTips || '',
+                    matchScore: matchScore || (useDemoData ? 85 : 75),
+                    changesOverview: result.changesOverview || (useDemoData ? 'Demo: This is a sample CV analysis for testing the PDF generation.' : ''),
+                    improvedCV: result.improvedCV || (useDemoData ? 'Demo Improved CV\n\nThis is sample improved CV text for testing PDF generation in developer mode.' : ''),
+                    coverLetter: result.coverLetter || (useDemoData ? 'Demo Cover Letter\n\nDear Hiring Manager,\n\nThis is a sample cover letter for testing.' : ''),
+                    recruiterTips: result.recruiterTips || (useDemoData ? 'Demo Recruiter Tips\n\n1. Keep your CV concise\n2. Use action verbs\n3. Quantify achievements' : ''),
                     isPremium: true,
                     language: result.language || 'nl'
                 };
