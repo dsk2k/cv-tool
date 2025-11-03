@@ -1,5 +1,6 @@
 /**
  * Professional PDF Generation for CV Analysis
+ * Uses pdf-lib (pure JavaScript, serverless-compatible)
  *
  * Generates a branded, professional PDF with:
  * - Company logo and branding
@@ -9,13 +10,23 @@
  * - Professional layout and typography
  */
 
-const PDFDocument = require('pdfkit');
+const { PDFDocument, rgb, StandardFonts } = require('pdf-lib');
 
 // CORS headers
 const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
+
+// Color palette
+const colors = {
+    primary: rgb(0.38, 0.27, 0.94),      // #6366F1 (Indigo)
+    secondary: rgb(0.06, 0.72, 0.51),    // #10B981 (Green)
+    text: rgb(0.12, 0.16, 0.22),         // #1F2937 (Dark gray)
+    textLight: rgb(0.42, 0.44, 0.47),    // #6B7280 (Light gray)
+    background: rgb(0.97, 0.97, 0.97),   // #F7F7F7 (Light background)
+    line: rgb(0.90, 0.91, 0.92)          // #E5E7EB (Border)
 };
 
 exports.handler = async (event) => {
@@ -48,164 +59,147 @@ exports.handler = async (event) => {
         });
 
         // Create PDF document
-        const doc = new PDFDocument({
-            size: 'A4',
-            margins: { top: 50, bottom: 50, left: 50, right: 50 },
-            info: {
-                Title: 'CV Analysis Report - ApplyJobMatch.nl',
-                Author: 'ApplyJobMatch.nl',
-                Subject: 'Professional CV Analysis',
-                Keywords: 'CV, Resume, Analysis, Job Search'
-            }
+        const pdfDoc = await PDFDocument.create();
+
+        // Embed fonts
+        const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+        const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+        // Page 1: Overview
+        let page = pdfDoc.addPage([595, 842]); // A4 size
+        const { width, height } = page.getSize();
+        let y = height - 50;
+
+        // Header
+        y = addHeader(page, fontBold, fontRegular, width, y, language);
+
+        // Title
+        page.drawText(language === 'nl' ? 'Uw CV Analyse Rapport' : 'Your CV Analysis Report', {
+            x: 50,
+            y: y,
+            size: 24,
+            font: fontBold,
+            color: colors.primary
         });
+        y -= 40;
 
-        // Collect PDF chunks
-        const chunks = [];
-        doc.on('data', chunk => chunks.push(chunk));
-        doc.on('end', () => {
-            console.log('✅ PDF generation complete');
+        // Match Score
+        page.drawText(language === 'nl' ? 'Interview Kans Score' : 'Interview Chance Score', {
+            x: 50,
+            y: y,
+            size: 14,
+            font: fontRegular,
+            color: colors.textLight
         });
+        y -= 30;
 
-        // ===== HEADER =====
-        addHeader(doc, language);
+        page.drawText(`${matchScore}%`, {
+            x: 50,
+            y: y,
+            size: 48,
+            font: fontBold,
+            color: colors.secondary
+        });
+        y -= 60;
 
-        // ===== TITLE =====
-        doc.fontSize(24)
-           .fillColor('#4F46E5')
-           .text(language === 'nl' ? 'Uw CV Analyse Rapport' : 'Your CV Analysis Report', {
-               align: 'center'
-           });
-
-        doc.moveDown(0.5);
-
-        // Match Score Badge
-        doc.fontSize(14)
-           .fillColor('#6B7280')
-           .text(language === 'nl' ? 'Interview Kans Score' : 'Interview Chance Score', {
-               align: 'center'
-           });
-
-        doc.fontSize(48)
-           .fillColor('#10B981')
-           .text(`${matchScore}%`, {
-               align: 'center'
-           });
-
-        doc.moveDown(1);
-
-        // ===== CHANGES OVERVIEW =====
-        addSection(doc, language === 'nl' ? '📊 Samenvatting Verbeteringen' : '📊 Improvements Summary');
+        // Section: Changes Overview
+        y = addSection(page, fontBold, fontRegular, y, width,
+            language === 'nl' ? '📊 Samenvatting Verbeteringen' : '📊 Improvements Summary');
 
         if (changesOverview) {
             const cleanedChanges = cleanMarkdown(changesOverview);
-            doc.fontSize(11)
-               .fillColor('#374151')
-               .text(cleanedChanges, {
-                   align: 'left',
-                   lineGap: 3
-               });
+            y = addWrappedText(page, fontRegular, cleanedChanges, 50, y, width - 100, 11, colors.text);
         }
+        y -= 20;
 
-        doc.moveDown(1);
-
-        // ===== IMPROVED CV =====
+        // Section: Improved CV
         if (improvedCV) {
-            addSection(doc, language === 'nl' ? '✨ Geoptimaliseerde CV' : '✨ Optimized CV');
+            // Check if we need a new page
+            if (y < 150) {
+                page = pdfDoc.addPage([595, 842]);
+                y = height - 50;
+                y = addHeader(page, fontBold, fontRegular, width, y, language);
+            }
+
+            y = addSection(page, fontBold, fontRegular, y, width,
+                language === 'nl' ? '✨ Geoptimaliseerde CV' : '✨ Optimized CV');
 
             const cleanedCV = cleanMarkdown(improvedCV);
-            doc.fontSize(10)
-               .fillColor('#1F2937')
-               .text(cleanedCV, {
-                   align: 'left',
-                   lineGap: 2
-               });
-
-            doc.moveDown(1);
+            y = addWrappedText(page, fontRegular, cleanedCV, 50, y, width - 100, 10, colors.text);
+            y -= 20;
         }
 
-        // ===== PREMIUM CONTENT =====
+        // Premium Content
         if (isPremium) {
-            // Cover Letter (Premium Only)
+            // Cover Letter
             if (coverLetter) {
-                doc.addPage();
-                addHeader(doc, language);
-                addSection(doc, language === 'nl' ? '✉️ AI Motivatiebrief' : '✉️ AI Cover Letter');
+                page = pdfDoc.addPage([595, 842]);
+                y = height - 50;
+                y = addHeader(page, fontBold, fontRegular, width, y, language);
+
+                y = addSection(page, fontBold, fontRegular, y, width,
+                    language === 'nl' ? '✉️ AI Motivatiebrief' : '✉️ AI Cover Letter');
 
                 const cleanedCoverLetter = cleanMarkdown(coverLetter);
-                doc.fontSize(11)
-                   .fillColor('#1F2937')
-                   .text(cleanedCoverLetter, {
-                       align: 'left',
-                       lineGap: 4
-                   });
-
-                doc.moveDown(1);
+                y = addWrappedText(page, fontRegular, cleanedCoverLetter, 50, y, width - 100, 11, colors.text);
             }
 
-            // Recruiter Tips (Premium Only)
+            // Recruiter Tips
             if (recruiterTips) {
-                doc.addPage();
-                addHeader(doc, language);
-                addSection(doc, language === 'nl' ? '🎯 Recruiter Insider Tips' : '🎯 Recruiter Insider Tips');
+                page = pdfDoc.addPage([595, 842]);
+                y = height - 50;
+                y = addHeader(page, fontBold, fontRegular, width, y, language);
+
+                y = addSection(page, fontBold, fontRegular, y, width,
+                    language === 'nl' ? '🎯 Recruiter Insider Tips' : '🎯 Recruiter Insider Tips');
 
                 const cleanedTips = cleanMarkdown(recruiterTips);
-                doc.fontSize(11)
-                   .fillColor('#1F2937')
-                   .text(cleanedTips, {
-                       align: 'left',
-                       lineGap: 4
-                   });
-
-                doc.moveDown(1);
+                y = addWrappedText(page, fontRegular, cleanedTips, 50, y, width - 100, 11, colors.text);
             }
         } else {
-            // Free user - show upgrade message
-            doc.addPage();
-            addHeader(doc, language);
+            // Free user - upgrade message
+            page = pdfDoc.addPage([595, 842]);
+            y = height - 50;
+            y = addHeader(page, fontBold, fontRegular, width, y, language);
 
-            doc.fontSize(20)
-               .fillColor('#6366F1')
-               .text('🔒', { align: 'center' });
+            y -= 100;
 
-            doc.moveDown(0.5);
+            page.drawText('🔒', {
+                x: width / 2 - 15,
+                y: y,
+                size: 40,
+                font: fontRegular
+            });
+            y -= 50;
 
-            doc.fontSize(18)
-               .fillColor('#1F2937')
-               .text(
-                   language === 'nl'
-                       ? 'Unlock Volledige Analyse'
-                       : 'Unlock Full Analysis',
-                   { align: 'center' }
-               );
+            const upgradeTitle = language === 'nl' ? 'Unlock Volledige Analyse' : 'Unlock Full Analysis';
+            const titleWidth = fontBold.widthOfTextAtSize(upgradeTitle, 18);
+            page.drawText(upgradeTitle, {
+                x: (width - titleWidth) / 2,
+                y: y,
+                size: 18,
+                font: fontBold,
+                color: colors.text
+            });
+            y -= 40;
 
-            doc.moveDown(0.5);
+            const upgradeText = language === 'nl'
+                ? 'Upgrade naar Pro voor:\n\n• Volledige gedetailleerde feedback (12+ verbeteringen)\n• AI-gegenereerde motivatiebrief\n• Recruiter insider tips\n• Onbeperkte CV analyses\n\nBezoek applyjobmatch.nl voor meer informatie'
+                : 'Upgrade to Pro for:\n\n• Full detailed feedback (12+ improvements)\n• AI-generated cover letter\n• Recruiter insider tips\n• Unlimited CV analyses\n\nVisit applyjobmatch.nl for more information';
 
-            doc.fontSize(12)
-               .fillColor('#6B7280')
-               .text(
-                   language === 'nl'
-                       ? 'Upgrade naar Pro voor:\n\n• Volledige gedetailleerde feedback (12+ verbeteringen)\n• AI-gegenereerde motivatiebrief\n• Recruiter insider tips\n• Onbeperkte CV analyses\n\nBezoek applyjobmatch.nl voor meer informatie'
-                       : 'Upgrade to Pro for:\n\n• Full detailed feedback (12+ improvements)\n• AI-generated cover letter\n• Recruiter insider tips\n• Unlimited CV analyses\n\nVisit applyjobmatch.nl for more information',
-                   {
-                       align: 'center',
-                       lineGap: 5
-                   }
-               );
+            y = addWrappedText(page, fontRegular, upgradeText, 100, y, width - 200, 12, colors.textLight, 'center');
         }
 
-        // ===== FOOTER =====
-        addFooter(doc, language, isPremium);
+        // Add footers to all pages
+        const pages = pdfDoc.getPages();
+        pages.forEach((p, i) => {
+            addFooter(p, fontRegular, width, language, isPremium, i + 1, pages.length);
+        });
 
-        // Finalize PDF
-        doc.end();
+        // Serialize PDF
+        const pdfBytes = await pdfDoc.save();
 
-        // Wait for PDF to finish
-        await new Promise(resolve => doc.on('end', resolve));
-
-        // Combine chunks into buffer
-        const pdfBuffer = Buffer.concat(chunks);
-
-        console.log(`✅ PDF generated: ${pdfBuffer.length} bytes`);
+        console.log(`✅ PDF generated: ${pdfBytes.length} bytes`);
 
         // Return PDF
         return {
@@ -214,9 +208,9 @@ exports.handler = async (event) => {
                 ...headers,
                 'Content-Type': 'application/pdf',
                 'Content-Disposition': `attachment; filename="CV-Analysis-${Date.now()}.pdf"`,
-                'Content-Length': pdfBuffer.length
+                'Content-Length': pdfBytes.length
             },
-            body: pdfBuffer.toString('base64'),
+            body: Buffer.from(pdfBytes).toString('base64'),
             isBase64Encoded: true
         };
 
@@ -227,7 +221,8 @@ exports.handler = async (event) => {
             headers,
             body: JSON.stringify({
                 error: 'Failed to generate PDF',
-                message: error.message
+                message: error.message,
+                stack: error.stack
             })
         };
     }
@@ -235,65 +230,128 @@ exports.handler = async (event) => {
 
 // ===== HELPER FUNCTIONS =====
 
-function addHeader(doc, language) {
-    // Add header with branding
-    doc.fontSize(10)
-       .fillColor('#6366F1')
-       .text('ApplyJobMatch.nl', 50, 30, { align: 'right' });
+function addHeader(page, fontBold, fontRegular, width, y, language) {
+    // Company name
+    page.drawText('ApplyJobMatch.nl', {
+        x: width - 150,
+        y: y,
+        size: 10,
+        font: fontBold,
+        color: colors.primary
+    });
 
     // Horizontal line
-    doc.moveTo(50, 45)
-       .lineTo(545, 45)
-       .strokeColor('#E5E7EB')
-       .stroke();
+    page.drawLine({
+        start: { x: 50, y: y - 10 },
+        end: { x: width - 50, y: y - 10 },
+        thickness: 1,
+        color: colors.line
+    });
 
-    doc.moveDown(2);
+    return y - 40;
 }
 
-function addFooter(doc, language, isPremium) {
-    const pageCount = doc.bufferedPageRange().count;
+function addFooter(page, fontRegular, width, language, isPremium, pageNum, totalPages) {
+    const { height } = page.getSize();
 
-    for (let i = 0; i < pageCount; i++) {
-        doc.switchToPage(i);
+    // Footer line
+    page.drawLine({
+        start: { x: 50, y: 50 },
+        end: { x: width - 50, y: 50 },
+        thickness: 1,
+        color: colors.line
+    });
 
-        // Footer line
-        doc.moveTo(50, 792 - 40)
-           .lineTo(545, 792 - 40)
-           .strokeColor('#E5E7EB')
-           .stroke();
+    // Footer text
+    const footerText = language === 'nl'
+        ? `Gegenereerd door ApplyJobMatch.nl • ${isPremium ? 'Pro' : 'Free'} • Pagina ${pageNum} van ${totalPages}`
+        : `Generated by ApplyJobMatch.nl • ${isPremium ? 'Pro' : 'Free'} • Page ${pageNum} of ${totalPages}`;
 
-        // Footer text
-        doc.fontSize(8)
-           .fillColor('#9CA3AF')
-           .text(
-               language === 'nl'
-                   ? `Gegenereerd door ApplyJobMatch.nl • ${isPremium ? 'Pro' : 'Free'} • Pagina ${i + 1} van ${pageCount}`
-                   : `Generated by ApplyJobMatch.nl • ${isPremium ? 'Pro' : 'Free'} • Page ${i + 1} of ${pageCount}`,
-               50,
-               792 - 30,
-               {
-                   align: 'center',
-                   width: 495
-               }
-           );
-    }
+    const textWidth = fontRegular.widthOfTextAtSize(footerText, 8);
+
+    page.drawText(footerText, {
+        x: (width - textWidth) / 2,
+        y: 35,
+        size: 8,
+        font: fontRegular,
+        color: colors.textLight
+    });
 }
 
-function addSection(doc, title) {
-    doc.fontSize(16)
-       .fillColor('#1F2937')
-       .text(title, { underline: false });
-
-    doc.moveDown(0.5);
+function addSection(page, fontBold, fontRegular, y, width, title) {
+    page.drawText(title, {
+        x: 50,
+        y: y,
+        size: 16,
+        font: fontBold,
+        color: colors.text
+    });
 
     // Underline
-    doc.moveTo(50, doc.y)
-       .lineTo(250, doc.y)
-       .strokeColor('#6366F1')
-       .lineWidth(2)
-       .stroke();
+    page.drawLine({
+        start: { x: 50, y: y - 5 },
+        end: { x: 250, y: y - 5 },
+        thickness: 2,
+        color: colors.primary
+    });
 
-    doc.moveDown(0.5);
+    return y - 25;
+}
+
+function addWrappedText(page, font, text, x, y, maxWidth, fontSize, color, align = 'left') {
+    const lines = wrapText(text, font, fontSize, maxWidth);
+
+    lines.forEach(line => {
+        let xPos = x;
+        if (align === 'center') {
+            const lineWidth = font.widthOfTextAtSize(line, fontSize);
+            xPos = x + (maxWidth - lineWidth) / 2;
+        }
+
+        page.drawText(line, {
+            x: xPos,
+            y: y,
+            size: fontSize,
+            font: font,
+            color: color
+        });
+        y -= fontSize + 4;
+    });
+
+    return y;
+}
+
+function wrapText(text, font, fontSize, maxWidth) {
+    const lines = [];
+    const paragraphs = text.split('\n');
+
+    paragraphs.forEach(paragraph => {
+        if (paragraph.trim() === '') {
+            lines.push('');
+            return;
+        }
+
+        const words = paragraph.split(' ');
+        let currentLine = '';
+
+        words.forEach(word => {
+            const testLine = currentLine ? `${currentLine} ${word}` : word;
+            const testWidth = font.widthOfTextAtSize(testLine, fontSize);
+
+            if (testWidth > maxWidth && currentLine) {
+                lines.push(currentLine);
+                currentLine = word;
+            } else {
+                currentLine = testLine;
+            }
+        });
+
+        if (currentLine) {
+            lines.push(currentLine);
+        }
+    });
+
+    return lines;
 }
 
 function cleanMarkdown(text) {
