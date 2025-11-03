@@ -15,6 +15,7 @@ class RateLimiter {
         this.fingerprintKey = '_fp';
         this.maxFreeUses = 3; // Default, can be overridden by environment
         this.fingerprint = null;
+        this.status = null; // Cache status from init()
     }
 
     /**
@@ -28,13 +29,14 @@ class RateLimiter {
         const serverStatus = await this.checkServerUsage();
         if (serverStatus.whitelisted) {
             console.log('✅ User is whitelisted - unlimited access');
-            return {
+            this.status = {
                 allowed: true,
                 unlimited: true,
                 usage: serverStatus.usage || 0,
                 remaining: 999999,
                 maxUses: 3
             };
+            return this.status;
         }
 
         // Get usage count
@@ -43,13 +45,21 @@ class RateLimiter {
 
         console.log(`📊 Rate limit status: ${usage}/${this.maxFreeUses} used, ${remaining} remaining`);
 
-        return {
+        this.status = {
             allowed: remaining > 0,
             usage,
             remaining,
             maxUses: this.maxFreeUses,
             fingerprint: this.fingerprint
         };
+        return this.status;
+    }
+
+    /**
+     * Get current status (cached from init)
+     */
+    getStatus() {
+        return this.status || { unlimited: false, allowed: false, usage: 0, remaining: 0, maxUses: 3 };
     }
 
     /**
