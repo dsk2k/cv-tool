@@ -631,6 +631,14 @@ function cleanMarkdown(text) {
     if (!text) return '';
 
     return text
+        // Remove prompt instructions patterns
+        .replace(/\*\*Origineel:\*\*.*?(?=\n\n|\n\*\*|$)/gs, '')
+        .replace(/\*\*Verbeterd:\*\*.*?(?=\n\n|$)/gs, '')
+        .replace(/Hieronder vind je.*?(?=\n\n|$)/gi, '')
+        .replace(/Absoluut!.*?(?=\n\n|$)/gi, '')
+        .replace(/Natuurlijk!.*?(?=\n\n|$)/gi, '')
+        .replace(/Hier (is|zijn).*?(?=\n\n|$)/gi, '')
+        .replace(/###\s*\d+\..*?\n/g, '')
         // Remove markdown headers
         .replace(/#{1,6}\s+/g, '')
         // Remove bold markers
