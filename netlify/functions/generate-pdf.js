@@ -1,13 +1,6 @@
 /**
- * Professional PDF Generation for CV Analysis
- * Uses pdf-lib (pure JavaScript, serverless-compatible)
- *
- * Generates a branded, professional PDF with:
- * - Company logo and branding
- * - Full CV analysis (premium only)
- * - Cover letter (premium only)
- * - Recruiter tips (premium only)
- * - Professional layout and typography
+ * Professional CV PDF Generation
+ * Generates a ready-to-use CV document for job applications
  */
 
 const { PDFDocument, rgb, StandardFonts } = require('pdf-lib');
@@ -19,27 +12,22 @@ const headers = {
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-// Color palette - Professional and modern
+// Professional color palette
 const colors = {
-    primary: rgb(0.38, 0.27, 0.94),        // #6366F1 (Indigo)
-    primaryLight: rgb(0.82, 0.78, 0.99),   // Light indigo background
-    secondary: rgb(0.06, 0.72, 0.51),      // #10B981 (Green)
-    secondaryLight: rgb(0.83, 0.97, 0.91), // Light green background
-    text: rgb(0.12, 0.16, 0.22),           // #1F2937 (Dark gray)
-    textLight: rgb(0.42, 0.44, 0.47),      // #6B7280 (Medium gray)
-    textExtraLight: rgb(0.61, 0.64, 0.67), // #9CA3AF (Light gray)
-    background: rgb(0.98, 0.98, 0.99),     // #F9F9FB (Very light background)
-    line: rgb(0.90, 0.91, 0.92),           // #E5E7EB (Border)
-    white: rgb(1, 1, 1),
-    warning: rgb(0.96, 0.62, 0.11),        // #F59E0B (Amber)
+    primary: rgb(0, 0, 0),              // Black for text
+    secondary: rgb(0.3, 0.3, 0.3),      // Dark gray
+    accent: rgb(0.2, 0.2, 0.2),         // Medium gray
+    light: rgb(0.5, 0.5, 0.5),          // Light gray
+    line: rgb(0.7, 0.7, 0.7),           // Lines
+    white: rgb(1, 1, 1)
 };
 
 // Page margins
 const MARGIN = {
-    top: 60,
-    bottom: 60,
-    left: 60,
-    right: 60
+    top: 50,
+    bottom: 50,
+    left: 50,
+    right: 50
 };
 
 exports.handler = async (event) => {
@@ -52,24 +40,15 @@ exports.handler = async (event) => {
         // Parse request data
         const data = JSON.parse(event.body);
         const {
-            matchScore,
-            changesOverview,
             improvedCV,
-            coverLetter,
-            recruiterTips,
-            isPremium = false,
             language = 'nl'
         } = data;
 
-        console.log('📄 Generating PDF for', isPremium ? 'PREMIUM' : 'FREE', 'user');
-        console.log('📊 Data received:', {
-            matchScore,
-            hasChangesOverview: !!changesOverview,
-            hasImprovedCV: !!improvedCV,
-            hasCoverLetter: !!coverLetter,
-            hasRecruiterTips: !!recruiterTips,
-            language
-        });
+        console.log('📄 Generating CV PDF');
+
+        if (!improvedCV) {
+            throw new Error('No CV content provided');
+        }
 
         // Create PDF document
         const pdfDoc = await PDFDocument.create();
@@ -79,406 +58,259 @@ exports.handler = async (event) => {
         const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
         const fontItalic = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
 
-        // Page 1: Overview & Summary
+        // Create CV pages
         let page = pdfDoc.addPage([595, 842]); // A4 size
         const { width, height } = page.getSize();
         let y = height - MARGIN.top;
 
-        // ===== HEADER BANNER =====
-        // Colored header banner
-        page.drawRectangle({
-            x: 0,
-            y: height - 100,
-            width: width,
-            height: 100,
-            color: colors.primary
-        });
+        // Clean the CV content
+        const cleanedCV = cleanMarkdown(improvedCV);
 
-        // Company name in header
-        page.drawText('ApplyJobMatch.nl', {
-            x: MARGIN.left,
-            y: height - 45,
-            size: 16,
-            font: fontBold,
-            color: colors.white
-        });
+        // Parse CV structure from the content
+        const cvData = parseCV(cleanedCV);
 
-        // Document title
-        page.drawText(language === 'nl' ? 'CV Analyse Rapport' : 'CV Analysis Report', {
-            x: MARGIN.left,
-            y: height - 75,
-            size: 11,
-            font: fontRegular,
-            color: colors.primaryLight
-        });
-
-        y = height - 130;
-
-        // ===== MATCH SCORE CARD =====
-        const cardY = y - 120;
-        // Background card
-        page.drawRectangle({
-            x: MARGIN.left,
-            y: cardY,
-            width: width - MARGIN.left - MARGIN.right,
-            height: 110,
-            color: colors.secondaryLight,
-            borderColor: colors.secondary,
-            borderWidth: 2
-        });
-
-        // Score label
-        page.drawText(
-            language === 'nl' ? 'Interview Kans Score' : 'Interview Chance Score',
-            {
-                x: MARGIN.left + 20,
-                y: cardY + 75,
-                size: 14,
+        // ===== CV HEADER (Name, Contact) =====
+        if (cvData.name) {
+            page.drawText(cvData.name, {
+                x: MARGIN.left,
+                y: y,
+                size: 28,
                 font: fontBold,
-                color: colors.text
-            }
-        );
-
-        // Large score number
-        page.drawText(`${matchScore}%`, {
-            x: MARGIN.left + 20,
-            y: cardY + 30,
-            size: 42,
-            font: fontBold,
-            color: colors.secondary
-        });
-
-        // Score interpretation
-        let scoreText = '';
-        if (matchScore >= 80) {
-            scoreText = language === 'nl' ? 'Uitstekend - Hoge kans op interview' : 'Excellent - High interview chance';
-        } else if (matchScore >= 60) {
-            scoreText = language === 'nl' ? 'Goed - Goede kans op interview' : 'Good - Good interview chance';
-        } else {
-            scoreText = language === 'nl' ? 'Voldoende - Verbetering mogelijk' : 'Adequate - Room for improvement';
-        }
-
-        page.drawText(scoreText, {
-            x: MARGIN.left + 20,
-            y: cardY + 10,
-            size: 10,
-            font: fontItalic,
-            color: colors.textLight
-        });
-
-        y = cardY - 30;
-
-        // ===== IMPROVEMENTS SUMMARY SECTION =====
-        if (changesOverview) {
-            y -= 10;
-
-            // Section header with colored bar
-            page.drawRectangle({
-                x: MARGIN.left - 10,
-                y: y - 25,
-                width: 4,
-                height: 20,
                 color: colors.primary
             });
-
-            page.drawText(
-                language === 'nl' ? 'Belangrijkste Verbeteringen' : 'Key Improvements',
-                {
-                    x: MARGIN.left + 5,
-                    y: y - 20,
-                    size: 16,
-                    font: fontBold,
-                    color: colors.text
-                }
-            );
-
-            y -= 40;
-
-            const cleanedChanges = cleanMarkdown(changesOverview);
-            y = addWrappedText(page, fontRegular, cleanedChanges, MARGIN.left, y,
-                             width - MARGIN.left - MARGIN.right, 11, colors.text, 1.6);
+            y -= 45;
         }
 
-        // ===== IMPROVED CV SECTION =====
-        if (improvedCV) {
-            // Check if we need a new page
+        // Contact info line
+        if (cvData.contact.length > 0) {
+            const contactText = cvData.contact.join('    ');
+            page.drawText(contactText, {
+                x: MARGIN.left,
+                y: y,
+                size: 10,
+                font: fontRegular,
+                color: colors.secondary
+            });
+            y -= 40;
+        }
+
+        // ===== PROFILE / SAMENVATTING =====
+        if (cvData.profile) {
+            y = addSectionHeader(page, fontBold, y, 'PROFIEL', colors.primary);
+            y -= 5;
+            page.drawLine({
+                start: { x: MARGIN.left, y: y },
+                end: { x: width - MARGIN.right, y: y },
+                thickness: 1,
+                color: colors.primary
+            });
+            y -= 15;
+
+            y = addParagraph(page, fontRegular, cvData.profile, MARGIN.left, y,
+                           width - MARGIN.left - MARGIN.right, 11, colors.primary, 1.4);
+            y -= 20;
+        }
+
+        // ===== CORE COMPETENCIES =====
+        if (cvData.competencies && cvData.competencies.length > 0) {
             if (y < 200) {
                 page = pdfDoc.addPage([595, 842]);
                 y = height - MARGIN.top;
-                addPageHeader(page, fontBold, fontRegular, width, height, language);
-                y -= 120;
             }
 
-            y -= 30;
-
-            // Section header with colored background
-            page.drawRectangle({
-                x: MARGIN.left - 10,
-                y: y - 30,
-                width: width - MARGIN.left - MARGIN.right + 20,
-                height: 35,
-                color: colors.background
+            y = addSectionHeader(page, fontBold, y, 'CORE COMPETENCIES', colors.primary);
+            y -= 5;
+            page.drawLine({
+                start: { x: MARGIN.left, y: y },
+                end: { x: width - MARGIN.right, y: y },
+                thickness: 1,
+                color: colors.primary
             });
+            y -= 20;
 
-            page.drawRectangle({
-                x: MARGIN.left - 10,
-                y: y - 25,
-                width: 4,
-                height: 20,
-                color: colors.secondary
-            });
-
-            page.drawText(
-                language === 'nl' ? 'Geoptimaliseerde CV Tekst' : 'Optimized CV Text',
-                {
-                    x: MARGIN.left + 5,
-                    y: y - 20,
-                    size: 16,
+            cvData.competencies.forEach(comp => {
+                page.drawText('•', {
+                    x: MARGIN.left,
+                    y: y,
+                    size: 11,
                     font: fontBold,
-                    color: colors.text
-                }
-            );
-
-            page.drawText(
-                language === 'nl'
-                    ? 'Direct te gebruiken in uw CV'
-                    : 'Ready to use in your CV',
-                {
-                    x: MARGIN.left + 5,
-                    y: y - 35,
-                    size: 9,
-                    font: fontItalic,
-                    color: colors.textLight
-                }
-            );
-
-            y -= 60;
-
-            // Add improved CV in a subtle box
-            const cvStartY = y;
-            const cleanedCV = cleanMarkdown(improvedCV);
-
-            // Calculate how much space we need
-            const cvLines = wrapText(cleanedCV, fontRegular, 10, width - MARGIN.left - MARGIN.right - 40);
-            const cvHeight = cvLines.length * 14 + 20;
-
-            // Background box for CV
-            page.drawRectangle({
-                x: MARGIN.left,
-                y: y - cvHeight,
-                width: width - MARGIN.left - MARGIN.right,
-                height: cvHeight,
-                color: colors.white,
-                borderColor: colors.line,
-                borderWidth: 1
-            });
-
-            y = addWrappedText(page, fontRegular, cleanedCV, MARGIN.left + 20, y - 10,
-                             width - MARGIN.left - MARGIN.right - 40, 10, colors.text, 1.4);
-
-            y -= 10;
-        }
-
-        // ===== PREMIUM CONTENT =====
-        if (isPremium) {
-            // Cover Letter
-            if (coverLetter) {
-                page = pdfDoc.addPage([595, 842]);
-                y = height - MARGIN.top;
-                addPageHeader(page, fontBold, fontRegular, width, height, language);
-                y -= 120;
-
-                // Section header
-                page.drawRectangle({
-                    x: MARGIN.left - 10,
-                    y: y - 25,
-                    width: 4,
-                    height: 20,
                     color: colors.primary
                 });
 
-                page.drawText(
-                    language === 'nl' ? 'AI Motivatiebrief' : 'AI Cover Letter',
-                    {
-                        x: MARGIN.left + 5,
-                        y: y - 20,
-                        size: 16,
-                        font: fontBold,
-                        color: colors.text
-                    }
-                );
+                y = addParagraph(page, fontRegular, comp, MARGIN.left + 15, y,
+                               width - MARGIN.left - MARGIN.right - 15, 11, colors.primary, 1.3);
+                y -= 8;
+            });
+            y -= 15;
+        }
 
-                page.drawText(
-                    language === 'nl'
-                        ? 'Persoonlijk opgesteld voor deze functie'
-                        : 'Personalized for this position',
-                    {
-                        x: MARGIN.left + 5,
-                        y: y - 35,
-                        size: 9,
-                        font: fontItalic,
-                        color: colors.textLight
-                    }
-                );
-
-                y -= 55;
-
-                const cleanedCoverLetter = cleanMarkdown(coverLetter);
-                y = addWrappedText(page, fontRegular, cleanedCoverLetter, MARGIN.left, y,
-                                 width - MARGIN.left - MARGIN.right, 11, colors.text, 1.6);
-            }
-
-            // Recruiter Tips
-            if (recruiterTips) {
+        // ===== WORK EXPERIENCE =====
+        if (cvData.experience && cvData.experience.length > 0) {
+            if (y < 200) {
                 page = pdfDoc.addPage([595, 842]);
                 y = height - MARGIN.top;
-                addPageHeader(page, fontBold, fontRegular, width, height, language);
-                y -= 120;
-
-                // Section header with warning color (insider tips)
-                page.drawRectangle({
-                    x: MARGIN.left - 10,
-                    y: y - 25,
-                    width: 4,
-                    height: 20,
-                    color: colors.warning
-                });
-
-                page.drawText(
-                    language === 'nl' ? 'Recruiter Insider Tips' : 'Recruiter Insider Tips',
-                    {
-                        x: MARGIN.left + 5,
-                        y: y - 20,
-                        size: 16,
-                        font: fontBold,
-                        color: colors.text
-                    }
-                );
-
-                page.drawText(
-                    language === 'nl'
-                        ? 'Exclusieve inzichten van ervaren recruiters'
-                        : 'Exclusive insights from experienced recruiters',
-                    {
-                        x: MARGIN.left + 5,
-                        y: y - 35,
-                        size: 9,
-                        font: fontItalic,
-                        color: colors.textLight
-                    }
-                );
-
-                y -= 55;
-
-                const cleanedTips = cleanMarkdown(recruiterTips);
-                y = addWrappedText(page, fontRegular, cleanedTips, MARGIN.left, y,
-                                 width - MARGIN.left - MARGIN.right, 11, colors.text, 1.6);
             }
-        } else {
-            // Free user - upgrade message
-            page = pdfDoc.addPage([595, 842]);
-            y = height - MARGIN.top;
-            addPageHeader(page, fontBold, fontRegular, width, height, language);
 
-            y = height / 2;
-
-            // Upgrade box
-            const boxHeight = 280;
-            const boxY = y - boxHeight/2;
-
-            page.drawRectangle({
-                x: 100,
-                y: boxY,
-                width: width - 200,
-                height: boxHeight,
-                color: colors.background,
-                borderColor: colors.primary,
-                borderWidth: 2
-            });
-
-            y = boxY + boxHeight - 40;
-
-            const upgradeTitle = language === 'nl' ? 'Unlock Volledige Analyse' : 'Unlock Full Analysis';
-            const titleWidth = fontBold.widthOfTextAtSize(upgradeTitle, 20);
-            page.drawText(upgradeTitle, {
-                x: (width - titleWidth) / 2,
-                y: y,
-                size: 20,
-                font: fontBold,
+            y = addSectionHeader(page, fontBold, y, 'WORK EXPERIENCE', colors.primary);
+            y -= 5;
+            page.drawLine({
+                start: { x: MARGIN.left, y: y },
+                end: { x: width - MARGIN.right, y: y },
+                thickness: 1,
                 color: colors.primary
             });
-            y -= 35;
-
-            const subtitle = language === 'nl'
-                ? 'Upgrade naar Pro voor de volledige analyse'
-                : 'Upgrade to Pro for the full analysis';
-            const subtitleWidth = fontRegular.widthOfTextAtSize(subtitle, 12);
-            page.drawText(subtitle, {
-                x: (width - subtitleWidth) / 2,
-                y: y,
-                size: 12,
-                font: fontRegular,
-                color: colors.textLight
-            });
-
-            y -= 40;
-
-            const features = language === 'nl'
-                ? [
-                    '12+ gedetailleerde ATS-verbeteringen',
-                    'AI-gegenereerde motivatiebrief',
-                    'Recruiter insider tips',
-                    'Onbeperkte CV analyses'
-                  ]
-                : [
-                    '12+ detailed ATS improvements',
-                    'AI-generated cover letter',
-                    'Recruiter insider tips',
-                    'Unlimited CV analyses'
-                  ];
-
-            features.forEach(feature => {
-                page.drawText('✓', {
-                    x: 140,
-                    y: y,
-                    size: 14,
-                    font: fontBold,
-                    color: colors.secondary
-                });
-
-                page.drawText(feature, {
-                    x: 165,
-                    y: y,
-                    size: 11,
-                    font: fontRegular,
-                    color: colors.text
-                });
-                y -= 25;
-            });
-
             y -= 20;
 
-            const cta = 'applyjobmatch.nl';
-            const ctaWidth = fontBold.widthOfTextAtSize(cta, 14);
-            page.drawText(cta, {
-                x: (width - ctaWidth) / 2,
-                y: y,
-                size: 14,
-                font: fontBold,
-                color: colors.primary
+            cvData.experience.forEach((job, index) => {
+                if (y < 150) {
+                    page = pdfDoc.addPage([595, 842]);
+                    y = height - MARGIN.top;
+                }
+
+                // Job title and company
+                if (job.title) {
+                    page.drawText(job.title, {
+                        x: MARGIN.left,
+                        y: y,
+                        size: 12,
+                        font: fontBold,
+                        color: colors.primary
+                    });
+                    y -= 18;
+                }
+
+                // Company, period
+                if (job.company || job.period) {
+                    const details = [job.company, job.period].filter(d => d).join('  •  ');
+                    page.drawText(details, {
+                        x: MARGIN.left,
+                        y: y,
+                        size: 10,
+                        font: fontItalic,
+                        color: colors.secondary
+                    });
+                    y -= 18;
+                }
+
+                // Description
+                if (job.description) {
+                    y = addParagraph(page, fontRegular, job.description, MARGIN.left, y,
+                                   width - MARGIN.left - MARGIN.right, 10, colors.primary, 1.4);
+                    y -= 15;
+                }
+
+                // Responsibilities
+                if (job.responsibilities && job.responsibilities.length > 0) {
+                    job.responsibilities.forEach(resp => {
+                        if (y < 100) {
+                            page = pdfDoc.addPage([595, 842]);
+                            y = height - MARGIN.top;
+                        }
+
+                        page.drawText('•', {
+                            x: MARGIN.left + 10,
+                            y: y,
+                            size: 10,
+                            font: fontRegular,
+                            color: colors.primary
+                        });
+
+                        y = addParagraph(page, fontRegular, resp, MARGIN.left + 25, y,
+                                       width - MARGIN.left - MARGIN.right - 25, 10, colors.primary, 1.3);
+                        y -= 6;
+                    });
+                }
+
+                if (index < cvData.experience.length - 1) {
+                    y -= 15;
+                }
             });
         }
 
-        // Add footers to all pages
+        // ===== EDUCATION =====
+        if (cvData.education && cvData.education.length > 0) {
+            if (y < 150) {
+                page = pdfDoc.addPage([595, 842]);
+                y = height - MARGIN.top;
+            }
+
+            y -= 15;
+            y = addSectionHeader(page, fontBold, y, 'EDUCATION', colors.primary);
+            y -= 5;
+            page.drawLine({
+                start: { x: MARGIN.left, y: y },
+                end: { x: width - MARGIN.right, y: y },
+                thickness: 1,
+                color: colors.primary
+            });
+            y -= 20;
+
+            cvData.education.forEach(edu => {
+                if (edu.degree) {
+                    page.drawText(edu.degree, {
+                        x: MARGIN.left,
+                        y: y,
+                        size: 11,
+                        font: fontBold,
+                        color: colors.primary
+                    });
+                    y -= 16;
+                }
+
+                if (edu.school || edu.period) {
+                    const details = [edu.school, edu.period].filter(d => d).join('  •  ');
+                    page.drawText(details, {
+                        x: MARGIN.left,
+                        y: y,
+                        size: 10,
+                        font: fontItalic,
+                        color: colors.secondary
+                    });
+                    y -= 20;
+                }
+            });
+        }
+
+        // ===== SKILLS =====
+        if (cvData.skills && cvData.skills.length > 0) {
+            if (y < 100) {
+                page = pdfDoc.addPage([595, 842]);
+                y = height - MARGIN.top;
+            }
+
+            y -= 10;
+            y = addSectionHeader(page, fontBold, y, 'SKILLS', colors.primary);
+            y -= 5;
+            page.drawLine({
+                start: { x: MARGIN.left, y: y },
+                end: { x: width - MARGIN.right, y: y },
+                thickness: 1,
+                color: colors.primary
+            });
+            y -= 15;
+
+            const skillsText = cvData.skills.join(', ');
+            y = addParagraph(page, fontRegular, skillsText, MARGIN.left, y,
+                           width - MARGIN.left - MARGIN.right, 10, colors.primary, 1.3);
+        }
+
+        // Add watermark on last page
         const pages = pdfDoc.getPages();
-        pages.forEach((p, i) => {
-            addFooter(p, fontRegular, width, height, language, isPremium, i + 1, pages.length);
+        const lastPage = pages[pages.length - 1];
+        const lastPageHeight = lastPage.getSize().height;
+
+        lastPage.drawText('Geoptimaliseerd door ApplyJobMatch.nl', {
+            x: MARGIN.left,
+            y: 30,
+            size: 7,
+            font: fontItalic,
+            color: colors.light
         });
 
         // Serialize PDF
         const pdfBytes = await pdfDoc.save();
 
-        console.log(`✅ PDF generated: ${pdfBytes.length} bytes`);
+        console.log(`✅ CV PDF generated: ${pdfBytes.length} bytes`);
 
         // Return PDF
         return {
@@ -486,7 +318,7 @@ exports.handler = async (event) => {
             headers: {
                 ...headers,
                 'Content-Type': 'application/pdf',
-                'Content-Disposition': `attachment; filename="CV-Analysis-ApplyJobMatch-${Date.now()}.pdf"`,
+                'Content-Disposition': `attachment; filename="CV-${Date.now()}.pdf"`,
                 'Content-Length': pdfBytes.length
             },
             body: Buffer.from(pdfBytes).toString('base64'),
@@ -509,69 +341,18 @@ exports.handler = async (event) => {
 
 // ===== HELPER FUNCTIONS =====
 
-function addPageHeader(page, fontBold, fontRegular, width, height, language) {
-    // Smaller header for subsequent pages
-    page.drawRectangle({
-        x: 0,
-        y: height - 60,
-        width: width,
-        height: 60,
-        color: colors.primary
-    });
-
-    page.drawText('ApplyJobMatch.nl', {
+function addSectionHeader(page, font, y, text, color) {
+    page.drawText(text, {
         x: MARGIN.left,
-        y: height - 38,
+        y: y,
         size: 14,
-        font: fontBold,
-        color: colors.white
+        font: font,
+        color: color
     });
-
-    page.drawText(language === 'nl' ? 'CV Analyse' : 'CV Analysis', {
-        x: width - MARGIN.right - 100,
-        y: height - 38,
-        size: 10,
-        font: fontRegular,
-        color: colors.primaryLight
-    });
+    return y - 20;
 }
 
-function addFooter(page, fontRegular, width, height, language, isPremium, pageNum, totalPages) {
-    // Footer line
-    page.drawLine({
-        start: { x: MARGIN.left, y: MARGIN.bottom + 20 },
-        end: { x: width - MARGIN.right, y: MARGIN.bottom + 20 },
-        thickness: 0.5,
-        color: colors.line
-    });
-
-    // Footer text
-    const footerText = language === 'nl'
-        ? `ApplyJobMatch.nl • ${isPremium ? 'Pro Rapport' : 'Gratis Rapport'}`
-        : `ApplyJobMatch.nl • ${isPremium ? 'Pro Report' : 'Free Report'}`;
-
-    page.drawText(footerText, {
-        x: MARGIN.left,
-        y: MARGIN.bottom,
-        size: 8,
-        font: fontRegular,
-        color: colors.textExtraLight
-    });
-
-    // Page number
-    const pageText = `${pageNum} / ${totalPages}`;
-    const pageWidth = fontRegular.widthOfTextAtSize(pageText, 8);
-
-    page.drawText(pageText, {
-        x: width - MARGIN.right - pageWidth,
-        y: MARGIN.bottom,
-        size: 8,
-        font: fontRegular,
-        color: colors.textExtraLight
-    });
-}
-
-function addWrappedText(page, font, text, x, y, maxWidth, fontSize, color, lineHeight = 1.4) {
+function addParagraph(page, font, text, x, y, maxWidth, fontSize, color, lineHeight = 1.4) {
     const lines = wrapText(text, font, fontSize, maxWidth);
     const lineSpacing = fontSize * lineHeight;
 
@@ -627,6 +408,142 @@ function wrapText(text, font, fontSize, maxWidth) {
     return lines;
 }
 
+function parseCV(text) {
+    // Initialize CV structure
+    const cv = {
+        name: '',
+        contact: [],
+        profile: '',
+        competencies: [],
+        experience: [],
+        education: [],
+        skills: []
+    };
+
+    const lines = text.split('\n');
+    let currentSection = 'header';
+    let currentJob = null;
+    let currentEdu = null;
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+
+        if (!line) continue;
+
+        // Detect sections (case insensitive)
+        const lowerLine = line.toLowerCase();
+
+        if (lowerLine.match(/^(profiel|profile|samenvatting|summary)/i)) {
+            currentSection = 'profile';
+            continue;
+        }
+        if (lowerLine.match(/^(core competencies|kerncompetenties|competenties)/i)) {
+            currentSection = 'competencies';
+            continue;
+        }
+        if (lowerLine.match(/^(work experience|werkervaring|ervaring)/i)) {
+            currentSection = 'experience';
+            continue;
+        }
+        if (lowerLine.match(/^(education|opleiding)/i)) {
+            currentSection = 'education';
+            continue;
+        }
+        if (lowerLine.match(/^(skills|vaardigheden)/i)) {
+            currentSection = 'skills';
+            continue;
+        }
+
+        // Parse based on current section
+        switch (currentSection) {
+            case 'header':
+                if (!cv.name && line.length < 50 && !line.includes('@')) {
+                    cv.name = line;
+                } else if (line.includes('@') || line.includes('+') || line.includes('linkedin')) {
+                    cv.contact.push(line);
+                }
+                break;
+
+            case 'profile':
+                if (!line.match(/^(profiel|profile)/i)) {
+                    cv.profile += (cv.profile ? ' ' : '') + line;
+                }
+                break;
+
+            case 'competencies':
+                if (line.startsWith('-') || line.startsWith('•') || line.startsWith('*')) {
+                    cv.competencies.push(line.substring(1).trim());
+                } else if (!line.match(/^(core|competencies)/i)) {
+                    cv.competencies.push(line);
+                }
+                break;
+
+            case 'experience':
+                // Check if this is a job title (usually short, might have | or - separator)
+                if (line.length < 80 && (line.includes('|') || /^[A-Z]/.test(line)) && !line.startsWith('-')) {
+                    if (currentJob) {
+                        cv.experience.push(currentJob);
+                    }
+                    const parts = line.split('|').map(p => p.trim());
+                    currentJob = {
+                        title: parts[0],
+                        company: parts[1] || '',
+                        period: '',
+                        description: '',
+                        responsibilities: []
+                    };
+                } else if (currentJob) {
+                    if (line.startsWith('-') || line.startsWith('•')) {
+                        currentJob.responsibilities.push(line.substring(1).trim());
+                    } else if (!currentJob.description) {
+                        currentJob.description = line;
+                    } else {
+                        currentJob.responsibilities.push(line);
+                    }
+                }
+                break;
+
+            case 'education':
+                if (!line.match(/^(education|opleiding)/i)) {
+                    if (line.length < 80 && /^[A-Z]/.test(line)) {
+                        if (currentEdu) {
+                            cv.education.push(currentEdu);
+                        }
+                        const parts = line.split('|').map(p => p.trim());
+                        currentEdu = {
+                            degree: parts[0],
+                            school: parts[1] || '',
+                            period: parts[2] || ''
+                        };
+                    }
+                }
+                break;
+
+            case 'skills':
+                if (!line.match(/^(skills|vaardigheden)/i)) {
+                    const skills = line.split(',').map(s => s.trim()).filter(s => s);
+                    cv.skills.push(...skills);
+                }
+                break;
+        }
+    }
+
+    // Add last job/education if exists
+    if (currentJob) {
+        cv.experience.push(currentJob);
+    }
+    if (currentEdu) {
+        cv.education.push(currentEdu);
+    }
+
+    // If no structured data found, use the whole text as profile
+    if (!cv.profile && !cv.experience.length) {
+        cv.profile = text;
+    }
+
+    return cv;
+}
+
 function cleanMarkdown(text) {
     if (!text) return '';
 
@@ -639,14 +556,13 @@ function cleanMarkdown(text) {
         .replace(/Natuurlijk!.*?(?=\n\n|$)/gi, '')
         .replace(/Hier (is|zijn).*?(?=\n\n|$)/gi, '')
         .replace(/###\s*\d+\..*?\n/g, '')
-        // Remove markdown headers
+        // Remove markdown headers but keep the text
         .replace(/#{1,6}\s+/g, '')
         // Remove bold markers
         .replace(/\*\*(.*?)\*\*/g, '$1')
         // Remove italic markers
         .replace(/\*(.*?)\*/g, '$1')
-        // Remove list markers but keep the dash
-        .replace(/^[\-\*]\s+/gm, '- ')
+        // Keep list markers for now (we'll parse them)
         // Remove emojis (they don't work with standard PDF fonts)
         .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')
         .replace(/[\u{2600}-\u{26FF}]/gu, '')
