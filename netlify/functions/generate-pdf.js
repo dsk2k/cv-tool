@@ -115,8 +115,11 @@ exports.handler = async (event) => {
                         ? linkedInMatch[0]
                         : 'https://' + linkedInMatch[0];
 
+                    // Display just "LinkedIn" instead of full URL
+                    const displayText = 'LinkedIn';
+
                     // Draw the text in blue to indicate it's a link
-                    page.drawText(contactItem, {
+                    page.drawText(displayText, {
                         x: currentX,
                         y: contactY,
                         size: contactSize,
@@ -125,7 +128,7 @@ exports.handler = async (event) => {
                     });
 
                     // Add link annotation
-                    const textWidth = fontRegular.widthOfTextAtSize(contactItem, contactSize);
+                    const textWidth = fontRegular.widthOfTextAtSize(displayText, contactSize);
 
                     try {
                         // Create link annotation using pdf-lib's context API
@@ -607,12 +610,19 @@ function parseCV(text) {
                     currentJob = {
                         title: parts[0],
                         company: parts[1] || '',
-                        period: '',
+                        period: parts[2] || '',
                         description: '',
                         responsibilities: []
                     };
                 } else if (currentJob) {
-                    if (line.startsWith('-') || line.startsWith('•') || line.startsWith('*')) {
+                    // Check if this line contains a date pattern (e.g., "2020 - 2023", "Jan 2020 - Present")
+                    const datePattern = /(\d{4}|\w{3,9}\s+\d{4})\s*[-–—]\s*(\d{4}|\w{3,9}\s+\d{4}|Present|present|heden|Heden)/i;
+                    const dateMatch = line.match(datePattern);
+
+                    if (dateMatch && !currentJob.period) {
+                        // This line contains a date range, use it as the period
+                        currentJob.period = line.trim();
+                    } else if (line.startsWith('-') || line.startsWith('•') || line.startsWith('*')) {
                         // Remove all leading bullet markers and asterisks
                         const cleaned = line.replace(/^[\-\•\*\s]+/, '').trim();
                         if (cleaned) {
