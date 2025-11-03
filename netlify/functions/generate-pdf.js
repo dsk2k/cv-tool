@@ -66,6 +66,12 @@ exports.handler = async (event) => {
         // Clean the CV content
         const cleanedCV = cleanMarkdown(improvedCV);
 
+        // Auto-detect language from content (override parameter if needed)
+        const detectedLanguage = detectLanguage(cleanedCV);
+        const finalLanguage = detectedLanguage || language;
+
+        console.log(`📝 Language: parameter=${language}, detected=${detectedLanguage}, final=${finalLanguage}`);
+
         // Parse CV structure from the content
         const cvData = parseCV(cleanedCV);
 
@@ -191,7 +197,7 @@ exports.handler = async (event) => {
             }
         };
 
-        const headers = sectionHeaders[language] || sectionHeaders.en;
+        const headers = sectionHeaders[finalLanguage] || sectionHeaders.en;
 
         // ===== PROFILE / SAMENVATTING =====
         if (cvData.profile) {
@@ -556,12 +562,15 @@ function parseCV(text) {
         // Parse based on current section
         switch (currentSection) {
             case 'header':
-                // Skip AI commentary patterns
-                const isAICommentary = line.match(/^(key|hier|absoluut|natuurlijk|verbeterd|improvement|optimization|strategy|strategies):/i);
+                // Skip AI commentary patterns (more comprehensive)
+                const isAICommentary = line.match(/^(key|hier|absoluut|natuurlijk|verbeterd|improvement|optimization|strategy|strategies|used|following|improved)/i)
+                    || line.toLowerCase().includes('strategies')
+                    || line.toLowerCase().includes('optimization')
+                    || line.toLowerCase().includes('improvement');
 
                 if (!cv.name && line.length < 50 && !line.includes('@') && !isAICommentary) {
                     // Only use as name if it looks like a name (starts with capital, not too many special chars)
-                    const looksLikeName = /^[A-Z]/.test(line) && !line.includes('|') && line.split(' ').length <= 5;
+                    const looksLikeName = /^[A-Z]/.test(line) && !line.includes('|') && line.split(' ').length <= 5 && !line.includes(':');
                     if (looksLikeName) {
                         cv.name = line;
                     }
@@ -658,15 +667,51 @@ function parseCV(text) {
     return cv;
 }
 
+function detectLanguage(text) {
+    if (!text) return 'en';
+
+    const lowerText = text.toLowerCase();
+
+    // Count English vs Dutch indicators
+    const englishIndicators = [
+        /\b(work experience|experience|skills|profile|summary|education|responsibilities|managed|developed|led|created|implemented)\b/gi,
+        /\b(the|and|with|for|from|this|that|these|those)\b/gi
+    ];
+
+    const dutchIndicators = [
+        /\b(werkervaring|ervaring|vaardigheden|profiel|samenvatting|opleiding|verantwoordelijkheden|beheerde|ontwikkelde|leidde)\b/gi,
+        /\b(het|de|en|met|voor|van|deze|die|dit|dat)\b/gi
+    ];
+
+    let englishScore = 0;
+    let dutchScore = 0;
+
+    englishIndicators.forEach(pattern => {
+        const matches = lowerText.match(pattern);
+        if (matches) englishScore += matches.length;
+    });
+
+    dutchIndicators.forEach(pattern => {
+        const matches = lowerText.match(pattern);
+        if (matches) dutchScore += matches.length;
+    });
+
+    console.log(`🔍 Language detection: EN=${englishScore}, NL=${dutchScore}`);
+
+    // Return language with higher score, default to English
+    return englishScore > dutchScore ? 'en' : 'nl';
+}
+
 function cleanMarkdown(text) {
     if (!text) return '';
 
     return text
         // Remove AI commentary headers and introductions
-        .replace(/^Key\s+(Optimization|Improvement)\s+Strategies?:?\s*\n*/gim, '')
-        .replace(/^Improvement\s+Strategies?:?\s*\n*/gim, '')
-        .replace(/^Optimization\s+Strategies?:?\s*\n*/gim, '')
+        .replace(/^Key\s+(Optimization|Improvement)\s+Strategies?\s*(Used)?:?\s*\n*/gim, '')
+        .replace(/^Improvement\s+Strategies?\s*(Used)?:?\s*\n*/gim, '')
+        .replace(/^Optimization\s+Strategies?\s*(Used)?:?\s*\n*/gim, '')
         .replace(/^Here\s+(is|are)\s+the\s+.*?:\s*\n*/gim, '')
+        .replace(/^The\s+(following|improved).*?:\s*\n*/gim, '')
         // Remove prompt instructions patterns
         .replace(/\*\*Origineel:\*\*.*?(?=\n\n|\n\*\*|$)/gs, '')
         .replace(/\*\*Verbeterd:\*\*.*?(?=\n\n|$)/gs, '')
