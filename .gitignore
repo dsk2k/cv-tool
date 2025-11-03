@@ -8,6 +8,7 @@ dist/output.css
 # Environment variables
 .env
 .env.local
+*.local
 
 # IDE
 .vscode/
@@ -30,3 +31,4 @@ coverage/
 # Misc
 *.log
 .claude/settings.local.json
+*.md
