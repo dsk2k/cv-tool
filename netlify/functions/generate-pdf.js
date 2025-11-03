@@ -577,8 +577,26 @@ function parseCV(text) {
                     if (looksLikeName) {
                         cv.name = line;
                     }
-                } else if (line.includes('@') || line.includes('+') || line.includes('linkedin')) {
-                    cv.contact.push(line);
+                } else {
+                    // Detect contact information patterns
+                    const isContactInfo =
+                        line.includes('@') ||                           // Email
+                        line.includes('+') ||                           // Phone with country code
+                        line.match(/\d{3}[-\s]?\d{3}[-\s]?\d{4}/) ||   // Phone number patterns
+                        line.match(/\d{2,}/) && line.length < 30 ||     // Contains numbers (likely phone)
+                        line.toLowerCase().includes('linkedin') ||      // LinkedIn
+                        line.includes(',') && !cv.name ||               // Likely location (City, Country)
+                        line.match(/^[A-Z][a-z]+,?\s+[A-Z][a-z]+/) ||   // City Country pattern
+                        line.match(/^\d{4}\s?[A-Z]{2}/) ||              // Postal code pattern
+                        line.toLowerCase().includes('netherlands') ||
+                        line.toLowerCase().includes('nederland') ||
+                        line.toLowerCase().includes('amsterdam') ||
+                        line.toLowerCase().includes('rotterdam') ||
+                        line.toLowerCase().includes('utrecht');
+
+                    if (isContactInfo && !isAICommentary) {
+                        cv.contact.push(line);
+                    }
                 }
                 break;
 
