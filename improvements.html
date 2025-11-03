@@ -3982,14 +3982,9 @@
         }
 
         async function downloadPDF() {
-            // Check if in developer mode (localhost)
-            const isDevelopment = window.location.hostname === 'localhost' ||
-                                  window.location.hostname === '127.0.0.1' ||
-                                  window.location.hostname.includes('netlify.app');
-
             // Check if user is premium
             const status = window.rateLimiter?.getStatus() || { unlimited: false };
-            let serverStatus = { whitelisted: false, unlimited: false };
+            let serverStatus = { whitelisted: false, unlimited: false, devMode: false };
 
             try {
                 const serverData = localStorage.getItem('rateLimitServerStatus');
@@ -3999,6 +3994,9 @@
             } catch (e) {
                 console.error('Error parsing server status:', e);
             }
+
+            // Check if in developer mode (server checks DEV_WHITELIST_IPS env variable)
+            const isDevelopment = serverStatus.devMode || false;
 
             // In development mode, always use premium PDF generation
             const isPremium = isDevelopment || status.unlimited || serverStatus.whitelisted;
@@ -5127,7 +5125,7 @@
         stickyBtnAction.addEventListener('click', () => {
             // Check if premium/whitelisted
             const status = window.rateLimiter?.getStatus() || { unlimited: false };
-            let serverStatus = { whitelisted: false, unlimited: false };
+            let serverStatus = { whitelisted: false, unlimited: false, devMode: false };
 
             try {
                 const serverData = localStorage.getItem('rateLimitServerStatus');
@@ -5159,7 +5157,7 @@
         // Update button text based on user status
         function updateStickyButton() {
             const status = window.rateLimiter?.getStatus() || { unlimited: false };
-            let serverStatus = { whitelisted: false, unlimited: false };
+            let serverStatus = { whitelisted: false, unlimited: false, devMode: false };
 
             try {
                 const serverData = localStorage.getItem('rateLimitServerStatus');

@@ -263,6 +263,21 @@ class RateLimiter {
             });
 
             const data = await response.json();
+
+            // Store server status in localStorage for other components to use
+            // Convert isDeveloper to devMode for consistency
+            const serverStatus = {
+                whitelisted: data.whitelisted || false,
+                unlimited: data.whitelisted || false,
+                devMode: data.isDeveloper || false
+            };
+
+            try {
+                localStorage.setItem('rateLimitServerStatus', JSON.stringify(serverStatus));
+            } catch (e) {
+                console.warn('⚠️ Could not store server status:', e);
+            }
+
             return data;
         } catch (e) {
             console.warn('⚠️ Could not check server usage:', e);
