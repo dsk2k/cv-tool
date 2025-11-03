@@ -26,6 +26,16 @@
             console.log('📊 Event tracked:', eventName, eventParams);
         };
 
+        // Track upgrade button clicks
+        window.trackUpgradeClick = function(source) {
+            if (window.trackEvent) {
+                window.trackEvent('upgrade_click', {
+                    source: source,
+                    user_type: 'free'
+                });
+            }
+        };
+
         // Track page view for improvements page
         if (window.trackEvent) {
             window.trackEvent('improvements_page_view', {
