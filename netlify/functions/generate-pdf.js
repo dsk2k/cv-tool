@@ -738,8 +738,12 @@ function cleanMarkdown(text) {
         .replace(/^Key\s+(Optimization|Improvement)\s+Strategies?\s*(Used)?:?\s*\n*/gim, '')
         .replace(/^Improvement\s+Strategies?\s*(Used)?:?\s*\n*/gim, '')
         .replace(/^Optimization\s+Strategies?\s*(Used)?:?\s*\n*/gim, '')
+        .replace(/^Here'?s?\s+(is|are|a|an)\s+.*?:\s*\n*/gim, '')
         .replace(/^Here\s+(is|are)\s+the\s+.*?:\s*\n*/gim, '')
         .replace(/^The\s+(following|improved).*?:\s*\n*/gim, '')
+        .replace(/^This\s+(is|CV).*?:\s*\n*/gim, '')
+        .replace(/.*incorporating\s+ATS\s+keywords.*\n*/gi, '')
+        .replace(/.*tailoring\s+it\s+to\s+the\s+job.*\n*/gi, '')
         // Remove prompt instructions patterns
         .replace(/\*\*Origineel:\*\*.*?(?=\n\n|\n\*\*|$)/gs, '')
         .replace(/\*\*Verbeterd:\*\*.*?(?=\n\n|$)/gs, '')
