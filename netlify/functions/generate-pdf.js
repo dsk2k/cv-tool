@@ -81,22 +81,121 @@ exports.handler = async (event) => {
             y -= 45;
         }
 
-        // Contact info line
+        // Contact info line with clickable LinkedIn link
         if (cvData.contact.length > 0) {
-            const contactText = cvData.contact.join('    ');
-            page.drawText(contactText, {
-                x: MARGIN.left,
-                y: y,
-                size: 10,
-                font: fontRegular,
-                color: colors.secondary
+            let currentX = MARGIN.left;
+            const contactY = y;
+            const contactSize = 10;
+
+            cvData.contact.forEach((contactItem, index) => {
+                // Add separator between items
+                if (index > 0) {
+                    const separator = '    ';
+                    page.drawText(separator, {
+                        x: currentX,
+                        y: contactY,
+                        size: contactSize,
+                        font: fontRegular,
+                        color: colors.secondary
+                    });
+                    currentX += fontRegular.widthOfTextAtSize(separator, contactSize);
+                }
+
+                // Check if this is a LinkedIn URL
+                const linkedInMatch = contactItem.match(/(https?:\/\/)?(www\.)?linkedin\.com\/[^\s]+/i);
+
+                if (linkedInMatch) {
+                    const linkedInUrl = linkedInMatch[0].startsWith('http')
+                        ? linkedInMatch[0]
+                        : 'https://' + linkedInMatch[0];
+
+                    // Draw the text in blue to indicate it's a link
+                    page.drawText(contactItem, {
+                        x: currentX,
+                        y: contactY,
+                        size: contactSize,
+                        font: fontRegular,
+                        color: rgb(0, 0, 0.8) // Blue color for link
+                    });
+
+                    // Add link annotation
+                    const textWidth = fontRegular.widthOfTextAtSize(contactItem, contactSize);
+
+                    try {
+                        // Create link annotation using pdf-lib's context API
+                        const { PDFName, PDFArray, PDFDict, PDFString } = require('pdf-lib');
+
+                        const linkAnnot = pdfDoc.context.register(
+                            pdfDoc.context.obj({
+                                Type: 'Annot',
+                                Subtype: 'Link',
+                                Rect: [currentX, contactY - 2, currentX + textWidth, contactY + contactSize + 2],
+                                Border: [0, 0, 0],
+                                A: {
+                                    Type: 'Action',
+                                    S: 'URI',
+                                    URI: linkedInUrl
+                                }
+                            })
+                        );
+
+                        // Get existing annotations or create new array
+                        const annotsRef = page.node.get(PDFName.of('Annots'));
+                        let annots;
+
+                        if (annotsRef instanceof PDFArray) {
+                            annots = annotsRef;
+                        } else {
+                            annots = pdfDoc.context.obj([]);
+                            page.node.set(PDFName.of('Annots'), annots);
+                        }
+
+                        annots.push(linkAnnot);
+                    } catch (e) {
+                        console.warn('Could not create LinkedIn link annotation:', e);
+                        // Link will still be visible as blue text, just not clickable
+                    }
+
+                    currentX += textWidth;
+                } else {
+                    // Regular text
+                    page.drawText(contactItem, {
+                        x: currentX,
+                        y: contactY,
+                        size: contactSize,
+                        font: fontRegular,
+                        color: colors.secondary
+                    });
+                    currentX += fontRegular.widthOfTextAtSize(contactItem, contactSize);
+                }
             });
+
             y -= 40;
         }
 
+        // Language-aware section headers
+        const sectionHeaders = {
+            nl: {
+                profile: 'PROFIEL',
+                competencies: 'KERNCOMPETENTIES',
+                experience: 'WERKERVARING',
+                education: 'OPLEIDING',
+                skills: 'VAARDIGHEDEN'
+            },
+            en: {
+                profile: 'PROFILE',
+                competencies: 'CORE COMPETENCIES',
+                experience: 'WORK EXPERIENCE',
+                education: 'EDUCATION',
+                skills: 'SKILLS'
+            }
+        };
+
+        const headers = sectionHeaders[language] || sectionHeaders.en;
+
         // ===== PROFILE / SAMENVATTING =====
         if (cvData.profile) {
-            y = addSectionHeader(page, fontBold, y, 'PROFIEL', colors.primary);
+            y = addSectionHeader(page, fontBold, y, headers.profile, colors.primary);
             y -= 5;
             page.drawLine({
                 start: { x: MARGIN.left, y: y },
@@ -118,7 +217,7 @@ exports.handler = async (event) => {
                 y = height - MARGIN.top;
             }
 
-            y = addSectionHeader(page, fontBold, y, 'CORE COMPETENCIES', colors.primary);
+            y = addSectionHeader(page, fontBold, y, headers.competencies, colors.primary);
             y -= 5;
             page.drawLine({
                 start: { x: MARGIN.left, y: y },
@@ -151,7 +250,7 @@ exports.handler = async (event) => {
                 y = height - MARGIN.top;
             }
 
-            y = addSectionHeader(page, fontBold, y, 'WORK EXPERIENCE', colors.primary);
+            y = addSectionHeader(page, fontBold, y, headers.experience, colors.primary);
             y -= 5;
             page.drawLine({
                 start: { x: MARGIN.left, y: y },
@@ -235,7 +334,7 @@ exports.handler = async (event) => {
             }
 
             y -= 15;
-            y = addSectionHeader(page, fontBold, y, 'EDUCATION', colors.primary);
+            y = addSectionHeader(page, fontBold, y, headers.education, colors.primary);
             y -= 5;
             page.drawLine({
                 start: { x: MARGIN.left, y: y },
@@ -279,7 +378,7 @@ exports.handler = async (event) => {
             }
 
             y -= 10;
-            y = addSectionHeader(page, fontBold, y, 'SKILLS', colors.primary);
+            y = addSectionHeader(page, fontBold, y, headers.skills, colors.primary);
             y -= 5;
             page.drawLine({
                 start: { x: MARGIN.left, y: y },
@@ -457,8 +556,15 @@ function parseCV(text) {
         // Parse based on current section
         switch (currentSection) {
             case 'header':
-                if (!cv.name && line.length < 50 && !line.includes('@')) {
-                    cv.name = line;
+                // Skip AI commentary patterns
+                const isAICommentary = line.match(/^(key|hier|absoluut|natuurlijk|verbeterd|improvement|optimization|strategy|strategies):/i);
+
+                if (!cv.name && line.length < 50 && !line.includes('@') && !isAICommentary) {
+                    // Only use as name if it looks like a name (starts with capital, not too many special chars)
+                    const looksLikeName = /^[A-Z]/.test(line) && !line.includes('|') && line.split(' ').length <= 5;
+                    if (looksLikeName) {
+                        cv.name = line;
+                    }
                 } else if (line.includes('@') || line.includes('+') || line.includes('linkedin')) {
                     cv.contact.push(line);
                 }
@@ -472,7 +578,11 @@ function parseCV(text) {
 
             case 'competencies':
                 if (line.startsWith('-') || line.startsWith('•') || line.startsWith('*')) {
-                    cv.competencies.push(line.substring(1).trim());
+                    // Remove all leading bullet markers and asterisks
+                    const cleaned = line.replace(/^[\-\•\*\s]+/, '').trim();
+                    if (cleaned) {
+                        cv.competencies.push(cleaned);
+                    }
                 } else if (!line.match(/^(core|competencies)/i)) {
                     cv.competencies.push(line);
                 }
@@ -493,8 +603,12 @@ function parseCV(text) {
                         responsibilities: []
                     };
                 } else if (currentJob) {
-                    if (line.startsWith('-') || line.startsWith('•')) {
-                        currentJob.responsibilities.push(line.substring(1).trim());
+                    if (line.startsWith('-') || line.startsWith('•') || line.startsWith('*')) {
+                        // Remove all leading bullet markers and asterisks
+                        const cleaned = line.replace(/^[\-\•\*\s]+/, '').trim();
+                        if (cleaned) {
+                            currentJob.responsibilities.push(cleaned);
+                        }
                     } else if (!currentJob.description) {
                         currentJob.description = line;
                     } else {
@@ -548,6 +662,11 @@ function cleanMarkdown(text) {
     if (!text) return '';
 
     return text
+        // Remove AI commentary headers and introductions
+        .replace(/^Key\s+(Optimization|Improvement)\s+Strategies?:?\s*\n*/gim, '')
+        .replace(/^Improvement\s+Strategies?:?\s*\n*/gim, '')
+        .replace(/^Optimization\s+Strategies?:?\s*\n*/gim, '')
+        .replace(/^Here\s+(is|are)\s+the\s+.*?:\s*\n*/gim, '')
         // Remove prompt instructions patterns
         .replace(/\*\*Origineel:\*\*.*?(?=\n\n|\n\*\*|$)/gs, '')
         .replace(/\*\*Verbeterd:\*\*.*?(?=\n\n|$)/gs, '')
