@@ -104,7 +104,7 @@ exports.handler = async (event) => {
 
         // Section: Changes Overview
         y = addSection(page, fontBold, fontRegular, y, width,
-            language === 'nl' ? '📊 Samenvatting Verbeteringen' : '📊 Improvements Summary');
+            language === 'nl' ? 'Samenvatting Verbeteringen' : 'Improvements Summary');
 
         if (changesOverview) {
             const cleanedChanges = cleanMarkdown(changesOverview);
@@ -122,7 +122,7 @@ exports.handler = async (event) => {
             }
 
             y = addSection(page, fontBold, fontRegular, y, width,
-                language === 'nl' ? '✨ Geoptimaliseerde CV' : '✨ Optimized CV');
+                language === 'nl' ? 'Geoptimaliseerde CV' : 'Optimized CV');
 
             const cleanedCV = cleanMarkdown(improvedCV);
             y = addWrappedText(page, fontRegular, cleanedCV, 50, y, width - 100, 10, colors.text);
@@ -138,7 +138,7 @@ exports.handler = async (event) => {
                 y = addHeader(page, fontBold, fontRegular, width, y, language);
 
                 y = addSection(page, fontBold, fontRegular, y, width,
-                    language === 'nl' ? '✉️ AI Motivatiebrief' : '✉️ AI Cover Letter');
+                    language === 'nl' ? 'AI Motivatiebrief' : 'AI Cover Letter');
 
                 const cleanedCoverLetter = cleanMarkdown(coverLetter);
                 y = addWrappedText(page, fontRegular, cleanedCoverLetter, 50, y, width - 100, 11, colors.text);
@@ -151,7 +151,7 @@ exports.handler = async (event) => {
                 y = addHeader(page, fontBold, fontRegular, width, y, language);
 
                 y = addSection(page, fontBold, fontRegular, y, width,
-                    language === 'nl' ? '🎯 Recruiter Insider Tips' : '🎯 Recruiter Insider Tips');
+                    language === 'nl' ? 'Recruiter Insider Tips' : 'Recruiter Insider Tips');
 
                 const cleanedTips = cleanMarkdown(recruiterTips);
                 y = addWrappedText(page, fontRegular, cleanedTips, 50, y, width - 100, 11, colors.text);
@@ -162,15 +162,7 @@ exports.handler = async (event) => {
             y = height - 50;
             y = addHeader(page, fontBold, fontRegular, width, y, language);
 
-            y -= 100;
-
-            page.drawText('🔒', {
-                x: width / 2 - 15,
-                y: y,
-                size: 40,
-                font: fontRegular
-            });
-            y -= 50;
+            y -= 150;
 
             const upgradeTitle = language === 'nl' ? 'Unlock Volledige Analyse' : 'Unlock Full Analysis';
             const titleWidth = fontBold.widthOfTextAtSize(upgradeTitle, 18);
@@ -184,8 +176,8 @@ exports.handler = async (event) => {
             y -= 40;
 
             const upgradeText = language === 'nl'
-                ? 'Upgrade naar Pro voor:\n\n• Volledige gedetailleerde feedback (12+ verbeteringen)\n• AI-gegenereerde motivatiebrief\n• Recruiter insider tips\n• Onbeperkte CV analyses\n\nBezoek applyjobmatch.nl voor meer informatie'
-                : 'Upgrade to Pro for:\n\n• Full detailed feedback (12+ improvements)\n• AI-generated cover letter\n• Recruiter insider tips\n• Unlimited CV analyses\n\nVisit applyjobmatch.nl for more information';
+                ? 'Upgrade naar Pro voor:\n\n- Volledige gedetailleerde feedback (12+ verbeteringen)\n- AI-gegenereerde motivatiebrief\n- Recruiter insider tips\n- Onbeperkte CV analyses\n\nBezoek applyjobmatch.nl voor meer informatie'
+                : 'Upgrade to Pro for:\n\n- Full detailed feedback (12+ improvements)\n- AI-generated cover letter\n- Recruiter insider tips\n- Unlimited CV analyses\n\nVisit applyjobmatch.nl for more information';
 
             y = addWrappedText(page, fontRegular, upgradeText, 100, y, width - 200, 12, colors.textLight, 'center');
         }
@@ -365,7 +357,11 @@ function cleanMarkdown(text) {
         // Remove italic markers
         .replace(/\*(.*?)\*/g, '$1')
         // Remove list markers
-        .replace(/^[\-\*]\s+/gm, '• ')
+        .replace(/^[\-\*]\s+/gm, '- ')
+        // Remove emojis (they don't work with standard PDF fonts)
+        .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')
+        .replace(/[\u{2600}-\u{26FF}]/gu, '')
+        .replace(/[\u{2700}-\u{27BF}]/gu, '')
         // Clean up extra newlines
         .replace(/\n{3,}/g, '\n\n')
         // Trim
