@@ -9,7 +9,9 @@
       "Bash(netlify --version:*)",
       "Bash(\"c:\\Users\\Andre\\Documents\\GitHub\\cv-tool\\improvements.js\")",
       "Bash(\"c:\\Users\\Andre\\Documents\\GitHub\\cv-tool\\improvements-init.js\")",
-      "Bash(\"c:\\Users\\Andre\\Documents\\GitHub\\cv-tool\\improvements-popups.js\")"
+      "Bash(\"c:\\Users\\Andre\\Documents\\GitHub\\cv-tool\\improvements-popups.js\")",
+      "Bash(npm run build:js:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []
