@@ -50,6 +50,23 @@
 
     <!-- Tailwind CSS - Compiled (15KB vs 3.5MB CDN!) -->
     <link rel="stylesheet" href="/dist/output.css">
+
+    <!-- Lazy load marked.js only when needed -->
+    <script>
+    window.loadMarked = function() {
+        return new Promise((resolve) => {
+            if (window.marked) {
+                resolve();
+                return;
+            }
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+            script.onload = () => resolve();
+            document.head.appendChild(script);
+        });
+    };
+    </script>
+
     <style>
         /* Custom animations */
         @keyframes slideUp {

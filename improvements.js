@@ -1515,40 +1515,19 @@ function cleanAIResponse(content) {
     return cleaned.trim();
 }
 
-// Lightweight markdown parser (replaces 40KB marked.js library)
-function parseMarkdown(text) {
-    return text
-        // Headers
-        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-        // Bold
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        // Bullets
-        .replace(/^\s*[-*]\s+(.*)$/gim, '<li>$1</li>')
-        // Wrap lists
-        .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
-        // Paragraphs
-        .replace(/\n\n/g, '</p><p>')
-        // Wrap in paragraph tags
-        .replace(/^(.*)$/gim, function(match) {
-            if (match.match(/^<(h[1-3]|ul|li)/)) return match;
-            return '<p>' + match + '</p>';
-        })
-        // Clean up empty paragraphs
-        .replace(/<p><\/p>/g, '');
-}
-
-function renderMarkdownContent(elementId, content) {
+async function renderMarkdownContent(elementId, content) {
     if (!content) return;
 
     console.log(`🎨 Rendering ${elementId}...`);
     const element = document.getElementById(elementId);
 
     try {
+        // Load marked.js lazily only when needed
+        await window.loadMarked();
+
         // Clean AI response before rendering
         const cleanedContent = cleanAIResponse(content);
-        element.innerHTML = parseMarkdown(cleanedContent);
+        element.innerHTML = marked.parse(cleanedContent);
         console.log(`✅ Rendered ${elementId}`);
     } catch (error) {
         console.error(`❌ Error rendering ${elementId}:`, error);
@@ -1556,17 +1535,20 @@ function renderMarkdownContent(elementId, content) {
     }
 }
 
-function renderRecruiterTipsChecklist(content) {
+async function renderRecruiterTipsChecklist(content) {
     if (!content) return;
 
     console.log('🎨 Rendering Recruiter Tips as checklist...');
+
+    // Load marked.js lazily only when needed
+    await window.loadMarked();
 
     // Clean AI response before processing
     const cleanedContent = cleanAIResponse(content);
 
     // Store original content in hidden div
     const originalDiv = document.getElementById('recruiterTips');
-    originalDiv.innerHTML = parseMarkdown(cleanedContent);
+    originalDiv.innerHTML = marked.parse(cleanedContent);
 
     // Parse content into checklist items
     const checklistContainer = document.getElementById('recruiterTipsChecklist');
