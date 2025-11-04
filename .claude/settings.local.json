@@ -6,7 +6,10 @@
       "Bash(npm install:*)",
       "Bash(git push:*)",
       "Bash(gh auth:*)",
-      "Bash(netlify --version:*)"
+      "Bash(netlify --version:*)",
+      "Bash(\"c:\\Users\\Andre\\Documents\\GitHub\\cv-tool\\improvements.js\")",
+      "Bash(\"c:\\Users\\Andre\\Documents\\GitHub\\cv-tool\\improvements-init.js\")",
+      "Bash(\"c:\\Users\\Andre\\Documents\\GitHub\\cv-tool\\improvements-popups.js\")"
     ],
     "deny": [],
     "ask": []
