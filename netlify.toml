@@ -1,7 +1,7 @@
 # Netlify Build Configuration
 [build]
   # Command to run before deploy
-  command = "npm install && npm run build:css"
+  command = "npm install && npm run build"
   
   # Directory to publish (root of your site)
   publish = "."
