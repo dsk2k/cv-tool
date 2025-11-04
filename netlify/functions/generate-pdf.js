@@ -89,6 +89,7 @@ exports.handler = async (event) => {
 
         // Contact info line with clickable LinkedIn link - all items on one line with separators
         if (cvData.contact.length > 0) {
+            console.log(`📧 Rendering ${cvData.contact.length} contact items:`, cvData.contact);
             let currentX = MARGIN.left;
             let currentY = y;
             const contactSize = 10;
@@ -96,6 +97,8 @@ exports.handler = async (event) => {
             const maxWidth = width - MARGIN.left - MARGIN.right;
 
             cvData.contact.forEach((contactItem, index) => {
+                console.log(`  📍 Item ${index + 1}: "${contactItem}" (length: ${contactItem.length})`);
+
                 // Check if we need to wrap to next line
                 const estimatedWidth = fontRegular.widthOfTextAtSize(contactItem.length > 30 ? 'LinkedIn' : contactItem, contactSize);
                 if (currentX + estimatedWidth > MARGIN.left + maxWidth && index > 0) {
@@ -703,6 +706,10 @@ function parseCV(text) {
     if (!cv.profile && !cv.experience.length) {
         cv.profile = text;
     }
+
+    // Log contact info for debugging
+    console.log('📇 Contact info parsed:', cv.contact);
+    console.log('👤 Name parsed:', cv.name);
 
     return cv;
 }
