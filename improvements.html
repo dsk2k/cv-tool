@@ -8,6 +8,10 @@
     <!-- Preconnect to external domains (saves 200-300ms) -->
     <link rel="preconnect" href="https://www.googletagmanager.com">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://www.google-analytics.com">
+
+    <!-- Preload critical CSS -->
+    <link rel="preload" href="/dist/output.css" as="style">
 
     <!-- Google Analytics 4 -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-D74Q72JFQ7"></script>
@@ -2322,9 +2326,24 @@
         }
     </style>
 
-    <!-- Exit-Intent JavaScript -->
-
-    <script src="/improvements-popups.min.js" defer></script>
+    <!-- Exit-Intent JavaScript - Lazy loaded for better performance -->
+    <script>
+    // Lazy load popups script after page is interactive (non-critical feature)
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => {
+            const script = document.createElement('script');
+            script.src = '/improvements-popups.min.js';
+            document.body.appendChild(script);
+        });
+    } else {
+        // Fallback for browsers without requestIdleCallback
+        setTimeout(() => {
+            const script = document.createElement('script');
+            script.src = '/improvements-popups.min.js';
+            document.body.appendChild(script);
+        }, 2000);
+    }
+    </script>
 
 </body>
 </html>
