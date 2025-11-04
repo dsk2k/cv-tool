@@ -2423,4 +2423,17 @@
             showNotification('✅ Cookie preferences saved', 'success');
         }
 
-        document.addEventListener('DOMContentLoaded', checkCookieConsent);
+        // Call immediately since defer scripts run after DOM is ready
+        checkCookieConsent();
+
+        // Expose functions to global scope for inline onclick handlers
+        window.downloadPDF = downloadPDF;
+        window.openEmailModal = openEmailModal;
+        window.closeEmailModal = closeEmailModal;
+        window.scrollToInterview = scrollToInterview;
+        window.toggleCategory = toggleCategory;
+        window.toggleMainSection = toggleMainSection;
+        window.copyCoverLetter = copyCoverLetter;
+        window.downloadCoverLetterPDF = downloadCoverLetterPDF;
+        window.acceptCookies = acceptCookies;
+        window.declineCookies = declineCookies;

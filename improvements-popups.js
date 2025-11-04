@@ -438,3 +438,6 @@
         // Initialize timers
         initScarcityTimers();
 
+        // Expose functions to global scope for inline onclick handlers
+        window.closeExitIntent = closeExitIntent;
+

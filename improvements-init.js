@@ -1,5 +1,6 @@
         // Initialize developer mode banner on improvements page
-        window.addEventListener('DOMContentLoaded', async () => {
+        // Immediately invoked async function (defer scripts run after DOM is ready)
+        (async () => {
             try {
                 let status = { remaining: 3, maxUses: 3, usage: 0, unlimited: false };
                 let serverStatus = { whitelisted: false, isDeveloper: false, usage: 0 };
@@ -141,4 +142,4 @@
             } catch (error) {
                 console.error('❌ Error initializing banners:', error);
             }
-        });
+        })(); // Immediately invoke
