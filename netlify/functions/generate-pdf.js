@@ -87,19 +87,28 @@ exports.handler = async (event) => {
             y -= 45;
         }
 
-        // Contact info line with clickable LinkedIn link
+        // Contact info line with clickable LinkedIn link - all items on one line with separators
         if (cvData.contact.length > 0) {
             let currentX = MARGIN.left;
-            const contactY = y;
+            let currentY = y;
             const contactSize = 10;
+            const separator = '  •  ';
+            const maxWidth = width - MARGIN.left - MARGIN.right;
 
             cvData.contact.forEach((contactItem, index) => {
-                // Add separator between items
-                if (index > 0) {
-                    const separator = '    ';
+                // Check if we need to wrap to next line
+                const estimatedWidth = fontRegular.widthOfTextAtSize(contactItem.length > 30 ? 'LinkedIn' : contactItem, contactSize);
+                if (currentX + estimatedWidth > MARGIN.left + maxWidth && index > 0) {
+                    // Move to next line if we're running out of space
+                    currentY -= 14;
+                    currentX = MARGIN.left;
+                }
+
+                // Add separator between items (but not before first item or after line break)
+                if (index > 0 && currentX > MARGIN.left) {
                     page.drawText(separator, {
                         x: currentX,
-                        y: contactY,
+                        y: currentY,
                         size: contactSize,
                         font: fontRegular,
                         color: colors.secondary
@@ -121,7 +130,7 @@ exports.handler = async (event) => {
                     // Draw the text in blue to indicate it's a link
                     page.drawText(displayText, {
                         x: currentX,
-                        y: contactY,
+                        y: currentY,
                         size: contactSize,
                         font: fontRegular,
                         color: rgb(0, 0, 0.8) // Blue color for link
@@ -138,7 +147,7 @@ exports.handler = async (event) => {
                             pdfDoc.context.obj({
                                 Type: 'Annot',
                                 Subtype: 'Link',
-                                Rect: [currentX, contactY - 2, currentX + textWidth, contactY + contactSize + 2],
+                                Rect: [currentX, currentY - 2, currentX + textWidth, currentY + contactSize + 2],
                                 Border: [0, 0, 0],
                                 A: {
                                     Type: 'Action',
@@ -167,10 +176,10 @@ exports.handler = async (event) => {
 
                     currentX += textWidth;
                 } else {
-                    // Regular text
+                    // Regular text - display the contact item
                     page.drawText(contactItem, {
                         x: currentX,
-                        y: contactY,
+                        y: currentY,
                         size: contactSize,
                         font: fontRegular,
                         color: colors.secondary
@@ -178,6 +187,9 @@ exports.handler = async (event) => {
                     currentX += fontRegular.widthOfTextAtSize(contactItem, contactSize);
                 }
             });
+
+            // Update y position for next section (use the last currentY value)
+            y = currentY;
 
             y -= 40;
         }
