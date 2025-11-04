@@ -33,3 +33,4 @@ coverage/
 .claude/settings.local.json
 *.md
 .claude/settings.local.json
+/.claude
