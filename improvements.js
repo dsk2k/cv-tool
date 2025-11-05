@@ -67,8 +67,19 @@ function displayContent(result) {
     // Render all content with beautiful formatting
     renderChangesContent(result.changesOverview);
     renderCVContent(result.improvedCV);
-    renderMarkdownContent('coverLetter', result.coverLetter);
-    renderRecruiterTipsChecklist(result.recruiterTips);
+
+    // Defer markdown rendering to reduce initial blocking time
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => {
+            renderMarkdownContent('coverLetter', result.coverLetter);
+            renderRecruiterTipsChecklist(result.recruiterTips);
+        });
+    } else {
+        setTimeout(() => {
+            renderMarkdownContent('coverLetter', result.coverLetter);
+            renderRecruiterTipsChecklist(result.recruiterTips);
+        }, 100);
+    }
 
     console.log('🎉 ALL DONE!');
 }
